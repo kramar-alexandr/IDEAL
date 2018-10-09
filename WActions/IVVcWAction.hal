@@ -1,0 +1,410 @@
+remote inner function Boolean IVVc_PasteSum(var record IVVc,Integer,var Boolean,Integer);
+remote inner procedure IVSumup(var record IVVc,Boolean);
+external inner procedure IVDchsum(var record IVVc,Integer);
+external inner procedure DisplayIVItem(record IVVc,Integer);
+external inner function Boolean IVDchrsum(var record IVVc,Integer);
+external inner function roundmode DefaultRoundMode();
+remote inner procedure IVVc_PastePrice(var record IVVc,record IVVc,Integer,var string);
+//START-CUST   November 18, 2014 by PST
+external inner function val FindVAT(string,val,Integer,Integer);
+external inner procedure SetPOSWindowDisplay_SendToSerialPortDevices(string,string);
+external inner function Boolean IVVc_PasteQuantity2(var record IVVc,Integer,var Boolean,var record LSerialPortDeviceVc);
+external inner procedure DisplayIVItem2(record IVVc,Integer,var Boolean,var record LSerialPortDeviceVc);
+external inner procedure IVVc_PasteItem(record IVVc,Integer,Integer);
+//END-CUST November 18, 2014 by PST
+remote inner procedure IVVc_PastePayDeal(var record IVVc,string,string); //JP: HAL-194;
+
+
+
+global
+procedure IVWebText(string text,val value,integer type,string cur)
+begin
+	integer i,wn;
+  array string 255 ar;
+  
+	wn = CurWindow;
+	
+  i = -1;
+  ar[i+=1] = "<!DOCTYPE html>";
+  ar[i+=1] = "<html>";
+  ar[i+=1] = "<head>";
+  ar[i+=1] = "<meta charset=""UTF-8"">";
+  ar[i+=1] = "</head>";
+  ar[i+=1] = "<body>";
+  if type == 2 then begin
+  	if value < 0 then begin
+  		ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:20px;color:red;padding: 0px;"">" & "!!! "  & text & value & " " & cur & "</div>";
+  	end else begin
+  		ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:20px;color:green;padding: 0px;"">" & text & value & " " & cur & "</div>";
+  	end;
+  end else begin
+  	ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:20px;color:blue;padding: 0px;"">" & text & value & " " & cur & "</div>";
+  end;
+  if type == 3 then begin
+  	//ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:20px;color:red;padding: 0px;"">" & text & "</div>";
+  end;
+  if type == 4 then begin
+  	ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:10px;color:black;padding: 0px;"">" & text & "</div>";
+  end;
+  ar[i+=1] = "</body>";
+  ar[i+=1] = "</html>";
+  i = -1;
+  SetWebPageData(wn,"__webdata",ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1]);
+
+return;
+end;
+
+
+global
+procedure IVWebText2(string text,val value,integer type,string cur,integer wn)
+begin
+	integer i;
+  array string 255 ar;
+  
+	
+  i = -1;
+  ar[i+=1] = "<!DOCTYPE html>";
+  ar[i+=1] = "<html>";
+  ar[i+=1] = "<head>";
+  ar[i+=1] = "<meta charset=""UTF-8"">";
+  ar[i+=1] = "</head>";
+  ar[i+=1] = "<body>";
+  if type == 2 then begin
+  	if value < 0 then begin
+  		ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:20px;color:red;padding: 0px;"">" & "!!! "  & text & value & " " & cur & "</div>";
+  	end else begin
+  		ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:20px;color:green;padding: 0px;"">" & text & value & " " & cur & "</div>";
+  	end;
+  end else begin
+  	ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:20px;color:blue;padding: 0px;"">" & text & value & " " & cur & "</div>";
+  end;
+  if type == 3 then begin
+  	//ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:20px;color:red;padding: 0px;"">" & text & "</div>";
+  end;
+  if type == 4 then begin
+  	ar[i+=1] = "<div style=""font-family: Helvetica, Helvetica, sans-serif;font-size:10px;color:black;padding: 0px;"">" & text & "</div>";
+  end;
+  ar[i+=1] = "</body>";
+  ar[i+=1] = "</html>";
+  i = -1;
+  SetWebPageData(wn,"__webdata",ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1] & ar[i+=1]);
+
+return;
+end;
+
+global
+function Boolean IVDClassCustCodeEFAfter(Integer wn,Integer rownr,Integer changed)
+begin
+  record IVVc IVr;
+  string 255 warning,errstr,prepstr,invdatewarn,transdatewarn,SalesMan;
+  record LocalMachineBlock LMb;
+  boolean res;
+  record UserVc Userr;
+
+	res = inner.IVDClassCustCodeEFAfter(wn,rownr,changed);
+	IVr.SalesMan = SalesMan;
+	Userr.Code = CurrentUser;
+	if ReadFirstMain(Userr,1,true) then begin
+		if Userr.Job == "KASA" then begin
+			GetWindowRecord(wn,IVr);
+			if ((changed!=0) or ((blank(IVr.Addr0)) and (nonblank(IVr.CustCode)))) then begin
+  			IVr.InclVAT = 2;
+  			IVr.FiscalFlag = 1;
+				PutWindowRecord(wn,IVr);			
+			end;
+		end;
+	end;
+  IVDClassCustCodeEFAfter = true;
+  return;
+end;
+
+global
+function Boolean IVDClassPriceExclVATEFAfter(Integer wn,Integer fn,Integer rownr,Integer changed)
+begin  
+  record IVVc IVr;
+  record IVVc IV2r;
+  string 255 warning;
+  row IVVc IVrw;
+
+  if (changed!=0) and (rownr>=0) then begin  
+    GetWindowRecord(wn,IVr);
+    GetPrevWindowRecord(wn,IV2r);
+    DeselectWindow(wn,false);
+    MatRowGet(IVr,rownr,IVrw);
+    if IVr.InclVAT == 0 then begin
+      IVrw.Price = IVrw.PriceExclVAT;
+    end else begin
+      IVrw.Price = IVrw.PriceExclVAT + FindVAT(IVrw.VATCode,IVrw.PriceExclVAT,0,IVr.NoTAXonVAT);
+    end;
+    MatRowPut(IVr,rownr,IVrw);
+    IVVc_PastePrice(IVr,IV2r,rownr,warning);
+    PutWindowRecord(wn,IVr);
+    if (nonblank(warning)) then begin
+      MessageBox(0,warning);
+    end;
+    //START-CUST   November 20, 2014 by PST
+    SetPOSWindowDisplay_SendToSerialPortDevices("                   ",USetStr(18027) & ValToString(IVr.Sum4,M4Val,ThousandSeparator,DecimalSeparator,0));
+    //END-CUST November 20, 2014 by PST
+  end;  
+  IVDClassPriceExclVATEFAfter = true;
+  return;
+end;
+
+procedure PutExtraItem(record IVVc IVr,integer rownr,integer wn)
+begin
+  record INVc INr;
+  row IVVc IVrw;
+  
+  MatRowGet(IVr,rownr,IVrw);
+  INr.Code = IVrw.ArtCode;
+  if ReadFirstMain(INr,1,true) then begin
+  	if nonblank(INr.UserStr1) then begin
+  	  IVrw.ArtCode = INr.UserStr1;
+  	  MatRowPut(IVr,rownr+1,IVrw);
+			IVVc_PasteItem(IVr,rownr+1,wn);
+			DisplayIVItem(IVr,rownr+1);
+    end;
+  end;
+return;
+end;
+
+function Boolean IVDClassArtCodeEFAfter(Integer wn,Integer rownr,Integer changed)
+begin  
+  record IVVc IVr;
+  
+  if (changed!=0) then begin
+//    DeselectWindow(wn,false);//what for ? 
+    GetWindowRecord(wn,IVr);
+    //IVVc_PasteItem(IVr,rownr,wn);
+    //DisplayIVItem(IVr,rownr);
+    PutExtraItem(IVr,rownr,wn);
+  end;
+  IVDClassArtCodeEFAfter = true;
+  return;
+end;
+
+function Boolean IVDClassLocationEFAfter(Integer wn,Integer rownr,Integer changed)// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:42:08
+begin  
+  record IVVc IVr;
+  record LocationVc Locr;
+  
+  if (changed!=0) then begin
+//    DeselectWindow(wn,false);//what for ? 
+    GetWindowRecord(wn,IVr);
+    if(nonblank(IVr.Location))then begin
+    	Locr.Code = IVr.Location;
+    	if(readfirstmain(Locr,1,true))then begin
+    		if(nonblank(Locr.Warning))then begin
+					messagebox(0,Locr.Warning);
+    		end;
+    	end;
+    end;
+    //IVVc_PasteItem(IVr,rownr,wn);
+    //DisplayIVItem(IVr,rownr);
+  end;
+  IVDClassLocationEFAfter = true;
+  return;
+end;
+
+global
+function Boolean IVDClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+BEGIN
+  Boolean res;
+  record IVVc IVr;
+  
+  res = inner.IVDClassAfterEditField(wn,fieldname,fn,rownr,changed);
+  switch(fieldname) begin
+    case "CustCode":
+  	  res = IVDClassCustCodeEFAfter(wn,rownr,changed);
+  	case "PriceExclVAT":
+  	  res = IVDClassPriceExclVATEFAfter(wn,fn,rownr,changed);
+    case "ArtCode":
+      res = IVDClassArtCodeEFAfter(wn,rownr,changed);
+    case "Location":// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:41:29
+      res = IVDClassLocationEFAfter(wn,rownr,changed);// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:41:32
+  end;
+  IVDClassAfterEditField = res;
+return;
+end;
+
+global
+updating function Integer CreatePOSreturnIV(record IVVc IVr,var record IVVc NewIVr)
+begin
+  Integer res;
+	integer i,rwcnt;
+	row IVVc IVrw;
+  
+  
+	RecordNew(NewIVr);
+	RecordCopy(NewIVr,IVr);
+	NewIVr.SerNr = NextSerNr("IVVc",NewIVr.TransDate,-1,false,NewIVr.LangCode);
+	NewIVr.OKFlag = 0;
+	NewIVr.InvComment = "";
+	NewIVr.RetnValue = blankval;
+	NewIVr.RefStr = "";
+	NewIVr.UpdStockFlag = 1;
+	NewIVr.InvDate = CurrentDate;
+	NewIVr.PayDate = CurrentDate;
+	NewIVr.TransDate = CurrentDate;
+	
+	rwcnt = MatRowCnt(NewIVr);
+	for(i=0;i<rwcnt;i=i+1)begin
+		MatRowGet(NewIVr,i,IVrw);
+		if IVrw.Quant > 0 then begin
+			IVrw.Quant = IVrw.Quant;
+			IVrw.FIFO = IVrw.FIFO;
+			IVrw.FIFORowVal = IVrw.FIFORowVal;
+			MatRowPut(NewIVr,i,IVrw);
+			if (IVDchrsum(NewIVr,i)) then begin end;
+		end;
+		if IVrw.stp == kInvoiceRowTypeCashPayment then begin
+			MatRowDelete(NewIVr,i);
+		end;
+		if  IVrw.stp == kInvoiceRowTypeCreditCardPayment then begin
+			MatRowDelete(NewIVr,i);
+		end;
+	end;
+
+  //JP: HAL-194
+  ClearRow(NewIVr,IVrw,kInvoiceRowTypeCredit); 
+  IVrw.OrdRow = IVr.SerNr;
+  MatRowInsert(NewIVr,0,IVrw);
+  //:JP
+
+	IVSumup(NewIVr,true);
+
+  //JP: HAL-194
+  NewIVr.PayDeal = IVr.PayDeal; 
+//   IVVc_PastePayDeal(NewIVr,"","");
+  //:JP
+  
+  NewIVr.InvType = kInvoiceTypeCredit;
+
+	if RecordStore(NewIVr,true) then begin 
+	end;
+  
+  CreatePOSreturnIV = res;
+  return;
+end;
+
+global
+updating procedure CreatePOSReturnIVDsm()
+begin
+  record IVVc IVr,oldIVr,newIVr;
+  record IVVc IVCreditr;
+  Integer wn,nwn;
+  Integer normalstate;
+  Integer res;
+  record LocalMachineBlock LMb;
+
+  normalstate = 0;//Rs_normal
+  wn = CurWindow;
+  DeselectWindow(wn,false);
+  if (WindowState(wn)==normalstate) then begin
+    GetWindowRecord(wn,IVr);
+    if ((IVr.OKFlag!=0) and (IVr.InvType!=kInvoiceTypeCredit and IVr.InvType!=kInvoiceTypeCreditSpecialSales)) then begin
+      BlockLoad(LMb);
+      res = CreatePOSreturnIV(IVr,IVCreditr);
+
+      if (res==0) then begin 
+          nwn = OpenWindow("IVDClass",1,0,"","",IVCreditr);
+          IVWebText(USetStr(18047),blankval,3,"");
+        if (WindowDoOK(nwn,0)) then begin
+          UpdateBrowses("IVVc");
+        end;
+      end else begin
+        MessageBox(res,"");
+      end;
+    end else begin
+      MessageBox(12556,"");      
+    end;
+  end else begin
+    MessageBox(20803,"");      
+  end;
+  return;
+end;
+
+global
+function Boolean IVDClassOnOpenWindow(Integer wn)
+begin
+  record IVVc IVr;
+  Integer i;
+  boolean res;
+  
+  res = inner.IVDClassOnOpenWindow(wn);
+  
+  GetWindowRecord(wn,IVr);
+  if(IVr.RetnValue==blankval)then begin
+  	IVr.RetnValue = 0;
+  end;
+  //if (IVr.RetnValue!=blankval) then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 4 September 2018 13:56:20
+  	IVWebText(USetStr(18034),IVr.RetnValue,2,IVr.CurncyCode);
+  //end else begin
+  //	IVWebText("",blankval,2,"");
+  //end;
+IVDClassOnOpenWindow = res;
+return;
+end;
+
+global
+procedure IVDClassOnWindowRecordChange(Integer wn)// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 4 September 2018 13:56:16
+begin
+  record IVVc IVr;
+  Integer i;
+  boolean res;
+	
+	inner.IVDClassOnWindowRecordChange(wn);
+  GetWindowRecord(wn,IVr);
+  if(IVr.RetnValue==blankval)then begin
+  	IVr.RetnValue = 0;
+  end;
+  //if (IVr.RetnValue!=blankval) then begin
+  	IVWebText(USetStr(18034),IVr.RetnValue,2,IVr.CurncyCode);
+  //end else begin
+  //	IVWebText("",blankval,2,"");
+  //end;
+  
+  return;
+end;
+
+
+global
+function boolean IVDClassInclVATButtonAction(Integer wn,Integer value)
+begin
+  Boolean res;
+  record IVVc IVr;
+  integer i,rwcnt;
+  row IVVc IVrw;
+  string 20 warning;
+  
+	GetwindowRecord(wn,IVr);
+	DeselectWindow(wn,true);
+	res = true;
+	if IVr.InclVAT != value then begin
+		rwcnt = MatRowCnt(IVr);
+		if rwcnt > 0 then begin
+			Messagebox(18050,"");
+			res = false;
+		end;
+	end;
+  IVDClassInclVATButtonAction = res;
+return;
+end;
+
+//hal-146; edz:
+global updating
+procedure iDeal_ForceDeleteIVDsm()
+begin
+  record IVVc IVr;
+  Integer wn;
+  
+  wn = CurWindow;
+  DeselectWindow(wn,false);
+  if (WindowState(wn)==0)then begin//Rs_normal
+    GetWindowRecord(wn,IVr);
+    RecordDelete(IVr);
+    CloseWindow(wn);
+  end;
+  return;
+end;
+//:edz

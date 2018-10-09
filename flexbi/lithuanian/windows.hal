@@ -1,0 +1,43 @@
+// ui
+
+event definewindows
+begin
+  real v,vs;
+
+  SetLangMode(LangLithuanian,"LIT",0);
+
+  WindowBegin("flex.bi - Export Registers / Blocks",ExportEverythingEClass,CGECW,RcType);
+  SetWRect(20,80,400,170);
+  UseView(RcVc);
+  EditField(150,25,130,"Register",Normal,AccStr,false,0);
+  EditField(150,45,130,"Path",Normal,ObjStr,false,0);
+  EndWindow; 
+
+  WindowBegin("flex.bi - Export Register, Period",ExportPartialEClass,CGECW,RcType);
+  SetWRect(20,80,400,380);
+  UseView(RcVc);
+  PeriodField(150,25,"Period");
+  EditField(150,45,130,"Path",Normal,ObjStr,false,0);
+  vs = 18;
+  ButtonFrame(100,v=90,200,17,"Register");
+  RadioButton(100,v,0,0,"NL Transactions",ArtMode);
+  RadioButton(100,v+=vs,1,0,"Sales Invoices",ArtMode);
+  RadioButton(100,v+=vs,2,0,"Purchase Invoices",ArtMode);
+  RadioButton(100,v+=vs,3,0,"Receipts",ArtMode);
+  RadioButton(100,v+=vs,4,0,"Payments",ArtMode);
+  RadioButton(100,v+=vs,5,0,"Deliveries",ArtMode);
+  RadioButton(100,v+=vs,6,0,"Goods Receipts",ArtMode);
+  RadioButton(100,v+=vs,7,0,"Returned Goods",ArtMode);
+  RadioButton(100,v+=vs,8,0,"Returned Goods to Suppliers",ArtMode);
+  RadioButton(100,v+=vs,9,0,"Stock Movements",ArtMode);
+  RadioButton(100,v+=vs,10,0,"Stock Depreciations",ArtMode);
+  RadioButton(100,v+=vs,11,0,"Activities",ArtMode);
+  RadioButton(100,v+=vs,12,0,"Sales Orders",ArtMode);
+  RadioButton(100,v+=vs,13,0,"Quotations",ArtMode);
+  RadioButton(100,v+=vs,14,0,"Item History",ArtMode);
+  RadioButton(100,v+=vs,15,0,"POS Invoices",ArtMode);
+  EndFrame;
+  EndWindow; 
+
+  return;
+end;

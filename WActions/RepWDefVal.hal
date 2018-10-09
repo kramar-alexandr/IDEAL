@@ -1,0 +1,33 @@
+global 
+procedure IDEALSLVATLitRClassReportDefaults(Integer wn)
+BEGIN
+  record RcVc RepSpec;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"SLVATLitRClass");  
+  RepSpec.flags[5] = 1;
+  RepSpec.flags[6] = 1;
+  RepSpec.flags[7] = 1;
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  
+  RETURN;
+END;
+
+global
+procedure IDEALLitVATRegIVEClassReportDefaults(Integer wn)
+begin
+  record RcVc RepSpec;
+
+  DeselectWindow(wn, false);
+  GetWindowRecord(wn, RepSpec);
+  ReportDefaults(RepSpec, "LitVATRegIVEClass");
+  RepSpec.flags[1] = 1;
+  RepSpec.flags[5] = 1;
+  RepSpec.flags[6] = 1;
+  RepSpec.flags[7] = 1;
+  PutWindowRecord(wn, RepSpec);
+  SelectWindow(wn);
+  return;
+end;

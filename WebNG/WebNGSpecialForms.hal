@@ -1,0 +1,107 @@
+
+global
+procedure ShowServiceFormElement() // 1001
+BEGIN
+  record CUVc CUr;
+  
+  CUr.Code = CurrentCust;
+  WebOutStringFormatNL("<h2>Serviso uìklausa</h2>");
+  WebOutStringFormatNL("<p>Jei sutriko Jðs÷ kompiuterio darbas ar iäkilo technini÷ klausim÷, galite uìpildyti ìemiau pateiktˆ serviso uìklausos formˆ. Su Jumis susisieksime per artimiausiˆ parˆ (darbo dienomis).</p>");
+  WebOutStringFormatNL("<form id=""service-form"" method=""post"" action=""submit.php"">");
+    WebOutStringFormatNL("<input type=""text"" id=""service-name"" name=""service-name"" placeholder=""Vardas, Pavard˜"">");
+    WebOutStringFormatNL("<input type=""text"" id=""service-phone"" name=""service-phone"" placeholder=""Telefono numeris"">");
+    WebOutStringFormatNL("<input type=""text"" id=""service-email"" name=""service-email"" placeholder=""El. paätas"">");
+    WebOutStringFormatNL("<input type=""text"" id=""service-no"" name=""service-no"" placeholder=""Produkto serijinis numeris"">");
+    WebOutStringFormatNL("<textarea rows=""13"" id=""service-text"" name=""service-text"" placeholder=""Uìklausos tekstas""></textarea>");
+    WebOutStringFormatNL("<div id=""service-submit"" class=""submit btn"">Si÷sti</div>");
+  WebOutStringFormatNL("</form>");
+  WebOutStringFormatNL("<div id=""form-msg""></div>");
+  
+
+  RETURN;
+END;
+
+
+global
+procedure ShowRMAElement() // 1002
+BEGIN
+  record CUVc CUr;
+  
+  CUr.Code = CurrentCust;                     
+  WebOutStringFormatNL("<h2>Patikrinti bðsenˆ</h2>");
+  WebOutStringFormatNL("<p>Jei sutriko Jðs÷ kompiuterio darbas ar iäkilo technini÷ klausim÷, galite uìpildyti ìemiau pateiktˆ serviso uìklausos formˆ. Su Jumis susisieksime per artimiausiˆ parˆ (darbo dienomis).</p>");
+  WebOutStringFormatNL("<form id=""rma-form"" method=""post"" action=""submit.php"">");
+  WebOutStringFormatNL("  <input type=""text"" id=""rma-name"" name=""rma-name"" placeholder=""RMA"">");
+  WebOutStringFormatNL("  <input type=""text"" id=""rma-email"" name=""rma-email"" placeholder=""El. paätas"">");
+  WebOutStringFormatNL("  <div id=""rma-submit"" class=""submit btn"">Tikrinti</div>");
+  WebOutStringFormatNL("</form>");
+  
+
+  RETURN;
+END;
+
+global
+procedure ShowLoggedInElement() // 1003
+BEGIN
+  record CUVc CUr;
+  string 255 path1,path2;
+  boolean loggedin;
+  
+  path1 = "M7 9.1V8c1.9 0 3.5-1.6 3.5-3.5S8.9 1.1 7 1.1 3.5 2.7 3.5 4.6 5.1 8 7 8v1.1c-2.5 0-4.6-2-4.6-4.5S4.5 0 7 0c2.5 0 4.6 2 4.6 4.5S9.5 9.1 7 9.1zM7 16v-1.1c4 0 5.7-.7 5.9-1.2.1-.3-.2-1-.8-1.9C11 10.5 9 9.1 7 9.1c-2 0-4 1.4-5";
+  path2 = ".1 2.8-.7.8-.9 1.5-.8 1.9.2.4 1.9 1.1 5.9 1.1V16c-2.3 0-6.3-.3-6.9-2-.2-.7.2-1.8 1-2.8C2.2 9.7 4.4 8 7 8c2.6 0 4.8 1.7 6 3.2.8 1.1 1.2 2.1 1 2.8-.7 1.7-4.7 2-7 2z";
+  
+  CUr.Code = CurrentCust;
+  loggedin = nonblank(CUr.Code) and ReadFirstMain(CUr,1,true);
+  if(loggedin) then begin
+    WebOutTagOpen("<div id=""logged-top"">");
+      WebOutTagOpen("<div class=""user-icon"">");
+      
+        WebOutTagOpen("<div class=""user-icon-in"">");
+          WebOutStringFormatNL("<svg xmlns=""http://www.w3.org/2000/svg"" viewBox=""0 0 14 16"" width=""14px"" height=""16px"" enable-background=""new 0 0 14 16"">");
+          WebOutString("  <path fill=""#8CBFDC"" d=""");
+          WebOutString(path1);
+          WebOutString(path2);
+          WebOutString(""" />");
+          WebOutStringFormatNL("</svg>");
+        WebOutTagClose("</div>");
+      WebOutTagClose("</div>");
+      
+      WebOutStringFormatNL("<h2>" & CUr.Name & "</h2>");
+    WebOutTagClose("</div>");
+    
+    WebOutTagOpen("<div id=""user-cols"">");
+      WebOutTagOpen("<div id=""col-user-data"">");
+        WebOutTagOpen("<div id=""user-data"">");
+          WebOutStringFormatNL("<span>" & CUr.Name & "</span>");
+          WebOutStringFormatNL("<span>" & CUr.InvAddr0 & "</span>");
+          WebOutStringFormatNL("<a href=""useredit.php"" class=""btn"">Update my data</a>");
+        WebOutTagClose("</div>");
+      WebOutTagClose("</div>");
+      WebOutTagOpen("<div id=""col-user-actions"">");
+        WebOutTagOpen("<div id=""user-actions"">");
+          WebOutTagOpen("<ul>");
+            WebOutStringFormatNL("<li><a href=""feedback.php"">Raäyti atsiliepimˆ</a></li>");
+            WebOutStringFormatNL("<!--                      <li><a href=""#"">Uìsakymo bðsena</a></li>-->");
+          WebOutTagClose("</ul>");
+          WebOutTagOpen("<ul>");
+            WebOutStringFormatNL("<li><a href=""history.php"">Pirkim÷ istorija</a></li>");
+            WebOutStringFormatNL("<!--                      <li><a href=""#"">Sˆskaitos-faktðros</a></li>-->");
+          WebOutTagClose("</ul>");
+        WebOutTagClose("</div>");
+      WebOutTagClose("</div>");
+      
+      WebOutTagOpen("<div id=""col-user-links"">");
+        WebOutTagOpen("<div id=""user-links"">");
+          WebOutTagOpen("<ul>");
+            WebOutStringFormatNL("<li><a href=""text.php"">FAQ</a></li>");
+            WebOutStringFormatNL("<li><a href=""#"">Atsijungti</a></li>");
+         WebOutTagClose(" </ul>");
+        WebOutTagClose("</div>");
+      WebOutTagClose("</div>");
+      
+    WebOutTagClose("</div>");
+  end;
+  
+
+  RETURN;
+END;

@@ -1,0 +1,124 @@
+remote inner function Boolean PasteCust2InInv(var record IVVc,record LocalMachineBlock,string,Boolean,var string,var string,var string,var string,var string);
+external inner procedure IVVc_PasteSalesMan(var record IVVc,string);
+
+global
+function LongInt IVVcRecordDefaultsClient(LongInt wn,var record IVVc IVr,record IVVc IV2r,LongInt long3,LongInt long4)
+begin
+  LongInt res;
+  record UserVc Userr;
+  string 255 warning,errstr,prepstr,invdatewarn,transdatewarn;
+  record LocalMachineBlock LMb;
+	BlockLoad(LMb);
+	res = inner.IVVcRecordDefaultsClient(wn,IVr,IV2r,long3,long4);
+	Userr.Code = CurrentUser;
+	if ReadFirstMain(Userr,1,true) then begin
+		if Userr.Job == "KASA" then begin
+			IVr.CustCode = LMb.DefCustCode;
+			if (PasteCust2InInv(IVr,LMb,"",true,warning,errstr,prepstr,invdatewarn,transdatewarn)) then begin
+			end;
+			IVr.InclVAT = 2;
+			IVr.FiscalFlag = 1;
+		end;
+	end;
+  IVVcRecordDefaultsClient = res;  
+  RETURN;
+END;
+
+global
+function LongInt INVcRecordInIndex(record INVc INr,string indexname)
+begin
+  LongInt res;
+  res = 1;
+  res = inner.INVcRecordInIndex(INr,indexname);
+  if (INr.WebItem!=1) then begin 
+    if (indexname=="WebCode") then begin res = 0; end;
+    if (indexname=="WebName") then begin res = 0; end;
+    if (indexname=="WebGroup") then begin res = 0; end;
+    if (indexname=="WebAltCode") then begin res = 0; end;
+  end;
+
+  INVcRecordInIndex = res;
+  return;
+end;
+
+global
+procedure WebItmBtn()
+begin
+record INVc INr;
+integer wn,nwn;
+
+  wn = CurWindow;
+  closeWindow(wn);
+  nwn = OpenWindow("INWebLClass",1,0,"","",INr);
+
+
+return;
+end;
+
+global
+procedure AllItmBtn()
+begin
+record INVc INr;
+integer wn,nwn;
+
+  wn = CurWindow;
+  closeWindow(wn);
+  nwn = OpenWindow("INLClass",1,0,"","",INr);
+
+
+return;
+end;
+
+
+global
+updating function LongInt IVVcRecordCheck(record IVVc IVp,record IVVc IV2p,LongInt stat,LongInt long4)
+begin
+  record AccBlock Accbl;
+  LongInt res;
+  integer i,rwc;
+  row IVVc IVrw;
+  
+  // EVS: HAL-233
+  BlockLoad(Accbl);
+  
+  if (Accbl.CheckZeroQtysIVFlag == 1) then begin
+    rwc = MatRowCnt(IVp);
+    for (i = 0; i < rwc; i = i + 1) begin
+      MatRowGet(IVp,i,IVrw);
+      if (IVrw.stp == kInvoiceRowTypeNormal and nonblank(IVrw.ArtCode) and IVrw.Quant == 0) then begin
+        RecordCheckError(1000100,"",i,"Quant");      
+        res = -1;
+        goto L99;
+      end;
+    end;
+  end;
+  // :EVS
+  if(UserCanAction("DissalowFutureDatesInvoice",false) and  IVp.InvDate > currentDate) then begin //MDS HAL-295
+    RecordCheckError(1000101,"",-1,"InvDate");      
+    res = -1; 
+    goto L99;
+  end;//:MDS
+  res = inner.IVVcRecordCheck(IVp,IV2p,stat,long4);
+  
+  L99:;
+  IVVcRecordCheck = res;
+  return;
+end;
+
+global
+function LongInt IVVcRecordDuplicate(var record IVVc IVr,record IVVc IV2r,LongInt long3,LongInt long4)
+begin
+  LongInt res;
+  string 20 oldsm;
+  
+  res = inner.IVVcRecordDuplicate(IVr,IV2r,long3,long4);
+  
+  // EVS: HAL-240
+  oldsm = IVr.SalesMan;
+  IVr.SalesMan = CurrentUser;
+  IVVc_PasteSalesMan(IVr,oldsm);
+  // :EVS
+  
+  IVVcRecordDuplicate = res;
+  return;
+end;

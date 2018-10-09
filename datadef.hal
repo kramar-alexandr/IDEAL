@@ -1,0 +1,738 @@
+// no.
+// procedure Exec_dir(string path)
+// begin
+//   string 255 fn,fpath;
+//   integer c,i;
+// 
+//   if Right(path,1)<>"\\" then begin
+//     fpath = "halcust\\" & path & "\\";
+//   end else begin
+//     fpath = "halcust\\" & path;
+//   end;
+//   c = CountFilesInDir(fpath);
+//   for (i=0;i<c;i=i+1) begin
+//     fn = GetFileNameInDir(fpath,i);
+//     if Right(fn,4)==".hal" then begin
+//       Exec_file(fpath & fn);
+//     end;
+//   end;
+//   return;
+// end;
+// 
+// Exec_dir("defs");
+SourceFile("halcust/level0",0);
+SourceFile("halcust/level0/Documents",0);
+SourceFile("halcust/level0/Exports",0);
+SourceFile("halcust/level0/Maint",0);
+SourceFile("halcust/level0/Printers",0);
+SourceFile("halcust/level0/RActions",0);
+SourceFile("halcust/level0/Reports",0);
+SourceFile("halcust/level0/Tools",0);
+SourceFile("halcust/level0/WActions",0);
+SourceFile("halcust/level0/WebNG",0);
+SourceFile("halcust/WebNG", 3);
+SourceFile("halcust/lithuanian", 3);
+SourceFile("halcust/english", 3);// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:23:00
+SourceFile("halcust/RActions", 3);
+SourceFile("halcust/Reports", 3);
+SourceFile("halcust/Exports", 3);
+SourceFile("halcust/WActions", 3);
+SourceFile("halcust/Web", 3);
+SourceFile("halcust/WebNG", 3);
+SourceFile("halcust/Swedbank",3);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 13:02:23
+
+
+SourceFile("halcust/timedevents/lithuanian",3);
+SourceFile("halcust/timedevents/Tools",3);
+
+SourceFile("halcust/flexbi/Exports",3);
+SourceFile("halcust/flexbi/lithuanian",3);
+SourceFile("halcust/flexbi/WActions",3);
+
+SourceFile("halcust/enab/enabler",2);
+SourceFile("halcust/enab/Tools",2);
+SourceFile("halcust/enab/RActions",2);
+SourceFile("halcust/enab/Lithuanian",2);
+SourceFile("halcust/enab/English",2);
+
+Exec_File("halcust/datadefEN.hal");
+Exec_File("halcust/datadefBI.hal");
+Exec_File("halcust/datadefTE.hal");
+
+begin
+  
+  // =========== standard defs ===============
+	
+  RecordAddBegin(GCVc,"GCVc_Custom");
+  RecordField(DepositFlag,M4Int,0,0);
+  EndRecordAdd;
+  
+  RecordAddBegin(INVc,"INVc_Custom"); // !! update definition in INVcRAction.hal as well !!
+  RecordField(SameItem,M4UStr,20,0);
+  RecordField(Color,M4Str,20,0);
+  RecordField(OldPrice,M4Val,0,0);
+  RecordField(WebProducer,M4Str,255,0);
+  RecordField(WebColor,M4Str,255,0);
+  RecordField(WebSync,M4Str,255,0);
+  RecordField(WebType,M4Str,255,0);
+  RecordField(WebScreen,M4Str,255,0);
+  RecordField(WebProcesor,M4Str,255,0);
+  RecordField(WebMemory,M4Str,255,0);
+  RecordField(WebCapacity,M4Str,255,0);
+  RecordField(WebGraphic,M4Str,255,0);
+  RecordField(WebCamera,M4Str,255,0);
+  RecordField(WebConnection,M4Str,255,0);
+  RecordField(WebCellular,M4Str,255,0);
+  RecordField(WebWireles,M4Str,255,0);
+  RecordField(WebBatery,M4Str,255,0);
+  RecordField(WebWeigth,M4Str,255,0);
+  RecordField(WebMaterial,M4Str,255,0);
+  RecordField(WebResistance,M4Str,255,0);
+  RecordField(WebPacked,M4Str,255,0);
+  RecordField(WebOtherInf,M4Str,255,0);
+//   RecordField(WebDesc,M4TextField,0,0);
+  RecordField(WebItem,M4Int,0,0);
+  RecordField(ReducedPrice,M4Val,0,0);
+  RecordField(DeliveryTerm,M4Str,255,0);
+  RecordField(WebKeyLang,M4Str,255,0);
+  RecordField(WebSKU,M4Str,20,0);
+  KeyBegin(ItemColorKey);
+  KeySegment(SameItem);
+  KeySegment(Color);
+  KeySegment(Code);
+  
+  KeyBegin(WebCode);
+  KeySegment(Code);
+  KeyBegin(WebGroup);
+  KeySegment(Group);
+  KeySegment(Code);
+  KeyBegin(WebName);
+  KeySegment(Name);
+  KeySegment(Code);
+  KeyBegin(WebAltCode);
+  KeySegment(AlternativeCode);
+  KeySegment(Code);
+  KeyBegin(WebItem);
+  KeySegment(WebItem);
+  KeySegment(Code);
+  EndRecordAdd;
+  
+  RecordAddBegin(IVVc,"IVVc_Custom");
+  RecordField(RetItmSerNo1,M4Str,20,0);
+  RecordField(RetItmSerNo2,M4Str,20,0);
+  RecordField(RetItmSerNo3,M4Str,20,0);
+  RecordField(RetItmSerNo4,M4Str,20,0);
+  RecordField(RetItmSerNo5,M4Str,20,0);
+  RecordField(RetItmName1,M4Str,200,0);
+  RecordField(RetItmName2,M4Str,200,0);
+  RecordField(RetItmName3,M4Str,200,0);
+  RecordField(RetItmName4,M4Str,200,0);
+  RecordField(RetItmName5,M4Str,200,0);
+  RecordField(RetItmPrice1,M423Val,0,0);
+  RecordField(RetItmPrice2,M423Val,0,0);
+  RecordField(RetItmPrice3,M423Val,0,0);
+  RecordField(RetItmPrice4,M423Val,0,0);
+  RecordField(RetItmPrice5,M423Val,0,0);
+  RecordField(DeliveryType,M4Str,100,0);
+  RecordField(SaleType,M4Str,100,0);
+  ArrayField(PriceExclVAT,M423Val,0,0); 
+  EndRecordAdd;
+  
+  RecordAddBegin(SDVc,"SDVc_Custom");
+  RecordField(User,M4UStr,60,UserVc);
+  EndRecordAdd;
+  
+  RecordAddBegin(CUVc,"CUVc_Custom");
+  RecordField(WebName,M4Str,60,0);
+  RecordField(WebSurname,M4Str,60,0);
+  recordfield(WebShopImport,M4Int,0,0);
+  recordfield(AdvancedPrice,M4Int,0,0);
+  EndRecordAdd;
+  
+  RecordAddBegin(SHVc,"SHVc_Custom");
+  RecordField(User,M4UStr,60,UserVc);
+  EndRecordAdd;
+  
+  RecordAddBegin(StockTakeVc,"StockTakeVc_Custom");
+  RecordField(User,M4UStr,60,UserVc);
+  EndRecordAdd;
+  
+  RecordAddBegin(PUVc,"PUVc_Custom");
+  RecordField(User,M4UStr,60,UserVc);
+  EndRecordAdd
+	
+  RecordAddBegin(StockMovVc,"StockMovVc_Custom");
+  RecordField(Sender,M4UStr,60,UserVc);
+  RecordField(Receiver,M4UStr,60,UserVc);
+  EndRecordAdd;
+  
+  RecordAddBegin(CURegFieldVc,"CURegFieldVc_Custom");
+  RecordField(ForCompany,M4Int,0,0);
+  EndRecordAdd;
+  
+  RecordAddBegin(WebNGProductCatVc,"WebNGProductCatVc");
+  RecordField(ShowSubcatImages,M4Int,0,0);
+  EndRecordAdd;
+  
+  BlockBegin(AccBlock,-,"AccBlock2");
+  CacheBlockInClient;  
+  NewAutosyncBlock(kSyncDirectionToClient);
+  RecordField(ARAcc,M4Code,10,AccVc);
+  RecordField(RndAcc,M4Code,10,AccVc);
+  RecordField(CredAcc,M4Code,10,AccVc);
+  RecordField(ERebAcc,M4Code,10,AccVc);
+  RecordField(VATBAcc,M4Code,10,AccVc);
+  RecordField(CashAcc,M4Code,10,AccVc);
+  RecordField(VATERAcc,M4Code,10,AccVc);
+  RecordField(DoCosts,M4Int,0,0);
+  RecordField(IVRef,M4Str,5,0);
+  RecordField(IPRef,M4Str,5,0);
+  RecordField(RevInclVAT,M4Int,0,0);
+  RecordField(SLAccTest,M4Int,0,0);
+  RecordField(ExtraCostAcc,M4Code,10,AccVc);
+  RecordField(RateGainAcc,M4Code,10,AccVc);
+  RecordField(RateLossAcc,M4Code,10,AccVc);
+  RecordField(RateRndOffAcc,M4Code,10,AccVc);
+  RecordField(ARUseObj,M4Int,0,0);
+  RecordField(InvUpdStock,M4Int,0,0);
+  RecordField(CredUpdStockx,M4Int,0,0); /* Not used anymore */
+  RecordField(StockAcc,M4Code,10,AccVc);
+  RecordField(PurchAcc,M4Code,10,AccVc);
+  RecordField(StockCostAcc,M4Code,10,AccVc);
+  RecordField(DomSalesAcc,M4Code,10,AccVc);
+  RecordField(EUSalesAcc,M4Code,10,AccVc);
+  RecordField(ExpSalesAcc,M4Code,10,AccVc);
+  RecordField(OnAccAcc,M4Code,10,AccVc);
+  RecordField(VATCodeDom,M4Code,10,VATCodeBlock);
+  RecordField(VATCodeEU,M4Code,10,VATCodeBlock);
+  RecordField(VATCodeExp,M4Code,10,VATCodeBlock);
+  RecordField(StockGainAcc,M4Code,10,AccVc);
+  RecordField(VATCodeCtrl,M4Int,0,0);
+  RecordField(BasePriceInclVAT,M4Int,0,0);
+  RecordField(PUExtraAcc,M4Code,10,AccVc);
+  RecordField(PUFreightAcc,M4Code,10,AccVc);
+  RecordField(PUCustomsAcc,M4Code,10,AccVc);
+  RecordField(OnAccVATAcc,M4Code,10,AccVc); 
+  RecordField(ReturnedAcc,M4Code,10,AccVc);
+  RecordField(IPBookVAT,M4Int,0,0);
+  RecordField(DiscCashVAT,M4Int,0,0);
+  RecordField(ARonTR,M4Int,0,0);
+  RecordField(EMURndOffAcc,M4Code,10,AccVc);
+  RecordField(EMUWriteOffAcc,M4Code,10,AccVc);
+  RecordField(BaseRoundOffAcc,M4Code,10,AccVc);
+  RecordField(ProdICostAcc,M4Code,10,AccVc);
+  RecordField(ProdWCostAcc,M4Code,10,AccVc);
+  RecordField(CashBackAcc,M4Code,10,AccVc);//rename to ChangeAcc
+  RecordField(DemandPPNo,M4Int,0,0);
+  RecordField(CommisionAcc,M4Code,10,AccVc);
+  RecordField(IPCostObj,M4UStr,60,ObjVc);
+  RecordField(PUCost1,M4Code,10,AccVc);
+  RecordField(PUCost2,M4Code,10,AccVc);
+  RecordField(PUCost3,M4Code,10,AccVc);
+  RecordField(PUCost4,M4Code,10,AccVc);
+  RecordField(PUCost5,M4Code,10,AccVc);
+  RecordField(UpdBaseRate,M4Int,0,0);
+  RecordField(UpdForeginRate,M4Int,0,0);
+  RecordField(CorSalesAcc,M4Int,0,0);
+  RecordField(CredInvWithNo,M4Int,0,0);
+  RecordField(ForceUniquePP,M4Int,0,0);
+  RecordField(SalesVAT,M4Code,10,AccVc);
+  RecordField(SalesTAX,M4Code,10,AccVc);
+  RecordField(BadARAcc,M4Code,10,AccVc);
+  RecordField(CredDomSalesAcc,M4Code,10,AccVc);
+  RecordField(CredEUSalesAcc,M4Code,10,AccVc);
+  RecordField(CredExpSalesAcc,M4Code,10,AccVc);
+  RecordField(CredVATCodeDom,M4Code,10,VATCodeBlock);
+  RecordField(CredVATCodeEU,M4Code,10,VATCodeBlock);
+  RecordField(CredVATCodeExp,M4Code,10,VATCodeBlock);  
+  RecordField(CredSalesAccs,M4Int,0,0);
+  RecordField(INTransferAcc,M4Code,10,AccVc);
+  RecordField(IPTransBankRowPerCU,M4Int,0,0);
+  RecordField(BankRateGainAcc,M4Code,10,AccVc);
+  RecordField(BankRateLossAcc,M4Code,10,AccVc);
+  RecordField(PreIPVATAcc,M4Code,10,AccVc); 
+  RecordField(PreIPBookVAT,M4Int,0,0);
+  RecordField(BookCreditOnPurchAcc,M4Int,0,0);
+  RecordField(ObjectonBankAcc,M4Int,0,0);
+  RecordField(NoWarnOnDupVATnoOnCU,M4Int,0,0);
+  RecordField(NoTAXonVAT,M4Int,0,0);
+  RecordField(ChronologyforInvNo,M4Int,0,0);
+  RecordField(SkipObjectsOnIVFromHeader,M4Int,0,0);
+  RecordField(VATUseObj,M4Int,0,0);
+  RecordField(IntARAcc,M4Code,10,AccVc);
+  RecordField(IntDomSalesAcc,M4Code,10,AccVc);
+  RecordField(ItemPriceVar,M4Code,10,AccVc);
+  RecordField(Cost1PriceVar,M4Code,10,AccVc);
+  RecordField(Cost2PriceVar,M4Code,10,AccVc);
+  RecordField(Cost3PriceVar,M4Code,10,AccVc);
+  RecordField(Cost4PriceVar,M4Code,10,AccVc);
+  RecordField(Cost5PriceVar,M4Code,10,AccVc);
+  RecordField(CustomsPriceVar,M4Code,10,AccVc);
+  RecordField(FreightPriceVar,M4Code,10,AccVc);
+  RecordField(BookPriceVar,M4Int,0,0);
+  RecordField(RetPUAcc,M4Code,10,AccVc);
+  RecordField(UsePUAccInRetPU,M4Int,0,0); 
+  RecordField(BookedDiscount,M4Int,0,0);
+  RecordField(DiscountAcc,M4Code,10,AccVc);
+  RecordField(NoOverPayIV,M4Int,0,0);
+  RecordField(StockLossAcc,M4Code,10,AccVc);
+  RecordField(EUStockCostAcc,M4Code,10,AccVc); 
+  RecordField(ExpStockCostAcc,M4Code,10,AccVc); 
+  RecordField(EUPurchAcc,M4Code,10,AccVc); 
+  RecordField(ExpPurchAcc,M4Code,10,AccVc); 
+  RecordField(BookVATOnlyFromDownpayment,M4Int,0,0);
+  RecordField(BookVATonRateGain,M4Int,0,0);
+  RecordField(NoAutAutoTransOnCredIV,M4Int,0,0);
+  RecordField(SetDisputedFlagsOnCredIV,M4Int,0,0);
+  RecordField(PrintNegAmountsCredNote,M4Int,0,0);
+  RecordField(DueDateBasedOnServDelDate,M4Int,0,0);
+  RecordField(NoPasteVATToIP,M4Int,0,0);
+  RecordField(DiscardedAccount,M4Code,10,AccVc);
+  RecordField(BookRateGainPerIPRow,M4Int,0,0);
+  RecordField(RndLossAcc,M4Code,10,AccVc);
+  RecordField(WriteOffLossAcc,M4Code,10,AccVc);
+  RecordField(ConsigStockAcc,M4Code,10,AccVc);
+  RecordField(ConsigPurchAcc,M4Code,10,AccVc);
+  RecordField(TotalwoTAX,M4Int,0,0);
+  RecordField(QualityControl,M4Int,0,0);
+  RecordField(SRVarAcc,M4Code,10,AccVc);
+  RecordField(BBVarAcc,M4Code,10,AccVc);
+  RecordField(InPriceVarAcc,M4Code,10,AccVc);
+  RecordField(Tax1TmpAcc,M4Code,10,AccVc);
+  RecordField(AllowItemWOCommodity,M4Int,0,0);
+  RecordField(ConnectCreditNotetoVI,M4Int,0,0);
+  RecordField(PostIVVATonVATCorr,M4Int,0,0);
+  RecordField(RetPUVar,M4Code,10,AccVc);
+  RecordField(DisassembleProdVar,M4Code,10,AccVc);
+  RecordField(DropShipCOSAccrualAcc,M4Code,10,AccVc);
+  RecordField(DropSHVar,M4Code,10,AccVc);
+  RecordField(CashSalesToFiscalControlUnit,M4Int,0,0);
+  RecordField(PostWriteOffVAT,M4Int,0,0);
+  RecordField(TaxTemplateCode,M4Code,10,TaxTemplateVc);
+  RecordField(TaxTemplateCodeEU,M4Code,10,TaxTemplateVc);
+  RecordField(TaxTemplateCodeExp,M4Code,10,TaxTemplateVc);
+  RecordField(ForexTRAcc,M4Code,10,AccVc);
+  RecordField(DisallowNegativeTotalsonSales,M4Int,0,0);
+  RecordField(DonotFPPrintRowsNegativeSum,M4Int,0,0);
+  RecordField(CalculatePerceptionTaxes,M4Int,0,0);
+  RecordField(DisallowNegativeRowSumsonSales,M4Int,0,0);
+  RecordField(EUERebAcc,M4Code,10,AccVc);
+  RecordField(ExpERebAcc,M4Code,10,AccVc);
+  RecordField(IPbeforeIVDate,M4Int,0,0);
+  RecordField(COSAccrualAcc,M4Code,10,AccVc);
+  RecordField(CheckDosageKey,M4Int,0,0);
+  RecordField(ProjMaterialsUsageAcc,M4Code,10,AccVc);
+  RecordField(BookExtraCostPerRow,M4Int,0,0);
+  RecordField(ExportFlagfromDelAddr,M4Int,0,0);
+  RecordField(RequireCreditNoteReason,M4Int,0,0);
+  RecordField(CreditIVTotNotExceedInvCheck,M4Int,0,0);
+  RecordField(CheckZeroQtysIVFlag,M4Int,0,0); // EVS: HAL-233
+  EndBlock;
+  
+  // =========== custom defs start ===============
+  
+  BlockBegin(ItemExportBlock,-,"");
+  RecordField(Loc1,M4UStr,20,0);
+  RecordField(Loc2,M4UStr,20,0);
+  RecordField(Loc3,M4UStr,20,0);
+  RecordField(Loc4,M4UStr,20,0);
+  RecordField(Loc5,M4UStr,20,0);
+  RecordField(Loc6,M4UStr,20,0);
+  RecordField(Loc7,M4UStr,20,0);
+  RecordField(Loc8,M4UStr,20,0);
+  RecordField(Loc9,M4UStr,20,0);
+  RecordField(Loc10,M4UStr,20,0);
+  RecordField(ItmGr11,M4UStr,20,0);
+  RecordField(ItmGr12,M4UStr,20,0);
+  RecordField(ItmGr13,M4UStr,20,0);
+  RecordField(ItmGr14,M4UStr,20,0);
+  RecordField(ItmGr15,M4UStr,20,0);
+  RecordField(ItmGr16,M4UStr,20,0);
+  RecordField(ItmGr17,M4UStr,20,0);
+  RecordField(ItmGr18,M4UStr,20,0);
+  RecordField(ItmGr19,M4UStr,20,0);
+  RecordField(ItmGr110,M4UStr,20,0);
+  RecordField(ItmGr111,M4UStr,20,0);
+  RecordField(ItmGr112,M4UStr,20,0);
+  RecordField(ItmGr113,M4UStr,20,0);
+  RecordField(ItmGr114,M4UStr,20,0);
+  RecordField(ItmGr115,M4UStr,20,0);
+  RecordField(ItmGr116,M4UStr,20,0);
+  RecordField(ItmGr117,M4UStr,20,0);
+  RecordField(ItmGr118,M4UStr,20,0);
+  RecordField(ItmGr119,M4UStr,20,0);
+  RecordField(ItmGr120,M4UStr,20,0);
+  RecordField(ItmGr21,M4UStr,20,0);
+  RecordField(ItmGr22,M4UStr,20,0);
+  RecordField(ItmGr23,M4UStr,20,0);
+  RecordField(ItmGr24,M4UStr,20,0);
+  RecordField(ItmGr25,M4UStr,20,0);
+  RecordField(ItmGr26,M4UStr,20,0);
+  RecordField(ItmGr27,M4UStr,20,0);
+  RecordField(ItmGr28,M4UStr,20,0);
+  RecordField(ItmGr29,M4UStr,20,0);
+  RecordField(ItmGr210,M4UStr,20,0);
+  RecordField(ItmGr211,M4UStr,20,0);
+  RecordField(ItmGr212,M4UStr,20,0);
+  RecordField(ItmGr213,M4UStr,20,0);
+  RecordField(ItmGr214,M4UStr,20,0);
+  RecordField(ItmGr215,M4UStr,20,0);
+  RecordField(ItmGr216,M4UStr,20,0);
+  RecordField(ItmGr217,M4UStr,20,0);
+  RecordField(ItmGr218,M4UStr,20,0);
+  RecordField(ItmGr219,M4UStr,20,0);
+  RecordField(ItmGr220,M4UStr,20,0);
+  RecordField(ItmClass,M4UStr,20,0);
+  RecordField(ItmObject,M4Str,20,0); //MDS HAl-393
+  EndBlock;
+  
+  BlockBegin(RetItmBlock,-,"");
+  RecordField(RetItm,M4Code,20,INVc);
+  RecordField(AccNumber,M4Code,10,AccVc);
+  EndBlock;
+    
+  RecordBegin(ItemExportVc,-,"ItemExportVc");
+  RecordField(SerNr,M4Code,20,0);
+  RecordField(Loc1,M4UStr,20,0);
+  RecordField(Loc2,M4UStr,20,0);
+  RecordField(Loc3,M4UStr,20,0);
+  RecordField(Loc4,M4UStr,20,0);
+  RecordField(Loc5,M4UStr,20,0);
+  RecordField(Loc6,M4UStr,20,0);
+  RecordField(Loc7,M4UStr,20,0);
+  RecordField(Loc8,M4UStr,20,0);
+  RecordField(Loc9,M4UStr,20,0);
+  RecordField(Loc10,M4UStr,20,0);
+  RecordField(ItmGr11,M4UStr,20,0);
+  RecordField(ItmGr12,M4UStr,20,0);
+  RecordField(ItmGr13,M4UStr,20,0);
+  RecordField(ItmGr14,M4UStr,20,0);
+  RecordField(ItmGr15,M4UStr,20,0);
+  RecordField(ItmGr16,M4UStr,20,0);
+  RecordField(ItmGr17,M4UStr,20,0);
+  RecordField(ItmGr18,M4UStr,20,0);
+  RecordField(ItmGr19,M4UStr,20,0);
+  RecordField(ItmGr110,M4UStr,20,0);
+  RecordField(ItmGr111,M4UStr,20,0);
+  RecordField(ItmGr112,M4UStr,20,0);
+  RecordField(ItmGr113,M4UStr,20,0);
+  RecordField(ItmGr114,M4UStr,20,0);
+  RecordField(ItmGr115,M4UStr,20,0);
+  RecordField(ItmGr116,M4UStr,20,0);
+  RecordField(ItmGr117,M4UStr,20,0);
+  RecordField(ItmGr118,M4UStr,20,0);
+  RecordField(ItmGr119,M4UStr,20,0);
+  RecordField(ItmGr120,M4UStr,20,0);
+  RecordField(ItmGr21,M4UStr,20,0);
+  RecordField(ItmGr22,M4UStr,20,0);
+  RecordField(ItmGr23,M4UStr,20,0);
+  RecordField(ItmGr24,M4UStr,20,0);
+  RecordField(ItmGr25,M4UStr,20,0);
+  RecordField(ItmGr26,M4UStr,20,0);
+  RecordField(ItmGr27,M4UStr,20,0);
+  RecordField(ItmGr28,M4UStr,20,0);
+  RecordField(ItmGr29,M4UStr,20,0);
+  RecordField(ItmGr210,M4UStr,20,0);
+  RecordField(ItmGr211,M4UStr,20,0);
+  RecordField(ItmGr212,M4UStr,20,0);
+  RecordField(ItmGr213,M4UStr,20,0);
+  RecordField(ItmGr214,M4UStr,20,0);
+  RecordField(ItmGr215,M4UStr,20,0);
+  RecordField(ItmGr216,M4UStr,20,0);
+  RecordField(ItmGr217,M4UStr,20,0);
+  RecordField(ItmGr218,M4UStr,20,0);
+  RecordField(ItmGr219,M4UStr,20,0);
+  RecordField(ItmGr220,M4UStr,20,0);
+  RecordField(ItmClass,M4UStr,20,0);
+  MainKeyBegin(SerNr,0);
+  KeySegment(SerNr);
+  EndRecord;
+  
+  RecordBegin(PinPadCntVc,-,"PinPadCntVc");
+  RecordField(LocalMachine,M4UStr,20,0);
+  RecordField(Counter,M4Long,0,0);
+  RecordField(ToBeVoided,M4Long,0,0);
+  MainKeyBegin(LocalMachine,0);
+  KeySegment(LocalMachine);
+  EndRecord;
+  
+  RecordBegin(ItemColorVc,-,"ItemColorVc");
+  RecordField(Color,M4Code,20,0);
+  RecordField(ColorName,M4Str,100,0);
+  MainKeyBegin(Color,0);
+  KeySegment(Color);
+  EndRecord;
+  
+  RecordBegin(SameItemVc,-,"SameItemVc");
+  RecordField(Code,M4Code,20,0);
+  RecordField(Comment,M4Str,100,0);
+  MainKeyBegin(Code,0);
+  KeySegment(Code);
+  EndRecord;
+
+  RecordBegin(ResListVc,-,"ResListVc");
+  RecordField(Loc,M4UStr,10,0);
+  RecordField(Name,M4UStr,10,0);
+  RecordField(Math,M4Matrix,0,0);
+  ArrayBegin(Math,-,1);
+  ArrayField(ArtCode,M4Code,20,0);
+  ArrayField(Description,M4Str,60,0);
+  ArrayField(Qty,M4Val,0,0);
+  ArrayField(Comment,M4Str,60,0);
+  EndArray;
+  MainKeyBegin(Loc,0);
+  KeySegment(Loc);
+  EndRecord;
+  
+  RecordBegin(ResListBrokVc,-,"ResListBrokVc");// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:33:46
+  RecordField(Loc,M4UStr,10,0);
+  RecordField(Name,M4UStr,10,0);
+  RecordField(Math,M4Matrix,0,0);
+  ArrayBegin(Math,-,1);
+  ArrayField(ArtCode,M4Code,20,0);
+  ArrayField(Description,M4Str,60,0);
+  ArrayField(Qty,M4Val,0,0);
+  ArrayField(Comment,M4Str,60,0);
+  EndArray;
+  MainKeyBegin(Loc,0);
+  KeySegment(Loc);
+  EndRecord;
+  
+  
+  RecordBegin(ResListDemoVc,-,"ResListDemoVc");// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:33:47
+  RecordField(Loc,M4UStr,10,0);
+  RecordField(Name,M4UStr,10,0);
+  RecordField(Math,M4Matrix,0,0);
+  ArrayBegin(Math,-,1);
+  ArrayField(ArtCode,M4Code,20,0);
+  ArrayField(Description,M4Str,60,0);
+  ArrayField(Qty,M4Val,0,0);
+  ArrayField(Comment,M4Str,60,0);
+  EndArray;
+  MainKeyBegin(Loc,0);
+  KeySegment(Loc);
+  EndRecord;
+ 
+// EVS: HAL-118 why is this here?
+//   RecordBegin(PLDefVc,-,"pldef2");
+//   NewAutosyncRegister(kSyncDirectionToClient,true);
+//   RecordField(Code,M4Code,5,0);
+//   RecordField(Comment,M4Str,60,0);
+//   RecordField(CurncyCode,M4Code,5,CurncyCodeVc);
+//   RecordField(InclVAT,M4Int,0,0);
+//   RecordField(Math,M4Matrix,0,0);
+//   RecordField(DepPrice,M4Int,0,0);
+//   RecordField(StartDate,M4Date,0,0);
+//   RecordField(EndDate,M4Date,0,0);
+//   RecordField(PLReplCode,M4Code,5,0);
+//   RecordField(PLBasedOn,M4Int,0,0);
+//   RecordField(VATCode,M4Code,10,VATCodeBlock);
+//   RecordField(BBVECode,M4Code,20,VEVc);
+//   RecordField(BBVarAcc,M4Code,10,AccVc);
+//   RecordField(BBGenTrans,M4Int,0,0);
+//   RecordField(LengthClass,M4Int,0,0);
+//   RecordField(StartTime,M4Time,0,0);
+//   RecordField(EndTime,M4Time,0,0);
+//   ArrayBegin(Math,-,1);
+//   ArrayField(ItemCode,M4UStr,60,INVc);
+//   ArrayField(Formula,M4Code,5,0);
+//   ArrayField(CodeType,M4Set,14,0);
+//   ArrayField(VATCode,M4Code,10,VATCodeBlock);
+//   ArrayField(TaxTemplateCode,M4Code,10,TaxTemplateVc);
+//   EndArray;
+//   MainKeyBegin(Code,0);
+//   KeySegment(Code);
+//   KeySegment(StartDate);
+//   KeyBegin(PLReplCode);
+//   KeySegment(PLReplCode);
+//   KeySegment(LengthClass);
+//   KeySegment(StartDate);
+//   KeySegment(Code);
+//   KeyBegin(EndDate);//Used ? 
+//   KeySegment(PLReplCode);
+//   KeySegment(EndDate);
+//   KeySegment(Code);
+//   KeySegment(StartDate);
+//   EndRecord;
+  
+  RecordBegin(INLinkTypeVc,-,"");
+  RecordField(Code,M4Code,20,0);
+  RecordField(Name,M4Str,100,0);
+  RecordField(Math,M4Matrix,0,0);
+  ArrayBegin(Math,-,1);
+  ArrayField(LangCode,M4Code,5,0);
+  ArrayField(Text,M4Str,100,0);
+  EndArray;
+  MainKeyBegin(Code,0);
+  KeySegment(Code);
+  KeyBegin(Name);
+  KeySegment(Name);
+  KeySegment(Code);
+  EndRecord;
+  
+  RecordBegin(INLinkVc,-,"");
+  RecordField(Code,M4Code,20,INVc);
+  RecordField(Name,M4Str,100,0);
+  RecordField(Type,M4Code,20,0);
+  RecordField(TypeName,M4Str,100,0);
+  RecordField(Math,M4Matrix,0,0);
+  ArrayBegin(Math,-,1);
+  ArrayField(ArtCode,M4Code,20,INVc);
+  ArrayField(ArtName,M4Str,255,0);
+  ArrayField(Comment,M4Str,255,0);
+  EndArray;
+  MainKeyBegin(Code,0);
+  KeySegment(Code);
+  KeySegment(Type);
+  KeyBegin(Name);
+  KeySegment(Name);
+  KeySegment(Code);
+  KeyBegin(Type);
+  KeySegment(Type);
+  KeySegment(Code);
+  KeyBegin(TypeName);
+  KeySegment(TypeName);
+  KeySegment(Code);
+  EndRecord;
+
+  BlockBegin(IDFiscVATBlock,-,""); // EVS: HAL-228
+  RecordField(Math,M4Matrix,0,0);
+  ArrayBegin(Math,-,1);
+  ArrayField(VATCode,M4Code,10,VATCodeBlock);
+  ArrayField(FiscalCode,M4Int,0,0);
+  EndArray;
+  EndBlock;
+	
+	RecordAddBegin(IVCashVc,"IVCashVc_Custom");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 19:33:13
+  RecordField(BankCode,M4Str,60,BankVc);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 13 March 2018 17:07:37
+  ArrayField(RMINumber,M4Str,25,0); 
+  ArrayField(PriceExclVAT,M423Val,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 05 03 2018 y. 19:32:45
+  EndRecordAdd;
+  
+  BlockBegin(CashierDefBlock,-,"CashierDefBlock3");
+		NewAutosyncBlock(kSyncDirectionToClient);
+		RecordField(DefCustCode,M4Code,20,CUVc);
+		RecordField(POSNr,M4Long,0,0);
+		RecordField(CredAcc,M4Code,10,AccVc);
+		RecordField(WriteOffAcc,M4Code,10,AccVc);
+		RecordField(StartFromLastPOSBal,M4Int,0,0);
+		RecordField(PrintDetNLTrans,M4Int,0,0);
+		RecordField(Printer,M4Set,56,0);
+		RecordField(TipPMCode,M4Code,2,0);
+		RecordField(InclTipInCashup,M4Int,0,0);
+		RecordField(InclOpenInvCashup,M4Int,0,0);
+		RecordField(RequireOpenSession,M4Int,0,0);
+		RecordField(DefInvoiceField,M4Int,0,0);
+		RecordField(UpdStockMaint,M4Int,0,0);
+		RecordField(UpdStockMaintTime,M4Time,0,0);
+		RecordField(CashSalesToFiscalControlUnit,M4Int,0,0);
+		RecordField(MultipleSessionsPerLocalMachine,M4Int,0,0);
+		RecordField(DiscountItem,M4Code,20,INVc);
+		RecordField(NoChangesPOSOnLiveSyncClient,M4Int,0,0);
+		RecordField(CashupMaint,M4Int,0,0);
+		RecordField(CashupMaintInterval,M4Time,0,0);
+		RecordField(RestAccBookedDiscount,M4Int,0,0);
+		RecordField(RestAccDiscountAcc,M4Code,10,AccVc);
+		RecordField(RestAccServiceChargeItem,M4Code,20,INVc);
+		RecordField(RestAccARAcc,M4Code,10,AccVc);
+		RecordField(RequireReturnReason,M4Int,0,0);
+		RecordField(RequireReturnCustomer,M4Int,0,0);
+		RecordField(RestUpdStockMaint,M4Int,0,0);
+		RecordField(RestUpdStockMaintTime,M4Time,0,0);
+		RecordField(RestOKSD,M4Int,0,0);
+		RecordField(RestBasePriceInclVAT,M4Int,0,0);
+		RecordField(POSOKSD,M4Int,0,0);
+		RecordField(ItemPictureCashier,M4Int,0,0);
+		RecordField(ItemPictureCustomer,M4Int,0,0);
+		RecordField(RunCashupMaintenance,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 15:31:30
+  	RecordField(BuyBackItemCode,M4Code,50,0);// Edit ************************** BPI Ukraine - KramarAlexandr - середа, 15 листопада 2017 р. о 21:55:18
+  EndBlock;
+  
+  RecordAddBegin(LocationVc,"LocationVc_Custom");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 19:33:13
+  	RecordField(Warning,M4Str,255,0); 
+  EndRecordAdd;
+ 	
+ 	BlockBegin(BankImportSetBlock,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 9 October 2018 11:56:25
+		RecordField(ImpPaym,M4Int,0,0);
+		RecordField(ImpPaymOrd,M4Int,0,0);
+		RecordField(ImpCharges,M4Int,0,0);
+		RecordField(DefPayModeSW,M4Code,5,0);
+		RecordField(DefPayModeSEB,M4Code,5,0);
+		RecordField(DefPayModeLUM,M4Code,5,0);
+		RecordField(DefPayModeSIA,M4Code,5,0);
+		RecordField(DefSearchInv,M4Int,0,0);
+		RecordField(InvFIFO,M4Int,0,0);
+	EndBlock;	
+ 	
+ 	RecordBegin(SwedbankImportVc,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 15:32:23
+		RecordField(NtryRef,M4Code,50,0);
+		RecordField(OwnID,M4Code,50,0);
+		RecordField(BankID,M4Code,50,0);
+		RecordField(BookgDt,M4Date,0,0);
+		RecordField(CdtDbtInd,M4Code,10,0);
+		RecordField(AmtCcy,M45Val,0,0);
+		RecordField(RvslInd,M4Int,0,0);
+		RecordField(CurncyCode,M4Code,20,0);
+		RecordField(IBAN,M4Code,50,0);
+		RecordField(Ustrd,M4Str,250,0);
+		RecordField(IPNr,M4Long,0,0);
+		RecordField(RecName,M4Str,255,0);
+		RecordField(OrgId,M4Code,50,0);
+		RecordField(PrvtId,M4Code,50,0);
+		RecordField(PayType,M4Str,50,0);
+		
+		MainKeyBegin(NtryRef,0);
+  	KeySegment(NtryRef);
+  	KeySegment(BankID);
+  	KeySegment(OwnID);
+  	
+  	KeyBegin(BookgDt);
+  	KeySegment(BookgDt);
+  	KeySegment(NtryRef);
+  	KeySegment(BankID);
+  	KeySegment(OwnID);
+  	
+  	KeyBegin(CdtDbtInd);
+  	KeySegment(CdtDbtInd);
+  	KeySegment(NtryRef);
+  	KeySegment(BankID);
+  	KeySegment(OwnID);
+	EndRecord;
+	
+	RecordBegin(SEBbankImportVc,-,"");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 15:32:20
+		RecordField(NtryRef,M4Code,50,0);
+		RecordField(OwnID,M4Code,50,0);
+		RecordField(BankID,M4Code,50,0);
+		RecordField(BookgDt,M4Date,0,0);
+		RecordField(CdtDbtInd,M4Code,10,0);
+		RecordField(AmtCcy,M45Val,0,0);
+		RecordField(RvslInd,M4Int,0,0);
+		RecordField(CurncyCode,M4Code,20,0);
+		RecordField(IBAN,M4Code,50,0);
+		RecordField(Ustrd,M4Str,250,0);
+		RecordField(IPNr,M4Long,0,0);
+		RecordField(RecName,M4Str,255,0);
+		RecordField(OrgId,M4Code,50,0);
+		RecordField(PrvtId,M4Code,50,0);
+		RecordField(PayType,M4Str,50,0);
+		
+		MainKeyBegin(NtryRef,0);
+  	KeySegment(NtryRef);
+  	KeySegment(BankID);
+  	KeySegment(OwnID);
+  	
+  	KeyBegin(BookgDt);
+  	KeySegment(BookgDt);
+  	KeySegment(NtryRef);
+  	KeySegment(BankID);
+  	KeySegment(OwnID);
+  	
+  	KeyBegin(CdtDbtInd);
+  	KeySegment(CdtDbtInd);
+  	KeySegment(NtryRef);
+  	KeySegment(BankID);
+  	KeySegment(OwnID);
+	EndRecord;
+ 	
+return;
+end;

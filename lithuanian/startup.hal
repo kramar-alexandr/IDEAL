@@ -1,0 +1,32 @@
+event startup
+begin
+  SetLangMode(LangLithuanian, "LIT", 0);
+  
+  Register("Item links","Item links",INLinkVc,modWebShopNG);
+  Setting("Item link types",INLinkTypeLClass,modWebShopNG);
+  Setting("Item Color",ItemColorLClass,modWebShopNG);
+  Setting("Bendra prek˜",SameItemLClass,modSL);
+  Export("Web Registers",WebRegOutEClass,WebRegOutEn,modWebShopNG);
+  Setting("Web Export",ItemExportLClass,modSL);
+
+  Export("IDEAL - Iäraäom÷ PVM s/f registras FR0672",IDEALLitVATRegIVEClass,IDEALLitVATRegIVEn,modSL);
+  Export("IDEAL - i.SAF",IDEALLitTaxXmlEClass,IDEALLitTaxXmlEn,modNL); 
+  Report("IDEAL - i.SAF",IDEALLitiSAFRClass,IDEALLitiSAFRn,0,modNL); 
+  Report("IDEAL - Iäraäom÷ PVM s/f registras FR0672",IDEALSLVATLitRClass,IDEALSLVATLitRn,0,modSL);  
+  
+  Import("IDEAL - SwedBank import Statement",SwedBankImportSTIClass,SwedBankImportSTIn,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 13:04:05
+  Import("IDEAL - SEB Bank import Statement",SEBBankImportSTIClass,SEBBankImportSTIn,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 13:04:05
+
+	Setting("IDEAL - SwedBank import Statement",SwedbankImportLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 13:04:09
+	Setting("IDEAL - SEB Bank import Statement",SEBbankImportLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 15:36:35
+  Setting("IDEAL - Banking Statement Import settings",BankImportSetTClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 9 October 2018 15:59:21
+
+  
+  SetBegin(14444);
+  SetText(0,"Prek˜s grup˜");
+  SetText(1,"Prek˜");
+  SetText(2,"Prek˜s klas˜");
+  EndSet;
+
+  return;
+end;

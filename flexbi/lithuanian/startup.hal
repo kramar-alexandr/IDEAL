@@ -1,0 +1,12 @@
+// ui
+
+event startup
+begin
+
+  SetLangMode(LangLithuanian,"LIT",0);
+
+  Export("flex.bi - Export Register, Period",ExportPartialEClass,ExportPartialEn,modSY);
+  Export("flex.bi - Export Registers / Blocks",ExportEverythingEClass,ExportEverythingEn,modSY);
+
+  return;
+end;

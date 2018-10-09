@@ -1,0 +1,3447 @@
+/* EngWindowFunctions.hal */
+external function Boolean TouchScreenLookVertical();
+external function Boolean HasModPL();
+external function Boolean HasModPP();
+external function Boolean HasModSL();
+external function Boolean HasModHotel();
+
+external function Boolean HasApprovals();
+external function Boolean HasCCPayments();
+external function Boolean HasAdvancedPricing();
+external function Boolean HasBar();
+external function Boolean HasBase2();
+external function Boolean HasCategories();
+external function Boolean HasConsignmentStock();
+external function Boolean HasContactClassification();
+external function Boolean HasDeliveryAddress();
+external function Boolean HasDepartments();
+external function Boolean HasEInvoicing();
+external function Boolean HasExtraNLComment();
+external function Boolean HasHotelInterface();
+external function Boolean HasJewelleryInterface();
+external function Boolean HasItemClassification();
+external function Boolean HasItemGroups();
+external function Boolean HasKPIs();
+external function Boolean HasLanguages();
+external function Boolean HasLimitedAccess();
+external function Boolean HasLocalMachines();
+external function Boolean HasMultiCurrency();
+external function Boolean HasMultiLocations();
+external function Boolean HasLoyaltyCards();
+external function Boolean HasObjects();
+external function Boolean HasOfficialSerNr();
+external function Boolean HasPreferedOfficialSerNr();
+external function Boolean HasNumberSeries();
+external function Boolean HasPocketScreen();
+external function Boolean HasPositions();
+external function Boolean HasProjects();
+external function Boolean HasPriceLists();
+external function Boolean HasReconLevel2();
+external function Boolean HasSalesman();
+external function Boolean HasSecondQuantity();
+external function Boolean HasSerialNumbers();
+external function Boolean HasSettlementDiscount();
+external function Boolean HasSimulations();
+external function Boolean HasSkypeConnection();
+external function Boolean HasSimulations();
+external function Boolean HasSIPServerConnection();
+external function Boolean HasTaxMatrix();
+external function Boolean HasTestFeatures();
+external function Boolean HasTouchScreenDevice();
+external function Boolean HasTouchScreenLook();
+external function Boolean HasTREO();
+external function Boolean HasVarieties();
+
+external function Boolean HasStandardCRM();
+external function Boolean HasStandardOrganizer();
+external function Boolean HasStandardCommunicator();
+
+external function Boolean HasEMail();
+external function Boolean HasExternalEMail();
+
+external function Boolean HasModAT2();
+external function Boolean HasModCheck();
+external function Boolean HasModCL();
+external function Boolean HasModCO();
+external function Boolean HasModCRM();
+external function Boolean HasModExp();
+external function Boolean HasModIN();
+external function Boolean HasModNL();
+external function Boolean HasModPO();
+external function Boolean HasModPOS();
+external function Boolean HasModPL();
+external function Boolean HasModPP();
+external function Boolean HasModProd();
+external function Boolean HasModQT();
+external function Boolean HasModRent();
+external function Boolean HasModRest();
+external function Boolean HasModSO();
+external function Boolean HasModSL();
+external function Boolean HasModSVO();
+external function Boolean HasModTS();
+external function Boolean HasModWHM();
+
+external function val AbsoluteVal(val);
+external procedure ExtractObj(string,var Integer,var string);
+external procedure AddTouchScreenPasteButton(integer,integer,Integer,Integer,string,integer,string,integer);
+external procedure AddTouchScreenPasteButton2(integer,integer,Integer,Integer,string,string,integer,string,integer,integer);
+external procedure AddTouchScreenPasteButtonWithPicture(integer,integer,Integer,Integer,string,string,integer,string,integer,integer,string,string);
+external procedure MakeUserDefinedTile(longint);
+external function real GenericFunctionButton(real,real,real,real,string,string,LongInt,string);
+external function string 255 SetVATZoneLabel();
+external function string 20 GetMenuCode(string);
+external function Integer NumberofBarTabTiles();
+
+external function Boolean IsEnterprise();
+
+external function Boolean HasLimitedAccess();
+external function Boolean HasLocalMachines();
+
+external function Boolean HasMultiLocations();
+
+external function Boolean HasModIN();
+external function Boolean HasModNL();
+external function Boolean HasModPOS();
+external function Boolean HasModSO();
+external function Boolean HasModRest();
+
+event DefineWindows
+begin
+  Real h,h1,h2,h3,h4,h5,h6,h7,hm,v,v2,v3,l,vs,vm,f,t,x;
+  string 255 label;
+
+  SetLangMode(LangLithuanian,"LIT",2); 
+  return;
+end;
+
+enum begin //edited by BPI {  //LITWINDOWFUNCT
+  kPOSButtonFinishIfInStock = 200,// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 15:04:18
+  kPOSButtonAddHeaderComment = 201,// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 17:44:27
+	kPOSButtonBuyBackItem = 202
+end;
+
+
+global
+procedure OKCancel_LIT()
+begin
+  real h,v;
+    
+  h=-200; v=-30;
+  PushButton(h,v,h+60,v+20,ToolOK,"OK");  //!!SAMETRANSLATION
+  if (GuiType!=kGuiiPhone) then begin
+    h=-120;
+  end;
+  PushButton(h,v,h+60,v+20,ToolRestore,"Nutraukti");
+  
+  return;
+end;
+
+procedure TSERW2(Boolean gtcol)
+begin
+  real h,h1,h2,h3,h4,h5,v;
+
+  h = 8; v = 60;
+  h1=24; h2=h1+80; h3=h2+80; h4=h3+80; h5=h4+80;
+  if (GuiType==kGuiCocoa or GuiType==kGuiiPhone) then begin
+    SetWRect(20,80,600,351);
+    Sizeable(-1,-1,0,0);
+    MatrixBegin(h,v,-31,-20,IVSerRowType,199);
+    MatCol(1,h1,"Nuo nr.",0,TSerStart,false,0);
+    MatCol(1,h2,"Iki nr.",0,TSerEnd,false,0);
+    MatCol(1,h3,"Nuo datos",0,StartDate,false,0);
+    MatCol(1,h4,"Iki datos",0,EndDate,false,0);
+    MatCol(1,h5,"Komentaras",0,TSerCom,false,0);
+    if (gtcol and Left(BuildProductCode,5)!="Books") then begin //!!SAMETRANSLATION
+      MatCol(1,-100,"D/K",0,DonotGenTrans,false,SetSClass);
+    end;
+  end else begin
+    SetWRect(20,80,532,357);
+    Sizeable(-1,-1,0,0);
+    StaticText(h+h1+5,v-23,"Nr.",false);
+    StaticText(h+h3+5,v-23,"Data",false);
+    MatrixBegin(h,v,-31,-20,IVSerRowType,199);
+    MatCol(1,h1,"Nuo",0,TSerStart,false,0);
+    MatCol(1,h2,"Iki",0,TSerEnd,false,0);
+    MatCol(1,h3,"Nuo",0,StartDate,false,0);
+    MatCol(1,h4,"Iki",0,EndDate,false,0);
+    MatCol(1,h5,"Komentaras",0,TSerCom,false,0);
+    if (gtcol and Left(BuildProductCode,5)!="Books") then begin //!!SAMETRANSLATION
+      MatCol(1,-70,"D/K",0,DonotGenTrans,false,SetSClass);
+    end;
+  end;
+  /*The name DonotGenTrans is beacause of default value whcich is zero*/
+  EndMatrix;
+  //SpecialMenu("Magic Serial Help",' ',1,"MagicSerialHelp");
+  return;
+end;
+
+global
+procedure TSERW_LIT() begin
+  TSERW2(HasModNL);
+  return;
+end;
+
+global
+procedure TSERWNT_LIT() begin
+  TSERW2(false);
+  return;
+end;
+
+global
+procedure TSERWTouch_LIT() begin
+  real h,h1,h2,h3,h4,h5,v,t;
+
+  h = 8; v = 60;
+  h1=24; h2=h1+60; h3=h2+60; h4=h3+85; h5=h4+85;
+  SetWRect(20,80,562,351);
+  Sizeable(-1,-1,0,0);
+  MatrixBegin(h,v,-31,-20,IVSerRowType,199);
+  MatCell(t=1,10,6,70,19,TSerStart,false,12,patM4blue);
+  MatCell(t,140,6,180,19,TSerEnd,true,12,patM4black);
+  MatCell(t,190,6,250,19,StartDate,true,12,patM4black);
+  MatCell(t,10,26,180,39,EndDate,false,12,patM4gray);
+  MatCell(t,190,26,250,39,TSerCom,false,12,patM4gray);
+  EndMatrix;
+  return;
+end;
+
+global
+procedure TSERWTEST_LIT()
+begin
+  real h,h1,h2,h3,h4,h5,v;
+
+  h = 8; v = 60;
+  h1=24; h2=h1+60; h3=h2+60; h4=h3+85; h5=h4+85;
+  if (GuiType==kGuiCocoa) then begin
+    SetWRect(20,80,562,351);
+    Sizeable(-1,-1,0,0);
+    MatrixBegin(h,v,-31,-20,IVSerRowType,199);
+    MatCol(1,h1,"Nuo nr.",0,TSerStart,false,0);
+    MatCol(1,h2,"Iki nr.",0,TSerEnd,false,0);
+    MatCol(1,h3,"Nuo datos",0,StartDate,false,0);
+    MatCol(1,h4,"Iki datos",0,EndDate,false,0);
+    MatCol(1,h5,"Komentaras",0,TSerCom,false,0);
+    if (Left(BuildProductCode,5)!="Books") then begin //!!SAMETRANSLATION
+    MatCol(1,-100,"D/K",0,DonotGenTrans,false,SetSClass);
+    end;
+  end else begin
+    SetWRect(20,80,532,350);
+    Sizeable(-1,-1,0,0);
+    StaticText(h+h1+2,v-25,"Nr.",false);
+    StaticText(h+h3,v-25,"Data",false);
+    MatrixBegin(h,v,-31,-20,IVSerRowType,199);
+    MatCol(1,h1,"Nuo",0,TSerStart,false,0);
+    MatCol(1,h2,"Iki",0,TSerEnd,false,0);
+    MatCol(1,h3,"Nuo",0,StartDate,false,0);
+    MatCol(1,h4,"Iki",0,EndDate,false,0);
+    MatCol(1,h5,"Komentaras",0,TSerCom,false,0);
+    if (Left(BuildProductCode,5)!="Books") then begin //!!SAMETRANSLATION
+    MatCol(1,-70,"D/K",0,DonotGenTrans,false,SetSClass);
+    end;
+  end;
+  EndMatrix;
+  DeleteRowTest;
+  //SpecialMenu("Magic Serial Help",' ',1,"MagicSerialHelp");
+  return;
+end;
+
+global
+procedure FORMDEF_LIT()
+begin
+  real h,h1,h2,h3,h4,v;
+
+  SetWRect(20,80,600,298);
+  Sizeable(-1,-1,0,0);
+  MatrixBegin(5,27,-21,-20,FormDefRowType,99);
+  MatCol(1,24,"Seka",0,intdocnr,false,0);
+  MatCol(1,54,"Kalba",0,LangCode,false,LangSClass);
+  MatCol(1,94,"Vart. gr.",0,UserGroup,false,AccessSClass);
+  MatCol(1,154,"Nr. ser.",0,SerNr,false,0);
+  MatCol(1,224,"Forma",0,FPCode,false,DocSClass);
+  /* No code behind this */
+  //  MatCol(1,324,"E-Form",0,EformCode,false,0);
+  MatCol(1,424,"Spausdintuvas",0,PrintGroupCode,false,PrintGroupSClass);
+  MatCol(1,-60,"Būklė",0,Typ,false,SetSClass);
+  EndMatrix;
+  return;
+end;
+
+global
+procedure FORMDEF2_LIT()
+begin
+  real h,h1,h2,h3,h4,h5,h6,h7,v,l,vs,vm,f,t;
+
+  SetWRect(20,80,529,299);
+  Sizeable(-1,-1,0,0);
+  MatrixBegin(5,27,-21,-20,FormDefRowType,99);
+  MatCol(1,24,"Seka",0,intdocnr,false,0);
+  MatCol(1,54,"Kalba",0,LangCode,false,LangSClass);
+  MatCol(1,94,"Formos šablonas",0,FPCode,false,DocSClass);
+  EndMatrix;
+  return;
+end;
+
+global
+procedure FORMDEF3_LIT() begin
+  real h,h1,h2,h3,h4,h5,h6,h7,v,l,vs,vm,f,t;
+
+  SetWRect(20,80,529,299);
+  Sizeable(-1,-1,0,0);
+  MatrixBegin(5,27,-21,-20,FormDefRowType,99);
+  MatCol(1,24,"Seka",0,intdocnr,false,0);
+  MatCol(1,54,"Formos šablonas",0,FPCode,false,DocSClass);
+  EndMatrix;
+  return;
+end;
+
+
+global
+procedure INVFORM_LIT(Boolean einvf)
+begin
+  real h,h1,h2,h3,h4,v;
+  Boolean testf;
+
+  if (IsEnterprise) then begin
+  SetWRect(20,80,440,300);
+  PeriodField(h=100,v=6,"Periodas");
+  EditFieldTL(h,v+=20, 150,"Nr.",   M4Str,Normal,30,f1,false,0);
+    EditFieldTL(h,v+=20, 150,"Oficialus Nr.",   M4Str,Normal,60,f3,false,0); 
+  EditFieldTL(100,v+=20,150,"Pirkėjas",M4UStr,Normal,41,f2,false,CUSClass);
+  EditFieldTL(100,v+=20,50,"Kalba",   M4Str,Normal,5,Language,false,LangSClass);
+    ButtonFrame(h=30,v=127,175,3,"Būklė");
+  RadioButton(h,v,0,0,"Tik nespausdintos",OnlyUnprntd);
+  RadioButton(h,v+=16,1,0,"Visos",OnlyUnprntd);
+  RadioButton(h,v+=16,2,0,"Originalios",OnlyUnprntd);
+    ButtonFrame(h,v=210,175,5,"Eilutės išd.");
+  RadioButton(h,v,0,0,"Nėra",flags[15]);
+  RadioButton(h,v+=16,1,0,"Pagal prekės gr.",flags[15]);
+  RadioButton(h,v+=16,2,0,"Pagal prekės gr. - viena eilutė",flags[15]);
+  RadioButton(h,v+=16,3,0,"Kambario paketą",flags[15]);  
+  RadioButton(h,v+=16,4,0,"Viena eilutė",flags[15]);
+    CheckBox(h1=225,v=120,0,"Tik neapmokėtos faktūros",flags[10]);
+  CheckBox(h1,v+=16,0,"Praleisti sustabdytas faktūras",flags[11]);
+  if (einvf) then begin
+    CheckBox(h1,v+=16,0,"Įtraukti EDI faktūras",flags[28]);
+    CheckBox(h1,v+=16,0,"Įtraukti E-faktūras",flags[5]);
+  end;
+    ButtonFrame(h1,v=210,165,4,"Faktūros tipas");  
+  CheckBox(h1,v,0,"Faktūra",flags[1]);
+  CheckBox(h1,v+=16,0,"Už grynus",flags[2]);
+  CheckBox(h1,v+=16,0,"Kredito pažyma",flags[3]);
+  CheckBox(h1,v+=16,0,"Delspinigių faktūra",flags[4]);
+  end else begin
+    SetWRect(64,80,444,250);
+    PeriodField(h=120,v=6,"Periodas"); 
+    testf = true;
+    if (Left(BuildProductCode,8)=="Standard" or (Left(BuildProductCode,6)=="WeHave")) then begin
+      if (HasLocalization("POL")) then begin
+        EditFieldTL(h,v+=20, 150,"Nr.",   M4Str,Normal,60,f3,false,0); 
+        testf = false;
+      end;
+    end;
+    if (testf) then begin
+    EditFieldTL(h,v+=20, 150,"Nr.",   M4Str,Normal,30,f1,false,0); 
+      if (HasOfficialSerNr) then begin
+        EditFieldTL(h,v+=20, 150,"Oficialus nr.",   M4Str,Normal,60,f3,false,0); 
+      end;
+    end;
+    ButtonFrame(h,v+=40,150,3,"Būklė"); 
+    RadioButton(h,v,0,0,"Tik nespausdintos",OnlyUnprntd); 
+    RadioButton(h,v+=16,1,0,"Visi",OnlyUnprntd); 
+    RadioButton(h,v+=16,2,0,"Originalai",OnlyUnprntd); 
+    ButtonFrame(h,v+=45,153,3,"Faktūros tipas");   
+    CheckBox(h,v,0,"Faktūra",flags[1]); 
+    CheckBox(h,v+=16,0,"Grynieji",flags[2]); 
+    CheckBox(h,v+=16,0,"Kredito pažymos",flags[3]); 
+    if (HasLocalization("PRT")) then begin 
+      CheckBox(h,v+=16,0,"Delspinigių faktūra",flags[4]);
+    end;
+    if (HasLocalization("FIN")) then begin 
+      CheckBox(h,v+=16,0,"Įtraukti el. faktūrą",flags[5]); 
+    end;
+    EndFrame;
+  end;
+  return;
+end;
+
+global
+function Boolean DisplayLoginKeyPad_LIT()
+begin
+  Boolean res;
+  record LocalLoginOptBlock LocalOptionsRec;
+
+  BlockLoad(LocalOptionsRec);
+  if (LocalOptionsRec.DisplayLoginKeyPad!=0) then begin res = true; end;
+  DisplayLoginKeyPad_LIT = res;
+  return;
+end;
+
+global
+procedure LoginButtons_LIT(Real vm)
+begin
+  Real h,v,v2,vs,h2,hs,hm;
+  
+  if (DisplayLoginKeyPad_LIT==false) then begin goto LLoginButtons; end;
+  
+  hm = 132; h2 = 40; hs = 41; vs = 34; v2 = 33;
+  v = vm+10;
+  h = hm; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad1","1_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad2","2_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad3","3_",2); 
+  v = v+vs;
+  h = hm; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad4","4_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad5","5_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad6","6_",2); 
+  v = v+vs;
+  h = hm; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad7","7_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad8","8_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad9","9_",2); 
+  v = v+vs;
+  h = hm; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPadDelete","Del",2);  //!!SAMETRANSLATION
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad0","0_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPadClear","Clr",2);  //!!SAMETRANSLATION
+  
+LLoginButtons:;
+  return;
+end;
+
+global
+procedure LoginButtons2_LIT(Real starth,Real vm)
+begin
+  Real h,v,v2,vs,h2,hs,hm;
+  
+  if (DisplayLoginKeyPad_LIT==false) then begin goto LLoginButtons2; end;
+  
+  hm = starth; h2 = 40; hs = 41; vs = 34; v2 = 33;
+  v = vm+10;
+  h = hm; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad1","1_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad2","2_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad3","3_",2); 
+  v = v+vs;
+  h = hm; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad4","4_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad5","5_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad6","6_",2); 
+  v = v+vs;
+  h = hm; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad7","7_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad8","8_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad9","9_",2); 
+  v = v+vs;
+  h = hm; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPadDelete","Del",2);  //!!SAMETRANSLATION
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPad0","0_",2); 
+  h = h+hs; ColourPushButton(h,v,h+h2,v+v2,"LoginToolKeyPadClear","Clr",2);  //!!SAMETRANSLATION
+  
+LLoginButtons2:;
+  return;
+end;
+
+global
+procedure DrawPOSButtons_LIT4(Integer startrow,string page,var longint ah2,var longint av,longint width,longint height,longint dh,longint dv,longint minh,LongInt maxh,record POSButtonsVc POSBr,string ovrclass,Integer stackspace,Integer wh)
+begin
+  row POSButtonsVc POSBrw;
+  record POSButtonsVc POSB2r;
+  Integer i,rwcnt;
+  Real h,v,v2;
+  LongInt hl,vl,v2l;
+  //hs,h1,h2,h3,h4,h5,h6,h7,hm,v2,l,vs,vm,f,t,x;
+  string 255 procstr;
+  Integer wn;
+  Boolean ItemPage;
+  string 60 ostr;
+  Integer pos,r;
+  string 255 stack;
+  string 255 lblstr;
+  string 255 tagstr;
+  Integer selitemline,LateralButtonAmtMax;
+  LongInt heighttemp,ah;
+  Integer labelfntsize;
+  record LocalMachineBlock LMb;
+  Boolean editmodef;
+  transaction Integer gDrawPOSInterface_DataListStartPos;
+
+  BlockLoad(LMb);
+  heighttemp = height;
+  labelfntsize = LMb.POSLabelFontSize;
+//  if (labelfntsize<=0) then begin labelfntsize = 10; end;
+  ah = ah2;
+  h = ah;
+  v = av;
+
+  //SoftEditField(2000,2000,70,"",ViewOnly ,"touchscreenselecteditemtag",false,0,M4Str,255);
+  
+  wn = CurWindow;
+  stack = GetWindowString(wn,"touchscreenwindowpagestack");
+  editmodef = GetWindowString(wn,"NPTSIVCashEditMode")=="true";
+  if (stack=="") then begin
+    //PutWindowString(wn,"touchscreenwindowpage",1)
+    //PutWindowString(wn,"touchscreenwindowpagestack",1)
+    stack = "1";
+  end;
+  
+  pos = 0;
+  ExtractObj(stack,pos,ostr);
+  h = ah;
+
+  if (blank(page)) then begin
+  v = v + stackspace;
+  if (GuiType==kGuiAndroid) then begin
+    heighttemp = heighttemp + 8;
+    v = v - 55; v2 = v;
+  end;  
+  if (GuiType==kGuiiPhone) then begin
+    heighttemp = heighttemp + 8;
+      v = v + 20;//jjtmp
+  end;  
+  while (nonblank(ostr)) begin
+    if (ovrclass<>"") then begin
+      procstr = "IVCashDClass";
+    end else begin
+      procstr = POSBr.WindowClass;
+    end;
+    
+    procstr = procstr & "TouchScreenStackButton";
+
+      GetPOSPage(POSBr.WindowClass,POSBr.POSButtonGroupCode,StringToInt(ostr),POSB2r);
+
+      if (POSB2r.Comment<>"") then begin 
+      lblstr = POSB2r.Comment;
+    end else begin
+      lblstr = "Puslapis: " & ostr;
+    end;
+    
+    if (POSB2r.KeyCode!=kFunctionKeyNone) then begin
+      lblstr = lblstr & "<BR>"; //!!SAMETRANSLATION
+      switch (POSB2r.Modifiers) begin
+        case kKeyModifierNone:
+        case kKeyModifierCtrl: lblstr = lblstr & USetStr(24185) & "+";
+        case kKeyModifierShift: lblstr = lblstr & USetStr(24186) & "+";
+        case kKeyModifierCtrlShift: lblstr = lblstr & USetStr(24185) & "+" & USetStr(24186) & "+";
+      end;
+      lblstr = lblstr & "F" & POSB2r.KeyCode; //!!SAMETRANSLATION
+    end;
+
+//     ColourPushButtonTag2(h,v,h + width,v + heighttemp,procstr,lblstr,labelfntsize,2,ostr); // time color no. 2
+      if (minh<0) then begin
+        if (h + width<0) then begin
+      POSButtonWithPicture2(h,v,h + width,v + heighttemp,procstr,lblstr,labelfntsize,2,ostr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode);
+        end;
+      end else begin
+        if ((h + width)<minh or GuiType==kGuiiPhone) then begin
+          POSButtonWithPicture2(h,v,h + width,v + heighttemp,procstr,lblstr,labelfntsize,2,ostr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode); 
+        end;
+      end;
+
+
+      //if (GuiType==kGuiAndroid) then begin
+      //  v = v + heighttemp + dv;
+      //end else begin
+        h = h + width + dh;
+      //end;
+    ExtractObj(stack,pos,ostr);
+  end;
+
+  v = v + heighttemp + dv;
+  end;
+
+  h = ah;
+
+  //ButtonFrame(h,v+=82,400,0,"");
+  if (blank(page)) then begin
+  switch (LMb.POSPanelSize) begin
+    case kPOSPanelSizeSmall:
+      ButtonFrame(h,v+=5,795,0,"");
+    case kPOSPanelSizeMedium:
+      ButtonFrame(h,v+=5,595,0,"");
+    otherwise
+      ButtonFrame(h,v+=5,400,0,"");    
+  end;
+
+  if (GuiType!=kGuiiPhone or GuiType==kGuiAndroid) then begin
+  v = v + 10;
+  end else begin
+    v = v - dv;
+    heighttemp = heighttemp - 8;
+  end;
+
+//    if (GuiType==kGuiAndroid) then begin
+//      v = v2;
+//      h = h + width + dh + 8;
+//      ah = h;
+//    end;
+  end;
+  
+
+  switch (GuiType) begin
+    case kGuiiPhone: // Possible need for kGuiiPad ? Use CompileType==ctiPad if so
+    if (TouchScreenLookVertical) then begin
+      LateralButtonAmtMax = 4;
+    end else begin
+      LateralButtonAmtMax = 7;
+    end;  
+    case kGuiAndroid:
+        LateralButtonAmtMax = 4;
+    otherwise
+    switch (LMb.POSPanelSize) begin
+      case kPOSPanelSizeSmall:
+        LateralButtonAmtMax = 8;
+        case kPOSPanelSizeMedium:
+          LateralButtonAmtMax = 6;
+      otherwise
+        LateralButtonAmtMax = 4;
+    end;
+      if (LMb.POSButtonWidth>0 and width>0) then begin
+        LateralButtonAmtMax = AbsoluteVal(gDrawPOSInterface_DataListStartPos)/(width+5);
+  end;
+  end;
+  if (LateralButtonAmtMax<=0) then begin
+    LateralButtonAmtMax = 4;
+  end;
+
+  rwcnt = MatRowCnt(POSBr);
+
+  if (editmodef) then begin
+    rwcnt = (((wh-240-heighttemp)/(heighttemp+dv)))*LateralButtonAmtMax;//max rows
+  end else begin    
+    r = (((wh-240-heighttemp)/(heighttemp+dv)))*LateralButtonAmtMax;//max rows
+/*    
+    if (GuiType==kGuiCocoa) then begin
+    r = ((wh/(heighttemp+dv))-3-5)*LateralButtonAmtMax;//max rows
+    end else begin
+      r = ((wh/(heighttemp+dv))-3)*LateralButtonAmtMax;//max rows
+    end;
+*/    
+    if (r<rwcnt) then begin
+      rwcnt = r;
+    end;
+  end;
+    
+  for (i = 0; i<rwcnt; i = i + 1) begin
+    if (editmodef) then begin
+      if (i<MatRowCnt(POSBr)) then begin
+    MatRowGet(POSBr,i,POSBrw);
+      end else begin
+        ClearRow(POSBr,POSBrw,1);
+        POSBrw.ButtonType = kPOSButtonTypeBlank;
+      end;
+    end else begin
+      MatRowGet(POSBr,i,POSBrw);
+    end;
+    procstr = POSBr.WindowClass;
+    if (blank(procstr)) then begin procstr = GetWindowClass(wn); end;
+    if (procstr=="NPTSIVCashDClass") then begin
+      procstr = "IVCashDClass";
+    end;
+
+    lblstr = POSBrw.Label;
+
+    if (POSBrw.KeyCode<>kFunctionKeyNone) then begin
+      lblstr = lblstr & "<BR>"; //!!SAMETRANSLATION
+      switch (POSbrw.Modifiers) begin
+        case kKeyModifierNone:
+        case kKeyModifierCtrl: lblstr = lblstr & USetStr(24185) & "+";
+        case kKeyModifierShift: lblstr = lblstr & USetStr(24186) & "+";
+        case kKeyModifierCtrlShift: lblstr = lblstr & USetStr(24185) & "+" & USetStr(24186) & "+";
+      end;
+      lblstr = lblstr & "F" & POSBrw.KeyCode; //!!SAMETRANSLATION
+    end;
+
+    if (editmodef) then begin
+      procstr = procstr & "TouchScreenDefineButton";  
+      tagstr = POSBr.POSButtonGroupCode & "," & POSBr.Page & "," & i;
+      if (i>=MatRowCnt(POSBr) or POSBrw.ButtonType==kPOSButtonTypeBlank) then begin
+        lblstr = "Apibrėžti mygtuką"; 
+        POSBrw.colnr = kButtonColourBeige;
+      end else begin
+        lblstr = POSBrw.Label;
+      end;
+      goto LDrawPOSButtons_LITButton;
+    end;
+
+    switch (POSBrw.ButtonType) begin
+      case kPOSButtonTypeItem:
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeInstructions:
+        procstr = procstr & "TouchScreenPasteButton";
+        tagstr = i + 1;
+      case kPOSButtonTypeModifier:
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeLevelTop:
+        procstr = procstr & "PageTop";
+        /*
+        case kPOSButtonTypeLevelUp:
+        procstr = procstr & "LevelUp";
+        */
+      case kPOSButtonTypeGotoPage:
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      /*
+      case kPOSButtonTypeLevelDown:
+        procstr = procstr & "LevelDown";
+      */
+      case kPOSButtonTypeIncludePage:
+        POSB2r.WindowClass = POSBr.WindowClass;
+        POSB2r.POSButtonGroupCode = POSBr.POSButtonGroupCode;
+        POSB2r.Page = StringToInt(POSBrw.Code);
+        if (ReadFirstMain(POSB2r,3,true)==false) then begin
+          goto LDrawPOSButtons_LIT3;
+        end;
+        if (StringToLongInt(POSBrw.Code)!=POSBr.Page) then begin
+        if (h!=ah) then begin
+          v = v + heighttemp + dv;
+        end;
+        h = ah;
+        hl = h; vl = v;
+          DrawPOSButtons_LIT4(i,POSBrw.Code,hl,vl,width,heighttemp,dh,dv,minh,maxh,POSB2r,ovrclass,stackspace,wh);
+        h = hl; v = vl;
+        end;
+        goto LDrawPOSButtons_LIT;
+      case kPOSButtonTypeFullPayment:  
+        procstr = procstr & "TouchScreenPasteButton"; 
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeCashPayment:  
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypePayment:  
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypePaymentButtonsLayout:  
+        procstr = procstr & "TouchScreenPasteButton"; 
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypePaymentOneMode:  
+        procstr = procstr & "TouchScreenPasteButton"; 
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeChequePayment:  
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeCreditCardPayment:  
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeCreditCardPaymentReversal:  
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeDebitCardPayment:  
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeCreditCardTerminalReports:  
+        procstr = procstr & "TouchScreenPasteButton"; 
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeGiftVoucherPayment:  
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeOnAccountPayment:  
+        procstr = procstr & "TouchScreenPasteButton"; 
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeOnHotelGuestAccount:  
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeCustomerSearchFiltered:  
+        procstr = procstr & "TouchScreenPasteButton";
+        //procstr = procstr & i+1;
+        tagstr = i + 1;
+      case kPOSButtonTypeFinish:  
+        procstr = procstr & "TouchScreenFinishButton";
+      case kPOSButtonTypeVoidRow:  
+        procstr = procstr & "TouchScreenVoidRow";
+        tagstr = POSBrw.Code;
+      case kPOSButtonTypeAmendLine:  
+        procstr = procstr & "TouchScreenAmendLine";
+              case kPOSButtonTypeAddOrderDiscount:  
+        procstr = procstr & "TouchScreenAddOrderDiscount";
+      case kPOSButtonTypeKitchenOrder:  
+        procstr = procstr & "TouchScreenKitchenOrder";
+      case kPOSButtonTypeLoyaltyCard:  
+        procstr = procstr & "TouchScreenLoyaltyCard";
+      case kPOSButtonTypeEnterReferenceNumber:  
+        procstr = procstr & "TouchScreenEnterReferenceNumber"; 
+      case kPOSButtonTypeSeniorCitizenDiscount:  
+        procstr = procstr & "TouchScreenSeniorCitizenCard";
+      case kPOSButtonTypeSplitItem:  
+        procstr = procstr & "TouchScreenSplitItem";
+      case kPOSButtonTypeTransfertoSL:  
+        procstr = procstr & "TouchScreenTransfertoSL";
+      case kPOSButtonTypeTransfertoInvoice:  
+        procstr = procstr & "TouchScreenTransfertoInvoice";
+      case kPOSButtonTypeTransfertoOrder:  
+        procstr = procstr & "TouchScreenTransfertoOrder";
+      case kPOSButtonTypeTransfertoQuotation:  
+        procstr = procstr & "TouchScreenTransfertoQuotation"; 
+      case kPOSButtonTypeInvalidateInvoice:  
+        procstr = procstr & "TouchScreenInvalidateInvoice";
+      case kPOSButtonTypeAddCommentLine:  
+        procstr = procstr & "TouchScreenCommentLine"; 
+      case kPOSButtonTypeAddHeaderLine:  
+        procstr = procstr & "TouchScreenHeaderLine"; 
+      case kPOSButtonTypeAddHiddenLine:  
+        procstr = procstr & "TouchScreenHiddenLine"; 
+      case kPOSButtonTypeAddSubtotalLine:  
+        procstr = procstr & "TouchScreenSubtotalLine"; 
+      case kPOSButtonTypeInvoiceStatus:  
+        procstr = procstr & "TouchScreenInvoiceStatus"; 
+      case kPOSButtonTypeOpenNLTransaction:  
+        procstr = procstr & "TouchScreenOpenNLTransaction"; 
+      case kPOSButtonTypeSendToFiscalDevice:  
+        procstr = procstr & "TouchScreenSendToFiscalDevice"; 
+      case kPOSButtonTypePrintProformaInvoice:  
+        procstr = procstr & "TouchScreenProformaInvoice"; 
+      case kPOSButtonTypeConnectToPrepayment:  
+        procstr = procstr & "TouchScreenConnectToPrepayment"; 
+      case kPOSButtonTypeCreateCashOut:  
+        procstr = procstr & "TouchScreenCreateCashout"; 
+      case kPOSButtonTypeCreateCashin:  
+        procstr = procstr & "TouchScreenCreateCashin"; 
+      case kPOSButtonTypeCreateCreditNote:  
+        procstr = procstr & "TouchScreenCreateCreditNote"; 
+      case kPOSButtonTypeCreateCorrectionInvoice:  
+        procstr = procstr & "TouchScreenCreateCorrectionInvoice"; 
+      case kPOSButtonTypeEditItemRecord:  
+        procstr = procstr & "TouchScreenEditItemRecord"; 
+      case kPOSButtonTypeSendEMail:  
+        procstr = procstr & "TouchScreenSendEmail"; 
+      case kPOSButtonTypePreviousSalesPrices:  
+        procstr = procstr & "TouchScreenPreviousSalesPrices"; 
+      case kPOSButtonTypeEditCustomerRecord:  
+        procstr = procstr & "TouchScreenEditCustomerRecord"; 
+      case kPOSButtonTypeEditDate:  
+        procstr = procstr & "TouchScreenCreateCreditNote"; 
+      case kPOSButtonTypeCreateCreditEMail:  
+        procstr = procstr & "TouchScreenCreateCreditEMail"; 
+      case kPOSButtonTypeCreateActivity:  
+        procstr = procstr & "TouchScreenCreateActivity"; 
+      case kPOSButtonTypeOpenCalendar:  
+        procstr = procstr & "TouchScreenOpenCalendar"; 
+      case kPOSButtonTypeChangeTerms:  
+        procstr = procstr & "TouchScreenChangeTerms"; 
+      case kPOSButtonTypeChangeAddress:  
+        procstr = procstr & "TouchScreenChangeAddress"; 
+      case kPOSButtonTypeChangeDiscountMatrix:  
+        procstr = procstr & "TouchScreenChangeDiscountMatrix"; 
+      case kPOSButtonTypeCashupReport:  
+        procstr = procstr & "TouchScreenCashupReport"; 
+      case kPOSButtonTypeHansaLogReport:
+        procstr = procstr & "TouchScreenHansaLogReport";
+      case kPOSButtonTypeOpenSession:  
+        procstr = procstr & "TouchScreenOpenSession"; 
+      case kPOSButtonTypeCloseSession:  
+        procstr = procstr & "TouchScreenCloseSession"; 
+      case kPOSButtonTypeCorrectionInvoice:  
+        procstr = procstr & "TouchScreenCorrectionInvoice"; 
+      case kPOSButtonTypePutCashFloat:  
+        procstr = procstr & "TouchScreenPutCashFloat"; 
+      case kPOSButtonTypeGetCashFloat:  
+        procstr = procstr & "TouchScreenGetCashFloat"; 
+      case kPOSButtonTypeManagerDiscountOverride:  
+        procstr = procstr & "TouchScreenManagerDiscountOverride"; 
+      case kPOSButtonTypeOpenTaxMatrix:  
+        procstr = procstr & "TouchScreenOpenTaxMatrix"; 
+      case kPOSButtonTypeReturn:  
+        procstr = procstr & "TouchScreenReturn";
+      case kPOSButtonTypeCreditNote:  
+        procstr = procstr & "TouchScreenCreditNote"; 
+      case kPOSButtonTypeReturnReason:  
+        procstr = procstr & "TouchScreenReturnReason"; 
+        tagstr = POSBrw.Code;
+      case kPOSButtonTypeReturnInvoiceNo:  
+        procstr = procstr & "TouchScreenReturnInvNo";
+        tagstr = POSBrw.Code;
+      case kPOSButtonTypeLookupSerialNr:  
+        procstr = procstr & "TouchScreenLookupSerialNr";
+          case kPOSButtonTypeMainSerialNr:  
+            procstr = procstr & "TouchScreenMainSerialNr"; 
+          case kPOSButtonTypeAppleWarrantyStatusCheck:  
+            procstr = procstr & "TouchScreenAppleWarrantyStatusCheck"; 
+      case kPOSButtonTypeAppleCreateAEOrder:  
+        procstr = procstr & "TouchScreenAppleCreateAEOrder"; 
+      case kPOSButtonTypeAppleCancelAEOrder:  
+        procstr = procstr & "TouchScreenAppleCancelAEOrder";
+      case kPOSButtonTypeLogin:  
+        procstr = procstr & "TouchScreenButtonLogin";
+      case kPOSButtonTypeDeleteItem:
+        procstr = procstr & "TouchScreenDeleteItem";
+      case kPOSButtonTypeLoyaltyPointsPayment:
+        procstr = procstr & "TouchScreenLoyaltyPointsPayment";
+      case kPOSButtonTypeLoyaltyPointsBonus:
+        procstr = procstr & "TouchScreenLoyaltyPointsBonus";
+//        procstr = procstr & "TouchScreenPasteButton";
+        tagstr = i + 1;
+      case kPOSButtonTypeGiftVoucherSales:
+        procstr = procstr & "TouchScreenPasteButton";
+        tagstr = i + 1;
+      case kPOSButtonTypeCreateGC:
+        procstr = procstr & "TouchScreenPasteButton"; 
+        tagstr = i + 1;
+      case kPOSButtonTypeGiftReceipt:
+        procstr = procstr & "TouchScreenGiftReceipt"; 
+      case kPOSButtonTypePasteQuotation:  
+        procstr = procstr & "TouchScreenPasteQT"; 
+      case kPOSButtonTypePasteSalesOrder:  
+        procstr = procstr & "TouchScreenPasteOR"; 
+      case kPOSButtonTypePauseSales:  
+        procstr = procstr & "TouchScreenPauseSales"; 
+      case kPOSButtonTypeResumeSales:  
+        procstr = procstr & "TouchScreenGiftReceipt";
+      case kPOSButtonTypeOverrideOfficialSerNr:  
+        procstr = procstr & "TouchScreenOverrideOfficialSerNr"; 
+        case kPOSButtonTypePriceLookup:
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = "";
+      case kPOSButtonTypePOSCommand:
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = "";
+      case kPOSButtonTypeCustomerSearch:
+        AddTouchScreenPasteButtonWithPicture(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode); 
+        procstr = "";
+      case kPOSButtonTypeSelectSalesman:
+        AddTouchScreenPasteButtonWithPicture(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode); 
+        procstr = "";
+      case kPOSButtonTypeBaggerSearch:
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = "";
+      case kPOSButtonTypeSupervisorSearch:
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = "";
+      case kPOSButtonTypeVolumetricBarCodeScan:
+        AddTouchScreenPasteButtonWithPicture(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode); 
+        procstr = "";
+      case kPOSButtonTypeSalesAssistant:
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = "";
+      case kPOSButtonTypeItemSearch:
+        AddTouchScreenPasteButtonWithPicture(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode); 
+        procstr = "";
+      case kPOSButtonTypeItemStatus:
+        AddTouchScreenPasteButtonWithPicture(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode); 
+        procstr = "";
+      case kPOSButtonTypeOpenCashDrawer:
+        AddTouchScreenPasteButtonWithPicture(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode); 
+        procstr = "";
+      case kPOSButtonTypOpenInvoices:  
+        procstr = procstr & "TouchScreenOpenInvoices";
+      case kPOSButtonTypSaveInvoice:  
+        tagstr = i + 1;
+        procstr = procstr & "TouchScreenSaveInvoice";
+      case kPOSButtonTypeBookings:  
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = "";
+      case kPOSButtonTypePrintInvoice:  
+        procstr = procstr & "TouchScreenPrint"; 
+      case kPOSButtonTypePrintOrder:  
+        procstr = procstr & "TouchScreenPrint";
+      case kPOSButtonTypePrintFireOrder:  
+        procstr = "RestAccPrintFireOrder";
+      case kPOSButtonTypePrintCancellation:  
+        procstr = "RestAccPrintCancel";
+      case kPOSButtonTypePrintTab:
+        procstr = "RestAccReceipt";
+      case kPOSButtonTypePrintOrderToKitchen:  
+        procstr = "RestAccPrintToKitchen";
+//      case kPOSButtonTypeOpenCashDrawer:  //already above
+//        procstr = "OpenCashDrawer";
+      case kPOSButtonTypeCalculateTip:  
+        procstr = "RestAccTip";
+      case kPOSButtonTypeServiceCharge:  
+        procstr = "RestAccServiceCharge";
+      case kPOSButtonTypeHotelGuests:  
+        procstr = "StayingTool";
+      case kPOSButtonTypeSetTable:  
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = "";
+      case kPOSButtonTypeOpenRecord:  
+        procstr = procstr & "TouchScreenPasteButton"; 
+        tagstr = i + 1;
+      case kPOSButtonTypeSetCovers:  
+        procstr = procstr & "TouchScreenPasteButton";
+        tagstr = i + 1;
+      case kPOSButtonTypeSetBarTabClass:  
+        procstr = procstr & "TouchScreenPasteButton";
+        tagstr = i + 1;
+      case kPOSButtonTypeMergeBarTabs:  
+        procstr = procstr & "TouchScreenPasteButton";
+        tagstr = i + 1;
+      case kPOSButtonTypeMoveToBarTab:  
+        procstr = procstr & "TouchScreenPasteButton";
+        tagstr = i + 1;
+      case kPOSButtonTypeSplitBarTabs:  
+        procstr = procstr & "TouchScreenPasteButton";
+        tagstr = i + 1;
+      case kPOSButtonTypeSpecialMenu:  
+        procstr = procstr & "TouchScreenSpecialMenu";
+        tagstr = POSBrw.Code;
+      case kPOSButtonTypeReprintReceipt:
+        AddTouchScreenPasteButtonWithPicture(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode); 
+        procstr = "";
+      case kPOSButtonTypeXReading:
+        procstr = procstr & "TouchScreenXReading";
+      case kPOSButtonTypeYReading:
+        procstr = procstr & "TouchScreenYReading";
+      case kPOSButtonTypeZReading:
+        procstr = procstr & "TouchScreenZReading"; 
+      case kPOSButtonTypeAllInvoices:
+        procstr = procstr & "TouchScreenAllInvoices";
+      case kPOSButtonTypeSyncNow:
+        procstr = procstr & "TouchScreenSyncNow";
+      case kPOSButtonTypeRunReportOnServer:
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = ""; 
+      case kPOSButtonTypeRegisterClerk:
+        procstr = "IVCashDClassTouchScreenRegisterClerk"; 
+      case kPOSButtonTypeUnregisterClerk:
+        procstr = "";
+      case kPOSButtonTypeFinishAndPrint:  
+        procstr = procstr & "TouchScreenFinishAndPrintButton";       
+      case kPOSButtonTypePrintPreview:  
+        procstr = procstr & "TouchScreenPrintPreview";          
+      case kPOSButtonTypeInsertFreeTextOnMatrix:
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = "";        
+      case kPOSButtonTypeReprintLastCCSlip:
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = ""; 
+      case kPOSButtonTypeConnectToCCTerminal:
+        AddTouchScreenPasteButton2(h,v,width,heighttemp,procstr,page,i+1,lblstr,labelfntsize,POSBrw.colnr);
+        procstr = ""; 
+      case kPOSButtonTypeBlank:
+        if (editmodef) then begin
+          procstr = procstr & "TouchScreenDefineButton";  
+          tagstr = POSBr.POSButtonGroupCode & "," & POSBr.Page & "," & i;
+          POSBrw.colnr = kButtonColourBeige;
+          lblstr = "Apibrėžti mygtuką"; 
+        end else begin
+        goto LDrawPOSButtons_LIT;
+   			end;
+   		case kPOSButtonFinishIfInStock:// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 15:05:11
+      	procstr = procstr & "TouchScreenFinishIfInStockButton";
+      case kPOSButtonAddHeaderComment:// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 17:45:42
+      	procstr = procstr & "TouchScreenAddHeaderComment";
+      case kPOSButtonBuyBackItem:// Edit ************************** BPI Ukraine - KramarAlexandr - w, 15 nov 2017 21:52:24
+      	procstr = procstr & "TouchScreenBuyBackItem";
+    end;
+LDrawPOSButtons_LITButton:;
+
+    if (procstr<>"") then begin
+      if (LMb.POSShowButtonPictures) then begin
+        if (tagstr<>"") then begin 
+          if (nonblank(page)) begin
+            tagstr = tagstr & "," & page;
+          end;
+        POSButtonWithPicture2(h,v,h + width,v + heighttemp,procstr,lblstr,labelfntsize,POSBrw.colnr,tagstr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode);
+        end else begin
+          POSButtonWithPicture2(h,v,h + width,v + heighttemp,procstr,lblstr,labelfntsize,POSBrw.colnr,tagstr,"POSButtonPictureVc",POSBrw.POSButtonPictureCode);
+        end;
+      end else begin
+      if (tagstr<>"") then begin
+          if (nonblank(page)) begin
+            tagstr = tagstr & "," & page; 
+          end;
+          ColourPushButtonTag2(h,v,h + width,v + heighttemp,procstr,lblstr,labelfntsize,POSBrw.colnr,tagstr);
+      end else begin
+          ColourPushButton2(h,v,h + width,v + heighttemp,procstr,lblstr,labelfntsize,POSBrw.colnr);
+        end;
+      end;
+    end;
+LDrawPOSButtons_LIT:;   
+
+//LogText(0,"h " & h & " v " & v & " heighttemp " & heighttemp & " LateralButtonAmtMax " & LateralButtonAmtMax);    
+
+    h = h + width + dh;
+    if (Mod(i+1,LateralButtonAmtMax)==0) then begin
+      v = v + heighttemp + dv;
+      h = ah;
+    end;
+  end;
+LDrawPOSButtons_LIT3:;  
+  return;
+end;
+
+global
+procedure DrawPOSButtons_LIT3(Integer startrow,string page,var longint ah2,var longint av,longint width,longint height,longint dh,longint dv,longint minh,LongInt maxh,record POSButtonsVc POSBr,string ovrclass,Integer stackspace)
+begin
+  Integer wh;
+  
+  DrawPOSButtons_LIT4(startrow,page,ah2,av,width,height,dh,dv,minh,maxh,POSBr,ovrclass,stackspace,wh);
+  return;
+end;
+
+global
+procedure DrawPOSButtons_LIT2(Integer startrow,string page,var longint ah2,var longint av,longint width,longint height,longint dh,longint dv,record POSButtonsVc POSBr,string ovrclass,Integer stackspace)
+begin
+  DrawPOSButtons_LIT3(startrow,page,ah2,av,width,height,dh,dv,-1,-1,POSBr,ovrclass,stackspace);
+  return;
+end;
+  
+global
+procedure DrawPOSButtons_LIT(longint ah2,longint av,longint width,longint height,longint dh,longint dv,record POSButtonsVc POSBr,string ovrclass,Integer stackspace)
+begin
+  longint h2,v;
+  
+  h2 = ah2; v = av;
+  DrawPOSButtons_LIT2(0,"",h2,v,width,height,dh,dv,POSBr,ovrclass,stackspace);
+  return;
+end;
+
+global
+procedure DrawPOSButtons3_LIT(longint ah2,longint av,longint width,longint height,longint dh,longint dv,longint minh,LongInt maxh,record POSButtonsVc POSBr,string ovrclass,Integer stackspace,Integer wh)
+begin
+  longint h2,v;
+  
+  h2 = ah2; v = av;
+  DrawPOSButtons_LIT4(0,"",ah2,av,width,height,dh,dv,minh,maxh,POSBr,ovrclass,stackspace,wh);
+  return;
+end;
+
+global
+procedure DrawPOSButtons2_LIT(longint ah2,longint av,longint width,longint height,longint dh,longint dv,longint minh,LongInt maxh,record POSButtonsVc POSBr,string ovrclass,Integer stackspace)
+begin
+  Integer wh;
+  
+  DrawPOSButtons3_LIT(ah2,av,width,height,dh,dv,minh,maxh,POSBr,ovrclass,stackspace,wh);
+  return;
+end;
+
+function LongInt POSButtonsNeededHeight(LongInt width,LongInt height,LongInt dh,LongInt dv,record POSButtonsVc POSBr,Integer stackspace,Integer minrows,Integer maxrows)
+begin
+  Integer i,rwcnt,rownr;
+  LongInt h,v;
+  Integer wn;
+  string 60 ostr;
+  Integer pos;
+  string 255 stack;
+  Integer LateralButtonAmtMax;
+  LongInt heighttemp;
+  record LocalMachineBlock LMb;
+  
+  BlockLoad(LMb);
+  heighttemp = height;
+  h = 0;
+  v = 0;
+  
+  wn = CurWindow;
+  stack = GetWindowString(wn,"touchscreenwindowpagestack");
+  
+  if (stack=="") then begin 
+    stack = "1"; 
+  end;
+  
+  pos = 0;
+  ExtractObj(stack,pos,ostr);
+  v = v + stackspace;
+  if (GuiType==kGuiiPhone or GuiType==kGuiAndroid) then begin
+    heighttemp = heighttemp + 8;
+  end;
+  v = v + heighttemp + dv;
+
+  if (GuiType!=kGuiiPhone and GuiType!=kGuiAndroid) then begin
+    v = v + 10;
+  end else begin
+    v = v - dv;
+    heighttemp = heighttemp - 8;
+  end;
+  
+  if (GuiType==kGuiiPhone or GuiType==kGuiAndroid) then begin    // Possible need for kGuiiPad ?
+      if (TouchScreenLookVertical) then begin
+        LateralButtonAmtMax = 4;
+      end else begin
+      	LateralButtonAmtMax = 7;
+      end;  
+    end else begin
+      switch (LMb.POSPanelSize) begin
+        case kPOSPanelSizeSmall:
+          LateralButtonAmtMax = 8;
+      case kPOSPanelSizeMedium:
+        LateralButtonAmtMax = 6;
+        otherwise
+          LateralButtonAmtMax = 4;
+      end;
+    end;   
+  
+  rownr = 0;
+  rwcnt = MatRowCnt(POSBr);
+
+  for (i = 0; i<rwcnt or rownr<minrows; i = i + 1) begin  
+    h = h + width + dh;
+    if (Mod(i+1,LateralButtonAmtMax)==0) then begin
+      v = v + heighttemp + dv;
+      h = 0;
+      rownr = rownr + 1;
+      if (rownr>=maxrows) then begin
+        i = i + 1;
+        goto LPOSButtonsNeededHeight;
+      end;
+    end;
+  end;
+  
+LPOSButtonsNeededHeight:;
+  if (Mod(i,LateralButtonAmtMax)==0) then begin
+    v = v + (heighttemp + dv) * 0.5;
+  end else begin
+    v = v + (heighttemp + dv) * 1.5;
+  end;
+  
+  POSButtonsNeededHeight = v;
+end;
+
+global
+procedure DrawPOSInterface2_LIT(string bc1,string bc2,record POSButtonsVc POSBr,string ovrclass,Integer stackspace,Integer wh)
+begin
+  record LocalMachineBlock LMb;
+  record CashierDefBlock CDb;
+  LongInt bm,lt,rt,tp;
+  LongInt h,v,i,h4,tx,ty,bx,by,wn,dh,dv,height,width,btnpnlh;
+  Integer minrows,maxrows,stackspaceh,imageFrameSz,imageFrameX;
+  Boolean ItemPage;
+  transaction Integer gDrawPOSInterface_DataListStartPos;
+  
+  BlockLoad(LMb);
+  BlockLoad(CDb);
+  
+  stackspaceh = stackspace;
+  if (HasJewelleryInterface) then begin stackspaceh = stackspaceh + 30; end;
+  h = 20; v = 26;
+  
+  //h2 = -150; h3 = -70;
+  
+  h4 = -24;
+  if (LMb.WideScrollBars!=0) then begin
+    h4 = -44;
+  end;
+  
+  switch (GuiType) begin
+    case kGuiiPhone:
+      dh = 3; dv = 3; height = 70; width = 101;
+      if (TouchScreenLookVertical) then begin
+        minrows = 1; maxrows = 3; // Should perhaps come from setting?
+      end else begin
+        minrows = 3; maxrows = 6; // Should perhaps come from setting?
+      end;
+      btnpnlh = POSButtonsNeededHeight(width,height,dh,dv,POSBr,stackspaceh,minrows,maxrows);
+    otherwise
+      dh = 2; dv = 5; height = 55; width = 98;
+  end;
+  
+  if (GuiType==kGuiiPhone) then begin
+    tx = 0; 
+    wn = CurWindow;
+    if (wn>0) then begin
+      switch (GetWindowClass(wn)) begin
+        case "RestAccDClass": ty = 170; bx = -8; h = 8;
+        otherwise
+          if (TouchScreenLookVertical) then begin
+            ty = 8; bx = -430; h = -420;
+          end else begin
+            ty = 120; bx = -1;  h = 20;
+            end;
+          end;
+      v = -btnpnlh;
+      by = v + stackspaceh - 10;
+    end;  
+  end else begin
+    // DrawPOSStringList();
+    switch (LMb.POSButtonsPosition) begin
+      case kPOSButtonsPositionLeft:
+        tx = 420; 
+        ty = 180;
+        if (GuiType==kGuiWindowsDesktop or GuiType==kGuiWPF) then begin
+          ty = 145;
+        end else begin
+          ty = 154;
+        end;
+        bx = h4;
+        by = -10;    
+        h = 8;      
+        switch (LMb.POSPanelSize) begin
+          case kPOSPanelSizeSmall:
+            tx = tx+395;
+          case kPOSPanelSizeMedium:
+            tx = tx+195;
+        end;
+      case kPOSButtonsPositionRight:
+        tx = 8; 
+        ty = 180;
+        if (GuiType==kGuiWindowsDesktop or GuiType==kGuiWPF) then begin
+          ty = 145;
+        end else begin
+          ty = 154;
+        end;
+        bx = -430;
+        by = -10;        
+        h = -410;
+        switch (LMb.POSPanelSize) begin
+          case kPOSPanelSizeSmall:
+            bx = bx-395;
+            h = h-395;
+          case kPOSPanelSizeMedium:
+            bx = bx-195;
+            h = h-195;
+        end;
+    end;
+    if (GuiType==kGuiMetro) then begin
+      ty = 120;
+    end;
+    if (GuiType==kGuiAndroid) then begin
+      wn = CurWindow;
+      GetScreenSize(wn,tp,lt,bm,rt);
+
+      tx = 0; ty = 0; bx = rt; by = 260;
+      //v = 0; h = 390; height = 84; width = 155;
+      dh = 2; dv = 2;
+    end;
+  end;
+  if (LMb.POSButtonHeight>0) then begin height = LMb.POSButtonHeight; end;
+  if (LMb.POSButtonWidth>0) then begin width = LMb.POSButtonWidth; end;
+  
+  DataList(tx,ty,bx,by,"receipt");
+  
+  switch (GuiType) begin
+    case kGuiiPhone:
+    if (TouchScreenLookVertical) then begin 
+      DataListColumn(1,6,90,AdjLeft,"qty","Kiekis",M4Val);
+        if (LMb.HideArtCode==0) then begin
+      DataListColumn(1,95,-130,AdjLeft,"artcode","Kodas",M4Code);      
+      DataListColumn(1,-125,-8,AdjRight,"rowsum","Suma",M4Val);      
+        end else begin
+          DataListColumn(1,95,-8,AdjRight,"rowsum","Suma",M4Val); 
+        end;
+      DataListColumn(2,6,-6,AdjLeft,"spec","",M4Str);
+      DataListColumn(3,6,60,AdjLeft,"artcode1","",M4Code);
+      DataListColumn(3,64,160,AdjLeft,"spec","",M4Str);
+      DataListColumn(3,164,210,AdjRight,"qty","",M4Val);
+      DataListColumn(3,214,320,AdjLeft,"artcode2","",M4Code);
+      DataListColumn(3,324,360,AdjLeft,"s","",M4Str);       
+    end else begin 
+        if (LMb.HideArtCode==0) then begin
+      DataListColumn(1,8,90,AdjLeft,"artcode","Kodas",M4Code);
+      DataListColumn(1,105,-340,AdjLeft,"spec","Aprašymas",M4Str);
+        end else begin
+          DataListColumn(1,9,-340,AdjLeft,"spec","Apibūdinimas",M4Str); 
+        end;
+      DataListColumn(1,-335,-270,AdjRight,"qty","Kiekis",M4Val);
+      DataListColumn(1,-265,-190,AdjRight,"price","Kaina",M4Val);
+      DataListColumn(1,-185,-130,AdjRight,"rebate","Nuol.",M4Val);
+      DataListColumn(1,-125,-8,AdjRight,"rowsum","Suma",M4Val);
+      //DataListColumn(1,-20,-6,AdjRight,"","",M4Str); // Added to provide some extra space for scroll bar.
+      
+      DataListColumn(2,6,-1,AdjLeft,"spec","",M4Str);
+      
+      DataListColumn(3,6,60,AdjLeft,"artcode1","",M4Code);
+      DataListColumn(3,64,160,AdjLeft,"spec","",M4Str);
+      DataListColumn(3,164,210,AdjRight,"qty","",M4Val);
+      DataListColumn(3,214,320,AdjLeft,"artcode2","",M4Code);
+      DataListColumn(3,324,360,AdjLeft,"s","",M4Str); 
+    end; 
+    case kGuiAndroid:
+      DataListColumn(1,8,70,AdjLeft,"artcode","Kodas",M4Code);
+      DataListColumn(1,72,180,AdjLeft,"spec","Apibūdinimas",M4Str);
+      DataListColumn(1,185,215,AdjRight,"qty","Kiekis",M4Val);
+      DataListColumn(1,222,275,AdjRight,"price","Kaina",M4Val);
+      DataListColumn(1,280,320,AdjRight,"rebate","Nuol.",M4Val);
+      DataListColumn(1,325,-1,AdjRight,"rowsum","Suma",M4Val);
+      //DataListColumn(1,-20,-6,AdjRight,"","",M4Str); // Added to provide some extra space for scroll bar.
+
+      DataListColumn(2,6,-1,AdjLeft,"spec","",M4Str); 
+
+      DataListColumn(3,6,60,AdjLeft,"artcode1","",M4Code); 
+      DataListColumn(3,64,160,AdjLeft,"spec","",M4Str); 
+      DataListColumn(3,164,210,AdjRight,"qty","",M4Val); 
+      DataListColumn(3,214,320,AdjLeft,"artcode2","",M4Code); 
+      DataListColumn(3,324,360,AdjLeft,"s","",M4Str); 
+    otherwise
+    DataListColumn(1,6,210,AdjLeft,"artcode","Kodas",M4Code);// Edit ************************** BPI Ukraine - KramarAlexandr - t, 16 nov 2017 00:29:12
+    if (HasJewelleryInterface) then begin
+      if (POSBr.WindowClass=="IVDClass") then begin//in 71 should be in for SL and POS Invoice
+        DataListColumn(1,91,-500,AdjLeft,"spec","Aprašymas",M4Str);
+        DataListColumn(1,-495,-460,AdjRight,"vatcode","PVM kd.",M4Str);
+        DataListColumn(1,-455,-380,AdjRight,"location","Patalpa",M4Str);
+      end else begin
+        DataListColumn(1,91,-460,AdjLeft,"spec","Aprašymas",M4Str);
+        DataListColumn(1,-455,-380,AdjRight,"vatcode","PVM kd.",M4Str);
+      end;
+      DataListColumn(1,-375,-300,AdjRight,"qty","Kiekis",M4Val);
+      DataListColumn(1,-295,-210,AdjRight,"price","Kaina",M4Val);
+      DataListColumn(1,-205,-150,AdjRight,"rebate","Nuol.",M4Val);
+      DataListColumn(1,-145,-21,AdjRight,"rowsum","Suma",M4Val);
+    end else begin
+      DataListColumn(1,211,-460,AdjLeft,"spec","Aprasymas",M4Str);// Edit ************************** BPI Ukraine - KramarAlexandr - t, 16 nov 2017 00:31:04
+      DataListColumn(1,-455,-420,AdjRight,"qty","Kiekis",M4Val);// Edit ************************** BPI Ukraine - KramarAlexandr - t, 16 nov 2017 00:31:06
+			DataListColumn(1,-415,-315,AdjRight,"pricewvat","Price w-out VAT",M4Val);// Edit ************************** BPI Ukraine - KramarAlexandr - w, 15 nov 2017 23:31:43
+      DataListColumn(1,-310,-210,AdjRight,"price","Kaina",M4Val);
+      DataListColumn(1,-205,-140,AdjRight,"rebate","Nuol.",M4Val);
+      DataListColumn(1,-135,-21,AdjRight,"rowsum","Suma",M4Val);
+    end;
+    DataListColumn(1,-20,-6,AdjRight,"","",M4Str); // Added to provide some extra space for scroll bar.
+    
+    DataListColumn(2,6,-6,AdjLeft,"spec","",M4Str);
+    
+    DataListColumn(3,6,60,AdjLeft,"artcode1","",M4Code);
+    DataListColumn(3,64,160,AdjLeft,"spec","",M4Str);
+    DataListColumn(3,164,210,AdjRight,"qty","",M4Val);
+    DataListColumn(3,214,320,AdjLeft,"artcode2","",M4Code);
+    DataListColumn(3,324,360,AdjLeft,"s","",M4Str);
+
+/*
+      DataListColumn(4,6,60,AdjLeft,"qtytotal","",M4Str);
+      DataListColumn(4,64,160,AdjLeft,"subtotaltext","",M4Str); 
+      DataListColumn(4,164,210,AdjRight,"subtotal","",M4Val); 
+      DataListColumn(4,214,320,AdjLeft,"vattotaltext","",M4Str); 
+      DataListColumn(5,324,360,AdjRight,"vattotal","",M4Val); 
+*/      
+  end;
+  if (GuiType==kGuiiPhone) then begin
+    if (TouchScreenLookVertical==false and GetWindowClass(wn)!="RestAccDClass") then begin  //!!SAMETRANSLATION
+      SoftEditField(-226,by+5,200,"Prekė/komanda"  ,Normal ,"ivcashcommand",false,0,M4Str,255); 
+    end;
+  end;
+
+/*
+  if (GuiType==kGuiAndroid) then begin
+    if (TouchScreenLookVertical==false and GetWindowClass(wn)!="RestAccDClass") then begin  //!!SAMETRANSLATION
+      StaticTextWithColor(20,by+5,"$POSfoot_rebate",false,9,patM4black);
+      StaticTextWithColor(bx-10,by+5,"$POSfoot_total",true,9,patM4black);
+      StaticTextWithColor(20,by+28,"$POSfoot_CHANGE",false,9,patM4black);
+      StaticTextWithColor(bx-10,by+28,"$POSfoot_VAT",true,9,patM4black); 
+      StaticTextWithColor(bx-10,by+51,"$POSfoot_change",true,9,patM4black); 
+      SoftEditField(20,by+60,200,"Item/Command"  ,Normal ,"ivcashcommand",false,0,M4Str,255); 
+    end;
+  end;
+*/
+  // DrawPOSData();
+  // DrawPOSData();
+
+  if (CDb.ItemPictureCashier!=kPOSItemPictureOff and GuiType!=kGuiiPhone) then begin
+    imageFrameSz = 150;
+    if (LMb.POSButtonsPosition==kPOSButtonsPositionLeft) then begin
+      imageFrameX = 20;
+    end else begin
+      imageFrameX = -20-imageFrameSz;
+    end;
+    Pict_Field(imageFrameX,-40-imageFrameSz,imageFrameX+imageFrameSz,-40,""); 
+  end;
+
+  
+  ItemPage = false;
+  if (ItemPage) then begin
+    SoftEditField(h=80,v+=49, 80,"Prekė",Normal ,"touchscreenitem",false,INSClass,M4Str,255);
+    //  SoftEditField(h+=140,v, 80,"Serial No.",Normal ,"touchscreenitemserialnr",false,SerialNrSClass,M4Str,255);
+    //no stock updating    SoftEditField(h+=120,v, 40,"Serial No.",Normal ,"touchscreenitemserialnr",false,0,M4Str,255);
+    SoftEditField(h+=120,v, 60,"Kaina",Normal ,"touchscreenitemprice",false,0,M4Str,255);
+    SoftEditField(h=80,v+=20,-500,"",ViewOnly ,"touchscreenitemname",false,0,M4Str,255);
+  end;
+  
+  //outside of screen
+  SoftEditField(2000,2000,70,"",ViewOnly ,"touchscreenwindowpage",false,0,M4Str,255);
+  SoftEditField(2000,2000,70,"",ViewOnly ,"touchscreenwindowpagestack",false,0,M4Str,255);
+  SoftEditField(2000,2000,70,"",ViewOnly ,"touchscreenwindowprinterstack",false,0,M4Str,255);
+  SoftEditField(2000,2000,70,"",ViewOnly ,"touchscreenwindowpageprevious",false,0,M4Str,255);
+  
+  GetScreenSize(wn,tp,lt,bm,rt);  
+
+  if (GuiType==kGuiAndroid) then begin
+    wn = CurWindow;
+    h = 3;
+    v = 255;
+    width = (rt-lt-12) / 4;
+    height = 40;
+    tx = rt-5;
+    bx = bm;
+
+  end;
+  if (tx<100) then begin
+    gDrawPOSInterface_DataListStartPos = bx;
+  end else begin
+    gDrawPOSInterface_DataListStartPos = tx;
+  end;
+
+  DrawPOSButtons3_LIT(h,v,width,height,dh,dv,tx,bx,POSBr,ovrclass,stackspaceh,wh);
+  
+  //selitemline = StringToInt(GetWindowString(wn,"touchscreenselecteditemtag"));
+  //SetSelectedListLine(wn,selitemline);
+  
+  return;
+end;
+
+global
+procedure DrawPOSInterface_LIT(string bc1,string bc2,record POSButtonsVc POSBr,string ovrclass,Integer stackspace)
+begin
+  Integer wh;
+  
+  DrawPOSInterface2_LIT(bc1,bc2,POSBr,ovrclass,stackspace,wh);
+  return;
+end;
+
+global
+procedure DisplayRecordDetails_LIT(LongInt ah,LongInt av,string compname,date td,time tt,string lmc,string sm,string nr,string custcode,string custname,
+                               string addr1,string addr2,string addr3,string phone,string objects,
+                               string loyaltycardnr,Integer ShowBaggerSupervisor,string bagger,string supervisor,string disccardnr,val discfwdbal,
+                               string sessiondesc,Boolean showlc,string OfficialNum,string taxseal)
+begin
+  real h,h2,h3,h4,h5,h6,v,vs,vj,v2,v3,v4;
+  string 255 tstr;
+  Integer icn;
+  integer wn;// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 19:11:26
+  record IVCashVc IVCashr;// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 19:11:26
+  
+  wn = CurWindow;// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 19:11:24
+	if (wn>0) then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 19:11:25
+		switch (GetWindowClass(wn)) begin
+			case "NPTSIVCashDClass":
+				GetWindowRecord(wn,IVCashr);
+		end;
+	end;
+		
+  h = ah;
+  h2 = h + 150;
+  h3 = h + 240;
+  h4 = 335;
+  vs = 16;
+  v = av;  v2 = av; v3 = av; v4 = av;
+  
+  if (GuiType==kGuiiPhone) then begin
+    vs = 20;
+    h2 = h + 180;
+    h3 = h + 270;
+    StaticText(h,v,Left(compname,18),false);
+  
+    StaticText(h2,v,td,false);
+    StaticText(h3,v,Left(tt,5),false);
+    StaticText(h,v+=vs,nr,false);
+    StaticText(h2,v,"Kasa: " & lmc,false); 
+    StaticText(h3,v,sm,false);
+  
+    tstr = "Pirkėjas: "; 
+    tstr = tstr & custcode;
+    StaticText(h,v+=vs,Left(tstr,18),false);
+    tstr = Left(custname,20);
+    StaticText(h2,v,tstr,false);
+  
+    if (showlc) then begin
+      tstr = "Lojalumo kortelė: "; 
+      tstr = tstr & loyaltycardnr;
+      StaticText(h,v+=vs,tstr,false);
+    end else begin
+      v = v + vs;
+    end;
+  
+    if (ShowBaggerSupervisor!=0) then begin
+      tstr = "Prižiūrėtojas: "; 
+      tstr = tstr & bagger;
+      StaticText(h2,v,tstr,false);
+      v = v + vs;
+    end;
+    
+    if (nonblank(disccardnr)) then begin
+      tstr = "Nuolaidų kort: "; 
+      tstr = tstr & disccardnr;
+      StaticText(h2,v,tstr,false);
+      tstr = "Nuol. prad. lik.: " & discfwdbal; 
+      StaticText(h2,v+=vs,tstr,false);
+    end;
+    if (nonblank(sessiondesc)) then begin
+      StaticText(h,v+=vs,sessiondesc,false);
+    end;
+
+    goto LDisplayRecordDetails_ENG01;
+  end;  
+  if (GuiType==kGuiAndroid) then begin
+    v = 13;
+    vs = 20;
+    h = 400;
+    h2 = h + 100;
+    h3 = h2 + 100;
+    h4 = h3 + 120;
+    h5 = h4 + 100;
+    h6 = h5 + 100;
+    //StaticTextWithColor(h,v,Left(compname,18),false,-1,patM4white);
+  
+    //StaticTextWithColor(h2,v,"
+    //StaticTextWithColor(h3,v,"
+    StaticTextWithColor(h2,v,nr,false,-1,patM4white);
+    StaticTextWithColor(h,v,"Iki: " & lmc,false,-1,patM4white); 
+    StaticTextWithColor(h3,v,sm,false,-1,patM4white);
+    if (showlc) then begin
+      tstr = "Lojalumo kortelė: "; 
+      tstr = tstr & loyaltycardnr;
+      StaticTextWithColor(h4,v,tstr,false,-1,patM4white);
+    end else begin
+      v = v + vs;
+    end;
+    if (nonblank(disccardnr)) then begin
+      tstr = "Nuolaidų kortelė: "; 
+      tstr = tstr & disccardnr;
+      StaticTextWithColor(h4,v,tstr,false,-1,patM4white);
+      tstr = "Nuolaidų balans: " & discfwdbal; 
+      StaticTextWithColor(h6,v,tstr,false,-1,patM4white);
+    end;
+    v = v+vs;
+    if (nonblank(sessiondesc)) then begin
+      StaticTextWithColor(h,v,sessiondesc,false,-1,patM4white);
+    end;
+
+    tstr = "Pirkėjas: "; 
+    tstr = tstr & custcode;
+    tstr = tstr & " " & Left(custname,20); 
+    StaticTextWithColor(h3,v,tstr,false,-1,patM4white);
+
+    if (ShowBaggerSupervisor!=0) then begin
+      tstr = "Bagger: ";  //!!SAMETRANSLATION
+      tstr = tstr & bagger;
+      StaticTextWithColor(h6,v,tstr,false,-1,patM4white);
+      v = v + vs;
+    end;
+
+    goto LDisplayRecordDetails_ENG01;
+  end;  
+  v = av+45; v2 = av+45; v3 = av+45; v4 = av+45;
+
+  icn = StringToInt(USetStr(912));
+  if (icn==0) then begin icn = 1044; end;
+  if (BuildProductCode=="PAYYAPERP") then begin
+    if (GuiType==kGuiCocoa) then begin
+      AddBic(icn,icn,140,30,0,0,"");  
+    end else begin
+      PictureButton(h-1,6,h-1+305,6+44,icn,icn,icn,"","",0); 
+    end;
+  end else begin
+  if (GuiType==kGuiCocoa) then begin
+    AddBic(icn,icn,140,30,ToolHomepage,0,""); 
+  end else begin
+    //PictureButton(h-1,6,310,126,icn,icn,icn,"","",ToolHomepage);
+    PictureButton(h-1,6,h-1+305,6+44,icn,icn,icn,"","",ToolHomepage);
+    end;
+  end;
+  
+  StaticText(h,v,Left(compname,20),false); v = v + vs;
+
+  StaticText(h2,v2,td,false); v2 = v2 + vs;
+  StaticText(h3,v3,Left(tt,5),false); v3 = v3 + vs;
+  StaticText(h,v,nr,false); v = v + vs;
+  StaticText(h2,v2,"Iki: " & lmc,false);  v2 = v2 + vs; 
+  StaticText(h3,v3,sm,false); v3 = v3 + vs;
+/*
+already painted   
+  if (HasLocalization("HRV,PHL,PRT")) then begin 
+    tstr = "Oficialus nr: " & OfficialNum;
+    StaticText(h4,v4,tstr,false); v4 = v4 + vs;
+  end;
+*/
+  tstr = "Pirkėjas: ";
+  tstr = tstr & custcode;
+  StaticText(h,v,tstr,false); v = v + vs;
+  StaticText(h2,v2,Left(custname,25),false); vj = v2; v2 = v2 + vs;
+
+  if (showlc) and (nonblank(loyaltycardnr)) then begin
+    tstr = "Lojalumo kort.: ";
+    tstr = tstr & loyaltycardnr;
+    StaticText(h,v,tstr,false);  v = v + vs;
+  end;
+
+  if (ShowBaggerSupervisor!=0) then begin
+    tstr = "Pakuotojas: ";
+    tstr = tstr & bagger;
+    StaticText(h2,v2,tstr,false); v2 = v2 + vs;
+  end;
+  
+  if (nonblank(disccardnr)) then begin
+    tstr = "Nuolaidos kort.: ";
+    tstr = tstr & disccardnr;
+    StaticText(h2,v2,tstr,false); v2 = v2 + vs;
+    tstr = "Nuol. prad. lik.: " & discfwdbal;
+    StaticText(h4,v4,tstr,false); v4 = v4 + vs;
+  end;
+  if (HasJewelleryInterface) then begin
+    if (nonblank(addr1)) then begin
+      tstr = "Adresas: "; 
+      tstr = tstr & addr1;
+      StaticText(h4,vj,left(tstr,30),false); vj = vj + vs;
+    end;
+    tstr = ""; 
+    if (nonblank(addr2)) then begin
+      tstr = addr2;
+      if (nonblank(addr3)) then begin tstr = tstr & ", "; end; 
+    end;
+    if (nonblank(addr3)) then begin
+      tstr = tstr & addr3;
+    end;
+    if (nonblank(tstr)) then begin
+      StaticText(h4,vj,left(tstr,30),false);
+    end;
+  end;
+  if (nonblank(sessiondesc)) then begin
+    StaticText(h,v,sessiondesc,false);  v = v + vs;
+  end;
+  if (nonblank(IVCashr.InvComment)) then begin
+		StaticText(h,v,"Comment: " & IVCashr.InvComment,false);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 18:45:13
+		v = v + vs;// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 18:46:51
+  end;
+  if (HasJewelleryInterface) then begin
+    if (nonblank(objects)) then begin
+      tstr = "Objektai: "; 
+      tstr = tstr & objects;
+      StaticText(h2,v2,tstr,false); v2 = v2 + vs;
+    end; 
+  end;
+  if (nonblank(phone)) then begin
+    tstr = "Telefonas: " & phone; 
+    StaticText(h4,v4,tstr,false); v4 = v4 + vs;
+  end;
+LDisplayRecordDetails_ENG01:;  
+  return;
+end;
+
+global
+procedure TBEClassDef_LIT()
+begin
+  SetWRect(20,80,400,150);
+  EditFieldTL(130,6,-20,"Kopijos komentaras",M4Str,Normal,40 ,f3,false,0);
+  return;
+end;
+
+global
+procedure MakeCustomerTile_LIT(longint tileno)
+begin
+  real i,h,h1,h2,h3,h4,h5,h6,h7,hm,hs,v,l,vs,v2,vm,f,t,fs;
+  string 255 label;
+
+  v = 6; vs = 20; h = 100; h2 = 270; h3 = 420; h4 = 440; fs = 100;
+
+  Tile(tileno,70,false,tileno,PRCode);
+  EditField(h,vm=v,80,"Projektas",Normal,PRCode,false,PRSClass);
+  EditField(h,v+=vs,80,"Pirkėjas",Normal,CUCode,false,AllCUSClass);
+  EditField(h,v+=vs,80,"Faktūros prekė",Normal,ItemCode,false,INSClass);
+  EnterSkip(Math);
+  EditField(h2,v=vm,-40,"Pavadinimas",Normal,CUName,false,0);
+  EditField(h2,v+=vs,-40,"Telefonas",Normal,Phone,false,0);
+  EditField(h2,v+=vs,-40,"Kontaktas",Normal,Contact,false,ContactSClass);
+end;
+
+global
+procedure MakeTagsTile_LIT(longint tileno)
+begin
+  real i,h,h1,h2,h3,h4,h5,h6,h7,hm,hs,v,l,vs,v2,vm,f,t,fs;
+  string 255 label;
+
+  v = 6; vs = 20; h = 100; h2 = 270; h3 = 420; h4 = 440; fs = 100;
+
+  Tile(tileno,100,true,tileno,Math);
+  MatrixBegin(4,v=24,-32,-30,ActRowType,99);
+  MatCol(1,24,"Kodas",0,TextCode,false,TextTypeSClass);
+  MatCol(1,84,"Tekstas",0,Text,false,0);
+  EndMatrix;
+  HalPushButton(-140,-30,-40,-10,"ActDEndActivity","ActDEndActivity");
+end;
+
+global
+procedure MakeSubTaskTile_LIT(longint tileno)
+begin
+  real i,h,h1,h2,h3,h4,h5,h6,h7,hm,hs,v,l,vs,v2,vm,f,t,fs;
+  string 255 label;
+
+  v = 6; vs = 20; h = 100; h2 = 270; h3 = 420; h4 = 440; fs = 100;
+
+  Tile(tileno,200,true,tileno,-);
+
+  HalPushButton(h,v,h+100,v+20,"ActDClassCreateSubTask","Nauja sub-veikla");
+  v = v + vs;
+  RecordList2(10,v+=vs,-30,-10,"ActVc");
+  RlColKey(4,4,"Užduotis",Comment,false,ActComment);
+  RlColKey(-50,-50,"Visi",Comment,false,Comment);
+end;
+
+global
+procedure MakeCruftTile_LIT(longint tileno)
+begin
+  real i,h,h1,h2,h3,h4,h5,h6,h7,hm,hs,v,l,vs,v2,vm,f,t,fs;
+  string 255 label;
+
+  v = 6; vs = 20; h = 100; h2 = 270; h3 = 420; h4 = 440; fs = 100;
+
+  Tile(tileno,240,false,"tileno",-);
+  EditField(h,v+=vs,80,"Kalba",Normal,LangCode,false,LangSClass);
+  CheckBox(-100,-36,0,"Asmeninė",PrivateFlag);
+  
+  return;
+end;
+
+global
+procedure MakeActWindowTypeCalendar_LIT(record ActVc Actr)
+begin
+  real i,h,h1,h2,h3,h4,h5,h6,h7,hm,hs,v,l,vs,v2,vm,f,t,fs;
+  string 255 label;
+
+  v = 6; vs = 20; h = 100; h2 = 270; h3 = 420; h4 = 440; fs = 100;
+
+  TileButton(1,"Laikas");
+  TileButton(2,"Pirkėjas");
+  TileButton(3,"Žymės");
+  TileButton(4,"Priminimas");
+  TileButton(5,"Resursai");
+  TileButton(6,"Paslauga");
+  TileButton(7,"Vart. apibr.");
+  TileButton(8,"Kiti");
+
+  Tile(1,70,false,"1",StartTime);
+  h = 100; h2 = 270;
+  EditField(h,v=6,60,"Pradž. laikas",Normal,StartTime,false,PasteCurTime);
+  EditField(h,v+=vs,60,"Pabaig. laikas",Normal,EndTime,false,PasteCurTime);
+  EditField(h,v+=vs,60,"Savikaina (Laikas)",Normal,CostTime,false,PasteCurTime);
+  EditField(h2,v=6 ,80,"Pradž. data",Normal,TransDate,false,PasteCurDate);
+  EditField(h2,v+=vs,80,"Pabaig. data",Normal,EndDate,false,PasteCurDate);
+  EditField(h2,v+=vs,80,"Laiko klasė",Normal,TimeClass,false,TimeClassSClass);
+  v = 18;
+  vm = v;
+  h3=h2+120;
+
+  h3 = h3+160;
+  ButtonFrame(h3,v=vm,100,3,"Kalendorius");
+  RadioButton(h3,v,kCalTimeFlagTime,0,"Laikas",CalTimeFlag);
+  RadioButton(h3,v+=16,kCalTimeFlagProfile,0,"Profilis",CalTimeFlag);
+  RadioButton(h3,v+=16,kCalTimeFlagNoshow,0,"Nerodyti",CalTimeFlag);
+  EnterSkip(PRCode);
+
+  MakeCustomerTile_LIT(2);
+  MakeTagsTile_LIT(3);
+
+  Tile(4,140,false,"4",-);
+  h3 = 40;
+  ButtonFrame(h3,v=18,130,4,"Priminimo tipas");
+  RadioButton(h3,v,0,0,"Nėra",AlarmType);
+  RadioButton(h3,v+=16,1,0,"Žinutė",AlarmType);
+  RadioButton(h3,v+=16,2,0,"SMS",AlarmType);
+  RadioButton(h3,v+=16,3,0,"El. paštas",AlarmType);
+  ButtonFrame(h3+=160,v=18,130,7,"Alarm"); //!!SAMETRANSLATION
+  RadioButton(h3,v,0,0,"Minučių prieš",AlarmWhen);
+  RadioButton(h3,v+=16,1,0,"Valandų prieš",AlarmWhen);
+  RadioButton(h3,v+=16,2,0,"Dienų prieš",AlarmWhen);
+  RadioButton(h3,v+=16,3,0,"Minučių po",AlarmWhen);
+  RadioButton(h3,v+=16,4,0,"Valandų po",AlarmWhen);
+  RadioButton(h3,v+=16,5,0,"Dienų po",AlarmWhen);
+  EditField(h3+75,v+=17,50,"Vienetai",Normal,AlarmUnits,false,0);
+  ButtonFrame(h4=h3+160,v=18,130,4,"Simbolis");
+  RadioButton(h4,v,1,0,"Skambutis",SymbNr);
+  RadioButton(h4,v+=16,2,0,"Susitikimas",SymbNr);
+  RadioButton(h4,v+=16,3,0,"Darbas ofise",SymbNr);
+  RadioButton(h4,v+=16,0,0,"Kitas",SymbNr);
+  Tile(5,30,false,"5",Resources);
+  EditField(h,v=6,300,"Resursai",Normal,Resources,false,ResSClass);
+  EditField(h+400,v, fs,"Turtas",Normal,InventoryNr,false,AT2UnitSClass);
+  Tile(6,50,false,"6",SVOSerNr);
+  EditField(h,v=6, fs,"Serijinis nr.",Normal,SerialNr,false,SVOSerSClass);
+  EditField(h+200,v,fs,"Prekė",Normal,ArtCode,false,INSClass);
+  EditField(h+400,v, fs,"Gam. Oper.",Normal,ProdOpSerNr,false,0);
+  EditField(h,v+=vs, fs,"Pasl. užsk.",Normal,SVOSerNr,false,SVOSClass);
+  EditField(h+200,v,fs,"Faktūros prekė",Normal,ItemCode,false,INSClass);
+  EditField(h+400,v, fs,"Gaminys",Normal,ProdSerNr,false,0);
+end;
+
+global
+procedure MakeActWindowTypeToDo_LIT(record ActVc Actr)
+begin
+  real i,h,h1,h2,h3,h4,h5,h6,h7,hm,hs,v,l,vs,v2,vm,f,t,fs;
+  string 255 label;
+
+  //TileButton(-,"Time");
+  //TileButton(1,"Text");
+  TileButton(1,"Žymės");
+  TileButton(2,"Subužduotys");
+  TileButton(3,"Pirkėjas");
+  //TileButton(-,"Alarm");
+  //TileButton(-,"Resources");
+  //TileButton(-,"Service");
+  TileButton(4,"Vart. apibr.");
+  TileButton(5,"Kiti");
+
+  //MakeTextTile(1);
+  MakeTagsTile_LIT(1);
+  MakeSubTaskTile_LIT(2);
+  MakeCustomerTile_LIT(3);
+  MakeUserDefinedTile(4);
+  MakeCruftTile_LIT(5);
+end;
+
+global
+procedure SetupNightAuditWindowControls_LIT(Boolean DoPrefWindowf)
+begin
+  real h,h2,v,vs,v2,vm,bf;
+
+  if DoPrefWindowf then begin
+    h = 70; h2 = 265; v = 10; vs = 20;
+    EditField(h,v,60,"Vartotojas",Normal,UserCode,false,UserSClass);
+    EditField(175,v,265,"Pavadinimas",Normal,UserName,false,UserSClass);
+    EditField(h,v+=vs,280,"Patalpos",Normal,Locations,false,LocationSClass);
+    StaticText(h+290,v+14,"(NEATLIKTA)",false);
+    v = 69;
+  end else begin
+    h = 30; v = 13;
+    EditField(h+30,v,80,"Data",Normal,sStartDate,false,PasteCurDate);   
+    v = v+46;
+  end;
+  //Section 1
+  ButtonFrame(h,v,bf=380,2,"Sekcija 1 (Užimtumas)");
+  if DoPrefWindowf then begin
+    CheckBox(h,v,0,"Įtraukti",Sec1Enabled);  
+    CheckBox(h,v+=16,0,"Rodyti kambario info.",Sec1RoomDetails);
+  end else begin
+    CheckBox(h,v,0,"Įtraukti",flags[0]);
+    CheckBox(h,v+=16,0,"Rodyti kambario info.",flags[1]);
+  end;
+  v = v+45; v2 = v+12;
+  if (HasModNL) then begin
+  //Section 2
+    ButtonFrame(h,v,bf,5,"Sekcija 2 (Pajamos)");
+  if DoPrefWindowf then begin
+    CheckBox(h,v,0,"Įtraukti",Sec2Enabled);
+  end else begin
+    CheckBox(h,v,0,"Įtraukti",flags[2]);
+  end;
+  h2 = h+10;
+  ButtonFrame(h2,v+=37,100,2,"Periodo tipas");
+  if DoPrefWindowf then begin
+    RadioButton(h2,v,0,0,"Calendoriniai metai",Sec2PeriodType);
+    RadioButton(h2,v+=16,1,0,"Ūkiniai metai",Sec2PeriodType);
+  end else begin
+    RadioButton(h2,v,0,0,"Kalendoriniai metai",flags[17]);
+    RadioButton(h2,v+=16,1,0,"Ūkiniai metai",flags[17]);
+  end;
+    h2 = h+210;
+  if DoPrefWindowf then begin
+    EditField(h2,v2,160,"Sąskaitos",Normal,Sec2Account,false,AccSClass);
+    EditField(h2,v2+=21,160,"Objekto tipas",Normal,Sec2ObjType,false,OTSClass);
+    EditField(h2,v2+=21,160,"Objektai",Normal,Sec2Obj,false,ObjSClass);  
+  end else begin
+    EditField(h2,v2,160,"Sąskaitos",Normal,AccStr,false,AccSClass);
+    EditField(h2,v2+=21,160,"Objekto tipai",Normal,ObjType,false,OTSClass);
+    EditField(h2,v2+=21,160,"Objektai",Normal,ObjStr,false,ObjSClass);  
+  end;
+  v = v+55; v2 = v;
+  end;
+  //Section 3
+  ButtonFrame(h,v,bf,2,"Sekcija 3 (Pirk./Sveč. knyga)");
+  if DoPrefWindowf then begin
+    CheckBox(h,v,0,"Įtraukti",Sec3Enabled);
+    CheckBox(h,v+=16,0,"Rodyti agentus",Sec3ShowAgents);
+    CheckBox(h+195  ,v2,0,"Rodyti svečius",Sec3ShowGuests);
+  end else begin
+    CheckBox(h,v,0,"Įtraukti",flags[4]);
+    CheckBox(h,v+=16,0,"Rodyti agentus",flags[5]);
+    CheckBox(h+195  ,v2,0,"Rodyti svečius",flags[6]);
+  end;
+  v = v+43; v2 = v+8;
+  //Section 4
+  ButtonFrame(h,v,bf,2,"Sekcija 4 (Pajamų informacija)");
+  if DoPrefWindowf then begin
+    CheckBox(h,v,0,"Įtraukti",Sec4Enabled);
+    CheckBox(h,v+=16,0,"Rodyti informaciją",Sec4Detailed);
+    if (HasMultiLocations) then begin
+    EditField(h+200,v2,160,"Patalpos",Normal,Sec4Locations,false,LocationSClass);
+    end;
+  end else begin
+    CheckBox(h,v,0,"Įtraukti",flags[7]);
+    CheckBox(h,v+=16,0,"Rodyti info.",flags[8]);
+    if (HasMultiLocations) then begin
+    EditField(h+200,v2,160,"Patalpos",Normal,f1,false,LocationSClass);
+    end;
+  end;
+  v = v+43; v2 = v+8;
+  //Section 5
+  ButtonFrame(h,v,bf,2,"Sekcija 5 (Įplaukų analizė)");
+  if DoPrefWindowf then begin
+    CheckBox(h,v,0,"Įtraukti",Sec5Enabled);
+    CheckBox(h,v+=16,0,"Rodyti info.",Sec5Detailed);
+    if (HasLocalMachines) then begin
+    EditField(h+200,v2,160,"Mašinos",Normal,Sec5Machines,false,LocalMachineSClass);
+    end;
+  end else begin
+    CheckBox(h,v,0,"Įtraukti",flags[9]);
+    CheckBox(h,v+=16,0,"Rodyti info.",flags[10]);
+    if (HasLocalMachines) then begin
+    EditField(h+200,v2,160,"Mašinos",Normal,f2,false,LocalMachineSClass);
+  end;
+  end;
+  v = v+43;
+  if (IsEnterprise) then begin
+  //Section 6
+    ButtonFrame(h,v,bf,2,"Sekcija 6 (Forex analizė) - Neatlikta");
+  if DoPrefWindowf then begin
+    CheckBox(h,v,0,"Įtraukti",Sec6Enabled);
+    CheckBox(h,v+=16,0,"Rodyti info.",Sec6Detailed);
+  end else begin
+    CheckBox(h,v,0,"Įtraukti",flags[11]);
+    CheckBox(h,v+=16,0,"Rydoti info.",flags[12]);
+  end;
+  v = v+43; v2 = v; vm = v;
+  end;
+  //Section 7
+  if (HasLimitedAccess or HasMultiLocations) then begin
+  ButtonFrame(h,v,bf,3,"Sekcija 7 (Sistemos kontrolė)");
+  if DoPrefWindowf then begin
+    CheckBox(h,v+=5,0,"Įtraukti",Sec7Enabled);
+    CheckBox(h+120,v2+=5,0,"Nepatv. pard. oper.",Sec7DoSalesGroup);
+    CheckBox(h+120,v2+=20,0,"Nepatv. sand. oper.",Sec7DoLocations);
+      if (HasLimitedAccess) then begin
+    EditField(h+260,vm+=5,100,"",Normal,Sec7SalesGroups,false,SalesGroupSClass);
+      end;
+      if (HasMultiLocations) then begin
+    EditField(h+260,vm+=22,100,"",Normal,Sec7Locations,false,LocationSClass);
+      end;
+  end else begin
+    CheckBox(h,v+=5,0,"Įtraukti",flags[13]);
+    CheckBox(h+120,v2+=5,0,"Nepatv. pard. oper.",flags[15]);
+    CheckBox(h+120,v2+=20,0,"Nepatv. sand. oper.",flags[16]);
+      if (HasLimitedAccess) then begin
+    EditField(h+260,vm+=5,100,"",Normal,f3,false,SalesGroupSClass);
+      end;
+      if (HasMultiLocations) then begin
+    EditField(h+260,vm+=22,100,"",Normal,f4,false,LocationSClass);
+      end;
+    end;    
+  end;    
+  return;
+end;
+
+global
+procedure DefineElearningURLCacheLClass_LIT()
+begin
+  SetWRect(10,80,600,291);
+  Sizeable(-1,-1,0,0);
+  RecordList(4,17,-21,-39);
+  //  RlColKey(6,6,"UUID",UUID,false,UUID);
+  RlColKey(6,6,"Lango pavadinimas",WindowName,false,WindowName);
+  RlCol(150,150,"URL",URL,false); //!!SAMETRANSLATION
+  RlCol(-200,-200,"Data",UDate,true);
+  RlCol(-130,-130,"Laikas",UTime,true);
+  RlCol(-60,-60,"Būklė",State,true);
+  SearchField("Ieškoti");
+  return;
+end;
+
+global
+procedure DefineElearningURLCacheDClass_LIT()
+begin
+  real vs,h,h2,h3,v;
+
+  SetWRect(20,80,500,420);
+  vs = 20; h = 100; h2 = 240;h3 = 380; v = 6;
+  EditField(h,v,320,"UUID",Normal,UUID,false,0); //!!SAMETRANSLATION
+  EditField(h,v+=vs,-20,"Lango pavadinimas",Normal,WindowName,false,0);
+  EditField(h,v+=vs,-20,"URL",Normal,URL,false,0); //!!SAMETRANSLATION
+  EditField(h,v+=vs,80,"Data",Normal,UDate,false,PasteCurDate);
+  EditField(h2,v,80,"Laikas",Normal,UTime,false,PasteCurTime);
+  EditField(h3,v,-20,"Būklė",Normal,State,false,SetSClass);
+  MatrixBegin(4,v=(v+=40),-32,-20,-,99);
+  MatCol(1,24,"Savybės",0,Property,false,StrSetSClass);
+  MatCol(1,-200,"Vertė",0,Value,false,0);
+  MatCol(1,-150,"Produkto kodas",0,ProductCode,false,StrSetSClass); 
+  EndMatrix;
+  return;
+end;
+
+global
+procedure DisplayRecordDetailsCustDisplay_LIT(LongInt ah,LongInt av,string compname,date td,time tt,string lmc,string sm,string nr,string custcode,string custname,
+                                          string loyaltycardnr,Integer ShowBaggerSupervisor,string bagger,string supervisor,string disccardnr,val discfwdbal)
+begin
+  real h,h2,h3,h4,v;
+  string 255 tstr;
+  record LocalMachineBlock LMb;
+  longint i;
+  
+  BlockLoad(LMb);
+
+  h = ah;
+  h2 = h + 150;
+  h3 = h + 240;
+  v = av;
+
+  StaticText(h,v,Left(compname,20),false);
+
+/*
+  StaticText(h2,v,td,false);
+  StaticText(h3,v,Left(tt,5),false);
+  StaticText(h,v+=20,nr,false);
+  StaticText(h2,v,"Kasa: " & lmc,false);
+  StaticText(h3,v,sm,false);
+  tstr = "Pirkėjas: ";
+  tstr = tstr & custcode;
+  StaticText(h,v+=20,tstr,false);
+  StaticText(h2,v,Left(custname,35),false);
+
+  tstr = "Lojalumo kort.: ";
+  tstr = tstr & loyaltycardnr;
+  StaticText(h,v+=20,tstr,false);
+*/
+  v = 120;
+  if (ShowBaggerSupervisor!=0) then begin
+    tstr = "Pakuotojas: ";
+    tstr = tstr & bagger;
+    StaticText(h,v,tstr,false);
+    v = v + 20;
+  end;
+  if (nonblank(disccardnr)) then begin
+    tstr = "Nuolaidos kort.: ";
+    tstr = tstr & disccardnr;
+    StaticText(h,v,tstr,false);
+    tstr = "Nuol. prad. lik.: " & discfwdbal;
+    StaticText(h2,v,tstr,false);
+  end;
+  
+  
+  h = 20; v = 26;
+  
+  //h2 = -150; h3 = -70;
+  
+  h4 = -24;
+  if (LMb.WideScrollBars!=0) then begin
+    h4 = -44;
+  end;
+  
+  // DrawPOSStringList();
+  switch (LMb.POSButtonsPosition) begin
+    case kPOSButtonsPositionLeft:
+      DataList(630,105+60+15,h4,-10,"receipt"); 
+      h = 8;
+    case kPOSButtonsPositionRight:
+      DataList(8,105+60+15,-660,-10,"receipt"); 
+      h = -630;
+  end;
+  
+  if (LMb.HideArtCode==0) then begin
+  DataListColumn(1,6,90,AdjLeft,"artcode","Kodas",M4Code); 
+  DataListColumn(1,96,-270,AdjLeft,"spec","Aprašymas",M4Str); 
+  end else begin
+    DataListColumn(1,6,-270,AdjLeft,"spec","Apibūdinimas",M4Str); 
+  end;
+  DataListColumn(1,-265,-210,AdjRight,"qty","Kiekis",M4Val); 
+  DataListColumn(1,-205,-150,AdjRight,"price","Kaina",M4Val); 
+  DataListColumn(1,-145,-90,AdjRight,"rebate","Nuolaida",M4Val); 
+  DataListColumn(1,-85,-26,AdjRight,"rowsum","Suma",M4Val); 
+  DataListColumn(1,-20,-6,AdjRight,"","",M4Str); // Added to provide some extra space for scroll bar. 
+  
+  DataListColumn(2,6,-6,AdjLeft,"spec","",M4Str); //TSE
+  
+  DataListColumn(3,6,60,AdjLeft,"artcode1","",M4Code); //TSE
+  DataListColumn(3,64,160,AdjLeft,"spec","",M4Str); //TSE
+  DataListColumn(3,164,210,AdjRight,"qty","",M4Val); //TSE
+  DataListColumn(3,214,320,AdjLeft,"artcode2","",M4Code); //TSE
+  DataListColumn(3,324,360,AdjLeft,"s","",M4Str); //TSE
+  
+  return;
+end;
+
+global
+procedure DisplayRecordDetailsRA_LIT2(LongInt ah,LongInt av,string compname,date td,time tt,string lmc,string sm,string nr,string custcode,string custname,
+                                 string loyaltycardnr,Integer ShowBaggerSupervisor,string table,LongInt covers,Date rd,string class,LongInt kitchenordnr,
+                                 string taxseal,string sessiondesc)
+begin
+  real h,h2,h3,h4,h5,v,tv,tv2,truncval;
+  string 255 tstr;
+
+  h = ah;
+  h2 = h + 160;
+  h3 = h + 250;
+  switch (GuiType) begin
+    case kGuiiPhone: truncval = 20;
+    otherwise
+      truncval = 35;
+  end;   
+  h4 = h + 350;
+  v = av;
+ 
+  
+  StaticText(h,v,Left(compname,20),false);
+
+  StaticText(h2,v,td,false);
+  StaticText(h3,v,Left(tt,5),false);
+  StaticText(h,v+=20,nr,false);
+  StaticText(h2,v,USetStr(28201) & lmc,false);
+  StaticText(h3,v,sm,false);
+
+  tstr = USetStr(28202);
+  tstr = tstr & custcode;
+  StaticText(h,v+=20,tstr,false);
+  StaticText(h2,v,Left(custname,truncval),false);
+
+  v = v + 20;
+  h4 = h; h5 = h2;
+  if (HasLoyaltyCards) then begin
+  tstr = USetStr(28203);
+  tstr = tstr & loyaltycardnr;
+    StaticText(h,v,tstr,false);
+    h4 = h2; h5 = h3;
+  end;
+
+  tstr = USetStr(28204);
+  tstr = tstr & table;
+  StaticText(h4,v,tstr,false);
+  tstr = USetStr(28205);
+  if (covers<0) then begin
+  end else begin
+    tstr = tstr & covers;
+  end;
+  switch (GuiType) begin
+    case kGuiiPhone: tv = h; v = v + 20; h = h2; h2 = h3+120; h3 = h4 + 130; tv2 = v;
+    otherwise
+      tv = h5; tv2 = v + 20;
+  end;  
+  StaticText(tv,v,Left(tstr,35),false);
+
+  tstr = USetStr(28206);
+  tstr = tstr & " " & rd; 
+  StaticText(h,tv2,tstr,false);
+
+  if (nonblank(sessiondesc)) then begin
+    StaticText(h2,tv2,sessiondesc,false);
+  end;
+
+  if (HasLocalization("HRV")) then begin 
+    tstr = USetStr(28209) & ": " & taxseal; 
+    StaticText(h2,tv2,tstr,false);
+  end else begin
+  if (HasModRest==false) then begin 
+  tstr = USetStr(28207);
+  tstr = tstr & class;
+  StaticText(h2,tv2,tstr,false);
+  tstr = USetStr(28208);
+  if (kitchenordnr > 0) then begin 
+  tstr = tstr & kitchenordnr;
+  end;
+  StaticText(h3,tv2,tstr,false);
+    end;
+  end;
+  return;
+end;
+
+global
+procedure DisplayRecordDetailsRA_LIT(LongInt ah,LongInt av,string compname,date td,time tt,string lmc,string sm,string nr,string custcode,string custname,
+                                 string loyaltycardnr,Integer ShowBaggerSupervisor,string table,LongInt covers,Date rd,string class,LongInt kitchenordnr,
+                                 string taxseal)
+begin
+  DisplayRecordDetailsRA_LIT2(ah,av,compname,td,tt,lmc,sm,nr,custcode,custname,loyaltycardnr,ShowBaggerSupervisor,table,covers,rd,class,kitchenordnr,taxseal,""); 
+  return;
+end;
+
+global
+procedure DrawModifierButtons2_LIT(var integer ht,var integer vt)
+begin
+  record ModifiersVc Modifiersr;
+  row ModifiersVc Modifiersrw;
+  Integer i,rwcnt;
+  record RcVc RepSpec;
+  real h0,h,h2,v,vs,v2;
+  Integer wn,mwn;
+  vector Integer vgroupitemscnt;
+  LongInt lastgroup;
+  Boolean checkboxf;
+
+  ht = 0;
+  wn = CurWindow;
+  if (GetWindowClass(wn)=="SelectModifiers2WClass") then begin
+    if (wn>0) then begin
+//      if (GetWindowFileName(wn)=="RcVc") then begin
+        GetWindowRecord(wn,RepSpec);
+//      end;
+    end;
+    h0 = 30; h2 = 200; v2 = 40; v = -20; vt = 0; vs = 50;
+    Modifiersr.Code = RepSpec.f1;
+    if (ReadFirstMain(Modifiersr,1,true)) then begin
+      StaticText(10,20,"Pasirinkti prekės modif. " & Modifiersr.Comment,false);
+      rwcnt = MatRowCnt(Modifiersr);
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(Modifiersr,i,Modifiersrw);
+        vgroupitemscnt[Modifiersrw.Group] = vgroupitemscnt[Modifiersrw.Group] + 1;
+      end;
+      h = h0;
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(Modifiersr,i,Modifiersrw);
+        if (lastgroup!=Modifiersrw.Group) then begin
+//          PutWindowInteger(wn,"SelectModifiers2WClass" & Modifiersrw.Group,-1); moved to OpenSelectModifiers2WClass cause of crashes on windows
+          if (vgroupitemscnt[Modifiersrw.Group]==1) then begin
+            h = 2*120;
+          end else begin
+            h = vgroupitemscnt[Modifiersrw.Group]*120;
+          end;
+          if (ht<(h+130)) then begin ht = h + 130; end;
+          h = h0;
+          v = v + vs;
+          vt = vt + 50;
+        end;
+        if (vgroupitemscnt[Modifiersrw.Group]==1) then begin
+          RadioButton2(h,v,100,40,-1,0,"Nėra","SelectModifiers2WClass" & Modifiersrw.Group,2,2);
+          h = h + 120;
+        end;
+        RadioButton2(h,v,100,40,i,0,Modifiersrw.Name,"SelectModifiers2WClass" & Modifiersrw.Group,2,2);
+        h = h + 120;
+        lastgroup = Modifiersrw.Group;
+      end;
+    end;
+  end;
+  return;
+end;
+
+global
+procedure DrawRestPMOtherPay_LIT()
+begin
+  real h,v;
+  record LocalMachineBlock LMb;
+  record RestPMBlock RestPMb;
+  row RestPMBlock RestPMbrw;
+  Integer i,rwcnt,pmcnt;
+  integer rows,cols,btnwidth,btnheight,hpad,vpad;
+  string 255 label;
+  Integer colnr;
+  //change RestPMOtherPayVClassOnOpenWindow when changing this
+
+  btnwidth = 85;
+  btnheight = 50;
+  hpad = 5;
+  vpad = 5;
+  
+  BlockLoad(RestPMb);
+  BlockLoad(LMb);
+  rwcnt = MatRowCnt(RestPMb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(RestPMb,i,RestPMbrw);
+    if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+      pmcnt = pmcnt + 1;
+    end;
+  end;
+  
+  cols = squareroot(pmcnt-1);
+  cols = cols+1;
+  rows = pmcnt/cols;
+  if (mod(pmcnt,cols)!=0) then begin
+    rows = rows + 1;
+  end;
+  
+  SetWRect(20,80,20+(cols*btnwidth)+(cols+1)*hpad,80+(rows*btnheight)+(rows+1)*vpad);
+  if (GuiType!=kGuiiPhone) then begin
+  SoftEditField(20+(cols*btnwidth)+(cols+1)*hpad+100,v,20,"",Normal ,"Dummy",false,0,M4Str,2);
+  end;
+  
+  h = hpad;
+  v = vpad;
+  pmcnt = 1;
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(RestPMb,i,RestPMbrw);
+    if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+      label = RestPMbrw.Label;
+      colnr = RestPMbrw.colnr;
+      if (colnr<=0) then begin colnr = 9; end;
+      switch (RestPMbrw.rowstp) begin
+        case kInvoiceRowTypeLoyaltyPointsPayment:
+          if (blank(label)) then begin label = "Loj. taškai"; end;            
+        case kInvoiceRowTypeCashPayment:
+          if (blank(label)) then begin label = "Grynieji"; end;            
+        case kInvoiceRowTypeCreditCardPayment:
+          if (blank(label)) then begin label = "Kred. kort."; end;            
+        case kInvoiceRowTypeSwishPayment:
+          if (blank(label)) then begin label = "Swish"; end;              //!!SAMETRANSLATION
+        case kInvoiceRowTypeGiftVoucherPayment:
+          if (blank(label)) then begin label = "Gaut. DČ"; end;            
+        case kInvoiceRowTypeChequePayment:
+          if (blank(label)) then begin label = "Gaut. DČ"; end;            
+      end;
+      SoftEditField(h+5,v+5,20,"",Normal ,"PMCode" & pmcnt,false,0,M4Str,2);
+      SoftEditField(h+5,v+5,20,"",Normal ,"PMCodeLabel" & pmcnt,false,0,M4Str,2);
+      SoftEditField(h+5,v+5,20,"",Normal ,"rowstp" & pmcnt,false,0,M4Str,2);
+      ColourPushButton(h,v,h+btnwidth,v+btnheight,"RestPMOtherPayDsm" & pmcnt,label,colnr);
+      h = h + btnwidth + hpad;
+      if (Mod(pmcnt,cols)==0) then begin
+        v = v + btnheight + vpad;
+        h = hpad;
+      end;
+      pmcnt = pmcnt + 1;
+    end;
+  end;
+  
+  return;
+end;
+
+global
+function real DrawPaymentModesButtons_LIT()
+begin
+  real h,v,vm,vs,v3,h2,h3,h4;
+  record LocalMachineBlock LMb;
+  record RestPMBlock RestPMb;
+  row RestPMBlock RestPMbrw;
+  Integer i,rwcnt;
+  Boolean treatedf;
+  string 255 label,fieldname;
+  Integer colnr,pmcnt;
+
+  v = 6;
+  //  hs = 87; h2 = 80; v3 = 33; vs = 37; h3 = 180; h4 = 280;
+  h2 = 80; v3 = 33; vs = 37; h3 = 180; h4 = 280;
+  h = 17;
+  BlockLoad(RestPMb);
+  BlockLoad(LMb);
+  rwcnt = MatRowCnt(RestPMb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(RestPMb,i,RestPMbrw);
+    if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+      pmcnt = pmcnt + 1;
+    end;
+  end;
+  if (pmcnt>2) then begin
+    pmcnt = 1;
+    h = 17;
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(RestPMb,i,RestPMbrw);
+      if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+        label = RestPMbrw.Label;
+        colnr = RestPMbrw.colnr;
+        if (colnr<=0) then begin colnr = 9; end;
+        h2 = 85;
+        if (len(label)>10) then begin h2 = len(label)*85/10; end;
+        if (pmcnt==4) then begin
+          ColourPushButton(h,v,h+85,v+50,"RestPMOtherIVsm","Kiti",2);
+          h=h+87;
+          i = rwcnt;
+        end else begin
+          switch (RestPMbrw.rowstp) begin
+            case kInvoiceRowTypeLoyaltyPointsPayment:
+              if (blank(label)) then begin label = "Grynieji"; end;            
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccPMCodeCash",false,0,M4Str,2);
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccrowstpCash",false,0,M4Str,2);
+              ColourPushButton(h,v,h+85,v+50,"CashRestAccsm",label,colnr);
+              h = h+87;
+            case kInvoiceRowTypeCashPayment:
+              if (blank(label)) then begin label = "Grynieji"; end;            
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccPMCodeCash",false,0,M4Str,2);
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccrowstpCash",false,0,M4Str,2);
+              ColourPushButton(h,v,h+85,v+50,"CashRestAccsm",label,colnr);
+              h = h+87;
+            case kInvoiceRowTypeCreditCardPayment:
+              if (blank(label)) then begin label = "Kred. kort."; end;            
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccPMCodeCC",false,0,M4Str,2);
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccrowstpCC",false,0,M4Str,2);
+              ColourPushButton(h,v,h+85,v+50,"SwishRestAccsm",label,colnr);
+              h = h+87;
+            case kInvoiceRowTypeSwishPayment:
+              if (blank(label)) then begin label = "Swish"; end;             //!!SAMETRANSLATION
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccPMCodeCC",false,0,M4Str,2); 
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccrowstpCC",false,0,M4Str,2); 
+              ColourPushButton(h,v,h+85,v+50,"CredCardRestAccsm",label,colnr);
+              h = h+87;
+            case kInvoiceRowTypeGiftVoucherPayment:
+              if (blank(label)) then begin label = "Gaut. DČ"; end;            
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccPMCodeGVR",false,0,M4Str,2);
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccrowstpGVR",false,0,M4Str,2);
+              ColourPushButton(h,v,h+85,v+50,"GVRRestAccsm",label,colnr);
+              h = h+87;
+            case kInvoiceRowTypeChequePayment:
+              if (blank(label)) then begin label = "Čekis"; end;            
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccPMCodeCHQ",false,0,M4Str,2);
+              SoftEditField(h+10,v,20,"",Normal ,"RestAccrowstpCHQ",false,0,M4Str,2);
+              ColourPushButton(h,v,h+85,v+50,"ChequeRestAccsm",label,colnr);
+              h = h+87;
+            end;
+          end;
+          pmcnt = pmcnt + 1;
+          treatedf = true;
+        end;
+      end;
+      v = v + 60;
+    end;
+    if (treatedf==false) then begin
+    ColourPushButton(h,vm=v,h+h2,v+v3,"RestAccPaymentCash","Grynieji",9);
+    EditField(h4,v+10,70,"Grynieji",Normal,CashValue,true,0);
+    ColourPushButton(h,v=v+vs,h+h2,v+v3,"RestAccPaymentCard1","Kortelė 1",9);
+    EditField(h3,v+10,20,"Mok. būdas",Normal,PayDeal2,false,RestPMSClass);
+    EditField(h4,v+10,70,"Kortelė 1",Normal,Paid,true,0);
+    ColourPushButton(h,v=v+vs,h+h2,v+v3,"RestAccPaymentCard2","Kortelė 2",9);
+    EditField(h3,v+10,20,"Mok. būdas",Normal,PayDeal3,false,RestPMSClass);
+    EditField(h4,v+10,70,"Kortelė 2",Normal,Paid2,true,0);
+    ColourPushButton(h,v=v+vs,h+h2,v+v3,"RestAccPaymentCard3","Kortelė 3",9);
+    EditField(h3,v+10,20,"Mok. būdas",Normal,PayDeal4,false,RestPMSClass);
+    EditField(h4,v+10,70,"Kortelė 3",Normal,Paid3,true,0);
+  end;
+
+  //  ColourPushButton(h=h+62,v,h+60,v+33,"CashRestAccDsm","Cash",2);//not ready yet
+  //  ColourPushButton(h=h+62,v,h+60,v+33,"CredCardRestAccDsm","Cred. Card",2);
+
+  DrawPaymentModesButtons_LIT = v;
+  return;
+end;
+
+global
+function real RestAccOldDClassFunctionButtons_LIT()
+begin
+  Real v,hs,h2,h,v3;
+  Integer colnr;
+
+  h = 17; v = 12; h2 = 85; v3 = 52;
+
+  h = GenericFunctionButton(h,v,h2,v3,"RestAccOldDClass","RestAccTile",1,"Gėrimai"); //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"RestAccOldDClass","RestAccTile",2,"Buteliai");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"RestAccOldDClass","RestAccTile",3,"Alk. gėrimai");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"RestAccOldDClass","RestAccTile",4,"St&Lunch");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"RestAccOldDClass","RestAccTile",5,"Sumuštiniai");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"RestAccOldDClass","RestAccTile",6,"Main&Sweets");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"RestAccOldDClass","RestAccTile",7,"Vynai");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"RestAccOldDClass","RestAccTile",8,"Daugiau prekių");  //!!SAMETRANSLATION
+
+  RestAccOldDClassFunctionButtons_LIT = v;
+  return;
+end;
+
+global
+function real POSPIVCashDClassFunctionButtons_LIT()
+begin
+  Real v,hs,h2,h,v3;
+  Integer colnr;
+
+  h = 17; v = 12; h2 = 85; v3 = 52;
+
+  h = GenericFunctionButton(h,v,h2,v3,"POSPIVCashDClass","POSPIVCashDClassTileItemsSet",1,"Prekės 1"); //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"POSPIVCashDClass","POSPIVCashDClassTileItemsSet",2,"Prekės 2");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"POSPIVCashDClass","POSPIVCashDClassTileItemsSet",3,"Prekės 3");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"POSPIVCashDClass","POSPIVCashDClassTileItemsSet",4,"Prekės 4");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"POSPIVCashDClass","POSPIVCashDClassTileItemsSet",5,"Prekės 5");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"POSPIVCashDClass","POSPIVCashDClassTileItemsSet",6,"Prekės 6");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"POSPIVCashDClass","POSPIVCashDClassTileItemsSet",7,"Prekės 7");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"POSPIVCashDClass","POSPIVCashDClassTileItemsSet",8,"Daugiau prekių");  //!!SAMETRANSLATION
+
+LPOSPIVCashDClassFunctionButtons_LIT:;
+  POSPIVCashDClassFunctionButtons_LIT = v;
+  return;
+end;
+
+global
+function real IVDClassFunctionButtons_LIT()
+begin
+  Real v,hs,h2,h,v3;
+  Integer colnr;
+
+  h = 17; v = 12; h2 = 85; v3 = 52;
+
+  h = GenericFunctionButton(h,v,h2,v3,"IVDClass","IVDClassTileItemsSet",1,"Prekės 1"); //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"IVDClass","IVDClassTileItemsSet",2,"Prekės 2");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"IVDClass","IVDClassTileItemsSet",3,"Prekės 3");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"IVDClass","IVDClassTileItemsSet",4,"Prekės 4");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"IVDClass","IVDClassTileItemsSet",5,"Prekės 5");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"IVDClass","IVDClassTileItemsSet",6,"Prekės 6");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"IVDClass","IVDClassTileItemsSet",7,"Prekės 7");  //!!SAMETRANSLATION
+  h = GenericFunctionButton(h,v,h2,v3,"IVDClass","IVDClassTileItemsSet",8,"daugiau prekių"); //!!SAMETRANSLATION
+
+LIVDClassFunctionButtons_LIT:;
+  IVDClassFunctionButtons_LIT = v;
+  return;
+end;
+
+global
+function real FunctionButtons_LIT(string dclass)
+begin
+  Real v;
+  
+  switch (dclass) begin
+    case "RestAccOldDClass": v = RestAccOldDClassFunctionButtons_LIT;
+    case "RestAccPriceLookupDClass": v = RestAccOldDClassFunctionButtons_LIT;
+    case "POSPIVCashDClass": v = POSPIVCashDClassFunctionButtons_LIT;
+    case "IVDClass": v = IVDClassFunctionButtons_LIT;
+  end;
+  
+LFunctionButtons_LIT:;
+  FunctionButtons_LIT = v;
+  return;
+end;
+
+global
+function real VATZoneButtonsLabelsLIT(real h,real v,real bl,real vs)
+begin
+  string 255 label,label2,label3,label4,label5;
+
+  label = SetVATZoneLabel;
+  
+  if (blank(label)) then begin 
+    label2 = "Es"; 
+    label3 = "ES (su PVM)"; 
+    label4 = "Ne ES"; 
+    label5 = "Ne ES (su PVM)"; 
+  end else begin
+    label2 = "Vietinė " & label; 
+    label3 = "Vietinė " & label & " (su PVM)"; 
+    label4 = "Eksport. " & label; 
+    label5 = "Eksport. " & label & " (Su PVM)"; 
+  end;
+
+  ButtonFrame(h,v,bl,5,"PVM sritis");
+  RadioButton(h,v,0,0,"Vietinė",ExportFlag);
+  RadioButton(h,v+=vs,1,0,label2,ExportFlag);
+  if (IsEnterprise or HasLocalization("POL")==false) then begin
+  RadioButton(h,v+=vs,3,0,label3,ExportFlag);
+  end;
+  RadioButton(h,v+=vs,2,0,label4,ExportFlag);
+  if (IsEnterprise or HasLocalization("POL")==false) then begin
+  RadioButton(h,v+=vs,4,0,label5,ExportFlag);
+  end;
+  EndFrame;
+  VATZoneButtonsLabelsLIT = v;
+  return;
+end;
+
+global
+function string 255 VATZoneEditFieldLabel_LIT(Integer typ)
+begin
+  string 255 label,res;
+    
+  label = SetVATZoneLabel;
+  
+  if (blank(label)) then begin 
+    switch (typ) begin
+      case 1: res = "ES "; 
+      case 2: res = "Ne ES "; 
+    end;
+  end else begin
+    switch (typ) begin
+      case 1: res = "Vietinė " & label & " ";
+      case 2: res = "Eksport. " & label & " ";
+    end;
+  end; 
+  VATZoneEditFieldLabel_LIT = res;
+  return;
+end;
+
+global
+function string 255 VATZoneNameLIT()
+begin
+  string 255 label,res;
+    
+  label = SetVATZoneLabel;
+  
+  if (blank(label)) then begin 
+    res = "ES "; 
+  end else begin
+    res = label & " "; 
+  end; 
+  VATZoneNameLIT = res;
+  return;
+end;
+
+global
+function string 255 DemoMsgWClassTitle_LIT(Boolean isreg,Boolean haskey)
+begin
+  string 255 res;
+
+  if (DaysUntilRestricted>0) then begin
+    if (isreg) then begin
+      if (haskey) then begin
+        res = "Registracijos informacija";
+      end else begin
+        res = "Duomenų bazė pereis į demo režimą";
+      end;
+    end else begin
+      res = "Užregistruokite HansaWorld Enterprise kopiją";
+    end;
+  end else begin
+    res = "Duomenų bazė dirba demo režimu";
+  end;
+  
+  DemoMsgWClassTitle_LIT = res;
+  return;
+end;
+
+global
+function real DrawPaymentModesButtons_IV_LIT(real pv)
+begin
+  real h,v,vm,vs,v3,h2,h3,h4;
+  record LocalMachineBlock LMb;
+  record RestPMBlock RestPMb;
+  row RestPMBlock RestPMbrw;
+  Integer i,rwcnt,pmcnt;
+  Boolean treatedf;
+  string 255 label;
+  Integer colnr;
+
+  v = pv+195;
+  h2 = 85; v3 = 50; vs = 37; h3 = 180; h4 = 280;
+  h = 17;
+  BlockLoad(RestPMb);
+  BlockLoad(LMb);
+  rwcnt = MatRowCnt(RestPMb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(RestPMb,i,RestPMbrw);
+    if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+      pmcnt = pmcnt + 1;
+    end;
+  end;
+  if (pmcnt>2) then begin
+    pmcnt = 1;
+    h = 17;;
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(RestPMb,i,RestPMbrw);
+      if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+        label = RestPMbrw.Label;
+        colnr = RestPMbrw.colnr;
+        if (colnr<=0) then begin colnr = 2; end;
+        h2 = 85;
+        if (len(label)>10) then begin h2 = len(label)*85/10; end;
+        if (pmcnt==3) then begin
+          ColourPushButton(h,v,h+85,v+50,"RestPMOtherIVsm","Kitas",2);
+          h = h+87;
+          i = rwcnt;
+        end else begin
+          switch (RestPMbrw.rowstp) begin
+            case kInvoiceRowTypeLoyaltyPointsPayment:
+              if (blank(label)) then begin label = "Loj. taškai"; end;            
+              ColourPushButton(h,v,h+85,v+50,"CashIVsm",label,colnr);
+              h=h+87;
+            case kInvoiceRowTypeCashPayment:
+              if (blank(label)) then begin label = "Grynieji"; end;            
+              ColourPushButton(h,v,h+85,v+50,"CashIVsm",label,colnr);
+              h=h+87;
+            case kInvoiceRowTypeCreditCardPayment:
+              if (blank(label)) then begin label = "Kred. kort."; end;            
+              SoftEditField(h+5,v+5,20,"",Normal ,"PMCode" & pmcnt,false,0,M4Str,2);
+              SoftEditField(h+5,v+5,20,"",Normal ,"PMCodeLabel" & pmcnt,false,0,M4Str,2);
+              SoftEditField(h+5,v+5,20,"",Normal ,"rowstp" & pmcnt,false,0,M4Str,2);
+              ColourPushButton(h,v,h+85,v+50,"CredCardIVsm" & pmcnt,label,colnr);
+              h=h+87;
+            case kInvoiceRowTypeSwishPayment:
+              if (blank(label)) then begin label = "Swish"; end;              //!!SAMETRANSLATION
+              SoftEditField(h+5,v+5,20,"",Normal ,"PMCode" & pmcnt,false,0,M4Str,2); 
+              SoftEditField(h+5,v+5,20,"",Normal ,"PMCodeLabel" & pmcnt,false,0,M4Str,2); 
+              SoftEditField(h+5,v+5,20,"",Normal ,"rowstp" & pmcnt,false,0,M4Str,2); 
+              ColourPushButton(h,v,h+85,v+50,"SwishIVsm" & pmcnt,label,colnr);
+              h=h+87;
+            case kInvoiceRowTypeGiftVoucherPayment:
+              if (blank(label)) then begin label = "Gaut. DČ"; end;            
+              ColourPushButton(h,v,h+85,v+50,"GCRIVsm",label,colnr);
+              h=h+87;
+            case kInvoiceRowTypeChequePayment:
+              if (blank(label)) then begin label = "Čekis"; end;            
+              ColourPushButton(h,v,h+85,v+50,"ChequeIVsm",label,colnr);
+              h=h+87;
+          end;
+        end;
+        pmcnt = pmcnt + 1;
+        treatedf = true;
+      end;
+    end;
+    ColourPushButton(h,v,h+85,v+50,"IVFinishAndPrint","Baigti",1); // Prints Receipt, closes record and opens new window
+  end else begin
+/*  
+    for (i=0;i<3;i=i+1) begin
+      MatRowGet(RestPMb,i,RestPMbrw);
+      if (RestPMbrw.MachineName==LMb.LocalMachineCode) then begin
+        label = RestPMbrw.Label;
+        colnr = RestPMbrw.colnr;
+        if (colnr<=0) then begin colnr = 9; end;
+        h2 = 85;
+        if (len(label)>10) then begin h2 = len(label)*85/10; end;
+        switch (RestPMbrw.rowstp) begin
+          case kInvoiceRowTypeCashPayment:
+            if (blank(label)) then begin label = "Cash"; end;             //!!SAMETRANSLATION
+            ColourPushButton(h=h+87,v,h+85,v+50,"CashIVsm",label,2);
+          case kInvoiceRowTypeCreditCardPayment:
+            if (blank(label)) then begin label = "Cred. Card"; end;             //!!SAMETRANSLATION
+            ColourPushButton(h=h+87,v,h+85,v+50,"CredCardIVsm",label,2);
+          case kInvoiceRowTypeGiftVoucherPayment:
+            if (blank(label)) then begin label = "Rcv. GV"; end;             //!!SAMETRANSLATION
+            ColourPushButton(h=h+87,v,h+85,v+50,"GCRIVsm",label,2);
+          case kInvoiceRowTypeChequePayment:
+            if (blank(label)) then begin label = "Rcv. GV"; end;             //!!SAMETRANSLATION
+            ColourPushButton(h=h+87,v,h+85,v+50,"ChequeIVsm",label,2);
+        end;
+        treatedf = true;
+      end;
+    end;
+    if (treatedf) then begin
+      ColourPushButton(h,v,h+85,v+50,"IVFinishAndPrint","Finish",1); // Prints Receipt, closes record and opens new window //!!SAMETRANSLATION
+    end;
+*/    
+  end;
+  if (treatedf==false) then begin
+    ColourPushButton(h=17,v,h+85,v+50,"CashIVsm","Grynieji",2);
+    ColourPushButton(h=h+87,v,h+85,v+50,"CredCardIVsm","Kred. kort.",2);
+    ColourPushButton(h=h+87,v,h+85,v+50,"GCRIVsm","Gaut. DČ",2);
+    ColourPushButton(h=h+87,v,h+85,v+50,"IVFinishAndPrint","Baigti",1); // Prints Receipt, closes record and opens new window
+  end;
+  DrawPaymentModesButtons_IV_LIT = h;
+  return;
+end;
+
+function real VATZoneButtonsLabelsIDLIT(real h,real v,real bl,real vs)
+begin
+  string 255 label,label2,label3,label4,label5;
+
+  label = SetVATZoneLabel;
+  
+  if (blank(label)) then begin 
+    label2 = "ES"; 
+    label3 = "ES (su PVM)"; 
+    label4 = "Ne ES"; 
+    label5 = "Ne ES (su PVM)"; 
+  end else begin
+    label2 = "Vietinė " & label; 
+    label3 = "Vietinė " & label & " (su PVM)"; 
+    label4 = "Eksport. " & label; 
+    label5 = "Eksport. " & label & " (su PVM)"; 
+  end;
+
+  ButtonFrame(h,v,bl,5,"PVM sritis");
+  RadioButton(h,v,0,0,"Vietinė",ExportFlag);
+  RadioButton(h,v+=vs,1,0,label2,ExportFlag);
+  RadioButton(h,v+=vs,3,0,label3,ExportFlag);
+  RadioButton(h,v+=vs,2,0,label4,ExportFlag);
+  RadioButton(h,v+=vs,4,0,label5,ExportFlag);
+  
+  VATZoneButtonsLabelsIDLIT = v;
+  return;
+end;
+
+global
+function real TravelLogDeductions_LIT(real h,real vm)
+begin
+  real v,vs;
+  record TravelLogBlock TravelLogRec;
+  Integer DeductCount;
+  
+  BlockLoad(TravelLogRec);
+  v = vm; vs = 16;
+
+  if (nonblank(TravelLogRec.DeductDesc0)) then begin
+    DeductCount = DeductCount + 1;
+  end;
+  if (nonblank(TravelLogRec.DeductDesc1)) then begin
+    DeductCount = DeductCount + 1;
+  end;
+  if (nonblank(TravelLogRec.DeductDesc2)) then begin
+    DeductCount = DeductCount + 1;
+  end;
+  if (nonblank(TravelLogRec.DeductDesc3)) then begin
+    DeductCount = DeductCount + 1;
+  end;
+  if (nonblank(TravelLogRec.DeductDesc4)) then begin
+    DeductCount = DeductCount + 1;
+  end;
+  
+  if (DeductCount>0) then begin
+    v = v + 30;
+    ButtonFrame(h,v+vs,260,DeductCount,"Atskaitymai");
+    if (nonblank(TravelLogRec.DeductDesc0)) then begin
+      CheckBox(h,v+=vs,0,TravelLogRec.DeductDesc0,Deduct0);
+    end;
+    if (nonblank(TravelLogRec.DeductDesc1)) then begin
+      CheckBox(h,v+=vs,0,TravelLogRec.DeductDesc1,Deduct1);
+    end;
+    if (nonblank(TravelLogRec.DeductDesc2)) then begin
+      CheckBox(h,v+=vs,0,TravelLogRec.DeductDesc2,Deduct2);
+    end;
+    if (nonblank(TravelLogRec.DeductDesc3)) then begin
+      CheckBox(h,v+=vs,0,TravelLogRec.DeductDesc3,Deduct3);
+    end;
+    if (nonblank(TravelLogRec.DeductDesc4)) then begin
+      CheckBox(h,v+=vs,0,TravelLogRec.DeductDesc4,Deduct4);
+    end;
+    v = v + 10;
+  end;
+  
+  TravelLogDeductions_LIT = v;
+  return;
+end;
+
+global
+procedure DrawBarMenuTiles_LIT(string wclass)
+begin
+  Real v,vs,hs,h2,h;
+  Integer i,rwcnt,j,butnr;
+  Integer tilenr;
+  Integer rw,rwc;
+  record ItemButtonsBlock IBb;
+  record BarMenuVc BarMenur;
+  row BarMenuVc BarMenurw;
+  row ItemButtonsBlock IBrw;
+  string 255 procstr;
+
+  BlockLoad(IBb);
+  rwcnt = MatRowCnt(IBb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    butnr = 1;
+    v = 72; hs = 87; h2 = 80; vs = 60; h = 17;
+    MatRowGet(IBb,i,IBrw);
+    if (IBrw.ButtonType==2) then begin
+      BarMenur.Code = GetMenuCode(IBrw.ArtCode);
+      if (ReadFirstMain(BarMenur,1,true)) then begin
+        tilenr = NumberofBarTabTiles + StringToInt(IBrw.ArtCode); //Bar Tab tiles + 
+        Tile(tilenr,400,false,"" & tilenr,-);
+        v = FunctionButtons_LIT(wclass);
+        v = 71;
+        rwc = MatRowCnt(BarMenur);
+        for (rw = 0; rw <rwc; rw =rw +1) begin
+          MatRowGet(BarMenur,rw,BarMenurw);
+          procstr = "RestBarMenu"  & IBrw.ArtCode & "Prekė" & (rw+1);
+          ColourPushButton(h,v,h+85,v+50,procstr,BarMenurw.Name,BarMenurw.clr);
+          h = h+hs;
+          if (Mod(butnr,8)==0) and (butnr!=0) then begin
+            h = 17;
+            v = v + vs;
+          end;
+          butnr = butnr + 1;
+          if (butnr==33) then begin
+            goto LMenuItemButtons;
+          end;  
+        end;
+      end;
+    end;
+LMenuItemButtons:;
+  end;
+  return;
+end;
+
+global
+procedure CreditCardWindowHeader_LIT(Boolean shownamef,Boolean showcurncyf,Real vin)
+begin
+  Real v,vs,h;
+
+  v = vin; vs = 20; h=190;
+  EditFieldTL(h,v+=6, 100,"Kiekis",M4Val,ViewOnly,0,vals0,false,0);
+  if (showcurncyf) then begin
+    EditFieldTL(h+190,v,-20,"Valiuta",M4UStr,ViewOnly,3,CurncyCode,false,0);
+  end;
+  EditFieldTL(h,v+=20, -20,"Mokėjio nuorodos numeris",M4Str,ViewOnly,60,f3,false,0);
+  if (shownamef) then begin
+    EditFieldTL(h,v+=20, -20,"Pavadinimas (kortelės)",M4Str,Normal,255,f1,false,0);
+  end;
+  EditFieldTL(h,v+=20, 100,"Kortelės tipas",M4Str,Normal,10,Stext,false,CredCardTypeSClass);
+  EditFieldTL(h,v+=20, -20,"Kort. numeris",M4UStr,Normal,255,f2,false,0);
+  EditFieldTL(h,v+=20, 20,"Galiojimo data (MM/YYYY)",M4UStr,Normal,2,FirstAcc,false,0);
+  EditFieldTL(h+30,v, 40,"",M4UStr,Normal,4,LastAcc,false,0);
+  EditFieldTL(h,v+=20, 30,"Patikrinimo kodas",M4UStr,Normal,10,AccStr,false,0);
+  EditFieldTL(h,v+=20, 20,"Kortelės išd. data (MM/YYYY)",M4UStr,Normal,2,ObjType,false,0);
+  EditFieldTL(h+30,v, 40,"",M4UStr,Normal,4,ObjStr,false,0);
+  EditFieldTL(h,v+=20, 30,"Išdavimo nr.",M4UStr,Normal,2,TransStr,false,0);
+  return;
+end;
+
+global
+procedure CreditCardWindowInvoiceDetail_LIT(Real vin)
+begin
+  Real v,vs,h;
+
+  v = vin; vs = 20; h=190;
+  StaticText(h,v+=20,"Faktūros adresas:",false);
+  SoftEditField(h,v+=6,-20,"Vardas",Normal,"ccpayaddr1",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Pavardė",Normal,"ccpayaddr2",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Įmonės pavadinima",Normal,"ccpaycompany",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Gatvė",Normal,"ccpayaddr3",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Miestas",Normal,"ccpayaddr4",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Pašto kd.",Normal,"ccpayaddr6",false,0,M4Str,50);
+  SoftEditField(h,v+=20,30,"Valst. kd. (JAV/Kanada)",Normal,"ccpayaddr5",false,0,M4Str,2);
+  SoftEditField(h,v+=20,20,"Šalis",Normal,"cccountry",false,0,M4Str,2);
+  return;
+end;
+
+global
+procedure CreditCardWindowDeliveryDetail_LIT(Real vin)
+begin
+  Real v,vs,h;
+
+  v = vin; vs = 20; h=190;
+  StaticText(h,v+=20,"Siuntimo adresas:",false);
+  SoftEditField(h,v+=6,-20,"Vardas",Normal,"ccdeladdr_first",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Pavardė",Normal,"ccdeladdr_last",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Įmonės pavadinimas",Normal,"ccdeladdr_company",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Gatvė",Normal,"ccdeladdr_addr1",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Miestas",Normal,"ccdeladdr_addr2",false,0,M4Str,50);
+  SoftEditField(h,v+=20,-20,"Pašto kd.",Normal,"ccdeladdr_postcode",false,0,M4Str,50);
+  SoftEditField(h,v+=20,30,"Valst. kd. (JAV/Kanada)",Normal,"ccdeladdr_state",false,0,M4Str,2);
+  SoftEditField(h,v+=20,20,"Šalis",Normal,"ccdeladdr_country",false,0,M4Str,2);
+  return;
+end;
+
+global
+procedure CreditCardWindowButtons_LIT(string halfuncproceed,string halfunccancel,real v)
+begin
+  Real h;
+
+  if (v!=-70) then begin
+    HalPushButton(h=120,v,h+100,v+20,halfunccancel,"Nutraukti");
+    HalPushButton(h+=130,v,h+100,v+20,halfuncproceed,"Tęsti");
+  end else begin
+    ColourPushButton(h=50,v,h+150,v+48,halfunccancel,"Nutraukti<BR>F2",20);
+    ColourPushButton(h+=180,v,h+150,v+48,halfuncproceed,"Tęsti<BR>F1",20);
+  end;
+  return;
+end;
+
+global
+procedure CURClassDefinitionLIT()
+begin
+  real h,hs,v,vs,vm;
+  Boolean testf;
+
+  SetWRect(20,80,555,450);
+  v = 6; vs = 20;
+  if (HasModPL or HasModPP or IsEnterprise) then begin
+  EditFieldTL(h=150,v=10, 150,"Kontaktas",   M4UStr,Normal,30,f1,false,CUSClass);
+  end else begin
+    EditFieldTL(h=150,v=10, 150,"Pirkėjas",   M4UStr,Normal,30,f1,false,CUSClass); 
+  end;
+  if (HasCategories) then begin
+  EditFieldTL(h,v+=vs,50,"Kategorija",   M4UStr,Normal,5,f3,false,CCatSClass);
+  end;
+  if (HasSalesman) then begin
+    EditFieldTL(h,v+=vs,50,"Pardavėjas",   M4UStr,Normal,10,TransStr,false,UserSClass);
+  end;
+  if (IsEnterprise) then begin
+  EditFieldTL(h,v+=vs,50,"Pard. grupė",   M4UStr,Normal,5,Language,false,SalesGroupSClass);
+  end;
+  if (HasLanguages) then begin
+  EditFieldTL(h,v+=vs,50,"Kalba",   M4UStr,Normal,5,FirstAcc,false,LangSClass);
+  end;
+  if (HasModSL or HasModPL) then begin
+  EditFieldTL(h,v+=vs,30,"Mokėjimo sąl.",   M4UStr,Normal,2,LastAcc,false,PDSClass);
+  end;
+  if (HasContactClassification) then begin
+  EditFieldTL(h,v+=vs,150,"Klasė",M4UStr,Normal,30,Stext,false,CClassSClass);
+    EditFieldTL(h,v+=20 ,80,"Klasės tipas",M4UStr,Normal,60,f5,false,CTypeSClass);
+  end;
+  if (HasDepartments) then begin
+    EditFieldTL(h,v+=vs,80,"Skyrius",M4UStr,Normal,10,f7,false,DepSClass);
+  end;
+  if (HasObjects) then begin
+  EditFieldTL(h,v+=20, 150,"Objektas",M4UStr,Normal,20,AccStr,false,ObjSClass);
+  end;
+  if (IsEnterprise) then begin
+    EditFieldTL(h,v+=20, 150,"Šalis",M4UStr,Normal,100,f9,false,CountrySClass);
+  end;
+  if (Left(BuildProductCode,5)!="Books") then begin //!!SAMETRANSLATION
+  	EditFieldTL(h,vm=(v+=vs),80,"Naujas ar įkeltas",M4Date,Normal,0,d1,false,PasteCurDate);
+  end;
+  if (IsEnterprise) then begin
+  EditFieldTL(h,vm=(v+=vs),80,"Maršrutas",M4Str,Normal,20,ObjStr,false,DelRouteSClass);
+  end;
+  if (IsEnterprise or HasLocalization("POL")) then begin 
+  EditFieldTL(h,vm=(v+=vs),80,"Trumpas",M4Str,Normal,10,f4,false,0);
+  end;
+  if (HasModNL and Left(BuildProductCode,5)!="Books") then begin //!!SAMETRANSLATION
+    EditFieldTL(h,vm=(v+=vs),80,"Sąskaita",M4Str,Normal,10,f6,false,AccSClass); 
+  end;
+  EditFieldTL(h,vm=(v+=vs),150,"Komentaras",M4Str,Normal,200,f8,false,0); 
+  v = v + vs; vm = v;
+  if (Left(BuildProductCode,5)!="Books") then begin //!!SAMETRANSLATION
+    PeriodField(h,v,"Sukurtos periode");
+  end; 
+  h=30; v=vm+24;
+  if (Left(BuildProductCode,5)!="Books") then begin  //!!SAMETRANSLATION
+    if (HasModCRM) then begin
+      CheckBox(h,v,0,"Įtraukti visus kontaktinius asmenis",flags[2]); v = v + 16;
+      CheckBox(h,v,0,"Tikrinti kontaktinius asmenis",flags[4]); v = v + 16;
+    end;
+    CheckBox(h,v,0,"Praleisti asmenis su el. pašto adresais",flags[5]); v = v + 16;
+    CheckBox(h,v,0,"Praleisti kontaktus su Nesiųsti laiškų atributu",flags[13]); v = v + 16; 
+    CheckBox(h,v,0,"Tik kontaktai, kurie dalinasi el. pašto adresais",flags[8]); v = v + 16;
+    CheckBox(h,v,0,"Praleisti kontaktus be faks. nr.",flags[6]); v = v + 16;
+    CheckBox(h,v,0,"Praleisti kontaktus su mob. tel. nr.",flags[10]); v = v + 16;
+    CheckBox(h,v+=16,0,"Praleisti kontaktus be tel. numerio",flags[12]); 
+    v = v + 16;
+  end;
+  if (HasContactClassification) then begin
+    CheckBox(h,v,0,"Skaičiuoti kontaktus per klasę",flags[7]); 
+  end;
+  vm = v;
+  if (vm<200) then begin
+    SetWRect(20,80,400,450);
+    h = 30;
+    v = vm + 50;
+  end else begin
+    h = 340;
+    v = 20;
+  end;
+  ButtonFrame(h,v,155,7,"Rūšiavimas");
+  RadioButton(h,v,0,0,"Nr.",flags[1]);
+  RadioButton(h,v+=16,1,0,"Pavadinimas",flags[1]);
+  if (HasCategories) then begin
+  RadioButton(h,v+=16,2,0,"Kategorija",flags[1]);
+  end;
+  if (IsEnterprise) then begin
+    RadioButton(h,v+=16,3,0,"Rūšiavimo raktas",flags[1]); 
+  RadioButton(h,v+=16,4,0,"Skyrius",flags[1]);
+  end;
+  RadioButton(h,v+=16,5,0,"Telefonas",flags[1]);
+  RadioButton(h,v+=16,6,0,"Šalis",flags[1]); 
+  EndFrame;
+  ButtonFrame(h,v+=45,155,4,"Funkcijos");
+  RadioButton(h,v,0,0,"Detaliai",flags[0]);
+  RadioButton(h,v+=16,1,0,"Telefonas",flags[0]);
+  RadioButton(h,v+=16,2,0,"Faksas",flags[0]);
+  RadioButton(h,v+=16,3,0,"E-laiškas",flags[0]);
+  if (vm<200) then begin
+    h = 210;
+    v = vm + 50;
+  end else begin
+    v = v + 45;
+  end;
+  ButtonFrame(h,v,155,3,"Įtraukti");
+  RadioButton(h,v,0,0,"Neuždarytas",flags[3]);
+  RadioButton(h,v+=16,1,0,"Uždarytas",flags[3]);
+  RadioButton(h,v+=16,2,0,"Tik uždarytus",flags[3]);
+  if (IsEnterprise) then begin
+  ButtonFrame(h,v+=45,155,3,"Įtraukti"); 
+  RadioButton(h,v,0,0,"Tik ne sulaikytas",flags[11]); 
+  RadioButton(h,v+=16,1,0,"Sulaikytas ir nesulaikytas",flags[11]); 
+  RadioButton(h,v+=16,2,0,"TIk sulaikytas",flags[11]); 
+  end;
+  testf = true;
+  if (IsEnterprise) then begin testf = true; v = v-16; end;
+  if (HasModSL and HasModPL) then begin testf = true; end;
+  if (HasModSL and HasModPP) then begin testf = true; end;
+  if (testf) then begin
+    ButtonFrame(h,v+=61,155,6,"Pasirinkimas");
+  RadioButton(h,v,0,0,"Pirkėjai",flags[9]);
+  if (HasModPL) then begin
+  RadioButton(h,v+=16,1,0,"Tiekėjai",flags[9]);
+  end;
+    if (HasModPP or HasModHotel) then begin
+  RadioButton(h,v+=16,2,0,"Svečiai",flags[9]);
+  end;
+  if (IsEnterprise) then begin
+  RadioButton(h,v+=16,3,0,"Dileriai",flags[9]);
+  RadioButton(h,v+=16,5,0,"Darbuotojai",flags[9]);
+    end;
+    if (HasModCRM) then begin
+    RadioButton(h,v+=16,6,0,"Potenc. klientai",flags[9]); 
+    end;
+    RadioButton(h,v+=16,4,0,"Visi",flags[9]); 
+  EndFrame;
+  end;
+  return;
+end;
+
+global
+function string 255 ResDayWClassWindowTitle_LIT()
+begin
+  string 255 res;
+    
+  if (ValuePack(11)==false) then begin
+    res = "Resource Day Overview: ";  //!!SAMETRANSLATION
+  end else begin
+    res = "Overview Rooms Ledger: ";  //!!SAMETRANSLATION
+  end;
+  ResDayWClassWindowTitle_LIT = res;
+  return;
+end;
+
+global
+function string 255 ResMonWClassWindowTitle_LIT()
+begin
+  string 255 res;
+
+  if (ValuePack(11)==false) then begin
+    res = "Resource Month Overview: ";  //!!SAMETRANSLATION
+  end else begin
+    res = "Month Overview Rooms: ";  //!!SAMETRANSLATION
+  end;
+  if (IsStandardProduct) then begin
+    res = "Rezervacijų valdymas: "; 
+  end;
+  ResMonWClassWindowTitle_LIT= res;
+  return;
+end;
+
+global
+function string 255 RTMonWClassWindowTitle_LIT()
+begin  
+  if (ValuePack(11)==false) then begin
+    RTMonWClassWindowTitle_LIT = "Resursų tipų mėnesio peržiūra: ";
+  end else begin
+    RTMonWClassWindowTitle_LIT = "Kambarių tipų mėnesio peržiūra: ";
+  end;
+  
+  return;
+end;
+
+global
+procedure ARS2RClass_lit()
+begin
+  real h,v,vm,vs;
+
+  if (IsEnterprise()) then begin 
+    SetWRect(20,80,450,450);
+  end else begin
+    SetWRect(20,80,410,250);
+  end;  
+  
+  vs=20;
+  if (IsEnterprise) then begin
+    h = 180;
+  end else begin
+    h = 130;
+  end;
+  EditFieldTL(h,v=6, 150,"Pirkėjas",   M4UStr,Normal,30,f1,false,CUSClass); 
+  if (HasCategories) then begin
+  EditFieldTL(h,v+=20,50, "Kategorija",   M4UStr,Normal,5,f3,false,CCatSClass); 
+  end;
+  if (HasObjects) then begin
+    EditFieldTL(h,v+=20,150, "Objektas",   M4UStr,Normal,20,ObjStr,false,ObjSClass);
+  end;
+  if (HasContactClassification) then begin
+    EditFieldTL(h,v+=20,50, "Klasė",   M4UStr,Normal,30,f4,false,CClassSClass); 
+  end;
+  if (IsEnterprise()) then begin
+    EditFieldTL(h,v+=20,20, "Vėlavimo dienos (ne mažiau nei)",   M4Int,Normal,5,Comparison,false,0); 
+    // EditFieldTL(h,v+=vs ,80,"Min. Turnover",M4Val,Normal,0,vals0,true,0);// this is too slow
+    EditFieldTL(h,v+=20,80, "Pagr. partneris",   M4UStr,Normal,20,LastAcc,false,CUSClass); 
+    EditFieldTL(h,v+=vs ,80,"Min. likutis",M4Val,Normal,0,vals2,true,0); 
+    EditFieldTL(h,v+=vs ,80,"Min. faktūrų sk.",M4Long,Normal,0,long1,true,0); 
+    EditFieldTL(h,v+=20,80,"Datai",M4Date,Normal,0,d1,false,PasteCurDate); 
+    // CheckBox(20,v+=20,0,"Endast kunder med saldo",flags[1]);
+  end;
+
+  ButtonFrame(h=30,vm=(v+=40),123,2,"Faktūros"); 
+  RadioButton(h,v,0,0,"Neapmokėtos",flags[0]); 
+  RadioButton(h,v+=16,2,0,"Pradelstos",flags[0]); 
+
+  if (HasMultiCurrency or HasBase2) then begin
+    ButtonFrame(h,v+=40,123,2,"Sumos"); 
+    RadioButton(h,v,0,0,"Baz. valiuta",flags[4]); 
+    RadioButton(h,v+=16,1,0,"Valiuta",flags[4]); 
+  end;
+  if (IsEnterprise()) then begin
+    CheckBox(h,v+=30,0,"Tik išankst. apm. faktūros",flags[10]); 
+    CheckBox(h,v+=16,0,"Rodyti Išankst. nr.",flags[14]); 
+    CheckBox(h,v+=16,0,"Rodyti dal. apmokėjimus",flags[19]); 
+    CheckBox(h,v+=16,0,"Įtraukti kredito pažymas",flags[9]); 
+  end;
+  if (HasOfficialSerNr) then begin
+    if (IsEnterprise) then begin 
+      v = v + 16;
+    end else begin
+      v = v + 25;
+    end;
+    CheckBox(h,v,0,"Rodyti Oficialų Nr.",flags[15]); 
+  end;
+    ButtonFrame(h+=195,v=vm,125,3,"Būklė"); 
+  RadioButton(h,v,1,0,"Bendras",flags[5]); 
+  RadioButton(h,v+=16,2,0,"Pirkėjui",flags[5]); 
+  RadioButton(h,v+=16,0,0,"Detaliai",flags[5]); 
+  
+  if (IsEnterprise()) then begin
+    ButtonFrame(h,v+=40,125,3,"Būklė"); 
+    CheckBox(h,v,0,"Praleisti abejotinas",flags[11]); 
+    CheckBox(h,v+=16,0,"Praleisti be priminimų",flags[12]); 
+    CheckBox(h,v+=16,0,"Praleisti be kolekcijų",flags[13]); 
+  end;
+  return;
+end;
+
+global
+procedure ALLVATRClass_lit()
+begin
+  real h,h2,v,vm,vs;
+
+  if (IsEnterprise) then begin
+    SetWRect(20,80,520,430);
+  end else begin
+    SetWRect(20,80,400,250);
+  end;
+  vs = 30;
+
+  if (IsEnterprise==false) then begin
+    PeriodField(h=100,v=6,"Periodas"); 
+    ButtonFrame(h,v+=40,200,3,"Apibrėžti"); 
+    CheckBox(h,v,0,"Pardavimo faktūras",flags[1]); 
+    CheckBox(h,v+=16,0,"Pirkimo faktūras",flags[3]); 
+    CheckBox(h,v+=16,0,"D/K operacijas",flags[4]); 
+    EndFrame;
+    if (Left(BuildProductCode,5)!="Books" and HasOfficialSerNr) then begin //!!SAMETRANSLATION
+      CheckBox(h,v+=24,0,"Show Official No.",flags[20]);  //!!SAMETRANSLATION
+  end;
+  end;
+
+  if (IsEnterprise) then begin
+    PeriodField(h=150,v=6,"Periodas"); 
+    EditFieldTL(h,v+=20,100,"Numeris",M4UStr,Normal,60 ,f1,false,0); 
+    EditFieldTL(h,v+=20,100,"Tik užregistruotas nuo:",M4Date,Normal,100,d1,false,0); 
+    EditFieldTL(h,v+=20,100,"PVM kodai",M4UStr,Normal,20,f2,false,VATCodeSClass); 
+    StaticText(h+110,v+12,"Tik detaliai",false); 
+    ButtonFrame(h=120,v+=40,250,6,"Apibrėžti"); 
+    CheckBox(h,vm=v,0,"Pardavimo faktūros",flags[1]); 
+    CheckBox(h,v+=16,0,"Kasos pajamos",flags[8]); 
+    CheckBox(h,v+=16,0,"Įplaukos",flags[10]); 
+    CheckBox(h,v+=16,0,"PVM koreg. P/K",flags[13]); 
+    CheckBox(h,v+=16,0,"D/K operacijos",flags[4]); 
+    CheckBox(h,v+=16,0,"POS balansai",flags[16]); 
+    CheckBox(h2=250,v=vm,0,"Pirkimo faktūros",flags[3]); 
+    CheckBox(h2,v+=16,0,"Kasos išlaidos",flags[9]); 
+    CheckBox(h2,v+=16,0,"Mokėjimai",flags[11]); 
+    CheckBox(h2,v+=16,0,"PVM koreg. P/K",flags[15]); 
+    CheckBox(h2,v+=16,0,"Atskaitingi",flags[5]); 
+    EndFrame;
+    ButtonFrame(h=120,v+=60,250,2,"Neįtraukti"); 
+    CheckBox(h,v,0,"Kredito Sąskaitos",flags[20]); 
+    CheckBox(h,v+=16,0,"POS čekiai",flags[21]); 
+    EndFrame;
+
+    CheckBox(h,v+=32,0,"Rodyti galut. sumas (Tik peržiūra)",flags[6]);
+    CheckBox(h,v+=16,0,"Rodyti oficialų Nr.",flags[20]); 
+    CheckBox(h,v+=16,0,"Rodyti oficialų Nr. (Pirk.k. Pard.k. išrūšiuotą pagal šaką)",flags[12]); 
+  end;
+
+  if (IsEnterprise) then begin
+    ButtonFrame(h=30,vm=(v+=40),180,3,"Pasirinkti"); 
+    RadioButton(h,v,0,0,"Visos operacijos",flags[7]); 
+    RadioButton(h,v+=16,1,0,"Tik operacijos be PVM",flags[7]); 
+    RadioButton(h,v+=16,2,0,"Tik operacijos su PVM",flags[7]); 
+    EndFrame;
+  end else begin
+    ButtonFrame(h,v+=40,200,2,"Pasirinkti");
+    RadioButton(h,v,0,0,"Visos operacijos",flags[7]); 
+    RadioButton(h,v+=16,1,0,"Tik operacijos be PVM",flags[7]); 
+    EndFrame;
+  end;
+
+  if (IsEnterprise()) then begin
+    ButtonFrame(h=230,v=vm,123,2,"Funkcija");
+    RadioButton(h,v,0,0,"Peržiūra",flags[14]); 
+    RadioButton(h,v+=16,1,0,"Detaliai",flags[14]); 
+    EndFrame;
+/* I can't find the code for this
+    ButtonFrame(h=120,v+=50,200,3,"#VAT# Zone");  //!!SAMETRANSLATION
+    CheckBox(h,v,0,"#Domestic#",flags[10]);  //!!SAMETRANSLATION
+    CheckBox(h,v+=16,0,"#NL#-#Inside EU#",flags[11]);  //!!SAMETRANSLATION
+    CheckBox(h,v+=16,0,"#NL#-#Outside EU#",flags[12]);  //!!SAMETRANSLATION
+    EndFrame;
+*/
+  end;
+  return;
+end;
+  
+global
+procedure SysEClass_Tool(Integer cnt,var real v,var real h)
+begin
+  if (cnt==9) then begin  
+    h = 270;
+    v = 35;
+  end;
+  return;
+end;
+
+global
+procedure GTransEClass_Tool(Integer cnt,var real v,var real h)
+begin
+  if (cnt==14) then begin  
+    h = 180;
+    v = 38;
+  end;
+  if (cnt==28) then begin  
+    h = 340;
+    v = 38;
+  end;
+  return;
+end;
+
+global
+procedure GTrans2EClass_Tool(Integer cnt,var real v,var real vm,var real h)
+begin
+  if (cnt==11) then begin  
+    if (v>vm) then begin vm = v; end;
+    h = 180;
+    v = 38;
+  end;
+  if (cnt==22) then begin  
+    if (v>vm) then begin vm = v; end;
+    h = 340;
+    v = 38;
+  end;
+  return;
+end;
+
+global
+procedure GBaseEClass_Tool(Integer cnt,var real v,var real h)
+begin
+  if (cnt==8) then begin  
+    h = 200;
+    v = 35;
+  end;
+  if (cnt==16) then begin  
+    h = 350;
+    v = 35;
+  end;
+  return;
+end;
+
+global
+procedure TransGenVClass_Tool(Integer cnt,var real v,var real h)
+begin
+  if (cnt==14) then begin  
+    h = 200;
+    v = 18;
+  end;
+  if (cnt==28) then begin  
+    h = 350;
+    v = 18;
+  end;
+  return;
+end;
+
+global
+function Integer FlipCharCode(Integer langmode,Integer latincode)
+begin
+  Integer res;
+  
+  switch (langmode) begin
+    case LangArabic:
+      switch (chr(latincode)) begin
+        case "A": res = 1575;
+        case "B": res = 1576;
+        case "C": res = 1580;
+        case "D": res = 1583;
+        case "E": res = 1607;
+        case "F": res = 1608;
+        case "G": res = 1586;
+        case "H": res = 1581;
+        case "I": res = 1591;
+        case "J": res = 1610;
+        otherwise 
+          res = latincode;
+      end;
+    otherwise
+      res = latincode;
+  end;
+  FlipCharCode = res;
+  return;
+end;
+
+global
+function Boolean AcceptanceStatusColumnTest(string filename)
+begin
+  Boolean res;
+  record AcceptanceRulesVc Acptr;
+
+  if (HasApprovals) then begin
+    switch (filename) begin
+      case "ExpVc": Acptr.Register = kAcceptanceExp;
+      case "IntORVc": Acptr.Register = kAcceptanceIntOR;
+      case "IVVc": Acptr.Register = kAcceptanceIV;
+      case "LeaveApplicationVc": Acptr.Register = kAcceptanceLeaveApplication;
+      case "LeaveTransferVc": Acptr.Register = kAcceptanceLeaveTransfer;
+      case "OPVc": Acptr.Register = kAcceptanceOP;
+      case "ORVc": Acptr.Register = kAcceptanceOR;
+      case "POVc": Acptr.Register = kAcceptancePO;
+      case "PUVc": Acptr.Register = kAcceptancePU;
+      case "QTVc": Acptr.Register = kAcceptanceQT;
+      case "SDVc": Acptr.Register = kAcceptanceSD;
+      case "StockTakeVc": Acptr.Register = kAcceptanceStockTake;
+      case "TBBUVc": Acptr.Register = kAcceptanceTBBU;
+      case "VIVc": Acptr.Register = kAcceptanceVI;
+      case "HMTravelLogVc": Acptr.Register = kAcceptanceTLog; 
+    end;
+    res = ReadFirstMain(Acptr,1,true);
+  end;
+  AcceptanceStatusColumnTest = res;
+  return;
+end;

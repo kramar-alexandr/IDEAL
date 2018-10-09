@@ -1,0 +1,67 @@
+//event DefineWindows
+//begin
+//  real v,h,h2,vs;
+//
+//  SetLangMode(LangEnglish,"ENG",0);
+
+window Burti_TimedEventLClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real v,h,h2,vs;
+  
+  WindowBegin("Burti - Timed Events",Burti_TimedEventLClass,CGmlist,-);
+  SpawnClass(Burti_TimedEventDClass);
+  Sizeable(150,150,0,0);
+  SetWRect(64,73,500,291);
+  UseView(Burti_TimedEventVc);
+  RecordList(1,17,-18,-39);
+  RlColKey(4,4,"Nr",SerNr,false,MainKey);
+  RlCol(60,60,"Routine",Routine,false);
+  RlCol(-190,-190,"Next Run",NextDate,false);
+  RlCol(-120,-120," - time",NextTime,false);
+  RlCol(-50,-50,"On Hold",HoldFlag,false);
+  SearchField("Search");
+  EndWindow;
+  
+  return;
+end;
+
+
+window Burti_TimedEventDClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real v,h,h2,vs;
+  
+  WindowBegin("Burti - Timed Event",Burti_TimedEventDClass,CGview,-);
+  SetWRect(20,80,460,520);
+  UseView(Burti_TimedEventVc);
+  vs=20;
+  h = 120; h2 = 220;
+  EditField(h,v=6,70,"Nr",Normal,SerNr,false,0);
+  CheckBox(h2,v,0,"On Hold",HoldFlag);
+  EditField(h,v+=vs,-20,"Routine",Normal,Routine,false,0);
+  ButtonFrame(h,v+=41,170,3,"Routine Type");
+  RadioButton(h,v,0,0,"Maintenance",RoutineType);
+  RadioButton(h,v+=16,1,0,"Report (not supported yet)",RoutineType);
+  RadioButton(h,v+=16,2,0,"Export (not supported yet)",RoutineType);
+  EditField(h,v+=2*vs,70,"Company Nr",Normal,CompanyNr,false,0);
+  EditField(h,v+=vs,70,"Last Run Started",ViewOnly,LastDate,false,0);
+  EditField(h2,v,70,"",ViewOnly,LastTime,false,0);
+  EditField(h,v+=vs,70,"Last Run Finished",ViewOnly,LastDateDone,false,0);//HERBE-787
+  EditField(h2,v,70,"",ViewOnly,LastTimeDone,false,0);
+  EditField(h,v+=vs,70,"Next Run",Normal,NextDate,false,PasteCurDate);
+  EditField(h2,v,70,"",Normal,NextTime,false,PasteCurTime);
+  EditField(h,v+=vs,70,"Interval",Normal,Interval,false,0);
+  ButtonFrame(h,v+=41,80,3,"Interval Type");
+  RadioButton(h,v,0,0,"Minutes",IntervalType);
+  RadioButton(h,v+=16,1,0,"Hours",IntervalType);
+  RadioButton(h,v+=16,2,0,"Days",IntervalType);
+  MatrixBegin(4,v+=50,-20,v+140,-,99);
+  MatCol(1,20,"RepSpec field/param",0,ParamName,false,0);
+  MatCol(1,120,"Value",0,ParamValue,false,0);
+  MatCol(1,220,"Comment",0,Comment,false,0);
+  EndMatrix;
+  EndWindow;
+  
+  return;
+end;

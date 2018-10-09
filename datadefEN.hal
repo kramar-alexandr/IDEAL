@@ -1,0 +1,17 @@
+// SourceFile("halcust/enab/enabler",2);
+// SourceFile("halcust/enab/Tools",2);
+// SourceFile("halcust/enab/RActions",2);
+// SourceFile("halcust/enab/Lithuanian",2);
+// SourceFile("halcust/enab/English",2);
+
+begin
+
+  BlockBegin(EnSetBlock,-,"");
+  BlockForAllCompanies;
+  BlockInServer;
+  RecordField(Path,M4Str,20,0);
+  RecordField(Enabled,M4Int,0,0);
+  EndBlock;
+
+  return;
+end;

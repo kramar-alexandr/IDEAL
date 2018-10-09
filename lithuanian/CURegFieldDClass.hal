@@ -1,0 +1,49 @@
+SetlangMode(LangLithuanian,"LIT",0);
+
+window CURegFieldDClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vs;
+  WindowBegin("Customer Registration Field",CURegFieldDClass,CGview,-);
+  UseView(CURegFieldVc);
+  SetWRect(20,80,600,400);
+  ActiveFieldOnNew("FieldType");
+  vs = 20; h = 100; h2 = 350; v = 16; vs = 20;
+  EditField(h,v,150,"Field Type",Normal,FieldType,false,SetSClass);
+  EditField(h,v+=vs,-40,"Comment",Normal,Comment,false,0);
+  EditField(h,v+=vs,150,"Parameter",Normal,Param,false,WebNGParamSClass);
+  EditField(h2,v,-40,"Sorting",Normal,Sorting,false,0);
+  CheckBox(h,v+=vs,0,"Required",Required);
+  CheckBox(h,v+=16,0,"Allow Update through My Account",AllowUpdate);
+  CheckBox(h,v+=16,0,"For company",ForCompany);
+  MatrixBegin(10,v+=41,-30,-10,INTextRowType,99);
+  MatCol(1,24,"Language",0,LangCode,false,WebNGLanguageSClass);
+  MatCol(1,84,"Text",0,Text,false,0);
+  EndMatrix;
+  EndWindow;
+end;
+
+SetlangMode(LangLatvian,"LAT",0);
+
+window CURegFieldDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vs;
+  WindowBegin("Customer Registration Field",CURegFieldDClass,CGview,-);
+  UseView(CURegFieldVc);
+  SetWRect(20,80,600,400);
+  ActiveFieldOnNew("FieldType");
+  vs = 20; h = 100; h2 = 350; v = 16; vs = 20;
+  EditField(h,v,150,"Field Type",Normal,FieldType,false,SetSClass);
+  EditField(h,v+=vs,-40,"Comment",Normal,Comment,false,0);
+  EditField(h,v+=vs,150,"Parameter",Normal,Param,false,WebNGParamSClass);
+  EditField(h2,v,-40,"Sorting",Normal,Sorting,false,0);
+  CheckBox(h,v+=vs,0,"Required",Required);
+  CheckBox(h,v+=16,0,"Allow Update through My Account",AllowUpdate);
+  CheckBox(h,v+=16,0,"For company",ForCompany);
+  MatrixBegin(10,v+=41,-30,-10,INTextRowType,99);
+  MatCol(1,24,"Language",0,LangCode,false,WebNGLanguageSClass);
+  MatCol(1,84,"Text",0,Text,false,0);
+  EndMatrix;
+  EndWindow;
+end;

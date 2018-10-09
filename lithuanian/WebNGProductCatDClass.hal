@@ -1,0 +1,54 @@
+SetlangMode(LangLithuanian,"LIT",0);
+
+window WebNGProductCatDClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vs;
+  WindowBegin("Web Product Category",WebNGProductCatDClass,CGview,-);
+  UseView(WebNGProductCatVc);
+  SetWRect(20,80,500,380);
+  vs = 20;h = 100;h2 =  320; v = 6;
+  EditField(h,v,120,"Code",Normal,Code,false,0);
+  EditField(h,v+=vs,-40,"Comment",Normal,Comment,false,0);
+  EditField(h,v+=vs,-40,"Parent Category",Normal,ParentCategory,false,WebNGProductCatSClass);
+  
+  CheckBox(h,v+=18,0,"Show sub-category images",ShowSubcatImages); // cust
+  
+//  ButtonFrame(h,vm=(v+=40),345,2,"Template Element when displaying lists"); //no code attached to these fields
+//  EditField(h,v,120,"Products",Normal,ElementProducts,false,WebNGElementSClass);
+//  EditField(h2,v,-40,"Categories",Normal,ElementCategories,false,WebNGElementSClass);
+//  CheckBox(h,v+=18,0,"Don't inherit parent category's template elements",DontInheritElements);
+  MatrixBegin(4,v+=40,-32,-20,-,99);
+  MatCol(1,24,"Lang.",0,LangCode,false,WebNGLanguageSClass);
+  MatCol(1,84,"Text",0,Text,false,0);
+  EndMatrix;
+  EndWindow;
+end;
+
+
+SetlangMode(LangEnglish,"LIT",0);
+
+window WebNGProductCatDClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vs;
+  WindowBegin("Web Product Category",WebNGProductCatDClass,CGview,-);
+  UseView(WebNGProductCatVc);
+  SetWRect(20,80,500,380);
+  vs = 20;h = 100;h2 =  320; v = 6;
+  EditField(h,v,120,"Code",Normal,Code,false,0);
+  EditField(h,v+=vs,-40,"Comment",Normal,Comment,false,0);
+  EditField(h,v+=vs,-40,"Parent Category",Normal,ParentCategory,false,WebNGProductCatSClass);
+  
+  CheckBox(h,v+=18,0,"Show sub-category images",ShowSubcatImages); // cust
+  
+//  ButtonFrame(h,vm=(v+=40),345,2,"Template Element when displaying lists"); //no code attached to these fields
+//  EditField(h,v,120,"Products",Normal,ElementProducts,false,WebNGElementSClass);
+//  EditField(h2,v,-40,"Categories",Normal,ElementCategories,false,WebNGElementSClass);
+//  CheckBox(h,v+=18,0,"Don't inherit parent category's template elements",DontInheritElements);
+  MatrixBegin(4,v+=40,-32,-20,-,99);
+  MatCol(1,24,"Lang.",0,LangCode,false,WebNGLanguageSClass);
+  MatCol(1,84,"Text",0,Text,false,0);
+  EndMatrix;
+  EndWindow;
+end;

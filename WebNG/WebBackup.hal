@@ -1,0 +1,17 @@
+global
+procedure WebRegOutEn()
+BEGIN
+  SetExportCodePage("CP1257");
+	RegisterExport("WebTextVc");
+	RegisterExport("WebNGContentVc");
+	RegisterExport("WebNGTranslateVc");
+	RegisterExport("WebNGPageVc");
+	RegisterExport("WebNGMenuVc");
+	RegisterExport("WebNGContentCatVc");
+	RegisterExport("WebNGContentStyleVc");
+	RegisterExport("WebNGStructVc");
+	RegisterExport("CURegFieldVc");
+	
+	BlockExport("WebNGSiteBlock");
+	RETURN;
+END;

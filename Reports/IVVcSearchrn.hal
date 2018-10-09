@@ -1,0 +1,82 @@
+external inner function roundmode SetRoundModeD(Integer);
+external inner procedure ExtractObjWithSeparator(string,string,Boolean,var Integer,var string);
+external inner function val MulRateToBase1(var string,val,val,val,val,val,val,roundmode);
+//VATByBUSTravelRn.hal
+event startup
+begin
+  SetLangMode(LangLithuanian, "LIT", 0);
+  Report("Faktðr÷ paieäka",IVVcSearchRClass,IVVcSearchRn,0,modSL);
+
+  return;
+end;
+
+event DefineWindows
+begin
+  real h,v,vm,vs,v2,h2;
+  SetLangMode(LangLithuanian, "LIT", 0);
+  WindowBegin("Skirtum÷ ataskaita",IVVcSearchRClass,CGRcW,RcType);
+  h = 80; v= 6; vs = 20;v2 = 86;h2 = 350;
+  SetWRect(20,80,690,400);
+
+  PeriodField(80,v+=20,"Periodas");
+ EditFieldTL(h,v+=vs, 150,"Ieäkoti",M4Str,Normal,20,f1,false,0);
+
+  EndWindow;
+  
+  return; 
+end;
+
+global
+procedure IVVcSearchRn(record RcVc RepSpec)
+begin
+  record IVVc IVr;
+  row IVVc IVrw;
+  record LetVc Letr;
+  boolean TrHs,testf;
+  string 255 tstr;
+  integer cnt, rw,i;  
+ 
+  cnt = 0;
+  rw = 1;
+  StartReportJob(USetStr(13500));
+  tstr = RepSpec.f1;
+  Header(rw,tstr,1);
+  EndHeader;
+  if (blank(RepSpec.f1)) then begin
+    goto LSearchItemRn;
+  end;
+  
+  StartFormat(15);
+  OutString(60,0,"Fakt. nr.",false);
+  EndFormat;
+  Gray_Divider(0,1);
+  TrHs = true;
+  IVr.InvDate = RepSpec.sStartDate;
+  while (LoopKey("InvDate",IVr,1,TrHs)) begin
+    if IVr.InvDate > RepSpec.sEndDate then begin
+      TrHs = false;
+    end;
+    if (TrHs) then begin
+      testf = false;
+      RecordNew(Letr);
+      cnt = MatRowCnt(IVr);
+      for (i=0;i<cnt;i=i+1) begin
+        MatRowGet(IVr,i,IVrw);
+        AddToText(IVrw.Spec,Letr);
+      end;      
+      if (StringInText(RepSpec.f1,Letr)) then begin
+        testf = true;
+      end;
+      if (testf) then begin
+        StartFormat(15);
+        OutString(60,"DblIVVc",IVr.SerNr,false);
+        EndFormat;
+      end;
+    end;
+  end;  
+
+  
+  LSearchItemRn:;
+  EndJob;
+  return;
+end;

@@ -1,0 +1,852 @@
+external inner function string 255 ConvertXml(string);
+external inner function Boolean GetNextCustNr(var string);
+external inner function Boolean PasteCust2InInv(var record IVVc,record LocalMachineBlock,string,Boolean,var string,var string,var string,var string,var string);
+external inner procedure IVVc_PastePayDeal(var record IVVc,string,string);
+remote inner procedure IVVc_PasteInvDate(var record IVVc,record LocalMachineBlock,var Integer,var Integer);
+external inner procedure IVVc_PasteItem(record IVVc,Integer,Integer);
+external inner function Boolean IVVc_PasteQuantity2(var record IVVc,Integer,var Boolean,var record LSerialPortDeviceVc);
+external inner procedure IVSumup(var record IVVc,Boolean);
+remote inner procedure IVVc_PastePrice(var record IVVc,record IVVc,Integer,var string);
+external inner procedure IVDchsum(var record IVVc,Integer);
+external inner function Boolean IVDchrsum(var record IVVc,Integer);
+remote inner function Boolean IVVc_PasteArtCode(var record IVVc,Integer,var string,var string,Boolean,var Integer);
+external inner function Boolean TouchScreenLook();
+remote procedure idealwriteLines(var record INVc);
+external inner function val FindVAT(string,val,Integer,Integer);
+external inner function string 60 AddObjectToObjectList(string,string); //MDS HAL-393
+
+procedure RemoveCharacterFromString(var string res,string tstr)
+BEGIN
+  string 1 char;
+  string 10 new_char;
+  Integer i, n;
+  
+  n = len(tstr);
+  res = "";
+  for (i=0;i<n;i=i+1) begin
+    char = Mid(tstr,i,1);
+    switch (char) begin
+      case "&": new_char = "&amp;";
+      case "<": new_char = "&lt;";
+      case ">": new_char = "&gt;";
+      case """": new_char = "&quot;";
+      case "”": new_char = "&#8221;";
+      case "'": new_char = "&apos;";
+      otherwise new_char = char;
+    end;
+    if asc(char) < 32 then begin
+    new_char = "";
+    end;
+    res = res & new_char;
+  end;
+  
+  RETURN;
+END;
+
+global webpublic
+procedure WebItems()
+begin
+  record INVc INr,tINr;
+  record ItemStatusVc ISr;
+  boolean testf;
+  string 255 tstr;
+  val storagecnt;
+  record SysFormatBlock SysFormatRec;
+  record BaseCurBlock BCbr; 
+  record LocationVc Locr;
+  integer rwcnt,i;
+  
+  if (SetCompany(1,false)) then begin end;
+  blockload(SysFormatRec);
+  blockload(BCbr);
+  WebSetContentType("text/xml");
+  WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+ // WebOutStringFormatNL("<?xml version=" & """1.0""" & "encoding=" & """UTF-8""" & "?>");
+  WebOutStringFormatNL("<item_list>");
+  INr.WebItem = 1;
+  testf= true;
+  while LoopKey("WebItem",INr,1,testf) begin
+  	if INr.WebItem != 1 then begin testf = false; end;
+  	if testf == true then begin
+  	  WebOutStringFormatNL("<item>");
+  	  WebOutStringFormatNL("<Code>" & INr.Code & "</Code>");
+  	  WebOutStringFormatNL("<WebSKU>" & INr.WebSKU & "</WebSKU>");
+  //	  WebOutStringFormatNL("<AVAD>" & "" & "</AVAD>");      //?????
+	  RemoveCharacterFromString(tstr,INr.Name);
+	  WebOutStringFormatNL("<Descr>" & tstr & "</Descr>" );
+	  WebOutStringFormatNL("<Class>" & INr.DispGroups & "</Class>" ); //????
+	  //RemoveCharacterFromString(tstr,INr.Group);
+	  //WebOutStringFormatNL("<Group>" & tstr & "</Group>" );
+	  RemoveCharacterFromString(tstr,INr.SameItem);
+      WebOutStringFormatNL("<SameItem>" & tstr & "</SameItem>" );
+      WebOutStringFormatNL("<Price>" & ValToString(INr.UPrice1,M423Val,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</Price>" );
+      WebOutStringFormatNL("<OldPrice>" & ValToString(INr.ReducedPrice,M423Val,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</OldPrice>" ); // was oldprice
+      RemoveCharacterFromString(tstr,INr.WebProducer);
+      WebOutStringFormatNL("<WebProducer>" & tstr & "</WebProducer>" );
+      RemoveCharacterFromString(tstr,INr.WebColor);
+      WebOutStringFormatNL("<WebColor>" & tstr & "</WebColor>" );
+      RemoveCharacterFromString(tstr,INr.WebSync);
+      WebOutStringFormatNL("<WebSync>" & tstr & "</WebSync>" );
+      RemoveCharacterFromString(tstr,INr.WebType);
+      WebOutStringFormatNL("<WebType>" & tstr & "</WebType>" );
+      RemoveCharacterFromString(tstr,INr.WebScreen);
+      WebOutStringFormatNL("<WebScreen>" & tstr & "</WebScreen>" );
+      RemoveCharacterFromString(tstr,INr.WebProcesor);
+      WebOutStringFormatNL("<WebProcesor>" & tstr & "</WebProcesor>" );
+      RemoveCharacterFromString(tstr,INr.WebMemory);
+      WebOutStringFormatNL("<WebMemory>" & tstr & "</WebMemory>" );
+      RemoveCharacterFromString(tstr,INr.WebCapacity);
+      WebOutStringFormatNL("<WebCapacity>" & tstr & "</WebCapacity>" );
+      RemoveCharacterFromString(tstr,INr.WebGraphic);
+      WebOutStringFormatNL("<WebGraphic>" & tstr & "</WebGraphic>" );
+      RemoveCharacterFromString(tstr,INr.WebCamera);
+      WebOutStringFormatNL("<WebCamera>" & tstr & "</WebCamera>" );
+      RemoveCharacterFromString(tstr,INr.WebConnection);
+      WebOutStringFormatNL("<WebConnection>" & tstr & "</WebConnection>" );
+      RemoveCharacterFromString(tstr,INr.WebCellular);
+      WebOutStringFormatNL("<WebCellular>" & tstr & "</WebCellular>" );
+      RemoveCharacterFromString(tstr,INr.WebWireles);
+      WebOutStringFormatNL("<WebWireles>" & tstr & "</WebWireles>" );
+      RemoveCharacterFromString(tstr,INr.WebBatery);
+      WebOutStringFormatNL("<WebBatery>" & tstr & "</WebBatery>" );
+      RemoveCharacterFromString(tstr,INr.WebWeigth);
+      WebOutStringFormatNL("<WebWeigth>" & tstr & "</WebWeigth>" );
+      RemoveCharacterFromString(tstr,INr.WebMaterial);
+      WebOutStringFormatNL("<WebMaterial>" & tstr & "</WebMaterial>" ); 
+      RemoveCharacterFromString(tstr,INr.WebResistance);
+      WebOutStringFormatNL("<WebResistance>" & tstr & "</WebResistance>" );
+      RemoveCharacterFromString(tstr,INr.WebPacked);
+      WebOutStringFormatNL("<WebPacked>" & tstr & "</WebPacked>" );
+      RemoveCharacterFromString(tstr,INr.WebOtherInf);
+      WebOutStringFormatNL("<WebOtherInf>" & tstr & "</WebOtherInf>" );
+      RemoveCharacterFromString(tstr,INr.ReducedPrice);
+      WebOutStringFormatNL("<ReducedPrice>" & tstr & "</ReducedPrice>" );
+      RemoveCharacterFromString(tstr,INr.DeliveryTerm);
+      WebOutStringFormatNL("<DeliveryTerm>" & tstr & "</DeliveryTerm>" );
+      RemoveCharacterFromString(tstr,INr.WebKeyLang);
+      WebOutStringFormatNL("<WebKeyLang>" & tstr & "</WebKeyLang>" );
+      // EVS: HAL-202
+      RemoveCharacterFromString(tstr,INr.UserVal1);
+      WebOutStringFormatNL("<Position>" & tstr & "</Position>");
+      // :EVS
+      WebOutStringFormatNL("<WebDesc>");
+      // EVS: DESK-1602 old code is inadequate
+      RecordCopy(tINr,INr);
+      idealwriteLines(tINr);
+      WebOutText(tINr,false,"");
+//       for (i=0;i<32000;i=i+255) begin
+//         tstr = StringFromText(INr,i,255);
+//         if tstr != "" then begin
+//           RemoveCharacterFromString(tstr,tstr);
+//           WebOutStringFormat(tstr);
+//         end else begin
+//           i = 32000;
+//         end;
+//       end;
+      // :EVS
+      WebOutStringFormatNL("</WebDesc>");
+      WebOutStringFormatNL("</item>");
+    end;
+  end;
+  WebOutStringFormatNL("</item_list>");
+return;
+end;
+
+global webpublic
+procedure WebGroups()
+begin
+  record ITVc ITr;
+  string 255 tstr;
+	
+if (SetCompany(1,false)) then begin end;
+  WebSetContentType("text/xml");
+  WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+ // WebOutStringFormatNL("<?xml version=" & """1.0""" & "encoding=" & """UTF-8""" & "?>");
+  WebOutStringFormatNL("<group_list>");
+  while Loopmain(ITr,1,true) begin
+    WebOutStringFormatNL("<group>");
+  	WebOutStringFormatNL("<Code>" & ITr.Code & "</Code>");
+    RemoveCharacterFromString(tstr,ITr.Comment);
+	WebOutStringFormatNL("<Descr>" & tstr & "</Descr>" );
+    WebOutStringFormatNL("</group>");
+  end;
+  WebOutStringFormatNL("</group_list>");
+return;
+end;
+
+global webpublic
+procedure WebPriceLists()
+begin
+  record PLDefVc PLDefr;
+  string 255 tstr;
+	
+if (SetCompany(1,false)) then begin end;
+  WebSetContentType("text/xml");
+  WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+ // WebOutStringFormatNL("<?xml version=" & """1.0""" & "encoding=" & """UTF-8""" & "?>");
+  WebOutStringFormatNL("<pricelist_list>");
+  while Loopmain(PLDefr,1,true) begin
+    WebOutStringFormatNL("<pricelist>");
+  	WebOutStringFormatNL("<Code>" & PLDefr.Code & "</Code>");
+    RemoveCharacterFromString(tstr,PLDefr.Comment);
+	WebOutStringFormatNL("<Descr>" & tstr & "</Descr>" );
+    WebOutStringFormatNL("</pricelist>");
+  end;
+  WebOutStringFormatNL("</pricelist_list>");
+return;
+end;
+
+global webpublic
+procedure WebCustCat()
+begin
+  record CCatVc CCatr;
+  string 255 tstr;
+	
+if (SetCompany(1,false)) then begin end;
+  WebSetContentType("text/xml");
+  WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+ // WebOutStringFormatNL("<?xml version=" & """1.0""" & "encoding=" & """UTF-8""" & "?>");
+  WebOutStringFormatNL("<custcat_list>");
+  while Loopmain(CCatr,1,true) begin
+    WebOutStringFormatNL("<custcat>");
+  	WebOutStringFormatNL("<Code>" & CCatr.Code & "</Code>");
+    RemoveCharacterFromString(tstr,CCatr.Comment);
+	WebOutStringFormatNL("<Descr>" & tstr & "</Descr>" );
+	WebOutStringFormatNL("<PriceListCode>" & CCatr.PLCode & "</PriceListCode>" );
+    WebOutStringFormatNL("</custcat>");
+  end;
+  WebOutStringFormatNL("</custcat_list>");
+return;
+end;
+
+
+global webpublic
+procedure WebSameItemPrefix()
+begin
+  record SameItemVc SIr;
+  string 255 tstr;
+	
+if (SetCompany(1,false)) then begin end;
+  WebSetContentType("text/xml");
+  WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+ // WebOutStringFormatNL("<?xml version=" & """1.0""" & "encoding=" & """UTF-8""" & "?>");
+  WebOutStringFormatNL("<SameItm_list>");
+  while Loopmain(SIr,1,true) begin
+    WebOutStringFormatNL("<SameItm>");
+  	WebOutStringFormatNL("<Code>" & SIr.Code & "</Code>");
+    RemoveCharacterFromString(tstr,SIr.Comment);
+	WebOutStringFormatNL("<Descr>" & tstr & "</Descr>" );
+    WebOutStringFormatNL("</SameItm>");
+  end;
+  WebOutStringFormatNL("</SameItm_list>");
+return;
+end;
+
+global webpublic
+procedure WebClasses()
+begin
+  record DIVc DIr;
+  string 255 tstr;
+	
+	if (SetCompany(1,false)) then begin end;
+  WebSetContentType("text/xml");
+  WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+ // WebOutStringFormatNL("<?xml version=" & """1.0""" & "encoding=" & """UTF-8""" & "?>");
+  WebOutStringFormatNL("<class_list>");
+  while Loopmain(DIr,1,true) begin
+    WebOutStringFormatNL("<class>");
+  	WebOutStringFormatNL("<Code>" & DIr.Code & "</Code>");
+    RemoveCharacterFromString(tstr,DIr.Name);
+	WebOutStringFormatNL("<Descr>" & tstr & "</Descr>" );
+    WebOutStringFormatNL("</class>");
+  end;
+  WebOutStringFormatNL("</class_list>");
+return;
+end;
+
+global webpublic
+procedure WebItmBalance()
+begin
+  record INVc INr;
+  record ItemStatusVc ISr;
+  boolean testf;
+  string 255 tstr;
+  val storagecnt;
+  record SysFormatBlock SysFormatRec;
+  record BaseCurBlock BCbr; 
+  record LocationVc Locr;
+  integer rwcnt,i;
+  record ResListVc ResListr;
+  row ResListVc ResListrw;
+  record ResListBrokVc ResListBr;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 10:26:23
+  row ResListBrokVc ResListBrw;
+  record ResListDemoVc ResListDr;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 10:26:23
+  row ResListDemoVc ResListDrw;
+  val reserved;
+  boolean printf;
+  
+  blockload(SysFormatRec);
+	
+	if (SetCompany(1,false)) then begin end;
+  WebSetContentType("text/xml");
+  WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+ // WebOutStringFormatNL("<?xml version=" & """1.0""" & "encoding=" & """UTF-8""" & "?>");
+  WebOutStringFormatNL("<itm_balance>");
+  testf = true;
+  INr.WebItem = 1;
+  while LoopKey("WebItem",INr,1,testf) begin
+    if INr.WebItem != 1 then begin testf = false; end;
+    if testf == true then begin
+	  ResetLoop(Locr);
+	  Locr.Code = "A";
+	  printf = false;
+	  while Loopmain(Locr,1,true) begin
+      ISr.Code = INr.Code;
+	    ISr.Location = Locr.Code;
+	    if ReadFirstKey("Location",ISr,2,true) and ISr.Instock > 0 then begin
+	      if printf == false then begin
+	        WebOutStringFormatNL("<item>");
+  	        WebOutStringFormatNL("<Code>" & INr.Code & "</Code>");
+  	        printf = true;
+	      end;
+	      WebOutStringFormatNL("<LocationBal>")
+        WebOutStringFormatNL("<LocationCode>" & Locr.Code & "</LocationCode>");
+        reserved = 0;
+        ResListr.Loc = Locr.Code;
+        ResetLoop(ResListr);
+        If ReadFirstMain(ResListr,1,true)  then begin
+          rwcnt = MatRowCnt(ResListr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(ResListr,i,ResListrw); // EVS: HAL-237
+            if ResListrw.ArtCode == INr.Code then begin
+              reserved = reserved + ResListrw.Qty;
+            end;
+          end;
+        end;
+        
+        // Edit Start ---------------------------------------------- Edit Start
+	//Thursday, 12 April 2018 10:32:18
+	
+        
+        ResListBr.Loc = Locr.Code;
+        ResetLoop(ResListBr);
+        If ReadFirstMain(ResListBr,1,true)  then begin
+          rwcnt = MatRowCnt(ResListBr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(ResListBr,i,ResListBrw); // EVS: HAL-237
+            if ResListBrw.ArtCode == INr.Code then begin
+              reserved = reserved + ResListBrw.Qty;
+            end;
+          end;
+        end;
+        
+        ResListDr.Loc = Locr.Code;
+        ResetLoop(ResListDr);
+        If ReadFirstMain(ResListDr,1,true)  then begin
+          rwcnt = MatRowCnt(ResListDr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(ResListDr,i,ResListDrw); // EVS: HAL-237
+            if ResListDrw.ArtCode == INr.Code then begin
+              reserved = reserved + ResListDrw.Qty;
+            end;
+          end;
+        end;
+        
+        
+	// Edit End ---------------------------------------------- Edit End
+	
+        
+        WebOutStringFormatNL("<Balance>" & ValToString(ISr.Instock - reserved,M4UVal,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</Balance>");
+        WebOutStringFormatNL("</LocationBal>")
+      end;
+	  end;
+	  if printf == true then begin
+	    WebOutStringFormatNL("</item>");
+	  end;
+	end;
+  end;
+  WebOutStringFormatNL("</itm_balance>");
+return;
+end;
+
+global webpublic
+procedure WebPrices()
+begin
+  record PLVc PLr;
+  string 255 tstr,olditm;
+  boolean testf;  
+  record SysFormatBlock SysFormatRec;
+  
+  blockload(SysFormatRec);
+	if (SetCompany(1,false)) then begin end;
+  WebSetContentType("text/xml");
+  WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+ // WebOutStringFormatNL("<?xml version=" & """1.0""" & "encoding=" & """UTF-8""" & "?>");
+  WebOutStringFormatNL("<item_prices>");
+  PLr.ArtCode = "0000001";
+  olditm = "0000001";
+  testf = true;
+  while LoopKey("ArtCode",PLr,1,true) begin
+    if testf == true then begin
+      WebOutStringFormatNL("<item>");
+      RemoveCharacterFromString(tstr,PLr.ArtCode);
+  	  WebOutStringFormatNL("<Code>" & tstr & "</Code>");
+  	  testf = false;
+  	  olditm = PLr.ArtCode;
+  	end;
+  
+    if olditm == PLr.ArtCode then begin 
+      WebOutStringFormatNL("<PriceList>");
+	  WebOutStringFormatNL("<PriceListCode>" & PLr.PLCode & "</PriceListCode>" );
+	  WebOutStringFormatNL("<Price>" & ValToString(PLr.ExVatPrice,M423Val,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</Price>" );
+	  WebOutStringFormatNL("</PriceList>");
+    end else begin
+      WebOutStringFormatNL("</item>");
+      WebOutStringFormatNL("<item>");
+      RemoveCharacterFromString(tstr,PLr.ArtCode);
+  	  WebOutStringFormatNL("<Code>" & tstr & "</Code>");
+  	  WebOutStringFormatNL("<PriceList>");
+	  WebOutStringFormatNL("<PriceListCode>" & PLr.PLCode & "</PriceListCode>" );
+	  WebOutStringFormatNL("<Price>" & ValToString(PLr.ExVatPrice,M423Val,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</Price>" );  
+	  WebOutStringFormatNL("</PriceList>");
+    end;
+    olditm = PLr.ArtCode;
+  end;
+    WebOutStringFormatNL("</item>");
+  WebOutStringFormatNL("</item_prices>");
+return;
+end;
+
+global webpublic
+procedure WebCustomers()
+begin
+  record CUVc CUr;
+  string 255 tstr;
+  boolean testf;
+	if (SetCompany(1,false)) then begin end;
+  WebSetContentType("text/xml");
+  WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+ // WebOutStringFormatNL("<?xml version=" & """1.0""" & "encoding=" & """UTF-8""" & "?>");
+  WebOutStringFormatNL("<customer_list>");
+  CUr.CUType = 1;
+  testf = true;
+  while LoopKey("ActCode",CUr,1,testf) begin
+    if CUr.CUType != 1 then begin testf = false; end;
+    if testf == true then begin
+      WebOutStringFormatNL("<Customer>");
+  	  WebOutStringFormatNL("<Code>" & CUr.Code & "</Code>");
+  	  WebOutStringFormatNL("<CustCat>" & CUr.CustCat & "</CustCat>");
+  	  WebOutStringFormatNL("<WebName>" & CUr.WebName & "</WebName>");
+  	  WebOutStringFormatNL("<WebSurname>" & CUr.WebSurname & "</WebSurname>");
+  	  WebOutStringFormatNL("<WebShopCode>" & "" & "</WebShopCode>");
+      RemoveCharacterFromString(tstr,CUr.Name);
+      WebOutStringFormatNL("<Name>" & tstr & "</Name>" );
+      RemoveCharacterFromString(tstr,CUr.Person);
+	  WebOutStringFormatNL("<Contact>" & tstr & "</Contact>" );
+	  RemoveCharacterFromString(tstr,CUr.Phone);
+	  WebOutStringFormatNL("<Phone>" & tstr & "</Phone>" );
+	  RemoveCharacterFromString(tstr,CUr.RegNr1);
+	  WebOutStringFormatNL("<CompanyCode>" & tstr & "</CompanyCode>" );
+	  RemoveCharacterFromString(tstr,CUr.VATNr);
+	  WebOutStringFormatNL("<VATCode>" & tstr & "</VATCode>" );
+	  RemoveCharacterFromString(tstr,CUr.InvAddr0);
+	  WebOutStringFormatNL("<Address1>" & tstr & "</Address1>" );
+	  RemoveCharacterFromString(tstr,CUr.InvAddr1);
+	  WebOutStringFormatNL("<Address2>" & tstr & "</Address2>" );
+	  RemoveCharacterFromString(tstr,CUr.InvAddr2);
+	  WebOutStringFormatNL("<Address3>" & tstr & "</Address3>" );
+	  RemoveCharacterFromString(tstr,CUr.InvAddr3);
+	  WebOutStringFormatNL("<Address4>" & tstr & "</Address4>" );
+	  RemoveCharacterFromString(tstr,CUr.InvAddr4);
+	  WebOutStringFormatNL("<Address5>" & tstr & "</Address5>" );
+	  WebOutStringFormatNL("<Email>" & CUr.eMail & "</Email>" );
+	  WebOutStringFormatNL("<PriceList>" & CUr.PLCode & "</PriceList>" );
+	  WebOutStringFormatNL("<WebShopImport>" & CUr.WebShopImport & "</WebShopImport>" );
+	  WebOutStringFormatNL("<AdvancedPricelist>" & CUr.AdvancedPrice & "</AdvancedPricelist>" );
+      WebOutStringFormatNL("</Customer>");
+    end;
+  end;
+  WebOutStringFormatNL("</customer_list>");
+return;
+end;
+
+global webpublic
+updating procedure WebNewCustomer()
+begin
+  record CUVc CUr,oldCUr;
+  string 255 tstr,custcode;
+  boolean testf;
+  xml cust;
+  area a;
+  
+  WebGetPostData(a);
+  cust = parseXmlArea(a);
+    
+  if (SetCompany(1,false)) then begin end;
+  custcode = XmlGet(cust,"Customer/Code");
+lTryWithCode:;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 14:33:37
+  tstr = "";
+  tstr = XmlGet(cust,"Customer/Name");
+  if(nonblank(tstr))then begin
+		if (blank(custcode)) then begin
+		
+			if(nonblank(XmlGet(cust,"Customer/CompanyCode")))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 14:45:49
+				CUr.RegNr1 = XmlGet(cust,"Customer/CompanyCode");
+				if(readfirstkey("RegNr1",CUr,1,true))then begin
+					custcode = CUr.Code;
+					goto lTryWithCode;
+				end;
+			end;
+			if(nonblank(XmlGet(cust,"Customer/Email")))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 14:45:50
+				CUr.eMail = XmlGet(cust,"Customer/Email");
+				if(readfirstkey("eMail",CUr,1,true))then begin
+					custcode = CUr.Code;
+					goto lTryWithCode;
+				end;
+			end;
+			
+		
+			RecordNew(CUr);
+			if (GetNextCustNr(tstr)) then begin end;
+			CUr.Code = tstr;
+			CUr.CUType = 1;
+			CUr.InterestFlag = 1;
+			CUr.OnAccount = 1;
+			CUr.Name = XmlGet(cust,"Customer/Name");
+			CUr.Person = XmlGet(cust,"Customer/Contact");
+			CUr.Phone = XmlGet(cust,"Customer/Phone");
+			CUr.RegNr1 = XmlGet(cust,"Customer/CompanyCode");
+			CUr.VATNr = XmlGet(cust,"Customer/VATCode");
+			CUr.InvAddr0 = XmlGet(cust,"Customer/Address1");
+			CUr.InvAddr1 = XmlGet(cust,"Customer/Address2");
+			CUr.InvAddr2 = XmlGet(cust,"Customer/Address3");
+			CUr.InvAddr3 = XmlGet(cust,"Customer/Address4");
+			CUr.InvAddr4 = XmlGet(cust,"Customer/Address5");
+			CUr.eMail = XmlGet(cust,"Customer/Email");
+			CUr.PLCode = XmlGet(cust,"Customer/PriceList");
+			CUr.WebName = XmlGet(cust,"Customer/WebName");
+			CUr.WebSurname = XmlGet(cust,"Customer/WebSurname");
+			CUr.WebShopImport = stringtoint(XmlGet(cust,"Customer/WebShopImport"));
+			CUr.AdvancedPrice = stringtoint(XmlGet(cust,"Customer/AdvancedPricelist"));
+		
+	
+			if recordstore(CUr,false) then begin 
+				WebSetContentType("text/xml");
+				WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+				WebOutStringFormatNL("<Result>");
+				WebOutStringFormatNL("<Status>" & "OK" & "</Status>");
+				WebOutStringFormatNL("<NewCustCode>" & tstr & "</NewCustCode>");
+				WebOutStringFormatNL("</Result>");
+			end else begin
+				WebSetContentType("text/xml");
+				WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+				WebOutStringFormatNL("<Result>");
+				WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+				WebOutStringFormatNL("<Comment>" & "New customer insert failed" & "</Comment>");
+				WebOutStringFormatNL("</Result>");
+			end;
+		end else begin
+			CUr.Code = custcode;
+			if ReadFirstMain(CUr,1,true) then begin
+				RecordCopy(oldCUr,CUr);
+				CUr.CUType = 1;
+				CUr.InterestFlag = 1;
+				CUr.OnAccount = 1;
+				CUr.Name = XmlGet(cust,"Customer/Name");
+				CUr.Person = XmlGet(cust,"Customer/Contact");
+				CUr.Phone = XmlGet(cust,"Customer/Phone");
+				CUr.RegNr1 = XmlGet(cust,"Customer/CompanyCode");
+				CUr.VATNr = XmlGet(cust,"Customer/VATCode");
+				CUr.InvAddr0 = XmlGet(cust,"Customer/Address1");
+				CUr.InvAddr1 = XmlGet(cust,"Customer/Address2");
+				CUr.InvAddr2 = XmlGet(cust,"Customer/Address3");
+				CUr.InvAddr3 = XmlGet(cust,"Customer/Address4");
+				CUr.InvAddr4 = XmlGet(cust,"Customer/Address5");
+				CUr.eMail = XmlGet(cust,"Customer/Email");
+				CUr.PLCode = XmlGet(cust,"Customer/PriceList");
+				CUr.WebName = XmlGet(cust,"Customer/WebName");
+				CUr.WebSurname = XmlGet(cust,"Customer/WebSurname");
+				CUr.WebShopImport = stringtoint(XmlGet(cust,"Customer/WebShopImport"));
+				CUr.AdvancedPrice = stringtoint(XmlGet(cust,"Customer/AdvancedPricelist"));
+	
+				if RecordUpdate(oldCUr,CUr,false) == 0 then begin 
+					WebSetContentType("text/xml");
+					WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+					WebOutStringFormatNL("<Result>");
+					WebOutStringFormatNL("<Status>" & "OK" & "</Status>");
+					WebOutStringFormatNL("<Comment>" & "Customer " & CUr.Code & " updated" & "</Comment>");
+					WebOutStringFormatNL("</Result>");
+				end else begin
+					WebSetContentType("text/xml");
+					WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+					WebOutStringFormatNL("<Result>");
+					WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+					WebOutStringFormatNL("<Comment>" & "Customer update failed" & "</Comment>");
+					WebOutStringFormatNL("</Result>");
+				end;
+			
+			end else begin
+					WebSetContentType("text/xml");
+					WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+					WebOutStringFormatNL("<Result>");
+					WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+					WebOutStringFormatNL("<Comment>" & "Customer not not found" & "</Comment>");
+					WebOutStringFormatNL("</Result>");
+			end;
+		end;
+  end else begin
+    WebSetContentType("text/xml");
+    WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+    WebOutStringFormatNL("<Result>");
+    WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+    WebOutStringFormatNL("<Comment>" & "Customer insert/update failed. Blank Name tag." & "</Comment>");
+    WebOutStringFormatNL("</Result>");
+  end;
+
+  
+return;
+end;
+
+global webpublic
+updating procedure WebNewInvoice()
+begin
+  record CUVc CUr;
+  record IVVc IVr,IV2r;
+  record INVc INr;
+  record PDVc PDr;
+  record LocationVc Locr;
+  row IVVc IVrw;
+  integer i,k;
+  string 255 tstr,warning,errstr,prepstr,invdatewarn,transdatewarn,paydeal,inwarning;
+  boolean testf;
+  xml inv;
+  area a;
+  Integer err1,err2;
+  Integer sernrf;
+  Boolean serportf;
+  record LSerialPortDeviceVc LSPDr;
+  record LocalMachineBlock LMb;
+  record ItemExportBlock ItmExportBl;
+
+  BlockLoad(ItmExportBl);
+  //blockload(LMb);
+  //blockload(LSPDr);
+  
+  WebGetPostData(a);
+  inv = parseXmlArea(a);
+  if (SetCompany(1,false)) then begin end;
+  tstr = "";
+  testf = true;
+  tstr = XmlGet(inv,"Invoice/SerNr");
+  if tstr != "" then begin
+    IVr.SerNr = XmlGet(inv,"Invoice/SerNr");
+    if ReadFirstMain(IVr,1,true) then begin
+      testf = false;
+      tstr = "Toks fakturos nr. jau yra sistemoje " & XmlGet(inv,"Invoice/SerNr");
+    end;
+    RecordNew(IVr);
+    IVr.SerNr = XmlGet(inv,"Invoice/SerNr");
+    CUr.Code = XmlGet(inv,"Invoice/CustCode");
+    if ReadFirstMain(CUr,1,true) then begin
+      IVr.CustCode = XmlGet(inv,"Invoice/CustCode");
+      if (PasteCust2InInv(IVr,LMb,"",true,warning,errstr,prepstr,invdatewarn,transdatewarn)) then begin
+      end;
+    end else begin
+      testf = false;
+      tstr = "Pirkejas nerastas " & XmlGet(inv,"Invoice/CustCode");
+    end;
+    if XmlGet(inv,"Invoice/Date") != "" then begin
+      IVr.InvDate = XmlGet(inv,"Invoice/Date");
+      IVVc_PasteInvDate(IVr,LMb,err1,err2);
+    end else begin
+      testf = false;
+      tstr = "Neteisinga fakturos data";
+    end;
+    paydeal = XmlGet(inv,"Invoice/PayDeal");
+    PDr.Code = paydeal;
+    if ReadFirstMain(PDr,1,true) then begin
+      IVr.PayDeal = paydeal;
+      IVVc_PastePayDeal(IVr,"","");
+    end else begin
+      testf = false;
+      tstr = "Mokejimo salyga nerasta " & XmlGet(inv,"Invoice/PayDeal");
+    end;
+    Locr.Code = XmlGet(inv,"Invoice/Location");
+    if ReadFirstMain(Locr,1,true) then begin
+      IVr.Location = XmlGet(inv,"Invoice/Location");
+    end else begin
+      testf = false;
+      tstr = "Nerasta patalpa " & XmlGet(inv,"Invoice/Location");
+    end;
+    if testf == true then begin
+      k = 0;
+      IVr.ShipAddr1 = XmlGet(inv,"Invoice/ShipAddr1");
+      IVr.ShipAddr2 = XmlGet(inv,"Invoice/ShipAddr2");
+      IVr.ShipAddr3 = XmlGet(inv,"Invoice/ShipAddr3");
+      IVr.DelAddr3 = XmlGet(inv,"Invoice/ShipAddr4");
+      IVr.DelAddr4 = XmlGet(inv,"Invoice/ShipAddr5");
+      IVr.SaleType = "WEBSHOP";
+      IVr.DeliveryType = XmlGet(inv,"Invoice/DeliveryType");
+      // EVS: DESK-1585
+      IVr.InclVAT = 2;
+      IVr.UpdStockFlag = 0;
+      // :EVS
+      IVr.Objects = AddObjectToObjectList(IVr.Objects,ItmExportBl.ItmObject);     //MDS HAL-393
+      while (xmlNodeExists(inv, "Invoice/Items/Item[" & k & "]")) begin
+        ClearRow(IVr,IVrw,1);
+        INr.Code = XmlGet(inv,"Invoice/Items/Item[" & k & "]/Code");
+        if ReadFirstMain(INr,1,true) then begin
+          IVrw.ArtCode = INr.Code;
+          MatRowPut(IVr,k,IVrw);
+          if (IVVc_PasteArtCode(IVr,k,inwarning,warning,TouchScreenLook,sernrf)) then begin    
+            IVDchsum(IVr,k);
+          end;
+        end else begin
+          testf = false;
+          tstr = "Nerasta preke " & XmlGet(inv,"Invoice/Items/Item[" & k & "]/Code");
+        end;
+        
+        if stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Qty"),M4UVal) > 0 then begin
+          MatRowGet(IVr,k,IVrw);
+          IVrw.Quant = stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Qty"),M4Uval);
+          MatRowPut(IVr,k,IVrw);
+          IVVc_PasteQuantity2(IVr,k,serportf,LSPDr);
+        end else begin
+          testf = false;
+          tstr = "Prekes kiekis nulinis";
+        end;
+        if stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Price"),M423Val) > 0 then begin
+          MatRowGet(IVr,k,IVrw);
+          IVrw.Price = stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Price"),M423val);
+          // EVS: DESK-1585
+          //IVrw.PriceExclVAT = IVrw.Price;
+          if IVr.InclVAT == 0 then begin // this should never take place
+            IVrw.PriceExclVAT = IVrw.Price;
+          end else begin
+            IVrw.PriceExclVAT = IVrw.Price - FindVAT(IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT);
+          end;
+          // :EVS
+          MatRowPut(IVr,k,IVrw);
+          IVVc_PastePrice(IVr,IV2r,k,warning);
+        end else begin
+          testf = false;
+          tstr = "Prekes kaina nuline";
+        end;
+
+        k = k + 1;
+      end;
+    end;
+    IVSumup(IVr,true);
+    if testf == true then begin
+      if RecordInsert(IVr,true) == true then begin
+        WebSetContentType("text/xml");
+        WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+        WebOutStringFormatNL("<Result>");
+        WebOutStringFormatNL("<Status>" & "OK" & "</Status>");
+        WebOutStringFormatNL("<Comment>Faktura issaugota</Comment>");
+        WebOutStringFormatNL("</Result>");  
+      end else begin
+        WebSetContentType("text/xml");
+        WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+        WebOutStringFormatNL("<Result>");
+        WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+        WebOutStringFormatNL("<Comment>Fakturos issaugoti nepavyko</Comment>");
+        WebOutStringFormatNL("</Result>");
+      end;
+    end;
+    
+    if testf == false then begin
+      WebSetContentType("text/xml");
+      WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+      WebOutStringFormatNL("<Result>");
+      WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+      WebOutStringFormatNL("<Comment>" & "Invoice insert failed, " & tstr & "</Comment>");
+      WebOutStringFormatNL("</Result>");
+    end;
+  end else begin
+    WebSetContentType("text/xml");
+    WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+    WebOutStringFormatNL("<Result>");
+    WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+    WebOutStringFormatNL("<Comment>" & "Invoice insert failed, no SerNr" & "</Comment>");
+    WebOutStringFormatNL("</Result>");
+  end;
+return;
+end;
+
+
+global webpublic
+updating procedure WebItemReservation()
+begin
+  record INVc INr;
+  string 255 tstr;
+  boolean testf;
+  record ResListVc ResListr,oldResListr;
+  row ResListVc ResListrw;
+  record ResListBrokVc ResListBr;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 10:26:23
+  row ResListBrokVc ResListBrw;
+  record ResListDemoVc ResListDr;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 10:26:23
+  row ResListDemoVc ResListDrw;
+  integer i,rwcnt;
+  xml cust;
+  area a;
+  
+  WebGetPostData(a);
+  cust = parseXmlArea(a);
+  
+  if (SetCompany(1,false)) then begin end;
+  tstr = "";
+  testf = true;
+  tstr = XmlGet(cust,"Reservation/Location");
+  if tstr != "" then begin
+    ResListr.Loc = tstr;
+	if ReadFirstMain(ResListr,1,true) then begin
+	  RecordCopy(oldResListr,ResListr);
+	  rwcnt = MatRowCnt(ResListr);
+	  INr.Code = XmlGet(cust,"Reservation/ItemCode");
+	  if ReadFirstMain(INr,1,true) then begin
+	    ResListrw.ArtCode = INr.Code;
+	    ResListrw.Description = INr.Name;
+	    ResListrw.Qty = stringtoval(XmlGet(cust,"Reservation/Qty"),M4Uval);
+	    ResListrw.Comment = "WebShop rezervacija, klientui: " & XmlGet(cust,"Reservation/Customer");
+        MatRowPut(ResListr,rwcnt,ResListrw);
+      end else begin
+        WebSetContentType("text/xml");
+        WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+        WebOutStringFormatNL("<Result>");
+        WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+        WebOutStringFormatNL("<Comment>" & "Reservation failed. Item code not found" & "</Comment>");
+        WebOutStringFormatNL("</Result>");
+        testf =  false;
+      end;
+    end else begin
+      WebSetContentType("text/xml");
+      WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+      WebOutStringFormatNL("<Result>");
+      WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+      WebOutStringFormatNL("<Comment>" & "Reservation failed. Reservation list not found" & "</Comment>");
+      WebOutStringFormatNL("</Result>");
+      testf = false;
+    end;
+
+    if testf == true then begin
+      RecordUpdate(oldResListr,ResListr,false);
+        WebSetContentType("text/xml");
+        WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+        WebOutStringFormatNL("<Result>");
+        WebOutStringFormatNL("<Status>" & "OK" & "</Status>");
+        WebOutStringFormatNL("<Comment>Reservation done</Comment>");
+        WebOutStringFormatNL("</Result>");
+    end;
+  end else begin
+    WebSetContentType("text/xml");
+    WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+    WebOutStringFormatNL("<Result>");
+    WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+    WebOutStringFormatNL("<Comment>" & "Reservation failed. No location code" & "</Comment>");
+    WebOutStringFormatNL("</Result>");
+  end;
+
+  
+return;
+end;

@@ -1,0 +1,630 @@
+external inner function string 60 UserDefined(string,string);
+external inner function Boolean UseTaxTemplatesforTaxCalc();
+external inner procedure RateField(real,real,real,string,integer,string,boolean,real,real,string,boolean);
+external inner function real VATZoneButtonsLabelsLIT(real,real,real,real);
+
+event DefineWindows
+begin
+  real h,h1,h2,h3,h4,hm,hs,t,v,v2,v3,vm,vs,width,h5;
+  string 255 label;
+  Integer tilenr,flipnr,f;
+  record UserVc Userr;
+  
+  SetlangMode(LangLithuanian,"LIT",0);
+
+
+  WindowBegin("Faktðra",IVDClass,CGview,-);
+  DynamicWindow;
+  Sizeable(-1,-1,0,0);
+  UseView(IVVc);
+  ActiveFieldOnNew("CustCode");  
+  SetWRect(20,80,750,460);
+  CommunicateButton;
+  Tile(0,74,false,"",CustCode);
+  EditField(75,vm=(v=6),95,"Nr.",Normal,SerNr,false,TSerSClass);
+  EditField(75,v+=20,95,"Pirk˜jas",Normal,CustCode,false,CUSClass);
+  EditField(375,v,95,"",Viewonly,SaleType,false,0);
+  EnterSkip(PayDeal);
+  EditField(h=255,v=vm,-40,"Pavadinimas",Normal,Addr0,false,0);
+  //EditField(h,vm=(v+=20),135,"Oficialus Nr.",Normal,OfficialSerNr,false,LegalInvNrSClass);
+  CheckBox(h4=-100,v+20,0,"OK",OKFlag);
+  TileButton(1,"Terminai");
+  TileButton(2,"Prek˜s");
+  TileButton(3,"Valiuta");
+  TileButton(4,"Siuntimas");
+  TileButton(5,"Ident.");
+  TileButton(6,"Kainodara");
+  TileButton(7,"Fakt. adresas");
+  TileButton(8,"Siunt. adresas");
+  TileButton(9,"Superkamos prek˜s");
+  Tile(1,110,false,"1",InvDate);
+  vs = 20; h1 = 110; h2 = 290; h3 = 530; h4 = -100;
+  EditField(h1,vm=(v=6),82,"Faktðros data",Normal,InvDate,false,PasteCurDate);
+  //EditField(h1,v+=vs,25,"Mok. sˆl.",Normal,PayDeal,false,PDSClass);//PDMSClass);
+  EditField(h1,v+=vs,82,"Apmok˜ti iki",Normal,PayDate,false,PasteCurDate);
+  EditField(h1,v+=vs,82,"‰ekio nr",Normal,RefStr,false,0);
+  EditField(h1,v+20,82,"RMA nr.",Normal,OfficialSerNr,false,LegalInvNrSClass);
+  EditField(h2,v+20,135,"Objektas",Normal,Objects,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 5 April 2018 14:25:48
+
+  //EditField(h1,v+=vs,82,"Pasl. prist. data",Normal,ServiceDelDate,false,PasteCurDate);
+  ButtonFrame(h1,v+56,60,2,"Bazin˜ kaina");
+  RadioButton(h1,v+56,0,0,"Be PVM",InclVAT);
+  RadioButton(h1,v+72,2,0,"Su PVM",InclVAT);  // - start
+  EditField(h2,v=vm,135,"Mok. sˆl.",Normal,PayDeal,false,PDSClass);
+  EditField(h2,v+=20,135,"Pristatymas",Viewonly,DeliveryType,false,0);
+  //EditField(h2,v+=vs,135,"Persp˜jimas",Normal,ClientContact,false,ContactSClass);
+  //EditField(h2,v+=vs,135,"Objektai",Normal,Objects,false,ObjSClass);
+  //EditField(h2,v+=vs,135,"‰ekio nr.",Normal,RefStr,false,0);
+  //START-CUST   October 1, 2014 by PSTPrintGift
+  //EditField(h2,v+=vs,135,"Pirk. Uìsk. Nr.",Normal,CustOrdNr,false,0);
+  if (UserCanAction("AllowPersonChange",false)) then begin
+    EditField(h2,v+=vs,135,"Pardav˜jas",Normal,SalesMan,false,UserSClass);
+  end else begin
+    EditField(h2,v+=vs,135,"Pardav˜jas",ViewOnly,SalesMan,false,0);
+  end;
+  HalPushButton(h2,v+=vs+40,h2+140,v+25,"GCIVsm","Parduoti Dov.k/Rank.");
+  HalPushButton(h2,v=v+vs+5,h2+140,v+30,"PrintGift","Spausdinti Dov.k/Rank.");
+  //EditField(h3,v+=vs,80,"Projektas",Normal,PRCode,false,0);
+  //EditField(h3,v+=vs,80,"Kredito prieìastis",Normal,Reason,false,StandProblemsSClass); 
+  //CheckBox(h4,v=6,0,"Abejotina",DisputedFlag);
+  Userr.Code = CurrentUser;
+  if ReadFirstMain(Userr,1,true) then begin
+  	if Userr.Job == "KASA" then begin
+			//EditFieldTLX(h3+20,v=vm+30,160,"Grˆìa",M4Val,ViewOnly,100,35,patM4black,RetnValue,true,0);
+			WebPage(h3-90,v=vm+30,h3+170,v+50,"","__webdata");
+			HalPushButton(h3-100,v=vm,h3-40,v+30,"CashIVsm1","Grynieji");
+			HalPushButton(h3-35,vm,h3+25,v+30,"CredCardIVsm2","Kortel˜");
+			HalPushButton(h3+30,v=vm,h3+105,v+30,"GCRIVsm1","Dov.k/Rank.");
+			HalPushButton(h3+110,v=vm,h3+170,v+30,"CredCardIVsm22","Lizingas");
+			HalPushButton(h3-100,v=v+80,h3+170,v+200,"IVFinishAndPrint","‰ekis");
+		//	HalPushButton(h3-100,v=v+80,h3+170,v+200,"IVVoidReceipt","Void");
+		end;
+	end;
+  //END-CUST October 1, 2014 by PST
+  EnterSkip(Math);
+  Tile(2,220,true,"2",Math);
+  if (CompileType!=ctiPhone) then begin
+		EditField(55,-41,50,"Valiuta",Normal,CurncyCode,false,CurncyCodeSClass);
+		if (UseTaxTemplatesforTaxCalc==false) then begin
+			if (UserCanAction("ViewCostPrice",true)) then begin
+				//EditField(160,-41,70,"GP %",Normal,GPProc,true,0);
+				EditField(160,-21,70,"Viso BP",ViewOnly,TotGP,true,0);
+			end;
+			EditField(290,-41,70,"Mok. 2",ViewOnly,TAX2Sum,true,0);
+			EditField(290,-21,70,"Pap. mok.",ViewOnly,TAX1Sum,true,0);
+			EditField(410,-41,95,"PVM",ViewOnly ,Sum3,true,0);
+		end else begin
+			if (UserCanAction("ViewCostPrice",true)) then begin
+				//EditField(290,-41,70,"GP %",Normal,GPProc,true,0);
+				EditField(290,-21,70,"BP viso",ViewOnly,TotGP,true,0); 
+			end;
+			EditField(410,-41,95,"Mok.",ViewOnly ,Sum3,true,0); 
+		end;
+  	EditField(410,-21,95,"Suma",ViewOnly,BaseSum4,true,0);
+  	EditField(-150,-41,95,"Tarp. suma",ViewOnly ,Sum1,true,0);
+  	EditField(-150,-21,95,"VISO",ViewOnly ,Sum4,true,0);
+  end else begin
+    EditField(55,-41,80,"Valiuta",Normal,CurncyCode,false,CurncyCodeSClass); 
+    EditField(55,-21,80,"PVM",ViewOnly ,Sum3,true,0); 
+    EditField(-120,-41,80,"Pap. mok.",ViewOnly,TAX1Sum,true,0); 
+    EditField(-120,-21,80,"VISO",ViewOnly ,Sum4,true,0); 
+  end;
+  v = 24;
+  MatrixBegin(4,v,-50,-49,-,200);
+  MatTypedRow(stp);
+  MatOverStrike(ovst);
+  Flip(0);
+  MatCol(t=kInvoiceRowTypeNormal,32,"Prek˜",0,ArtCode,false,ForSaleINSClass);
+  MatCol(t,94,"Kiekis",0,Quant,true,MATVARINSClass);
+  EnterSkip(ArtCode);
+  MatCol(t=kInvoiceRowTypeStructuredItemComponent,32,"Prek˜",0,ArtCode,false,ForSaleINSClass);
+  MatCol(t,94,"Kiekis",0,Quant,true,MATVARINSClass);
+  EnterSkip(ArtCode);
+  MatText(t=kInvoiceRowTypeCredit,32,"Faktðros kreditas",true);
+  MatCol(t,208,"",0,OrdRow,false,ARSClass);
+  MatCol(t,-216,"",0,Spec,false,0);//MatText(t,-216,"",true);
+  MatText(t=kInvoiceRowTypeDebit,32,"Faktðros debitas",true);
+  MatCol(t,208,"",0,OrdRow,false,0);
+  MatCol(t,-216,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeInterest,32,"Delspinigiai",true);
+  MatCol(t,98,"",0,ArtCode,false,0);
+  MatCol(t,153,"",0,Quant,true,0);
+  MatCol(t,188,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeDownpayment,32,"Iäankstinis apmok˜jimas",true);
+  MatColTL(t,122,"",0,-1,ViewOnly,0,ArtCode,true,0); 
+  MatColTL(t,188,"",0,-1,ViewOnly,0,Quant,true,0);
+  MatCol(t,238,"",0,Spec,false,0);
+  MatColTL(t,-170,"",0,-1,Normal,0,Sum,true,0); //?? TL?
+  if (UseTaxTemplatesforTaxCalc) then begin
+    MatCol(t,-100,"",0,SalesAcc,false,AccSClass);
+    MatCol(t,-54,"",0,TaxTemplateCode,false,TaxTemplateSClass);
+  end else begin
+    MatCol(t,-70,"",0,SalesAcc,false,AccSClass);
+    MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);
+  end;
+  MatText(t=kInvoiceRowTypePrepayment,32,"Iäankstinio numeris",true);
+  MatCol(t,170,"",0,CUPNr,true,ARPay3SClass);
+  MatCol(t,-300,"",0,BasePrice,false,0);
+  MatCol(t,-170,"",0,Price,true,0);// Price holds the #VAT# sum, Recipe holds the date of prepaym. BasePrice holds amount in base 1, TAX1Reb holds TAX1Sum
+  MatCol(t,-100,"",0,Sum,true,0);
+  MatText(t=kInvoiceRowTypeLoan,32,"Paskola",true);
+  MatCol(t,98,"",0,CuAccCode,true,CuAccSClass);
+  MatCol(t,-350,"",0,SalesAcc,true,AccSClass);
+  MatCol(t,-230,"",0,Objects,false,0);
+  MatCol(t,-110,"",0,Sum,true,0);
+  MatCol(t,-30,"",0,VATCode,false,VATCodeSClass);
+  MatText(t=kInvoiceRowTypeLoanInterest,32,"Paskolos palðkanos",true);
+  MatCol(t,98,"",0,CuAccCode,true,CuAccSClass);
+  MatCol(t,-350,"",0,SalesAcc,true,AccSClass);
+  MatCol(t,-230,"",0,Objects,false,0);
+  MatCol(t,-110,"",0,Sum,true,0);
+  MatCol(t,-30,"",0,VATCode,false,VATCodeSClass);
+  MatText(t=kInvoiceRowTypeUpdateMark,32,"Signature",false); 
+  MatColTL(t,94,"Paraäas",0,-1,ViewOnly,0,VoidedSign,false,0); 
+  MatCol(t,144,"Apraäymas",0,Spec,false,0); 
+  MatText(t=kInvoiceRowTypeVoid,32,"Panaikintas",false); 
+  MatColTL(t,65,"Paraäas",0,-1,ViewOnly,0,VoidedSign,false,0);
+  MatCol(t,100,"Prek˜",0,ArtCode,false,ForSaleINSClass);
+  MatCol(t,150,"Kiekis",0,Quant,true,MATVARINSClass);
+  MatCol(t,190,"Kaina",0,Price,true,0);
+  MatCol(t,250,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-195,"Ser. nr.",0,SerialNr,false,SerialNrSClass);
+  MatCol(t,-110,"%",0,vRebate,true,0);
+  MatCol(t,-80,"Suma",0,Sum,true,0);
+  MatText(t=kInvoiceRowTypeSubtotal,32,"Viso",true);
+  MatCol(t,100,"",0,Spec,false,0);
+  MatColTL(t,-140,"Suma",0,-1,ViewOnly,0,Sum,true,0);
+  MatText(t=kInvoiceRowTypeHidden,32,"ái ir ìemiau esan‹ios eilut˜s nebus spausdinamos",false);
+  MatText(t=kInvoiceRowTypeCorrection,32,"K",true);
+  MatCol(t,45,"Prek˜",0,ArtCode,false,ForSaleINSClass);
+  MatCol(t,91,"Kiekis",0,Quant,true,0); 
+  MatText(t=kInvoiceRowTypeRetention,32,"Iälaikymas",true);
+  MatCol(t,100,"",0,Spec,false,0);
+  MatColTL(t,-210,"Pard.sˆsk",0,-1,0,0,SalesAcc,false,AccSClass);
+  MatColTL(t,-110,"Suma",0,-1,0,0,Sum,true,0);
+  MatCol(t,-30,"",0,VATCode,false,VATCodeSClass);
+  MatText(t=kInvoiceRowTypeGiftVoucherSold,32,"D‰",true);
+  MatCol(t,58,"",0,GCNr,false,GCSClass);
+  MatCol(t,-416,"",0,Spec,false,0);
+  MatCol(t,-84,"Suma",0,Sum,true,0);
+  MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);  
+  MatText(t=kInvoiceRowTypeGiftVoucherPayment,32,"GVR",true);
+  MatCol(t,58,"",0,GCNr,false,GCSSClass);
+  MatCol(t,-316,"",0,Spec,false,0);
+  MatCol(t,-84,"Suma",0,Sum,true,0);
+  MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);
+  MatText(t=kInvoiceRowTypeCashPayment,32,"GRYNIEJI",true);
+  MatCol(t,94,"Suma",0,Sum,true,0);
+  MatCol(t,198,"Mok. bðdas",0,PayMode,true,PMSClass); 
+  MatCol(t,250,"Spec",0,Spec,true,0); 
+  MatCol(t,450,"Valiuta",0,CurncyCode,false,CurncyCodeSClass); 
+  MatText(t=kInvoiceRowTypeLoyaltyPointsPayment,32,"LOYPA",true);
+  MatCol(t,68,"Suma",0,Sum,true,0);
+  MatCol(t,108,"Taäkai",0,Points,true,0);
+  MatCol(t,148,"Valiuta",0,CurncyCode,true,CurncyCodeSClass);
+  MatCol(t,-280,"Spec",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeLoyaltyPointsBonus,28,"LOYBO",true);
+  MatCol(t,68,"Taäkai",0,Points,true,0);
+  MatCol(t,141,"Spec",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeCreditCardPayment,32,"KORTEL–",true);
+  MatCol(t,94,"Suma",0,Sum,true,0);
+  MatCol(t,198,"Mok. bðdas",0,PayMode,true,PMSClass); 
+  MatCol(t,250,"Spec",0,Spec,false,0); 
+  MatCol(t,-280,"",0,CreditCard,false,CreditCardSClass);
+  MatCol(t,-84,"Autorizacija",0,AuthorizationCode,false,0);
+  MatText(t=kInvoiceRowTypeHeader,32,"Antraät˜",true);
+  MatCol(t,100,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowType18,28,"Rezervuota",true); // Don't use this number
+  MatCol(t,100,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowType19,28,"Rezervuota",true); // Don't use this number
+  MatCol(t,100,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypePerceptionTax,32,"Percepcinis mokestis",true);
+  MatCol(t,132,"",0,CuAccCode,false,0);
+  MatCol(t,252,"",0,TAX2Prc,true,0);
+  MatCol(t,292,"",0,Sum,true,0);
+  MatCol(t,372,"",0,SalesAcc,false,AccSClass);
+  MatCol(t,452,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeWithholdingTax,32,"Sulaikymo mokestis",true);
+  MatCol(t,132,"",0,WHTax,false,WHTaxSClass);
+  MatCol(t,172,"",0,SalesAcc,false,AccSClass);
+  MatCol(t,292,"",0,Sum,true,0);
+  MatCol(t,392,"",0,Spec,false,0);
+  MatText(t=kInvoiceRowTypeMultiBuyDiscount,32,"Multipirkim÷ nuol.",true);
+  MatCol(t,152,"",0,MBRCode,false,0);
+  MatCol(t,192,"",0,ArtCode,false,ForSaleINSClass);
+  MatCol(t,-400,"",0,Spec,false,0);
+  MatCol(t,-270,"",0,Quant,true,0);
+  MatCol(t,-235,"",0,Price,true,0);
+  MatCol(t,-135,"",0,vRebate,true,0);
+  MatCol(t,-100,"",0,Sum,true,0);
+  MatText(t=kInvoiceRowTypeDebtorsTransfer,32,"DBT TRSF",true);
+  MatCol(t,94,"Spec",0,Spec,false,0);
+  MatCol(t,-235,"Deb. sˆsk.",0,SalesAcc,false,0);
+  MatCol(t,-135,"Suma",0,Sum,true,0);
+  MatCol(t,-30,"PVM kd.",0,VATCode,false,0); 
+  Flip(1);
+  t=kInvoiceRowTypeNormal;
+  MatCol(t,144,"Apraäymas",0,Spec,false,0); 
+  //START-CUST   November 18, 2014 by PST
+  MatCol(t,-315,"Kaina be PVM",0,PriceExclVAT,true,0);
+  //END-CUST November 18, 2014 by PST
+  MatCol(t,-235,"Vnt. kaina",0,Price,true,0);
+  MatCol(t,-135,"%",0,vRebate,true,0);
+  MatCol(t,-100,"Suma",0,Sum,true,0);
+  MatCol(t=kInvoiceRowTypeStructuredItemComponent,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-235,"Vnt. kaina",0,Price,true,0);
+  MatCol(t,-135,"%",0,vRebate,true,0);
+  MatCol(t,-100,"Suma",0,Sum,true,0);
+  MatCol(t=kInvoiceRowTypeInterest,-260,"",0,OrdRow,true,0);
+  MatCol(t,-235,"",0,BasePrice,true,0);
+  MatCol(t,-135,"",0,vRebate,true,0);
+  MatCol(t,-100,"",0,Sum,true,0);
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-235,"Vnt. kaina",0,Price,true,0);
+  MatCol(t,-135,"%",0,vRebate,true,0);
+  MatCol(t,-100,"Suma",0,Sum,true,0);
+  Flip(2);
+  MatCol(t=kInvoiceRowTypeNormal,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-360,"Sˆsk.",0,SalesAcc,false,AccSClass);
+  MatCol(t,-310,"Sukaupta",0,PeriodCode,false,AutSimPerSClass);
+  MatCol(t,-255,"Patalpa",0,Location,false,LocationSClass);
+  MatCol(t,-180,"Pozicija",0,PosCode,false,UsedPosSClass);
+  if (UseTaxTemplatesforTaxCalc) then begin
+  	MatCol(t,-144,"Objektai",0,Objects,false,ObjSClass);
+  	MatCol(t,-70,"M. kd.",0,TaxTemplateCode,false,TaxTemplateSClass);
+  end else begin
+  	MatCol(t,-124,"Objektai",0,Objects,false,ObjSClass);
+  	MatCol(t,-30,"PVM kd.",0,VATCode,false,VATCodeSClass);
+  end;
+  MatCol(t=kInvoiceRowTypeStructuredItemComponent,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-360,"Sˆsk.",0,SalesAcc,false,AccSClass);
+  MatCol(t,-310,"Padid˜jimas",0,PeriodCode,false,AutSimPerSClass);
+  MatCol(t,-255,"Patalpa",0,Location,false,LocationSClass);
+  MatCol(t,-180,"Pozicija",0,PosCode,false,UsedPosSClass);
+  if (UseTaxTemplatesforTaxCalc) then begin
+  	MatCol(t,-144,"Objektas",0,Objects,false,ObjSClass);
+  	MatCol(t,-70,"M. kd.",0,TaxTemplateCode,false,TaxTemplateSClass);
+  end else begin
+  	MatCol(t,-124,"Objektai",0,Objects,false,ObjSClass);
+  	MatCol(t,-30,"PVM kd.",0,VATCode,false,VATCodeSClass);
+  end;
+  MatCol(t=kInvoiceRowTypeInterest,-70,"",0,SalesAcc,false,AccSClass);
+  MatCol(t,-24,"",0,VATCode,false,VATCodeSClass);
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-250,"Sˆsk.",0,SalesAcc,false,AccSClass);
+  MatCol(t,-170,"Padid.",0,PeriodCode,false,AutSimPerSClass);
+  MatCol(t,-104,"Objektai",0,Objects,false,ObjSClass);
+  if (UseTaxTemplatesforTaxCalc) then begin
+    MatCol(t,-35,"Mok. kd.",0,TaxTemplateCode,false,TaxTemplateSClass);
+  end else begin
+    MatCol(t,-30,"PVM kd.",0,VATCode,false,VATCodeSClass);
+  end;
+  Flip(3);
+  t=kInvoiceRowTypeNormal;
+  MatCol(t,144,"Apraäymas",0,Spec,false,0); 
+  if (UserCanAction("ViewCostPrice",true)) then begin
+		MatCol(t,-380,"Vnt. kn.",0,Price,true,0);
+		MatCol(t,-315,"%",0,vRebate,true,0);
+		MatCol(t,-280,"Savikaina B2",0,BasePriceB2,true,0);
+		MatCol(t,-210,"Savikaina",0,BasePrice,true,0);
+		MatCol(t,-140,"BP",0,rowGP,true,0);
+		MatCol(t,-70,"FIFO",0,FIFO,true,0);
+  end else begin
+		MatCol(t,-235,"Vnt. kaina",0,Price,true,0);
+		MatCol(t,-135,"%",0,vRebate,true,0);
+		MatCol(t,-100,"Suma",0,Sum,true,0);
+  end;
+  MatCol(t=kInvoiceRowTypeStructuredItemComponent,144,"Apraäymas",0,Spec,false,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-380,"Vnt. kaina",0,Price,true,0);
+    MatCol(t,-315,"%",0,vRebate,true,0);
+    MatCol(t,-280,"Savik. B2",0,BasePriceB2,true,0);
+    MatCol(t,-210,"Savik.",0,BasePrice,true,0);
+    MatCol(t,-140,"BP",0,rowGP,true,0);
+    MatCol(t,-70,"FIFO",0,FIFO,true,0);
+  end else begin
+    MatCol(t,-235,"Vnt. kaina",0,Price,true,0);
+    MatCol(t,-135,"%",0,vRebate,true,0);
+    MatCol(t,-100,"Suma",0,Sum,true,0);
+  end;
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Apraäymas",0,Spec,false,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-315,"Vnt. kn.",0,Price,true,0);
+    MatCol(t,-245,"%",0,vRebate,true,0);
+    MatCol(t,-210,"Savikaina",0,BasePrice,true,0);
+    MatCol(t,-140,"BP",0,rowGP,true,0);
+    MatCol(t,-70,"FIFO",0,FIFO,true,0);
+  end else begin
+    MatCol(t,-235,"Vnt. kaina",0,Price,true,0);
+    MatCol(t,-135,"%",0,vRebate,true,0);
+    MatCol(t,-100,"Suma",0,Sum,true,0);
+  end;
+  Flip(4);
+  t=kInvoiceRowTypeNormal;
+  MatCol(t=kInvoiceRowTypeNormal,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-370,"Pardav˜jas",0,Salesmen,false,UserSClass); 
+  MatCol(t,-300,"Ser. Nr",0,SerialNr,false,SerialNrSClass); 
+  MatCol(t,-220,"K.faktorius",0,PriceFactor,true,0); 
+  MatCol(t,-170,"Ruoäinys",0,Recepy,false,RecSClass);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-70,"Eilut˜ FIFO",0,FIFORowVal,true,0);
+  end else begin
+  end;
+  MatCol(t=kInvoiceRowTypeStructuredItemComponent,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-310,"Ser. nr.",0,SerialNr,false,SerialNrSClass);
+  MatCol(t,-240,"K. fakt.",0,PriceFactor,true,0);
+  MatCol(t,-180,"Ruoäinys",0,Recepy,true,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-110,"Eilut˜ FIFO",0,FIFORowVal,true,0);
+  end else begin
+  end;
+  MatCol(t,-40,"Koef.",0,Coefficient,true,0);
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-310,"Ser. nr.",0,SerialNr,false,SerialNrSClass);
+  MatCol(t,-240,"K. fakt.",0,PriceFactor,true,0);
+  MatCol(t,-180,"Ruoäinys",0,Recepy,true,0);
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    MatCol(t,-110,"Eil. FIFO",0,FIFORowVal,true,0);
+  end else begin
+  end;
+  MatCol(t,-80,"",0,MotherArtCode,false,0);
+  MatCol(t,-40,"",0,RecipeQuant,false,0);
+  Flip(5);
+  t=kInvoiceRowTypeNormal;
+  MatCol(t=kInvoiceRowTypeNormal,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-315,"Vnt.",0,UnitCode,false,UnitSClass);
+  MatCol(t,-260,"Kiekis",0,UnitFactQuant,true,0);
+  MatCol(t,-200,"Plotis",0,UnitXval,true,0);
+  MatCol(t,-160,"Aukätis",0,UnitYval,true,0);
+  MatCol(t,-120,"Gylis",0,UnitZval,true,0);
+  MatCol(t,-80,"Vieneto kaina",0,UnitFactPrice,true,0);
+  MatCol(t=kInvoiceRowTypeStructuredItemComponent,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-315,"Vienetas",0,UnitCode,false,UnitSClass);
+  MatCol(t,-260,"Vnt. kiekis",0,UnitFactQuant,true,0);
+  MatCol(t,-200,"Plotis",0,UnitXval,true,0);
+  MatCol(t,-160,"Aukätis",0,UnitYval,true,0);
+  MatCol(t,-120,"Gylis",0,UnitZval,true,0);
+  MatCol(t,-80,"Vnt. kaina",0,UnitFactPrice,true,0);
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Apraäymas",0,Spec,false,0);//New Row Type..
+  MatCol(t,-315,"Vnt.",0,UnitCode,false,UnitSClass);
+  MatCol(t,-260,"Kiekis",0,UnitFactQuant,true,0);
+  MatCol(t,-200,"Plotis",0,UnitXval,true,0);
+  MatCol(t,-160,"Aukätis",0,UnitYval,true,0);
+  MatCol(t,-120,"Gylis",0,UnitZval,true,0);
+  MatCol(t,-80,"Vnt. kaina",0,UnitFactPrice,true,0);
+  Flip(6);
+  t = kInvoiceRowTypeNormal;
+  MatCol(t,144,"Apraäymas",0,Spec,false,0); 
+  MatCol(t,-390,"Pirk. Prek˜s Nr.",0,CustArtCode,false,CUINSClass); 
+  MatCol(t,-300,"Koef.",0,Coefficient,true,0); 
+  MatCol(t,-260,"K.faktor.",0,PriceFactor,true,0); 
+  MatCol(t,-210,"Pasl. kontr. ist.",0,CUServiceHistNr,false,0); 
+  MatCol(t,-130,"Kred. eil.",0,CreditedRow,false,0); 
+  MatCol(t,-70,"Aplink. mok.",0,RepaExVAT,true,0); 
+  MatCol(t=kInvoiceRowTypeStructuredItemComponent,144,"Apraäymas",0,Spec,false,0);
+  MatCol(t,-390,"Pirk. prek˜s Nr.",0,CustArtCode,false,CUINSClass); 
+  MatCol(t,-300,"Koef.",0,Coefficient,true,0); 
+  MatCol(t,-260,"K.faktor.",0,PriceFactor,true,0); 
+  MatCol(t,-210,"Pasl. kontr. ist.",0,CUServiceHistNr,false,0); 
+  MatCol(t,-130,"Kred. eil.",0,CreditedRow,false,0); 
+  MatCol(t,-70,"Aplink. mok.",0,RepaExVAT,true,0); 
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Apraäymas",0,Spec,false,0);//New Row Type..
+  MatCol(t,-80,"Aplinkos mok.",0,RepaExVAT,true,0);
+  Flip(7);
+  t = kInvoiceRowTypeNormal;
+  if (GuiType!=kGuiiPhone) then begin
+    MatCol(t,144,"Apraäymas",0,Spec,false,0); 
+  end;
+  MatCol(t,-240,"Muito Nr.",0,CustomsNr,false,0); 
+  MatCol(t,-100,"Kilm˜s äalis",0,CountryOfOrg,false,CountrySClass); 
+  MatCol(t=kInvoiceRowTypeStructuredItemComponent,144,"Description",0,Spec,false,0); 
+  MatCol(t,-240,"Muito Nr.",0,CustomsNr,false,0); 
+  MatCol(t,-100,"Kilm˜s äalis",0,CountryOfOrg,false,CountrySClass); 
+  MatCol(t=kInvoiceRowTypeCorrection,144,"Apraäymas",0,Spec,false,0); 
+  MatCol(t,-240,"Muito Nr.",0,CustomsNr,false,0); 
+  MatCol(t,-100,"Kilm˜s äalis",0,CountryOfOrg,false,CountrySClass); 
+  InsertRowTest;
+  DeleteRowTest;
+  EndMatrix;
+  vs = 22;
+  v = 18; VTab(-35,v,-16,v+vs,ToolFlip,1,"A");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,2,"B");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,3,"C");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,4,"D");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,5,"E");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,6,"F");
+  v=v+ vs; VTab(-35,v,-16,v+vs,ToolFlip,7,"G"); 
+  Tile(3,70,false,"3",FrRate);
+  vs = 20;
+  EditField(h=110,v=6,50,"Valiuta",Normal,CurncyCode,false,CurncyCodeSClass);
+  EditField(h,v+vs,50,"Baz. val. 1",Normal,BaseRate1,true,0); 
+  EditField(h,v+(vs*2),50,"Baz. val. 2",Normal,BaseRate2,true,0);   
+  EditField(h2=295,v,50,"Kursas",Normal,FrRate,true,0); 
+  RateField(h3=360,v,50,":",Normal,"ToRateB1",true,h3+60,v+14,"Baz. val. 1",false); 
+  RateField(h3,v+=vs,50,":",Normal,"ToRateB2",true,h3+60,v+14,"Baz. val. 2",false);   
+  //START-CUST   October 1, 2014 by PST
+	ButtonFrame(h3+200,v-10,70,2,"Bazin˜ kaina");
+	RadioButton(h3+200,v-10,0,0,"Be PVM",InclVAT);
+	RadioButton(h3+200,v+6,2,0,"Su PVM",InclVAT); 
+  //END-CUST October 1, 2014 by PST  
+  Tile(4,110,false,"4",ShipDeal);
+  vs = 20; h1 = 110; h2 = 310; h3 = 530; h4 = -100;
+  EditField(h1,v=6,80,"Siunt. terminas",Normal,ShipDeal,false,ShipDealSClass);
+  EditField(h1,v+=vs,80,"Siunt. bðdas",Normal,ShipMode,false,DMSClass);
+  EditField(h1,v+=vs,80,"Marärutas",Normal,Sorting,false,DelRouteSClass);
+  EditField(h1,v+=vs,80,"Patalpa",Normal,Location,false,LocationSClass);
+  EditField(h1,v+=vs,80,"Plan. siunt. data",Normal,PlanSendDate,false,PasteCurDate); 
+  EditField(h1,v+=vs,80,"Plan. siunt. data",Normal,PlanSendTime,false,PasteCurTime); 
+  EditField(h1,v+=vs,80,"áaka",Normal,BranchID,false,AllCUSClass);
+  EditField(h2,v=vm,80,"Viso kiekis",ViewOnly,TotQty,true,0);
+  EditField(h2,v+=vs,80,"Viso svoris",ViewOnly,TotWeight,true,0);
+  EditField(h2,v+=vs,80,"Viso tðris",ViewOnly,TotVolume,true,0);
+  EditField(h2,v+=vs,80,"Frachtas",Normal,FrPrice,true,0);
+	EditField(h2,v+=vs,80,"Plan. atv. data",Normal,PlanArrDate,false,PasteCurDate); 
+	EditField(h2,v+=vs,80,"Plan. atv. laiaks",Normal,PlanArrTime,false,PasteCurTime); 
+	EditField(h2,v+=vs,80,"Frachto °m.",Normal,FreightCode,false,FreightCompanySClass);
+	CheckBox(h3,v=vm,0,"Atnaujinti sand.",UpdStockFlag);
+	EditField(h3,v+=2*vs,80,"Frachtas #PVM kd.#",Normal,FrVATCode,true,VATCodeSClass);
+	EditField(h3,v+=vs,80,"Intrastat oper. kd.",Normal,IntrastatTransCode,true,IntrastatTransCodeSClass);
+	EditField(h3,v+=vs,80,"Glob. transp. nr.",Normal,GlobalTransportNr,false,0);
+	EditField(h3,v+=vs,80,"Glob. transp. data",Normal,GlobalTransportDate,false,PasteCurDate);
+  Tile(5,170,false,"5",OrderNr);
+  EditField(h1,v=vm,80,"Uìsk. nr.",ViewOnly,OrderNr,false,0);
+  EditField(h1,v+=vs,80,"Pasl. uìsk. nr.",ViewOnly,SVONr,false,0);
+  EditField(h1,v+=vs,80,"Kred. rank. nr.",ViewOnly ,CredManNr,false,0);
+  EditField(h1,v+=vs,80,"Stat. vert˜",Normal,StatVal,true,0);
+  EditField(h1,v+=vs,80,"Oper. laikas",Normal,TransTime,false,SetSClass);
+  EditField(h1,v+=(2*vs),135,"Oficialus Nr 2.",Normal,OfficialSerNr2,false,0); 
+  EditField(h2,v=vm,135,"Mok. autor. ID",Normal,TaxAuthID,false,0);
+  EditField(h2,v+=vs,135,"Kontrol˜s kd.",ViewOnly ,TaxAuthIDCC,false,0);
+  EditField(h2,v+=vs,135,"CAE/CAEA",Normal,CAE,false,0);
+  EditField(h2,v+=vs,135,"CAE galioj.",Normal,CAEExpiry,false,0);
+  EditField(h2,v+=vs,70,"CAEA prad.",ViewOnly,CAEAStartDate,false,0);
+  EditField(h2+150,v,70,"CAEA gal. data",ViewOnly,CAEAExpiryDate,false,0);  
+  EditField(h2,v+=vs,70,"CAEA Pradì.",ViewOnly,CAEAStartDate,false,0);
+  EditField(h2+150,v,70,"CAEA Pab.",ViewOnly,CAEAExpiryDate,false,0);  
+  EditField(h2,v+=vs,135,"Bðkl˜",Normal,Status,false,SetSClass);
+  CheckBox(h3=550,v=vm,0,"Be priminim÷",NoRemndrFlag);
+  CheckBox(h3,v+=16,0,"Be delspinigi÷",NoInterestFlag);
+  CheckBox(h3,v+=16,0,"Be rinkinio",NoColectionFlag);
+  CheckBox(h3,v+=16,0,"Pirk. Inf. operacijoje",ARonTR);
+  CheckBox(h3,v+=16,0,"Nesi÷sti kaip E-fakt.",NoEInvoice);
+  CheckBox(h3,v+=16,0,"Fiskalin˜ fakt.",FiscalFlag);
+  CheckBox(h3,v+=16,0,"Sav. atsisk.",SelfBilling);
+  Tile(6,150,false,"6",PriceList); vs = 20;
+  EditField(h1,v=vm,80,"Kainoraätis",Normal,PriceList,false,PLDefSClass);
+  EditField(h1,v+=vs,80,"Nuolaid÷ lentel˜",Normal,RebCode,false,0);
+  EditField(h1,v+=vs,80,"Orig. pirk˜jas",ViewOnly,OrgCust,false,0);
+  EditField(h1,v+=vs,80,"Kreditin˜ kortel˜",Normal,CreditCard,false,CreditCardSClass);
+  EditField(h1,v+=vs,80,"Autorization",Normal,AuthorizationCode,false,0);
+  EditField(h1,v+=vs,80,"Debitoriai",Normal,ARAcc,false,AccSClass);
+  EditField(h1,v+=vs,-20,"Komentaras",Normal,InvComment,false,0);
+  EditField(h2,v=vm,80,"Pard. grup˜",ViewOnly,SalesGroup,true,0);
+  EditField(h2,v+=vs,80,"Kalba",Normal,LangCode,false,LangSClass);
+  EditField(h2,v+=vs,80,"Komisiniai",Normal,Commision,true,0);
+  EditField(h2,v+=vs,80,"Viso su komis.",ViewOnly,SumIncCom,true,0);
+  EditField(h2,v+=vs,80,"Delspinigiai",Normal,IntCode,true,IntSClass);
+  EditField(h2,v+=vs,80,"Org. Nr.",Normal,CredInv,false,0);
+  EditField(h3,v=vm,80,"Primin. lygis",Normal,LastRemndr,false,0);
+  EditField(h3,v+=vs,80,"Pask. primin. data",Normal,LastRemDate,false,PasteCurDate);
+  EditField(h3,v+=vs,80,"Lojalumo kortel˜",Normal,LoyaltyCardNr,false,LoyaltyCardSClass);
+  EnterSkip(Math);
+  EditField(h3,v+=vs,80,"Naryst˜s lygis",ViewOnly,LCMLevel,false,LCMemberLevelSClass);
+  EditField(h3,v+=vs,80,"Lojalumo taäkai",ViewOnly,Points,true,0);
+  Tile(7,250,false,"7",Addr1); vs = 20;
+  label = UserDefined("CUVc","InvAddr0");
+  if (blank(label)) then begin label = "Faktðra"; end;
+  EditField(h=110,v=6,-20,label,Normal,Addr1,false,0);
+  label = UserDefined("CUVc","InvAddr1");
+  if (blank(label)) then begin label = "Adresas"; end;
+  EditField(h,v+=vs, -20,label,Normal,Addr2,false,0);
+  label = UserDefined("CUVc","InvAddr2");
+  EditField(h,v+=vs, -20,label,Normal,Addr3,false,0);
+  label = UserDefined("CUVc","InvAddr3");
+  EditField(h,v+=vs, -20,label,Normal,InvAddr3,false,0);
+  label = UserDefined("CUVc","InvAddr4");
+  EditField(h,v+=vs, -20,label,Normal,InvAddr4,false,0);
+  EditField(h,vm=(v+=vs),80,"áalis",Normal,InvCountry,false,CountrySClass);
+  h5 = -270;
+  width = 135;
+  EditField(h5,v,width,"Sˆskaita",Normal,BankCode,false,BankSClass); 
+  ButtonFrame(h3=h+4,v=(vm+=40),123,6,"Patvirtinimo bðkl˜");
+  RadioButton(h3,v,kAcceptanceStateNotRequired,0,"Nereikalaujama",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateNotStarted,0,"Neprad˜ta",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateNotRequested,0,"Nepraäoma",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStatePending,0,"Laukiama",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateApproved,0,"Patvirtinta",AcceptanceStatus);
+  RadioButton(h3,v+=16,kAcceptanceStateRejected,0,"Atsakyta",AcceptanceStatus);  
+  v = VATZoneButtonsLabelsLIT(h3=290,v=vm,140,16);
+  EditField(h2=-170,v=vm,150,"Regionas",Normal,Region,false,RegionSClass); 
+  EditField(h2,v+=vs,150,"PVM Reg. Nr.",Normal,VATNr,false,0);
+  EditField(h2,v+=vs,150,"GLN",ViewOnly,RecipientGLN,false,0);
+  EditField(h2,v+=vs,150,"Telefonas",Normal,Phone,false,0);
+  EditField(h2,v+=vs,150,"Faksas",Normal,Fax,false,0);
+  Tile(8,170,false,"8",ShipAddr0); vs = 20;
+  EditField(h1,v=6,80,"Adreso kd.",Normal,DelAddrCode,false,DelAddr3SClass);
+  EditField(h1,v+=vs,-20,"Siuntimas",Normal,ShipAddr0,false,0);
+  EditField(h1,v+=vs,-20,"Adresas",Normal,ShipAddr1,false,0);
+  EditField(h1,v+=vs,-20,"",Normal,ShipAddr2,false,0);
+  EditField(h1,v+=vs,-20,"",Normal,ShipAddr3,false,0);
+  EditField(h1,v+=vs,-20,"",Normal,DelAddr3,false,0);
+  EditField(h1,v+=vs,-20,"",Normal,DelAddr4,false,0);
+  EditField(h1,v+=vs,80,"áalis",Normal,DelCountry,false,CountrySClass); 
+  EditField(h2,v,150,"Siuntimo GLN",ViewOnly,DelRecipientGLN,false,0);
+  EnterSkip(InvDate);
+  Tile(9,170,false,"9",RetItmSerNo1); vs = 20;
+  EditField(h1=80,v=6,80,"1 Ser. nr.",Normal,RetItmSerNo1,false,0);
+  EditField(h2=220,v,180,"1 Pavad.",Normal,RetItmName1,false,0);
+  EditField(h3= 450,v,80,"1 Suma",Normal,RetItmPrice1,false,0);
+  
+  EditField(h1,v=v+vs,80,"2 Ser. nr.",Normal,RetItmSerNo2,false,0);
+  EditField(h2,v,180,"2 Pavad.",Normal,RetItmName2,false,0);
+  EditField(h3,v,80,"2 Suma",Normal,RetItmPrice2,false,0);
+
+  EditField(h1,v=v+vs,80,"3 Ser. nr.",Normal,RetItmSerNo3,false,0);
+  EditField(h2,v,180,"3 Pavad.",Normal,RetItmName3,false,0);
+  EditField(h3,v,80,"3 Suma",Normal,RetItmPrice3,false,0);
+  
+  EditField(h1,v=v+vs,80,"4 Ser. nr.",Normal,RetItmSerNo4,false,0);
+  EditField(h2,v,180,"4 Pavad.",Normal,RetItmName4,false,0);
+  EditField(h3,v,80,"4 Suma",Normal,RetItmPrice4,false,0);
+  
+  EditField(h1,v=v+vs,80,"5 Ser. nr.",Normal,RetItmSerNo5,false,0);
+  EditField(h2,v,180,"5 Pavad.",Normal,RetItmName5,false,0);
+  EditField(h3,v,80,"5 Suma",Normal,RetItmPrice5,false,0);
+  
+  HALPushButton(10,v=v+20,700,v+25,"CashIVsm3","Prid˜ti ° faktðrˆ");
+  
+  if (GuiType==kGuiMetro) then begin // Temporarily disabled on Windows 8
+    SpecialMenu("Faktðros bðkl˜",'r',2,"IVInfoIVDsm"); 
+    SpecialMenu("Prek˜s bðkl˜",'I',0,"ItemStatusIVDsm"); 
+    SpecialMenu("Atidaryti D/K operacijˆ",'t',8,"OpenTRFromIV"); 
+    SpecialMenu("Sukurti kredito paìymˆ",' ',20,"CreateCreditNoteIVDsm"); 
+    SpecialMenu("Prid˜ti tarpin« sumˆ",' ',12,"SubTotalLineIVDsm"); 
+    SpecialMenu("Prijungti prie iäankstinio",' ',4,"ConnectToPrepayIVDsm"); 
+  end else begin
+		SpecialMenu("Prek˜s bðkl˜",'I',0,"ItemStatusIVDsm");
+		SpecialMenu("Prek˜s paieäka",'f',1,"ItemSearchDsm");
+		SpecialMenu("Faktðros bðkl˜",'r',2,"IVInfoIVDsm");
+		SpecialMenu("Ankstesn˜s pard. kainos",' ',15,"IVLastSPrsm");
+		SpecialMenu("Prijungti antraät˜s eilut˜",' ',12,"HeaderLineIVDsm");
+		SpecialMenu("Prijungti pasl˜ptˆ linijˆ",' ',12,"HiddenLineIVDsm");
+  	SpecialMenu("Prijungti aplinkos mokest°",' ',19,"RepaIVsm");
+  	SpecialMenu("Prid˜ti uìlaikymˆ",' ',25,"RetentionLineIVDsm"); 
+  	SpecialMenu("¯statyti tarp. sumˆ",' ',12,"SubTotalLineIVDsm");
+    SpecialMenu("Si÷sti patvirtinimui",' ',6,"IVSendforAcceptanceIVDsm");
+  	SpecialMenu("Atäaukti patvirtinimˆ",' ',2,"CancelApprovalRequestDsm");
+		SpecialMenu("Pakeisti ° bazin« val. 1",' ',14,"SwitchToBase1IVDsm");
+		SpecialMenu("Prijungti prie iäankstinio",' ',4,"ConnectToPrepayIVDsm");
+		SpecialMenu("Perskai‹iuoti nuolaidˆ",' ',11,"RecalcDiscountIVDsm");
+		SpecialMenu("Perskai‹iuoti svor° ir tðr°",' ',10,"RecalcWeightIVDsm");
+		SpecialMenu("Atnaujinti valiutin° kainoraät°",' ',5,"UpdatePricesIVDsm");
+		SpecialMenu("Spausdinti kasos pajamas-iälaidas",' ',7,"PrintCashInOutIVDsm");
+		SpecialMenu("Spausdinti ° fiskalin° spausdintuvˆ",' ',19,"PrintToFiscPrntIVDsm");
+		SpecialMenu("Mok˜jimas kortele",' ',22,"CCPayIVDsm");
+		SpecialMenu("Keisti dalinius mok˜jimus",' ',24,"EditInstalmentIVDsm");
+		SpecialMenu("Persi÷sti el. faktðrˆ",' ',21,"ResendEIVDsm");
+  	SpecialMenu("Atidaryti D/K operacijˆ",'t',8,"OpenTRFromIV");
+    SpecialMenu("Sukurti veiklˆ",'c',9,"CreateActFromIVDsm"); 
+		SpecialMenu("Sukurti kasos pajamas",' ',1,"DoCLInFromIVD");
+		SpecialMenu("Sukurti kredito paìymˆ",' ',20,"CreateCreditNoteIVDsm");
+		SpecialMenu("Sukurti kredito sutart°",' ',25,"CreateCredManIVsm");
+		SpecialMenu("Sukurti kontraktˆ",' ',13,"COFromIVDsm");
+		SpecialMenu("Sukurti koregavimo faktðrˆ",' ',16,"CorrectionIVsm");
+		SpecialMenu("Create Debit Note",' ',20,"CreateDebitNoteIVDsm");
+		SpecialMenu("Sukurti EDI faktðrˆ",' ',9,"DoEDIInvFromIVD");
+		SpecialMenu("Sukurti el. laiäkˆ",'m',23,"CreateMailFromIVDsm");
+  	SpecialMenu("Sukurti dalini÷ mok˜jim÷ °plaukas",' ',6,"CreateInstalmentsIVDsm");
+  	SpecialMenu("Vadybininko nuolaidos perraäymas",' ',24,"MgrsDiscOverrideIVDsm"); 
+    SpecialMenu("Apple Warranty Status Check",'w',26,"WarrantyStatusIVDsm"); 
+    //START-CUST   October 2, 2014 by PST
+    SpecialMenu("Sukurti grˆìinimˆ",'',27,"CreatePOSReturnIVDsm"); 
+    SpecialMenu("Pin Pad VOID",'',27,"PinPadVoidIVDsm");
+    //END-CUST October 2, 2014 by PST
+//     SpecialMenu("Delete Invoice (don't use)",' ',10,"iDeal_ForceDeleteIVDsm");//hal-146; edz REMOVED BECAUSE HAL-309
+  end;
+ EndWindow;
+
+
+return;
+end;

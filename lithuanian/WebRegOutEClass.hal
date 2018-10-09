@@ -1,0 +1,9 @@
+SetlangMode(LangLithuanian,"LIT",0);
+
+window WebRegOutEClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Web Registers",WebRegOutEClass,CGEcW,RcType);
+  SetWRect(20,80,500,450);
+  EndWindow;
+end;

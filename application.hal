@@ -1,0 +1,42 @@
+procedure SetTimedEventScheduler()
+begin
+  
+  NewPeriodicTask("burti_TimedEventsTask","burti_TimedEventsTask","burti_TimedEventsTask","",90,"");
+  
+return;
+end;
+
+global
+updating procedure OnApplicationStartupComplete()
+BEGIN
+  time t;
+  record UserVc USr;
+  
+  /*while(loopmain(USr,1,true))begin
+  	logtext(0,USr.Code & " " & USr.AccessGroup);
+  	if(USr.Code=="EBS")then begin
+  		USr.OldPassWord = "";
+  		USr.LoginEmailAddr = "";
+  		USr.emailAddr = "";
+  		USr.IDCode = "";
+  		recordstore(USr,true);
+  	end;
+  end;
+  
+  recordnew(USr);
+  USr.Code = "SA";
+  USr.AccessGroup = "ADM";
+  recordstore(USr,true);*/
+  
+
+  inner.OnApplicationStartupComplete;
+  if (ServerMode or SingleUserMode) then begin
+		SetTimedEventScheduler;
+  end;
+  
+RETURN;
+END;
+
+
+
+	

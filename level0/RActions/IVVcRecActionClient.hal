@@ -1,0 +1,469 @@
+remote function LongInt IVDuplicateClient(var record IVVc,record IVVc,LongInt,LongInt);
+remote updating procedure IVVc_LinkRecords(record IVVc,string,string);
+external procedure WindowFieldGotoForTouchScreen(Integer,Integer,string,Boolean);
+external procedure IVDClass_RefreshStringList(Integer,record IVVc);
+external procedure ResetDisplayDsm();
+external procedure SetPOSWindowDisplayChange(val);
+remote procedure IVVc_StoreEInvoice(record IVVc,record IVVc,LongInt);
+external function Integer TestCleanCashIdentity(Boolean,record LSerialPortDeviceVc,string,var string);
+external function Boolean FindLocalSerialPortDevice(Integer,LongInt,string,var record LSerialPortDeviceVc);
+external function Boolean TouchScreenLook();
+// custom remote:
+remote function LongInt IVDefaultsClient(var record IVVc,record IVVc,LongInt,LongInt);
+external updating procedure IVVc_SendToSerialPortDevices(Integer,LongInt,record IVVc,record IVVc);
+remote updating procedure RraPasteInvInEDIInv(var record EDIIVVc,var LongInt);
+external procedure RecordActionIV_Print(var record IVVc,string,string,Integer,Boolean);
+external procedure ShowUnOkWarn(string,Integer);
+// custom includes
+remote function Boolean PUVc_PasteVECode(var record PUVc);
+remote function Integer PUVc_PasteQuant(var record PUVc,Integer);
+external procedure PUCalcCostPrice(string,val,Integer,Integer,string,string,
+                                   val,val,val,val,val,
+                                   val,val,val,val,val,val,
+                                   string,var val,val,var val,string,Integer);
+remote function Boolean PUDchrsum(record PUVc,Integer);
+remote procedure PUSumUp(var record PUVc);
+remote procedure PURecalcCost(var record PUVc);
+
+remote function Boolean PUVc_PasteArtCode(var record PUVc,Integer,var string,var string);
+
+updating procedure acCreateEDIInv(record IVVc IVp)
+BEGIN
+  record EDIIVVc EDIIVr;
+  record CUVc CUr;
+  LongInt r;
+  
+  CUr.Code = IVp.CustCode;
+  if (ReadFirstMain(CUr,1,true)) then begin
+    if (CUr.EDIFlag==0) then begin goto LacCreateEDIInv; end;
+  end;
+  RecordNew(EDIIVr); 
+  EDIIVr.SerNr = IVp.SerNr;
+  RraPasteInvInEDIInv(EDIIVr,r); 
+LacCreateEDIInv:;  
+  RETURN;
+END;
+      
+global
+updating function LongInt IVVcRecordSaveClient(LongInt wn,var record IVVc IVr,record IVVc IV2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  record AutoActionBlock AAb;
+  record AccBlock ARAccb;
+  record IVVc creditedIVr;
+  Boolean testf;
+  string 255 tstr;
+
+//Client-Server !!!!
+  if (IVr.Invalid==0) then begin
+    BlockLoad(AAb);
+    if (IVr.OKFlag!=0) then begin
+      if (AAb.InvoicePrinting!=0) then begin
+        testf = true;
+        BlockLoad(ARAccb);
+        if (ARAccb.CashSalesToFiscalControlUnit!=0) then begin
+          switch (IVr.InvType) begin
+            case kInvoiceTypeCashInvoiceReceiptPRT:
+              testf = false;
+            case kInvoiceTypeCash:
+              testf = false;
+            case kInvoiceTypeCreditSpecialSales: 
+              goto LkInvoiceTypeCredit;
+            case kInvoiceTypeCredit:
+LkInvoiceTypeCredit:;
+              creditedIVr.SerNr = IVr.CredInv;
+              if (ReadFirstMain(creditedIVr,1,true)) then begin
+                if (creditedIVr.InvType==kInvoiceTypeCash or creditedIVr.InvType==kInvoiceTypeCashInvoiceReceiptPRT) then begin
+                  testf = false;
+                end;
+              end;
+          end;
+        end;
+        if (testf) then begin
+          RecordActionIV_Print(IVr,"","InvForm",0,false);
+        end;
+      end;
+      if (AAb.EDIInvoice==1) then begin
+        acCreateEDIInv(IVr);
+      end;
+    end;
+  end;
+
+  IVVc_SendToSerialPortDevices(kSerialPortDeviceClassReceiptPrinter,Rs_insert,IVr,IV2r);
+  //START-CUST PST 2015-September-30
+  //IVVc_SendToSerialPortDevices(kSerialPortDeviceClassFiscalPrinter,Rs_insert,IVr,IV2r);
+  //END-CUST PST 2015-September-30
+  IVVc_SendToSerialPortDevices(kSerialPortDeviceClassFiscalControlUnit,Rs_insert,IVr,IV2r);
+  if (HasLocalization("ARG")) then begin
+    tstr = GetWindowString(wn,"RLINK");
+    if (nonblank(tstr)) then begin
+      IVVc_LinkRecords(IVr,GetWindowString(wn,"RLINKFILENAME"),tstr);
+    end;
+  end;
+  if (HasLocalization("MEX")) then begin
+    IVVc_StoreEInvoice(IVr,IV2r,stat);
+  end;
+  SetPOSWindowDisplayChange(IVr.RetValue);
+  ShowUnOkWarn("IVVc",IVr.OKFlag);
+  if (TouchScreenLook) then begin
+//    ResetDisplayDsm;
+    ReRunWindowDef(wn);
+    WindowFieldGotoForTouchScreen(wn,-1,"ivcashcommand",true);
+  end;
+LIVVcRecordSaveClient:;
+  IVVcRecordSaveClient = res; 
+  RETURN;
+END;
+
+// custom:
+procedure AddRows(var record PUVc PUr,string serial, string name,val price,string item, string account, integer rownr)
+begin
+  row PUVc PUrw;
+  string 255 warning,inwarn;
+  integer res;
+  val p,s;
+  
+
+	ClearRow(PUr,PUrw,1);
+    PUrw.ArtCode = item;
+    MatRowPut(PUr,rownr,PUrw);
+    if (PUVc_PasteArtCode(PUr,rownr,warning,inwarn)) then begin end;
+    MatRowGet(PUr,rownr,PUrw);
+    PUrw.Spec = name;
+    PUrw.SerialNr = serial;
+    PUrw.Quant = 1;
+    PUrw.CredAcc = account;
+    MatRowPut(PUr,rownr,PUrw);
+    res = PUVc_PasteQuant(PUr,rownr);
+    MatRowGet(PUr,rownr,PUrw);
+    PUrw.UPrice = price;
+    PUCalcCostPrice(PUrw.ArtCode,PUrw.UPrice,PUr.InclVAT,PUr.NoTAXonVAT,PUrw.Extra,PUr.CurncyCode,
+                      PUr.FrRate,PUr.ToRateB1,PUr.ToRateB2,PUr.BaseRate1,PUr.BaseRate2,
+                      PUrw.ShipCost,PUrw.RowCost1,PUrw.RowCost2,PUrw.RowCost3,PUrw.RowCost4,PUrw.RowCost5,
+                      PUrw.CustomsCost,p,PUrw.Quant,s,PUrw.VATCode,PUr.ExportFlag);
+    PUrw.CostPrice = p;
+    PUrw.Sum = s;
+    MatRowPut(PUr,rownr,PUrw);
+    PURecalcCost(PUr);
+
+    PUDchrsum(PUr,rownr);
+    PUSumUp(PUr);
+
+return;
+end;
+
+updating procedure CheckReturnItems(record IVVc IVr)
+begin
+  record LocalMachineBlock LMb;
+  record PMBlock PMbr;
+  row PMBlock PMbrw;
+  record PUVc PUr,oldPUr;
+  row PUVc PUrw;
+  record CUVc CUr,oldCUr;
+  record RetItmBlock RetItmb;
+  string 10 account;
+  integer i,rwcnt;
+  
+  blockload(LMb);
+  blockload(PMbr);
+  blockload(RetItmb);
+  
+  if IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0 then begin
+    rwcnt = MatRowCnt(PMbr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(PMbr,i,PMbrw);
+      if PMbrw.Code == LMb.FiscalPrinterEJournalPath then begin
+        account = PMbrw.AccNr;
+        i = rwcnt;
+      end;
+    end;
+    CUr.Code = IVr.CustCode;
+    If readfirstmain(CUr,1,true) then begin
+      If CUr.VEType == 0 then begin
+        RecordCopy(oldCUr,CUr);
+        CUr.VEType = 1;
+        RecordUpdate(oldCUr,CUr,false);
+      end;
+    end;
+    RecordNew(PUr);
+    PUr.SerNr =  NextSerNr("PUVc",CurrentDate,-1,false,""); 
+    PUr.VECode = IVr.CustCode;
+    if (PUVc_PasteVECode(PUr)) then begin end;
+    PUr.TransDate = IVr.InvDate;
+    PUr.Location = IVr.Location;
+    
+    AddRows(PUr,IVr.RetItmSerNo1,IVr.RetItmName1,IVr.RetItmPrice1,RetItmb.RetItm,account,0);
+    if IVr.RetItmSerNo2 != "" and IVr.RetItmPrice2 > 0 then begin
+      AddRows(PUr,IVr.RetItmSerNo2,IVr.RetItmName2,IVr.RetItmPrice2,RetItmb.RetItm,account,1);
+    end;
+    if IVr.RetItmSerNo3 != "" and IVr.RetItmPrice3 > 0 then begin
+      AddRows(PUr,IVr.RetItmSerNo3,IVr.RetItmName3,IVr.RetItmPrice3,RetItmb.RetItm,account,2);
+    end;
+    if IVr.RetItmSerNo4 != "" and IVr.RetItmPrice4 > 0 then begin
+      AddRows(PUr,IVr.RetItmSerNo4,IVr.RetItmName4,IVr.RetItmPrice4,RetItmb.RetItm,account,3);
+    end;
+    if IVr.RetItmSerNo5 != "" and IVr.RetItmPrice5 > 0 then begin
+      AddRows(PUr,IVr.RetItmSerNo5,IVr.RetItmName5,IVr.RetItmPrice5,RetItmb.RetItm,account,4);
+    end;
+    
+    if RecordStore(PUr,true) then begin
+      RecordCopy(oldPUr,PUr);
+      PUr.OKFlag = 1;
+      RecordUpdate(oldPUr,PUr,true);
+      CreateRecordLink(PUr,CurrentCompany,IVr,CurrentCompany);  
+      CreateRecordLink(IVr,CurrentCompany,PUr,CurrentCompany);  
+    end;
+    
+  end;
+  
+  blockload(LMb);
+  blockload(PMbr);
+
+return;
+end;
+// :custom
+
+global
+updating function LongInt IVVcRecordUpdateClient(LongInt wn,var record IVVc IVr,record IVVc IV2r,LongInt stat,LongInt long4)
+BEGIN
+  LongInt res;
+  record AutoActionBlock AAb;
+  record AccBlock ARAccb;
+  record IVVc creditedIVr;
+  Boolean testf;
+  record COIVVc COIVr;
+
+//Client-Server !!!!
+  if ((IV2r.Invalid==0) and (IVr.Invalid==0)) then begin
+    if ((IV2r.OKFlag==0) and (IVr.OKFlag==1)) then begin
+      BlockLoad(AAb);
+      CheckReturnItems(IVr); // CUSTOM !!
+      if (IVr.OKFlag!=0) then begin
+        if (AAb.InvoicePrinting!=0) then begin
+          testf = true;
+          BlockLoad(ARAccb);
+          COIVr.IVNr = IVr.SerNr;
+          COIVr.Type = 0;
+          if (ReadFirstKey("IVNr",COIVr,2,true)==false) then begin 
+            if (ARAccb.CashSalesToFiscalControlUnit!=0) then begin
+              switch (IVr.InvType) begin
+                case kInvoiceTypeCashInvoiceReceiptPRT:
+                  testf = false;
+                case kInvoiceTypeCash:
+                  testf = false;
+                case kInvoiceTypeCreditSpecialSales: goto LkInvoiceTypeCredit;
+                case kInvoiceTypeCredit:
+                  LkInvoiceTypeCredit:;
+                  creditedIVr.SerNr = IVr.CredInv;
+                  if (ReadFirstMain(creditedIVr,1,true)) then begin
+                    if (creditedIVr.InvType==kInvoiceTypeCash or creditedIVr.InvType==kInvoiceTypeCashInvoiceReceiptPRT) then begin
+                      testf = false;
+                    end;
+                  end;
+              end;
+            end;
+            if (testf) then begin
+              RecordActionIV_Print(IVr,"","InvForm",0,false);
+            end;
+          end else begin
+          end;
+        end;
+        if (AAb.EDIInvoice==1) then begin
+          acCreateEDIInv(IVr);
+        end;
+      end;
+    end;
+  end;
+  
+  IVVc_SendToSerialPortDevices(kSerialPortDeviceClassReceiptPrinter,Rs_update,IVr,IV2r);
+  //START-CUST PST 2015-September-30
+  //IVVc_SendToSerialPortDevices(kSerialPortDeviceClassFiscalPrinter,Rs_update,IVr,IV2r);
+  //END-CUST PST 2015-September-30
+  IVVc_SendToSerialPortDevices(kSerialPortDeviceClassFiscalControlUnit,Rs_update,IVr,IV2r);
+  if (HasLocalization("MEX")) then begin
+    IVVc_StoreEInvoice(IVr,IV2r,stat);
+  end;
+  SetPOSWindowDisplayChange(IVr.RetValue);
+  ShowUnOkWarn("IVVc",IVr.OKFlag);
+  if (TouchScreenLook) then begin
+    ResetDisplayDsm;  
+    ReRunWindowDef(wn);
+  end;
+LIVVcRecordUpdateClient:;
+  IVVcRecordUpdateClient = res; 
+  RETURN;
+END;
+
+global
+function LongInt IVVcRecordDefaultsClient(LongInt wn,var record IVVc IVr,record IVVc IV2r,LongInt long3,LongInt long4)
+begin
+  LongInt res;
+  Integer level;
+
+  res = IVDefaultsClient(IVr,IV2r,long3,long4);
+  if (TouchScreenLook) then begin
+//    NPTSIVCashDClassOnOpenWindowExecute(wn);
+    level = StringToInt(GetWindowString(wn,"touchscreenwindowpage"));
+    PutWindowString(wn,"touchscreenwindowpageprevious",level);
+    IVDClass_RefreshStringList(wn,IVr);
+    if (WindowState(wn)!=Rs_insert) then begin
+      ReRunWindowDef(wn);
+    end;    
+    ResetDisplayDsm;
+    WindowFieldGotoForTouchScreen(wn,-1,"ivcashcommand",true);
+  end;
+  IVVcRecordDefaultsClient = res;
+  return;
+end;
+
+global
+function LongInt IVVcRecordDuplicateClient(LongInt wn,var record IVVc IVr,record IVVc IV2r,LongInt long3,LongInt long4)
+begin
+  LongInt res;
+  record LocalMachineBlock LMb;
+
+  BlockLoad(LMb);
+  res = IVDuplicateClient(IVr,IV2r,long3,long4);
+  if (TouchScreenLook) then begin
+    ResetDisplayDsm;
+    ReRunWindowDef(wn);
+    WindowFieldGotoForTouchScreen(wn,-1,"ivcashcommand",true);
+  end;
+  IVVcRecordDuplicateClient = res;
+  return;
+end;
+
+global
+updating function LongInt ProdOperationVcRecordUpdateClient(LongInt wn,var record ProdOperationVc ProdOperationr,record ProdOperationVc ProdOperation2r,LongInt long3,LongInt long4)
+begin
+  LongInt res;
+  
+  UpdateNamedWindow("ResMonWClass");
+  ProdOperationVcRecordUpdateClient = res; 
+  return;
+end;
+
+global
+function LongInt IVVcRecordCheckClient(LongInt wn,record IVVc IVr,record IVVc IV2r,LongInt stat,LongInt errorcheck)
+begin
+  LongInt res;
+  Boolean checkf,testf,testfcleancashf;
+  record IVVc credIVr;
+  record LocalMachineBlock LMb;
+  record LSerialPortDeviceVc LSPDr;
+  string 255 errstr;
+  Integer err;
+  record AccBlock Accb;
+  record CashierDefBlock CDb;
+  
+//no client-server calls pls
+  res = 0;
+  checkf = errorcheck>0;
+  BlockLoad(LMb); 
+  BlockLoad(CDb); 
+  testf = true;
+  if (IVr.InvType!=kInvoiceTypeCash and IVr.InvType!=kInvoiceTypeCashInvoiceReceiptPRT) then begin
+    if (IVr.InvType==kInvoiceTypeCredit or IVr.InvType==kInvoiceTypeCreditSpecialSales) then begin
+      credIVr.SerNr = IVr.CredInv;
+      if (ReadFirstMain(credIVr,1,true)) then begin
+        if (credIVr.InvType!=kInvoiceTypeCash and credIVr.InvType!=kInvoiceTypeCashInvoiceReceiptPRT) then begin
+          testf = false;
+        end;
+      end;
+    end else begin
+      testf = false;
+    end;
+  end;
+  if (HasLocalization("SWE")==false) then begin
+    testf = false;
+  end;
+  if (testf) then begin
+    if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalControlUnit,kSerialPortDeviceModelFiscPrinterCLEANCASHTypeA,LMb.LocalMachineCode,LSPDr)) then begin  
+      testfcleancashf = false;
+      switch (stat) begin
+        case Rs_normal:
+          testf = true;
+          if (IVr.OKFlag==0) then begin testf = false; end;          
+          if (testf) then begin
+            testfcleancashf = true;
+          end;
+        case Rs_insert:
+          testf = true;
+          if (IVr.OKFlag==0) then begin testf = false; end;          
+          if (testf) then begin
+            testfcleancashf = true;
+          end;
+        case Rs_update:
+          testf = true;
+          if ((IV2r.Invalid!=0) or (IVr.Invalid!=0)) then begin
+            testf = false;
+          end;          
+          if ((IV2r.OKFlag!=0) or (IVr.OKFlag==0)) then begin testf = false; end;
+          if (testf) then begin
+            testfcleancashf = true;
+          end;
+      end;
+      if (testfcleancashf) then begin
+        if (blank(LMb.LocalMachineCode)) then begin
+          RecordCheckError(1770,"",-1,"SerNr");      
+          res = -1;
+          goto LIVVcRecordCheckClient;        
+        end;
+        err = TestCleanCashIdentity(true,LSPDr,LMb.TerminalID,errstr);
+        if (err!=0) then begin
+          RecordCheckError(err,": " & errstr,-1,"SerNr");      
+          res = -1;
+          goto LIVVcRecordCheckClient;        
+        end;
+      end;
+    end else begin
+      BlockLoad(Accb); 
+      if (Accb.CashSalesToFiscalControlUnit!=0) then begin
+        if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalControlUnit,kSerialPortDeviceModelFiscPrinterCLEANCASHTypeC,LMb.LocalMachineCode,LSPDr)==false) then begin
+          RecordCheckError(22123,"",-1,"SerNr");      
+          res = -1;
+          goto LIVVcRecordCheckClient;        
+        end;
+      end;
+    end;
+  end;
+  if (CDb.RequireReturnCustomer!=0) then begin
+    if (IVr.OKFlag!=0) and (IVr.Sum4<0) and (TouchScreenInterface) then begin
+      if (IVr.CustCode==CDb.DefCustCode) or (IVr.CustCode==LMb.DefCustCode) then begin
+        RecordCheckError(21351,"",-1,"CustCode");      
+        res = -1;
+        goto LIVVcRecordCheckClient;        
+      end;
+    end;
+  end;
+LIVVcRecordCheckClient:;  
+  IVVcRecordCheckClient = res;
+  return;
+end;
+
+global
+function LongInt IVVcRecordProtectFields(var record IVVc IVr,record IVVc IV2r,LongInt long3,LongInt long4)
+begin
+  LongInt res;
+  Integer i,rwcnt;
+  row IVVc IVrw;
+  row IVVc IV2rw;
+  Integer rwcnt2;
+  
+  IV2r.Prntdf = IVr.Prntdf;
+  IV2r.TaxAdminServSeal = IVr.TaxAdminServSeal;
+/*
+  rwcnt = MatRowCnt(IVr);
+  rwcnt2 = MatRowCnt(IV2r);
+  for (i=0;i<rwcnt2;i=i+1) begin
+    if (i<rwcnt) then begin
+      MatRowGet(IVr,i,IVrw);
+      MatRowGet(IV2r,i,IV2rw);
+      IV2rw.OrdNr = IVrw.OrdNr;
+      MatRowPut(IV2r,i,IV2rw);
+    end;
+  end;  
+*/
+  IVVcRecordProtectFields = res;
+  RETURN;
+END;

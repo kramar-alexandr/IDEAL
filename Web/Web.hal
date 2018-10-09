@@ -1,0 +1,1129 @@
+external inner function Boolean SetInSet2(string,string);
+
+global webpublic
+procedure WebItemExport1()
+begin
+	record ItemExportBlock XMLbr;
+  record INVc INr;
+  record ITVc ITr;
+  record ItemStatusVc ISr;
+  boolean testf,testf2;
+  string 255 tstr;
+  val storagecnt,locsum;
+  integer ii,i,cnt,cnt2;
+  record LocationVc Locr;
+  array string 20 loclist,grouplist;
+  record SysFormatBlock SysFormatRec;
+  
+  SetLangMode(LangLithuanian,"LIT",0);
+  
+  BlockLoad(XMLbr);
+  BlockLoad(SysFormatRec);
+  WebSetContentType("text/html");
+  WebOutStringFormatNL("<!DOCTYPE html>");
+  WebOutStringFormatNL("<html>");
+  WebOutStringFormatNL("<head>");
+  WebOutStringFormatNL("<meta charset=""UTF-8"">");
+  WebOutStringFormatNL("<style>");
+  //WebOutStringFormatNL("table {width:100%;}");
+  WebOutStringFormatNL("table, th, td {border: 1px solid black;border-collapse: collapse;}");
+  WebOutStringFormatNL("table tr:nth-child(even) {background-color: #eee;}");
+  WebOutStringFormatNL("table tr:nth-child(odd) {background-color:#fff;}");
+  WebOutStringFormatNL("table th {background-color: black;color: white;}");
+  WebOutStringFormatNL("</style>");
+  WebOutStringFormatNL("</head>");
+  WebOutStringFormatNL("<body>");
+  WebOutStringFormatNL("<table>");
+  WebOutStringFormatNL("<tr>");
+	WebOutStringFormatNL("<th>Prek˜s kodas</th>");
+	WebOutStringFormatNL("<th>Prek˜s pavadinimas</th>");
+	for (i=1;i<11;i=i+1) begin
+		if i == 1 and nonblank(XMLbr.Loc1) then begin
+			Locr.Code = XMLbr.Loc1;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 0;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 2 and nonblank(XMLbr.Loc2) then begin
+			Locr.Code = XMLbr.Loc2;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 1;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 3 and nonblank(XMLbr.Loc3) then begin
+			Locr.Code = XMLbr.Loc3;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 2;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 4 and nonblank(XMLbr.Loc4) then begin
+			Locr.Code = XMLbr.Loc4;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 3;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 5 and nonblank(XMLbr.Loc5) then begin
+			Locr.Code = XMLbr.Loc5;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 4;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 6 and nonblank(XMLbr.Loc6) then begin
+			Locr.Code = XMLbr.Loc6;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 5;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 7 and nonblank(XMLbr.Loc7) then begin
+			Locr.Code = XMLbr.Loc7;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 6;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 8 and nonblank(XMLbr.Loc8) then begin
+			Locr.Code = XMLbr.Loc8;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 7;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 9 and nonblank(XMLbr.Loc9) then begin
+			Locr.Code = XMLbr.Loc9;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 8;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 10 and nonblank(XMLbr.Loc10) then begin
+			Locr.Code = XMLbr.Loc10;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 9;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+	end;
+	WebOutStringFormatNL("<th>VISO</th>");
+	WebOutStringFormatNL("</tr>");
+	
+	for (ii=1;ii<21;ii=ii+1) begin
+		if ii == 1 and nonblank(XMLbr.ItmGr11) then begin
+			cnt2 = 0;
+			grouplist[cnt2] = XMLbr.ItmGr11;
+		end;
+		if ii == 2 and nonblank(XMLbr.ItmGr12) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr12;
+		end;
+		if ii == 3 and nonblank(XMLbr.ItmGr13) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr13;
+		end;
+		if ii == 4 and nonblank(XMLbr.ItmGr14) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr14;
+		end;
+		if ii == 5 and nonblank(XMLbr.ItmGr15) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr15;
+		end;
+		if ii == 6 and nonblank(XMLbr.ItmGr16) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr16;
+		end;
+		if ii == 7 and nonblank(XMLbr.ItmGr17) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr17;
+		end;
+		if ii == 8 and nonblank(XMLbr.ItmGr18) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr18;
+		end;
+		if ii == 9 and nonblank(XMLbr.ItmGr19) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr19;
+		end;
+		if ii == 10 and nonblank(XMLbr.ItmGr110) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr110;
+		end;
+		if ii == 11 and nonblank(XMLbr.ItmGr111) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr111;
+		end;
+		if ii == 22 and nonblank(XMLbr.ItmGr112) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr112;
+		end;
+		if ii == 13 and nonblank(XMLbr.ItmGr113) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr113;
+		end;
+		if ii == 14 and nonblank(XMLbr.ItmGr114) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr114;
+		end;
+		if ii == 15 and nonblank(XMLbr.ItmGr115) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr115;
+		end;
+		if ii == 16 and nonblank(XMLbr.ItmGr116) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr116;
+		end;
+		if ii == 17 and nonblank(XMLbr.ItmGr117) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr117;
+		end;
+		if ii == 18 and nonblank(XMLbr.ItmGr118) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr118;
+		end;
+		if ii == 19 and nonblank(XMLbr.ItmGr119) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr119;
+		end;
+		if ii == 20 and nonblank(XMLbr.ItmGr120) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr120;
+		end;
+	end;
+	for (i=0;i<cnt2+1;i=i+1) begin
+	  WebOutStringFormatNL("<tr>");
+	  WebOutStringFormatNL("<td  style=""font-weight: bold ; color:red ; background-color:yellow"">" & grouplist[i] & "</td>");
+	  ITr.Code = grouplist[i];
+	  if ReadFirstMain(ITr,1,true) then begin end;
+	  WebOutStringFormatNL("<td  style=""color:red ; background-color:yellow"">" & ITr.Comment & "</td>");
+		WebOutStringFormatNL("</tr>");
+		//INr.Group = grouplist[i];
+		INr.Name = "a";
+		ResetLoop(INr);
+		testf = true;
+		while LoopKey("Name:" & grouplist[i],INr,1,testf) begin
+			if INr.Group != grouplist[i] then begin
+			  testf = false;
+			end;
+			testf2 = true;
+			if (SetInSet2(XMLbr.ItmClass,INr.DispGroups)==false) then begin
+				testf2 = false;
+			end;
+			if testf == true and testf2 == true then begin
+				WebOutStringFormatNL("<tr>");
+				WebOutStringFormatNL("<td style=""width:150px"">" & INr.Code & "</td>");
+				WebOutStringFormatNL("<td style=""width:300px"">" & INr.Name & "</td>");
+				locsum = 0;
+			  for (ii=0;ii<cnt+1;ii=ii+1) begin
+			  	ISr.Code = INr.Code;
+			  	ISr.Location = loclist[ii];
+			  	if ReadFirstMain(ISr,2,true) then begin
+			  		locsum = locsum + ISr.Instock;
+			  		if ISr.Instock > 0 then begin
+			        WebOutStringFormatNL("<td align=""center"" ; style=""width:100px"">" & ValToString(ISr.Instock,M4UVal,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</td>");
+			      end else begin
+			        WebOutStringFormatNL("<td align=""center"" ; style=""width:100px""> 0 </td>");
+			      end;
+			    end else begin
+			      WebOutStringFormatNL("<td align=""center"" ; style=""width:100px""> 0 </td>");
+			    end;
+			  end;
+			  if locsum > 0 then begin
+			    WebOutStringFormatNL("<td align=""center"" ; style=""width:100px;background-color: #A4A4A4;font-weight: bold"">" & ValToString(locsum,M4UVal,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</td>");
+			  end else begin
+			    WebOutStringFormatNL("<td align=""center"" ; style=""width:100px;background-color: #A4A4A4;font-weight: bold""> 0 </td>");
+			  end;
+			  WebOutStringFormatNL("</tr>");
+			end;
+		end;
+	end;
+  WebOutStringFormatNL("</table>");
+  WebOutStringFormatNL("</body>");
+  WebOutStringFormatNL("</html>");
+return;
+end;
+
+
+global webpublic
+procedure WebItemExportInclRes()
+begin
+	record ItemExportBlock XMLbr;
+  record INVc INr;
+  record ITVc ITr;
+  record ItemStatusVc ISr;
+  boolean testf,testf2;
+  string 255 tstr;
+  val storagecnt,locsum;
+  integer ii,i,cnt,cnt2;
+  record LocationVc Locr;
+  array string 20 loclist,grouplist;
+  record SysFormatBlock SysFormatRec;
+  record ResListVc ResListr;
+  row ResListVc ResListrw;
+  record ResListBrokVc ResListBr;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 10:26:23
+  row ResListBrokVc ResListBrw;
+  record ResListDemoVc ResListDr;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 10:26:23
+  row ResListDemoVc ResListDrw;
+  integer rwcnt,k;
+  val restot;
+  
+  SetLangMode(LangLithuanian,"LIT",0);
+  
+  BlockLoad(XMLbr);
+  BlockLoad(SysFormatRec);
+  WebSetContentType("text/html");
+  WebOutStringFormatNL("<!DOCTYPE html>");
+  WebOutStringFormatNL("<html>");
+  WebOutStringFormatNL("<head>");
+  WebOutStringFormatNL("<meta charset=""UTF-8"">");
+  WebOutStringFormatNL("<style>");
+  //WebOutStringFormatNL("table {width:100%;}");
+  WebOutStringFormatNL("table, th, td {border: 1px solid black;border-collapse: collapse;}");
+  WebOutStringFormatNL("table tr:nth-child(even) {background-color: #eee;}");
+  WebOutStringFormatNL("table tr:nth-child(odd) {background-color:#fff;}");
+  WebOutStringFormatNL("table th {background-color: black;color: white;}");
+  WebOutStringFormatNL("</style>");
+  WebOutStringFormatNL("</head>");
+  WebOutStringFormatNL("<body>");
+  WebOutStringFormatNL("<table>");
+  WebOutStringFormatNL("<tr>");
+	WebOutStringFormatNL("<th>Prek˜s kodas</th>");
+	WebOutStringFormatNL("<th>Prek˜s pavadinimas</th>");
+	for (i=1;i<11;i=i+1) begin
+		if i == 1 and nonblank(XMLbr.Loc1) then begin
+			Locr.Code = XMLbr.Loc1;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 0;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 2 and nonblank(XMLbr.Loc2) then begin
+			Locr.Code = XMLbr.Loc2;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 1;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 3 and nonblank(XMLbr.Loc3) then begin
+			Locr.Code = XMLbr.Loc3;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 2;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 4 and nonblank(XMLbr.Loc4) then begin
+			Locr.Code = XMLbr.Loc4;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 3;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 5 and nonblank(XMLbr.Loc5) then begin
+			Locr.Code = XMLbr.Loc5;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 4;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 6 and nonblank(XMLbr.Loc6) then begin
+			Locr.Code = XMLbr.Loc6;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 5;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 7 and nonblank(XMLbr.Loc7) then begin
+			Locr.Code = XMLbr.Loc7;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 6;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 8 and nonblank(XMLbr.Loc8) then begin
+			Locr.Code = XMLbr.Loc8;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 7;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 9 and nonblank(XMLbr.Loc9) then begin
+			Locr.Code = XMLbr.Loc9;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 8;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 10 and nonblank(XMLbr.Loc10) then begin
+			Locr.Code = XMLbr.Loc10;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 9;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+	end;
+	WebOutStringFormatNL("<th>VISO</th>");
+	WebOutStringFormatNL("</tr>");
+	
+	for (ii=1;ii<21;ii=ii+1) begin
+		if ii == 1 and nonblank(XMLbr.ItmGr11) then begin
+			cnt2 = 0;
+			grouplist[cnt2] = XMLbr.ItmGr11;
+		end;
+		if ii == 2 and nonblank(XMLbr.ItmGr12) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr12;
+		end;
+		if ii == 3 and nonblank(XMLbr.ItmGr13) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr13;
+		end;
+		if ii == 4 and nonblank(XMLbr.ItmGr14) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr14;
+		end;
+		if ii == 5 and nonblank(XMLbr.ItmGr15) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr15;
+		end;
+		if ii == 6 and nonblank(XMLbr.ItmGr16) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr16;
+		end;
+		if ii == 7 and nonblank(XMLbr.ItmGr17) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr17;
+		end;
+		if ii == 8 and nonblank(XMLbr.ItmGr18) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr18;
+		end;
+		if ii == 9 and nonblank(XMLbr.ItmGr19) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr19;
+		end;
+		if ii == 10 and nonblank(XMLbr.ItmGr110) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr110;
+		end;
+		if ii == 11 and nonblank(XMLbr.ItmGr111) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr111;
+		end;
+		if ii == 22 and nonblank(XMLbr.ItmGr112) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr112;
+		end;
+		if ii == 13 and nonblank(XMLbr.ItmGr113) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr113;
+		end;
+		if ii == 14 and nonblank(XMLbr.ItmGr114) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr114;
+		end;
+		if ii == 15 and nonblank(XMLbr.ItmGr115) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr115;
+		end;
+		if ii == 16 and nonblank(XMLbr.ItmGr116) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr116;
+		end;
+		if ii == 17 and nonblank(XMLbr.ItmGr117) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr117;
+		end;
+		if ii == 18 and nonblank(XMLbr.ItmGr118) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr118;
+		end;
+		if ii == 19 and nonblank(XMLbr.ItmGr119) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr119;
+		end;
+		if ii == 20 and nonblank(XMLbr.ItmGr120) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr120;
+		end;
+	end;
+	for (i=0;i<cnt2+1;i=i+1) begin
+	  WebOutStringFormatNL("<tr>");
+	  WebOutStringFormatNL("<td  style=""font-weight: bold ; color:red ; background-color:yellow"">" & grouplist[i] & "</td>");
+	  ITr.Code = grouplist[i];
+	  if ReadFirstMain(ITr,1,true) then begin end;
+	  WebOutStringFormatNL("<td  style=""color:red ; background-color:yellow"">" & ITr.Comment & "</td>");
+		WebOutStringFormatNL("</tr>");
+		//INr.Group = grouplist[i];
+		INr.Name = "a";
+		ResetLoop(INr);
+		testf = true;
+		while LoopKey("Name:" & grouplist[i],INr,1,testf) begin
+			if INr.Group != grouplist[i] then begin
+			  testf = false;
+			end;
+			testf2 = true;
+			if (SetInSet2(XMLbr.ItmClass,INr.DispGroups)==false) then begin
+				testf2 = false;
+			end;
+			if testf == true and testf2 == true then begin
+				WebOutStringFormatNL("<tr>");
+				WebOutStringFormatNL("<td style=""width:150px"">" & INr.Code & "</td>");
+				WebOutStringFormatNL("<td style=""width:300px"">" & INr.Name & "</td>");
+				locsum = 0;
+			  for (ii=0;ii<cnt+1;ii=ii+1) begin
+			  	ISr.Code = INr.Code;
+			  	ISr.Location = loclist[ii];
+			  	if ReadFirstMain(ISr,2,true) then begin
+			  		locsum = locsum + ISr.Instock;
+			  		resetloop(ResListr);
+			  		ResListr.Loc = ISr.Location;
+			  		restot = 0;
+			  		if ReadFirstMain(ResListr,1,true) then begin
+			  		  rwcnt = MatRowcnt(ResListr);
+			  		  for (k=0;k<rwcnt;k=k+1) begin
+			  		    MatRowGet(ResListr,k,ResListrw);
+			  		    if ResListrw.ArtCode == ISr.Code then begin
+			  		      restot = restot + ResListrw.Qty;
+			  		    end;
+			  		  end;
+			  		end;
+			  		// Edit Start ---------------------------------------------- Edit Start
+	//Thursday, 12 April 2018 10:28:13
+	
+			  		resetloop(ResListBr);
+			  		ResListBr.Loc = ISr.Location;
+			  		if ReadFirstMain(ResListBr,1,true) then begin
+			  		  rwcnt = MatRowcnt(ResListBr);
+			  		  for (k=0;k<rwcnt;k=k+1) begin
+			  		    MatRowGet(ResListBr,k,ResListBrw);
+			  		    if ResListBrw.ArtCode == ISr.Code then begin
+			  		      restot = restot + ResListBrw.Qty;
+			  		    end;
+			  		  end;
+			  		end;
+			  		resetloop(ResListDr);
+			  		ResListDr.Loc = ISr.Location;
+			  		if ReadFirstMain(ResListDr,1,true) then begin
+			  		  rwcnt = MatRowcnt(ResListDr);
+			  		  for (k=0;k<rwcnt;k=k+1) begin
+			  		    MatRowGet(ResListDr,k,ResListDrw);
+			  		    if ResListDrw.ArtCode == ISr.Code then begin
+			  		      restot = restot + ResListDrw.Qty;
+			  		    end;
+			  		  end;
+			  		end;
+			  					  		
+	// Edit End ---------------------------------------------- Edit End
+	
+			  		locsum = locsum - restot;
+			  		if ISr.Instock > 0 then begin
+			        WebOutStringFormatNL("<td align=""center"" ; style=""width:100px"">" & ValToString(ISr.Instock-restot,M4UVal,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</td>");
+			      end else begin
+			        WebOutStringFormatNL("<td align=""center"" ; style=""width:100px""> 0 </td>");
+			      end;
+			    end else begin
+			      WebOutStringFormatNL("<td align=""center"" ; style=""width:100px""> 0 </td>");
+			    end;
+			  end;
+			  if locsum > 0 then begin
+			    WebOutStringFormatNL("<td align=""center"" ; style=""width:100px;background-color: #A4A4A4;font-weight: bold"">" & ValToString(locsum,M4UVal,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</td>");
+			  end else begin
+			    WebOutStringFormatNL("<td align=""center"" ; style=""width:100px;background-color: #A4A4A4;font-weight: bold""> 0 </td>");
+			  end;
+			  WebOutStringFormatNL("</tr>");
+			end;
+		end;
+	end;
+  WebOutStringFormatNL("</table>");
+  WebOutStringFormatNL("</body>");
+  WebOutStringFormatNL("</html>");
+return;
+end;
+
+global webpublic
+procedure WebItemExportRes()
+begin
+	record ItemExportBlock XMLbr;
+  record INVc INr;
+  record ITVc ITr;
+  record ItemStatusVc ISr;
+  boolean testf,testf2;
+  string 255 tstr;
+  val storagecnt,locsum;
+  integer ii,i,cnt,cnt2;
+  record LocationVc Locr;
+  array string 20 loclist,grouplist;
+  record SysFormatBlock SysFormatRec;
+  record ResListVc ResListr;
+  row ResListVc ResListrw;
+  record ResListBrokVc ResListBr;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 10:28:54
+  row ResListBrokVc ResListBrw;
+  record ResListDemoVc ResListDr;// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 12 April 2018 10:28:54
+  row ResListDemoVc ResListDrw;
+  integer rwcnt,k;
+  val restot;
+  
+  SetLangMode(LangLithuanian,"LIT",0);
+  
+  BlockLoad(XMLbr);
+  BlockLoad(SysFormatRec);
+  WebSetContentType("text/html");
+  WebOutStringFormatNL("<!DOCTYPE html>");
+  WebOutStringFormatNL("<html>");
+  WebOutStringFormatNL("<head>");
+  WebOutStringFormatNL("<meta charset=""UTF-8"">");
+  WebOutStringFormatNL("<style>");
+  //WebOutStringFormatNL("table {width:100%;}");
+  WebOutStringFormatNL("table, th, td {border: 1px solid black;border-collapse: collapse;}");
+  WebOutStringFormatNL("table tr:nth-child(even) {background-color: #eee;}");
+  WebOutStringFormatNL("table tr:nth-child(odd) {background-color:#fff;}");
+  WebOutStringFormatNL("table th {background-color: black;color: white;}");
+  WebOutStringFormatNL("</style>");
+  WebOutStringFormatNL("</head>");
+  WebOutStringFormatNL("<body>");
+  WebOutStringFormatNL("<table>");
+  WebOutStringFormatNL("<tr>");
+	WebOutStringFormatNL("<th>Prek˜s kodas</th>");
+	WebOutStringFormatNL("<th>Prek˜s pavadinimas</th>");
+	for (i=1;i<11;i=i+1) begin
+		if i == 1 and nonblank(XMLbr.Loc1) then begin
+			Locr.Code = XMLbr.Loc1;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 0;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 2 and nonblank(XMLbr.Loc2) then begin
+			Locr.Code = XMLbr.Loc2;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 1;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 3 and nonblank(XMLbr.Loc3) then begin
+			Locr.Code = XMLbr.Loc3;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 2;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 4 and nonblank(XMLbr.Loc4) then begin
+			Locr.Code = XMLbr.Loc4;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 3;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 5 and nonblank(XMLbr.Loc5) then begin
+			Locr.Code = XMLbr.Loc5;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 4;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 6 and nonblank(XMLbr.Loc6) then begin
+			Locr.Code = XMLbr.Loc6;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 5;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 7 and nonblank(XMLbr.Loc7) then begin
+			Locr.Code = XMLbr.Loc7;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 6;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 8 and nonblank(XMLbr.Loc8) then begin
+			Locr.Code = XMLbr.Loc8;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 7;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 9 and nonblank(XMLbr.Loc9) then begin
+			Locr.Code = XMLbr.Loc9;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 8;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 10 and nonblank(XMLbr.Loc10) then begin
+			Locr.Code = XMLbr.Loc10;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 9;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+	end;
+	WebOutStringFormatNL("<th>VISO</th>");
+	WebOutStringFormatNL("</tr>");
+	
+	for (ii=1;ii<21;ii=ii+1) begin
+		if ii == 1 and nonblank(XMLbr.ItmGr11) then begin
+			cnt2 = 0;
+			grouplist[cnt2] = XMLbr.ItmGr11;
+		end;
+		if ii == 2 and nonblank(XMLbr.ItmGr12) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr12;
+		end;
+		if ii == 3 and nonblank(XMLbr.ItmGr13) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr13;
+		end;
+		if ii == 4 and nonblank(XMLbr.ItmGr14) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr14;
+		end;
+		if ii == 5 and nonblank(XMLbr.ItmGr15) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr15;
+		end;
+		if ii == 6 and nonblank(XMLbr.ItmGr16) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr16;
+		end;
+		if ii == 7 and nonblank(XMLbr.ItmGr17) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr17;
+		end;
+		if ii == 8 and nonblank(XMLbr.ItmGr18) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr18;
+		end;
+		if ii == 9 and nonblank(XMLbr.ItmGr19) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr19;
+		end;
+		if ii == 10 and nonblank(XMLbr.ItmGr110) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr110;
+		end;
+		if ii == 11 and nonblank(XMLbr.ItmGr111) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr111;
+		end;
+		if ii == 22 and nonblank(XMLbr.ItmGr112) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr112;
+		end;
+		if ii == 13 and nonblank(XMLbr.ItmGr113) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr113;
+		end;
+		if ii == 14 and nonblank(XMLbr.ItmGr114) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr114;
+		end;
+		if ii == 15 and nonblank(XMLbr.ItmGr115) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr115;
+		end;
+		if ii == 16 and nonblank(XMLbr.ItmGr116) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr116;
+		end;
+		if ii == 17 and nonblank(XMLbr.ItmGr117) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr117;
+		end;
+		if ii == 18 and nonblank(XMLbr.ItmGr118) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr118;
+		end;
+		if ii == 19 and nonblank(XMLbr.ItmGr119) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr119;
+		end;
+		if ii == 20 and nonblank(XMLbr.ItmGr120) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr120;
+		end;
+	end;
+	for (i=0;i<cnt2+1;i=i+1) begin
+	  WebOutStringFormatNL("<tr>");
+	  WebOutStringFormatNL("<td  style=""font-weight: bold ; color:red ; background-color:yellow"">" & grouplist[i] & "</td>");
+	  ITr.Code = grouplist[i];
+	  if ReadFirstMain(ITr,1,true) then begin end;
+	  WebOutStringFormatNL("<td  style=""color:red ; background-color:yellow"">" & ITr.Comment & "</td>");
+		WebOutStringFormatNL("</tr>");
+		//INr.Group = grouplist[i];
+		INr.Name = "a";
+		ResetLoop(INr);
+		testf = true;
+		while LoopKey("Name:" & grouplist[i],INr,1,testf) begin
+			if INr.Group != grouplist[i] then begin
+			  testf = false;
+			end;
+			testf2 = true;
+			if (SetInSet2(XMLbr.ItmClass,INr.DispGroups)==false) then begin
+				testf2 = false;
+			end;
+			if testf == true and testf2 == true then begin
+				WebOutStringFormatNL("<tr>");
+				WebOutStringFormatNL("<td style=""width:150px"">" & INr.Code & "</td>");
+				WebOutStringFormatNL("<td style=""width:300px"">" & INr.Name & "</td>");
+				locsum = 0;
+			  for (ii=0;ii<cnt+1;ii=ii+1) begin
+			  	ISr.Code = INr.Code;
+			  	ISr.Location = loclist[ii];
+			  	if ReadFirstMain(ISr,2,true) then begin
+			  		//locsum = locsum + ISr.Instock;
+			  		resetloop(ResListr);
+			  		ResListr.Loc = ISr.Location;
+			  		restot = 0;
+			  		if ReadFirstMain(ResListr,1,true) then begin
+			  		  rwcnt = MatRowcnt(ResListr);
+			  		  for (k=0;k<rwcnt;k=k+1) begin
+			  		    MatRowGet(ResListr,k,ResListrw);
+			  		    if ResListrw.ArtCode == ISr.Code then begin
+			  		      restot = restot + ResListrw.Qty;
+			  		    end;
+			  		  end;
+			  		end;
+			  		// Edit Start ---------------------------------------------- Edit Start
+	//Thursday, 12 April 2018 10:30:01
+	
+			  		resetloop(ResListBr);
+			  		ResListBr.Loc = ISr.Location;
+			  		if ReadFirstMain(ResListBr,1,true) then begin
+			  		  rwcnt = MatRowcnt(ResListBr);
+			  		  for (k=0;k<rwcnt;k=k+1) begin
+			  		    MatRowGet(ResListBr,k,ResListBrw);
+			  		    if ResListBrw.ArtCode == ISr.Code then begin
+			  		      restot = restot + ResListBrw.Qty;
+			  		    end;
+			  		  end;
+			  		end;
+			  		resetloop(ResListDr);
+			  		ResListDr.Loc = ISr.Location;
+			  		if ReadFirstMain(ResListDr,1,true) then begin
+			  		  rwcnt = MatRowcnt(ResListDr);
+			  		  for (k=0;k<rwcnt;k=k+1) begin
+			  		    MatRowGet(ResListDr,k,ResListDrw);
+			  		    if ResListDrw.ArtCode == ISr.Code then begin
+			  		      restot = restot + ResListDrw.Qty;
+			  		    end;
+			  		  end;
+			  		end;
+			  		
+	// Edit End ---------------------------------------------- Edit End
+	
+			  		locsum = locsum + restot;
+			  		if restot > 0 then begin
+			        WebOutStringFormatNL("<td align=""center"" ; style=""width:100px"">" & ValToString(restot,M4UVal,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</td>");
+			      end else begin
+			        WebOutStringFormatNL("<td align=""center"" ; style=""width:100px""> 0 </td>");
+			      end;
+			    end else begin
+			      WebOutStringFormatNL("<td align=""center"" ; style=""width:100px""> 0 </td>");
+			    end;
+			  end;
+			  if locsum > 0 then begin
+			    WebOutStringFormatNL("<td align=""center"" ; style=""width:100px;background-color: #A4A4A4;font-weight: bold"">" & ValToString(locsum,M4UVal,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</td>");
+			  end else begin
+			    WebOutStringFormatNL("<td align=""center"" ; style=""width:100px;background-color: #A4A4A4;font-weight: bold""> 0 </td>");
+			  end;
+			  WebOutStringFormatNL("</tr>");
+			end;
+		end;
+	end;
+  WebOutStringFormatNL("</table>");
+  WebOutStringFormatNL("</body>");
+  WebOutStringFormatNL("</html>");
+return;
+end;
+
+
+global webpublic
+procedure WebItemExport2()
+begin
+	record ItemExportBlock XMLbr;
+  record INVc INr;
+  record ITVc ITr;
+  record ItemStatusVc ISr;
+  boolean testf,testf2;
+  string 255 tstr;
+  val storagecnt,locsum;
+  integer ii,i,cnt,cnt2;
+  record LocationVc Locr;
+  array string 20 loclist,grouplist;
+  record SysFormatBlock SysFormatRec;
+  
+  SetLangMode(LangLithuanian,"LIT",0);
+  
+  BlockLoad(XMLbr);
+  BlockLoad(SysFormatRec);
+  WebSetContentType("text/html");
+  WebOutStringFormatNL("<!DOCTYPE html>");
+  WebOutStringFormatNL("<html>");
+  WebOutStringFormatNL("<head>");
+  WebOutStringFormatNL("<meta charset=""UTF-8"">");
+  WebOutStringFormatNL("<style>");
+  //WebOutStringFormatNL("table {width:100%;}");
+  WebOutStringFormatNL("table, th, td {border: 1px solid black;border-collapse: collapse;}");
+  WebOutStringFormatNL("table tr:nth-child(even) {background-color: #eee;}");
+  WebOutStringFormatNL("table tr:nth-child(odd) {background-color:#fff;}");
+  WebOutStringFormatNL("table th {background-color: black;color: white;}");
+  WebOutStringFormatNL("</style>");
+  WebOutStringFormatNL("</head>");
+  WebOutStringFormatNL("<body>");
+  WebOutStringFormatNL("<table>");
+  WebOutStringFormatNL("<tr>");
+	WebOutStringFormatNL("<th>Prek˜s kodas</th>");
+	WebOutStringFormatNL("<th>Prek˜s pavadinimas</th>");
+	for (i=1;i<11;i=i+1) begin
+		if i == 1 and nonblank(XMLbr.Loc1) then begin
+			Locr.Code = XMLbr.Loc1;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 0;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 2 and nonblank(XMLbr.Loc2) then begin
+			Locr.Code = XMLbr.Loc2;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 1;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 3 and nonblank(XMLbr.Loc3) then begin
+			Locr.Code = XMLbr.Loc3;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 2;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 4 and nonblank(XMLbr.Loc4) then begin
+			Locr.Code = XMLbr.Loc4;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 3;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 5 and nonblank(XMLbr.Loc5) then begin
+			Locr.Code = XMLbr.Loc5;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 4;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 6 and nonblank(XMLbr.Loc6) then begin
+			Locr.Code = XMLbr.Loc6;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 5;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 7 and nonblank(XMLbr.Loc7) then begin
+			Locr.Code = XMLbr.Loc7;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 6;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 8 and nonblank(XMLbr.Loc8) then begin
+			Locr.Code = XMLbr.Loc8;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 7;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 9 and nonblank(XMLbr.Loc9) then begin
+			Locr.Code = XMLbr.Loc9;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 8;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+		if i == 10 and nonblank(XMLbr.Loc10) then begin
+			Locr.Code = XMLbr.Loc10;
+			if ReadFirstMain(Locr,1,true) then begin
+				WebOutStringFormatNL("<th>"& Locr.Name &"</th>");
+				cnt = 9;
+				loclist[cnt] = Locr.Code;
+			end;
+		end;
+	end;
+	WebOutStringFormatNL("<th>VISO</th>");
+	WebOutStringFormatNL("</tr>");
+	
+	for (ii=1;ii<21;ii=ii+1) begin
+		if ii == 1 and nonblank(XMLbr.ItmGr21) then begin
+			cnt2 = 0;
+			grouplist[cnt2] = XMLbr.ItmGr21;
+		end;
+		if ii == 2 and nonblank(XMLbr.ItmGr22) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr22;
+		end;
+		if ii == 3 and nonblank(XMLbr.ItmGr23) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr23;
+		end;
+		if ii == 4 and nonblank(XMLbr.ItmGr24) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr24;
+		end;
+		if ii == 5 and nonblank(XMLbr.ItmGr25) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr25;
+		end;
+		if ii == 6 and nonblank(XMLbr.ItmGr26) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr26;
+		end;
+		if ii == 7 and nonblank(XMLbr.ItmGr27) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr27;
+		end;
+		if ii == 8 and nonblank(XMLbr.ItmGr28) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr28;
+		end;
+		if ii == 9 and nonblank(XMLbr.ItmGr29) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr29;
+		end;
+		if ii == 10 and nonblank(XMLbr.ItmGr210) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr210;
+		end;
+		if ii == 11 and nonblank(XMLbr.ItmGr211) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr211;
+		end;
+		if ii == 12 and nonblank(XMLbr.ItmGr212) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr212;
+		end;
+		if ii == 13 and nonblank(XMLbr.ItmGr213) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr213;
+		end;
+		if ii == 14 and nonblank(XMLbr.ItmGr214) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr214;
+		end;
+		if ii == 15 and nonblank(XMLbr.ItmGr215) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr215;
+		end;
+		if ii == 16 and nonblank(XMLbr.ItmGr216) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr216;
+		end;
+		if ii == 17 and nonblank(XMLbr.ItmGr217) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr217;
+		end;
+		if ii == 18 and nonblank(XMLbr.ItmGr218) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr218;
+		end;
+		if ii == 19 and nonblank(XMLbr.ItmGr219) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr219;
+		end;
+		if ii == 20 and nonblank(XMLbr.ItmGr220) then begin
+			cnt2 = cnt2 + 1;
+			grouplist[cnt2] = XMLbr.ItmGr220;
+		end;
+	end;
+	for (i=0;i<cnt2+1;i=i+1) begin
+	  WebOutStringFormatNL("<tr>");
+	  WebOutStringFormatNL("<td  style=""font-weight: bold ; color:red ; background-color:yellow"">" & grouplist[i] & "</td>");
+	  ITr.Code = grouplist[i];
+	  if ReadFirstMain(ITr,1,true) then begin end;
+	  WebOutStringFormatNL("<td  style=""color:red ; background-color:yellow"">" & ITr.Comment & "</td>");
+		WebOutStringFormatNL("</tr>");
+		//INr.Group = grouplist[i];
+		INr.Name = "a";
+		ResetLoop(INr);
+		testf = true;
+		while LoopKey("Name:" & grouplist[i],INr,1,testf) begin
+			if INr.Group != grouplist[i] then begin
+			  testf = false;
+			end;
+			testf2 = true;
+			if (SetInSet2(XMLbr.ItmClass,INr.DispGroups)==false) then begin
+				testf2 = false;
+			end;
+			if testf == true and testf2 == true then begin
+				WebOutStringFormatNL("<tr>");
+				WebOutStringFormatNL("<td style=""width:150px"">" & INr.Code & "</td>");
+				WebOutStringFormatNL("<td style=""width:300px"">" & INr.Name & "</td>");
+				locsum = blankval;
+			  for (ii=0;ii<cnt+1;ii=ii+1) begin
+			  	ISr.Code = INr.Code;
+			  	ISr.Location = loclist[ii];
+			  	if ReadFirstMain(ISr,2,true) then begin
+			  		locsum = locsum + ISr.Instock;
+			  		if ISr.Instock > 0 then begin
+			        WebOutStringFormatNL("<td align=""center"" ; style=""width:100px"">" & ValToString(ISr.Instock,M4UVal,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</td>");
+			      end else begin
+			        WebOutStringFormatNL("<td align=""center"" ; style=""width:100px""> 0 </td>");
+			      end;
+			    end else begin
+			      WebOutStringFormatNL("<td align=""center"" ; style=""width:100px""> 0 </td>");
+			    end;
+			  end;
+			  if locsum > 0 then begin
+			    WebOutStringFormatNL("<td align=""center"" ; style=""width:100px;background-color: #A4A4A4;font-weight: bold"">" & ValToString(locsum,M4UVal,SysFormatRec.thousSep,SysFormatRec.decimalPt,0) & "</td>");
+			  end else begin
+			    WebOutStringFormatNL("<td align=""center"" ; style=""width:100px;background-color: #A4A4A4;font-weight: bold""> 0 </td>");
+			  end;
+			  WebOutStringFormatNL("</tr>");
+			end;
+		end;
+	end;
+  WebOutStringFormatNL("</table>");
+  WebOutStringFormatNL("</body>");
+  WebOutStringFormatNL("</html>");
+return;
+end;

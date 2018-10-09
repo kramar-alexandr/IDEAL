@@ -1,0 +1,720 @@
+//c82161029
+external inner procedure NewLineExport();
+external inner function val MulRateToBase1(var string,val,val,val,val,val,val,roundmode);
+external inner function val FindVAT(string, val, integer,integer);
+
+function string 255 LitVATRegFixSpecChars(string str)
+begin
+  string 255 res;
+  string 1 char;
+  string 10 new_char;
+  Integer i, n;
+
+  n = len(str);
+  for (i = 0; i < n; i = i + 1) begin
+    char = Mid(str, i, 1);
+    switch (char) begin
+      case "&": new_char = "&amp;";
+      case "<": new_char = "&lt;";
+      case ">": new_char = "&gt;";
+      case """": new_char = "&quot;";
+      case "”": new_char = "&#8221;";
+      case "'": new_char = "&apos;";
+      otherwise new_char = char;
+    end;
+    res = res & new_char;
+  end;
+  LitVATRegFixSpecChars = res;
+  return;
+end;
+
+procedure ExportFormHeader(Integer num_pages)
+begin
+  string 255 tstr;
+
+  tstr = "<?xml version=""1.0"" encoding=""UTF-8""?>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<FFData Version=""1"" CreatedOn=""" & DateToString(CurrentDate, "YYYY-MM-DD") & """>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<Form FormDefId=""{46AF970D-E1CD-46F3-B776-846DF86AFCB7}"" FormLocation=""c:\\"">";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<DocumentPages>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<Group Name=""Visa forma"">";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<ListPages>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<ListPage>FR0672</ListPage>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "</ListPages>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<Group Name=""Priedas_FR0672P"">";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<ListPages>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<ListPage>FR0672P</ListPage>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "</ListPages>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "</Group>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "</Group>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "</DocumentPages>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "<Pages Count=""" & num_pages & """>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  return;
+end;
+
+procedure ExportFiels(string fieldname,string value)
+begin
+  string 255 tstr;
+
+  tstr = "<Field Name=""" & fieldname & """>" & value & "</Field>";
+  ExportPadString(tstr, BytesinString(tstr), "", false);
+  NewLineExport;
+  return;
+end;
+
+procedure ExportFirstPage(record RcVc RepSpec,record CYBlock CYb,Integer num_pages,val p10tot,val p11tot,val p16tot)
+begin
+  string 255 tstr;
+
+  tstr = "<Page PageDefName=""FR0672"" PageNumber=""1"">";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;  
+  tstr = "<Fields Count=""13"">";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+
+  ExportFiels("B_FormNr","");
+  ExportFiels("B_FormVerNr","");
+  ExportFiels("E1","LT");
+  ExportFiels("B_MM_PVM",StripNonDigits(CYb.VATNr));
+  ExportFiels("B_MM_Pavad",LitVATRegFixSpecChars(CYb.CompName));//  ExportFiels("B_MM_Pavad",UrlEncode(CYb.CompName));
+  ExportFiels("B_UzpildData",DateToString(CurrentDate, "YYYY-MM-DD"));
+  ExportFiels("B_ML_Nuo",DateToString(RepSpec.sStartDate, "YYYY-MM-DD"));
+  ExportFiels("B_ML_Iki",DateToString(RepSpec.sEndDate, "YYYY-MM-DD"));
+  ExportFiels("E14",num_pages-1);
+  ExportFiels("E21",ValToString(p10tot, M4Val, "", ",", 0));
+  ExportFiels("E22",ValToString(p11tot, M4Val, "", ",", 0));
+  ExportFiels("E23",ValToString(p16tot, M4Val, "", ",", 0));
+  ExportFiels("E6","1");
+
+  tstr = "</Fields>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "</Page>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  return;
+end;
+
+procedure ExportPageFR0672P_Footer(val p10tot,val p11tot,val p16tot)
+begin
+  string 255 tstr;
+  ExportFiels("P18",ValToString(p10tot, M4Val, "", ",", 0));
+  ExportFiels("P19",ValToString(p11tot, M4Val, "", ",", 0));
+  ExportFiels("P20",ValToString(p16tot, M4Val, "", ",", 0));
+  ExportFiels("E6","1");
+
+  tstr = "</Fields>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  tstr = "</Page>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  return;
+end;
+
+procedure ExportPageFR0672P_1(record RcVc RepSpec,record IVVc IVr,record CUVc CUr,string ivno,val subtotal,val vat)
+begin
+  string 255 tstr;
+
+  ExportFiels("P7-1",ivno);
+  switch (RepSpec.flags[1]) begin
+    case 0: tstr = DateToString(IVr.InvDate, "YYYY-MM-DD");
+    case 1: tstr = DateToString(IVr.TransDate, "YYYY-MM-DD");
+  end;  
+  ExportFiels("P8-1",tstr);  
+  if (nonblank(RepSpec.f4)) then begin
+    if (IVr.SerNr>0) then begin
+      tstr = RepSpec.f4 & IVr.SerNr;
+    end else begin
+      tstr = "";
+    end;
+  end else begin
+    tstr = IVr.OfficialSerNr;
+  end;
+  ExportFiels("P9-1",tstr);
+  ExportFiels("P10-1",ValToString(subtotal, M4Val, "", ",", 0));
+  ExportFiels("P11-1",ValToString(vat, M4Val, "", ",", 0));
+  ExportFiels("P16-1","");
+  ExportFiels("P17-1","0");
+
+  if (RepSpec.flags[8] == 0) then begin
+    tstr = CUr.VATNr;
+    if (blank(tstr)) then begin
+      tstr = CUr.RegNr1;
+    end;
+  end else begin
+    tstr = CUr.RegNr1;
+  end;
+  ExportFiels("P12-1",tstr);
+  ExportFiels("P13-1",LitVATRegFixSpecChars(Left(IVr.Addr0,32)));
+  return;
+end;
+
+procedure ExportPageFR0672P_2(record RcVc RepSpec,record IVVc IVr,record CUVc CUr,string ivno,val subtotal,val vat)
+begin
+  string 255 tstr;
+
+  ExportFiels("P7-2",ivno);
+  switch (RepSpec.flags[1]) begin
+    case 0: tstr = DateToString(IVr.InvDate, "YYYY-MM-DD");
+    case 1: tstr = DateToString(IVr.TransDate, "YYYY-MM-DD");
+  end;  
+  ExportFiels("P8-2",tstr);  
+  if (nonblank(RepSpec.f4)) then begin
+    if (IVr.SerNr>0) then begin
+      tstr = RepSpec.f4 & IVr.SerNr;
+    end else begin
+      tstr = "";
+    end;
+  end else begin
+    tstr = IVr.OfficialSerNr;
+  end;
+  ExportFiels("P9-2",tstr);
+  ExportFiels("P10-2",ValToString(subtotal, M4Val, "", ",", 0));
+  ExportFiels("P11-2",ValToString(vat, M4Val, "", ",", 0));
+  ExportFiels("P16-2","");
+  ExportFiels("P17-2","0");
+  if (RepSpec.flags[8] == 0) then begin
+    tstr = CUr.VATNr;
+    if (blank(tstr)) then begin
+      tstr = CUr.RegNr1;
+    end;
+  end else begin
+    tstr = CUr.RegNr1;
+  end;
+  ExportFiels("P12-2",tstr);
+  ExportFiels("P13-2",LitVATRegFixSpecChars(Left(IVr.Addr0,32)));
+  return;
+end;
+
+procedure ExportPageFR0672P_3(record RcVc RepSpec,record IVVc IVr,record CUVc CUr,string ivno,val subtotal,val vat)
+begin
+  string 255 tstr;
+
+  ExportFiels("P7-3",ivno);
+
+  switch (RepSpec.flags[1]) begin
+    case 0: tstr = DateToString(IVr.InvDate, "YYYY-MM-DD");
+    case 1: tstr = DateToString(IVr.TransDate, "YYYY-MM-DD");
+  end;  
+  ExportFiels("P8-3",tstr);  
+  if (nonblank(RepSpec.f4)) then begin
+    if (IVr.SerNr>0) then begin
+      tstr = RepSpec.f4 & IVr.SerNr;
+    end else begin
+      tstr = "";
+    end;
+  end else begin
+    tstr = IVr.OfficialSerNr;
+  end;
+  ExportFiels("P9-3",tstr);
+  ExportFiels("P10-3",ValToString(subtotal, M4Val, "", ",", 0));
+  ExportFiels("P11-3",ValToString(vat, M4Val, "", ",", 0));
+  ExportFiels("P16-3","");
+  ExportFiels("P17-3","0");
+  if (RepSpec.flags[8] == 0) then begin
+    tstr = CUr.VATNr;
+    if (blank(tstr)) then begin
+      tstr = CUr.RegNr1;
+    end;
+  end else begin
+    tstr = CUr.RegNr1;
+  end;
+  ExportFiels("P12-3",tstr);
+  ExportFiels("P13-3",LitVATRegFixSpecChars(Left(IVr.Addr0,32)));
+  return;
+end;
+
+procedure ExportPageFR0672P_4(record RcVc RepSpec,record IVVc IVr,record CUVc CUr,string ivno,val subtotal,val vat)
+begin
+  string 255 tstr;
+
+  ExportFiels("P7-4",ivno);
+
+  switch (RepSpec.flags[1]) begin
+    case 0: tstr = DateToString(IVr.InvDate, "YYYY-MM-DD");
+    case 1: tstr = DateToString(IVr.TransDate, "YYYY-MM-DD");
+  end;  
+  ExportFiels("P8-4",tstr);  
+  if (nonblank(RepSpec.f4)) then begin
+    if (IVr.SerNr>0) then begin
+      tstr = RepSpec.f4 & IVr.SerNr;
+    end else begin
+      tstr = "";
+    end;
+  end else begin
+    tstr = IVr.OfficialSerNr;
+  end;
+  ExportFiels("P9-4",tstr);
+  ExportFiels("P10-4",ValToString(subtotal, M4Val, "", ",", 0));
+  ExportFiels("P11-4",ValToString(vat, M4Val, "", ",", 0));
+  ExportFiels("P16-4","");
+  ExportFiels("P17-4","0");
+  if (RepSpec.flags[8] == 0) then begin
+    tstr = CUr.VATNr;
+    if (blank(tstr)) then begin
+      tstr = CUr.RegNr1;
+    end;
+  end else begin
+    tstr = CUr.RegNr1;
+  end;
+  ExportFiels("P12-4",tstr);
+  ExportFiels("P13-4",LitVATRegFixSpecChars(Left(IVr.Addr0,32)));
+  return;
+end;
+
+
+procedure ExportPageFR0672P_Header(record RcVc RepSpec,record CYBlock CYb,Integer pageno,Integer FR0672Ppageno)
+begin
+  string 255 tstr;
+  
+  tstr = "<Page PageDefName=""FR0672P"" PageNumber=""" & pageno & """>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;  
+  tstr = "<Fields Count=""48"">";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+
+  ExportFiels("B_FormNr","");
+  ExportFiels("B_FormVerNr","");
+  ExportFiels("E1","LT");
+  ExportFiels("B_MM_PVM",StripNonDigits(CYb.VATNr));
+  ExportFiels("LapoNr",FR0672Ppageno);
+  ExportFiels("B_UzpildData",DateToString(CurrentDate, "YYYY-MM-DD"));
+  ExportFiels("B_ML_Nuo",DateToString(RepSpec.sStartDate, "YYYY-MM-DD"));
+  ExportFiels("B_ML_Iki",DateToString(RepSpec.sEndDate, "YYYY-MM-DD"));
+  
+
+  return;
+end;
+    
+procedure ExportFormFooter()
+begin
+  string 255 tstr;
+
+  tstr = "</Pages>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  
+  tstr = "</Form>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+
+  tstr = "</FFData>";
+  ExportPadString(tstr, len(tstr), "", false);
+  NewLineExport;
+  return;
+end;
+
+
+// - Get sum and vat of all rows with 'vatcode' specified as VAT Code
+procedure GetSums(string sernr, string vatcode, var val sum, var val vat)
+begin
+  record IVVc IVr;
+  row IVVc IVrw;
+  integer i, cnt;
+  val rowvat;
+  Boolean testf;
+  
+  sum = 0;
+  vat = 0;
+  IVr.SerNr = sernr;
+  if (ReadFirstMain(IVr, 1, true)) then begin
+    cnt = MatRowCnt(IVr);
+    for (i=0;i<cnt;i=i+1) begin
+      MatRowGet(IVr,i,IVrw);
+      testf = true;
+
+      if (blank(IVrw.VATCode)) then begin
+        testf = false;
+      end;
+      if (SetInSet(IVrw.VATCode,vatcode)==false) then begin
+        testf = false;
+      end;
+      if (testf) then begin
+        switch (IVrw.stp) begin
+          case kInvoiceRowTypeNormal:
+            rowvat = FindVAT(IVrw.VATCode, IVrw.Sum, IVr.InclVAT,IVr.NoTAXonVAT);
+            vat = vat + rowvat;
+            if (IVr.InclVAT == 0) then begin
+              sum = sum + IVrw.Sum;
+            end else begin
+              sum = sum + (IVrw.Sum - rowvat);
+            end;
+          //START-CUST PST 2016-April-26
+          case kInvoiceRowTypeGiftVoucherSold:
+            rowvat = FindVAT(IVrw.VATCode, IVrw.Sum, IVr.InclVAT,IVr.NoTAXonVAT);
+            vat = vat + rowvat;
+            if (IVr.InclVAT == 0) then begin
+              sum = sum + IVrw.Sum;
+            end else begin
+              sum = sum + (IVrw.Sum - rowvat);
+            end;   
+          //END-CUST PST 2016-April-26
+          case kInvoiceRowTypeVoid:
+            rowvat = FindVAT(IVrw.VATCode,-IVrw.Sum, IVr.InclVAT,IVr.NoTAXonVAT);
+            vat = vat + rowvat;
+            if (IVr.InclVAT == 0) then begin
+              sum = sum - IVrw.Sum;
+            end else begin
+              sum = sum - (IVrw.Sum - rowvat);
+            end;
+          case kInvoiceRowTypeCorrection:
+            rowvat = FindVAT(IVrw.VATCode, IVrw.Sum, IVr.InclVAT,IVr.NoTAXonVAT);
+            vat = vat - rowvat;
+            if (IVr.InclVAT == 0) then begin
+              sum = sum - IVrw.Sum;
+            end else begin
+              sum = sum - (IVrw.Sum - rowvat);
+            end;
+        end;
+      end;
+    end;
+  end;
+  return;
+end;
+
+// - Export one invoice
+function Boolean PrintIVSLVAT(record RcVc RepSpec, record CYBlock CYb,record IVVc IVr,var Integer pageno,var Integer ivinpageno,var Integer FR0672Ppageno,
+                              Integer ivno,var val p10tot,var val p11tot,var val p16tot)
+begin
+  record CUVc CUr;
+  val subtotal, vat;
+  Boolean testf, res;
+
+  testf = true;
+  res = true;
+  Cur.Code = IVr.CustCode;
+  testf = ReadFirstMain(Cur, 1, true);
+  // testf is always true because of checkinvoice
+
+  if (nonblank(RepSpec.f2)) then begin
+    GetSums(IVr.SerNr, RepSpec.f2, subtotal, vat);
+    if (subtotal == 0) then begin
+      res = false;
+      goto LPrintIVSLVAT;
+    end;
+  end else begin
+    //START-CUST PST 2016-April-25
+    if (IVr.InclVAT>0) then begin 
+      subtotal = IVr.Sum1-IVr.Sum3;
+      vat = IVr.Sum3;  
+    end else begin
+    subtotal = IVr.Sum1;
+    vat = IVr.Sum3;   
+    end;
+    //END-CUST PST 2016-April-25
+  end;
+  subtotal = MulRateToBase1(IVr.CurncyCode,subtotal,IVr.FrRate,IVr.ToRateB1,IVr.ToRateB2,IVr.BaseRate1,IVr.BaseRate2,DefaultCurRoundOff);
+  vat = MulRateToBase1(IVr.CurncyCode,vat,IVr.FrRate,IVr.ToRateB1,IVr.ToRateB2,IVr.BaseRate1,IVr.BaseRate2,DefaultCurRoundOff);
+  if (IVr.InvType==kInvoiceTypeCredit or IVr.InvType==kInvoiceTypeCreditSpecialSales) then begin
+    subtotal = -subtotal;
+    vat = -vat;
+  end;
+
+  if (ivinpageno==1) then begin
+    ExportPageFR0672P_Header(RepSpec,CYb,pageno,FR0672Ppageno);
+    FR0672Ppageno = FR0672Ppageno + 1;
+    pageno = pageno + 1;
+  end;
+
+  switch (ivinpageno) begin
+    case 1: ExportPageFR0672P_1(RepSpec,IVr,CUr,ivno,subtotal,vat);
+    case 2: ExportPageFR0672P_2(RepSpec,IVr,CUr,ivno,subtotal,vat);
+    case 3: ExportPageFR0672P_3(RepSpec,IVr,CUr,ivno,subtotal,vat);
+    case 4: ExportPageFR0672P_4(RepSpec,IVr,CUr,ivno,subtotal,vat);
+  end;
+  ivinpageno = ivinpageno + 1;   
+  p10tot = p10tot + subtotal;
+  p11tot = p11tot + vat;
+
+  if (ivinpageno>=5) then begin
+    ExportPageFR0672P_Footer(p10tot,p11tot,p16tot);
+    ivinpageno = 1;
+    p10tot = blankval; p11tot = blankval; p16tot = blankval;
+  end;
+  
+LPrintIVSLVAT:;
+  PrintIVSLVAT=res;
+  return;
+end;
+
+
+// - Check if invoice has rows with specified VAT code
+function boolean CheckVATCode(string sernr, string vat)
+begin
+  record IVVc IVr;
+  row IVVc IVrw;
+  integer i, cnt, vcnt;
+
+  IVr.SerNr = sernr;
+  vcnt = 0;
+
+  if (ReadFirstMain(IVr, 1, true)) then
+  begin
+    cnt = MatRowCnt(IVr);
+    for (i = 0; i < cnt; i = i + 1) begin
+      MatRowGet(IVr, i, IVrw);
+        if (IVrw.Sum!=0) and (SetInSet(IVrw.VATCode, vat)) then begin
+        vcnt = vcnt + 1;
+      end;
+    end;
+
+  end;
+  CheckVATCode = (vcnt > 0);
+  return;
+end;
+
+// - Check if invoice corresponds to report specification
+procedure CheckInvoice(record RcVc RepSpec, record IVVc IVr, var boolean testf, var boolean TrHs)
+begin
+  record IVVc IV2r;
+  record CUVc Cur;
+
+  if ((RepSpec.flags[1] == 0) and (IVr.InvDate > RepSpec.sEndDate)) then begin
+    TrHs = false;
+  end;
+  if ((RepSpec.flags[1] == 1) and (IVr.TransDate > RepSpec.sEndDate)) then begin
+    TrHs = false;
+  end;
+
+  if (IVr.ExportFlag == 0 and RepSpec.flags[5] <> 1) then begin
+    testf = false;
+  end;
+
+  if (IVr.ExportFlag == 1 and RepSpec.flags[6] <> 1) then begin
+    testf = false;
+  end;
+
+  if (IVr.ExportFlag == 2 and RepSpec.flags[7] <> 1) then begin
+    testf = false;
+  end;
+
+  if (IVr.ExportFlag == 3 and RepSpec.flags[9] <> 1) then begin
+    testf = false;
+  end;
+
+  if (IVr.ExportFlag == 4 and RepSpec.flags[10] <> 1) then begin
+    testf = false;
+  end;
+   
+
+  // - check for payment terms to ignore
+  if (nonblank(RepSpec.f1) and SetInSet(IVr.PayDeal, RepSpec.f1)) then begin
+    testf = false;
+  end;
+
+  // - check for VAT code
+
+  // - ignore credit notes for invoices with payment terms set to ignore
+  if (TrHs and testf and nonblank(RepSpec.f1)) then begin
+    IV2r.CredInv = IVr.SerNr;
+    if (ReadFirstKey("CredInv", IV2r, 1, true)) then begin
+      if (SetInSet(IV2r.PayDeal, RepSpec.f1)) then begin
+        testf = false;
+      end;
+    end;
+  end;
+
+  if (testf and IVr.Invalid <> 0) then begin testf = false; end;
+  if (testf and IVr.OKFlag == 0) then begin testf = false; end;
+
+  if (testf) then begin
+    if (nonblank(RepSpec.f2)) then begin
+      testf = CheckVATCode(IVr.SerNr, RepSpec.f2);
+    end;
+  end;
+
+  // - check if customer is existing
+  if (testf) then begin
+    Cur.Code= IVr.CustCode;
+    testf = ReadFirstMain(Cur, 1, true);
+  end;
+
+  return;
+end;
+
+// - Count number of invoices corresponding to report specification
+function integer NumberOfValidInvoices(record RcVc RepSpec,var val p10tot,var val p11tot,var val p16tot)
+begin
+  record IVVc IVr;
+  string 20 ckey;
+  boolean testf,TrHs;
+  string 255 tstr, VATNr, CompName;
+  integer rownr, num_pages;
+  integer res;
+  val subtotal, vat;
+
+  res = 0;
+
+  // - sorting key
+  if (RepSpec.flags[1]==0) then begin
+    ckey = "InvDate";
+    IVr.InvDate = RepSpec.sStartDate;
+  end;
+  if (RepSpec.flags[1] == 1) then begin
+    ckey = "TransDate";
+    IVr.TransDate = RepSpec.sStartDate;
+  end;
+
+  rownr = 1;
+  Trhs = true;
+
+  while (LoopKey(ckey, IVr, 1, TrHS)) begin
+    testf = true;
+
+    CheckInvoice(RepSpec, IVr, testf, TrHs);
+    if (testf) then begin
+      if (nonblank(RepSpec.f2)) then begin
+        GetSums(IVr.SerNr, RepSpec.f2, subtotal, vat);
+        if (subtotal == 0) then begin
+          testf = false;
+        end;
+      end else begin
+        subtotal = IVr.Sum1;
+        vat = IVr.Sum3;
+      end;
+    end;
+    // cust:
+    if IVr.Sum4 == 0 then begin
+    testf = false;
+    end;
+    // :cust
+    if (TrHs and testf) then begin
+
+      subtotal = MulRateToBase1(IVr.CurncyCode,subtotal,IVr.FrRate,IVr.ToRateB1,IVr.ToRateB2,IVr.BaseRate1,IVr.BaseRate2,DefaultCurRoundOff);
+      vat = MulRateToBase1(IVr.CurncyCode,vat,IVr.FrRate,IVr.ToRateB1,IVr.ToRateB2,IVr.BaseRate1,IVr.BaseRate2,DefaultCurRoundOff);
+      if (IVr.InvType==kInvoiceTypeCredit or IVr.InvType==kInvoiceTypeCreditSpecialSales) then begin
+        subtotal = -subtotal;
+        vat = -vat;
+      end;
+      //START-CUST PST 2016-April-25
+      if (IVr.InclVAT>0) and blank(RepSpec.f2) then begin          
+        p10tot = p10tot + subtotal-vat;
+        p11tot = p11tot + vat;      
+        res = res + 1;
+      end else begin
+      p10tot = p10tot + subtotal;
+      p11tot = p11tot + vat;      
+      res = res + 1;
+      end;
+      //END-CUST PST 2016-April-25
+    end;
+
+  end;
+
+  NumberOfValidInvoices = res;
+  return;
+end;
+
+global
+procedure IDEALLitVATRegIVEn(record RcVc RepSpec)
+begin
+  record IVVc IVr;
+  record CUVc CUr;
+  record CYBlock CYb;
+  record RcVc emptyRepSpec;
+  string 20 ckey;
+  boolean testf, TrHs;
+  integer ivno, num_invoices, num_pages, pageno,FR0672Ppageno,ivinpageno;
+  val p10tot,p11tot,p16tot;
+
+  if (SetExportCodePage("UTF-8") == false) then begin end;
+
+  BlockLoad(CYb);
+
+  num_invoices = NumberOfValidInvoices(RepSpec,p10tot,p11tot,p16tot);
+  if (num_invoices == 0) then begin goto L99; end;
+
+  num_pages = num_invoices / 4 + 1;
+  if (Mod(num_invoices,4) > 0) then begin
+    num_pages = num_pages + 1;
+  end;
+
+  ExportFormHeader(num_pages);
+  ExportFirstPage(RepSpec,CYb,num_pages,p10tot,p11tot,p16tot);
+  
+  if (RepSpec.flags[1] == 0) then begin
+    ckey = "InvDate";
+    IVr.InvDate = RepSpec.sStartDate;
+  end;
+  if (RepSpec.flags[1] == 1) then begin
+    ckey = "TransDate";
+    IVr.TransDate = RepSpec.sStartDate;
+  end;
+
+  ivno = 1;
+  ivinpageno = 1;
+  pageno = 2;
+  FR0672Ppageno = 1;
+  p10tot = blankval; p11tot = blankval; p16tot = blankval;
+  
+  Trhs = true;
+  while (LoopKey(ckey, IVr, 1, TrHS)) begin
+    testf = true;
+    CheckInvoice(RepSpec, IVr, testf, TrHs);
+    // cust:
+    if IVr.Sum4 == 0 then begin
+    	testf = false;
+    end;
+    // :cust
+    if (TrHs and testf) then begin
+      if (PrintIVSLVAT(RepSpec, CYb,IVr,pageno,ivinpageno,FR0672Ppageno,ivno,p10tot,p11tot,p16tot)) then begin
+        ivno = ivno + 1;     
+      end;//PrintIV...
+    end;
+  end;
+  RecordClear(IVr);
+  RecordClear(CUr);
+  RecordClear(emptyRepSpec);
+  switch (ivinpageno) begin
+    case 2: 
+      ExportPageFR0672P_2(emptyRepSpec,IVr,CUr,"",blankval,blankval);
+      ExportPageFR0672P_3(emptyRepSpec,IVr,CUr,"",blankval,blankval);
+      ExportPageFR0672P_4(emptyRepSpec,IVr,CUr,"",blankval,blankval);
+      ExportPageFR0672P_Footer(p10tot,p11tot,p16tot);
+    case 3: 
+      ExportPageFR0672P_3(emptyRepSpec,IVr,CUr,"",blankval,blankval);
+      ExportPageFR0672P_4(emptyRepSpec,IVr,CUr,"",blankval,blankval);
+      ExportPageFR0672P_Footer(p10tot,p11tot,p16tot);
+    case 4: 
+      ExportPageFR0672P_4(emptyRepSpec,IVr,CUr,"",blankval,blankval);
+      ExportPageFR0672P_Footer(p10tot,p11tot,p16tot);
+  end;
+  
+  ExportFormFooter;
+L99:
+  return;
+end;

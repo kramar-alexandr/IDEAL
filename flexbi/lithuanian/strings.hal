@@ -1,0 +1,11 @@
+// ui
+
+event startup
+begin
+
+  SetLangMode(LangLithuanian,"LIT",0);
+
+  SString(31987,"Key has expired. Please renew in order to use flex.bi exports");
+
+  return;
+end;

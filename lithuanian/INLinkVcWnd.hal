@@ -1,0 +1,54 @@
+SetlangMode(LangLithuanian,"LIT",0);
+
+window INLinkLClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Item links",INLinkLClass,CGmlist,-);
+  SpawnClass(INLinkDClass);
+  SetWRect(64,80,600,300);
+  Sizeable(-1,-1,0,0);
+  UseView(INLinkVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Item",Code,false,Code);
+  RlColKey(140,90,"Description",Name,false,Name);
+  RlColKey(-60,-60,"Type",Type,false,Type);
+  SearchField("Search");
+  EndWindow;
+end;
+
+window INLinkSClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Insert Item links",INLinkSClass,CGslist,-);
+  SpawnClass(INLinkDClass);
+  SetWRect(100,80,600,300);
+  Sizeable(-1,-1,0,0);
+  UseView(INLinkVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Item",Code,false,Code);
+  RlColKey(100,100,"Name",Name,false,Name);
+  RlColKey(-60,-60,"Type",Type,false,Type);
+  SearchField("Search");
+  EndWindow;
+end;
+
+window INLinkDClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real vs,h1,h2,h3,v;
+  WindowBegin("Artikula saites",INLinkDClass,CGview,-);
+  SetWRect(64,80,700,450);
+  UseView(INLinkVc);
+  vs = 20; h1 = 55; h2 = 200; h3 = 320;
+  EditField(h1,v=6,70,"Item",Normal,Code,false,INSClass);
+  EditField(h2,v,240,"Name",Normal,Name,false,0);
+  EditField(h1,v+=vs,70,"Type",Normal,Type,false,INLinkTypeSClass);
+  EditField(h2,v,240,"Name",Normal,TypeName,false,0);
+  HalPushButton(460,11,580,60,"SimiFriendCopy","þener•t L´dz´g‚s");//ES
+  MatrixBegin(4,v+=40,-32,-20,-,99);
+  MatCol(1,24,"Item",0,ArtCode,false,INSClass);
+  MatCol(1,90,"NAme",0,ArtName,false,0);
+  MatCol(1,-200,"Koment‚rs",0,Comment,false,0);
+  EndMatrix;
+  EndWindow;
+end;

@@ -1,0 +1,75 @@
+global
+function Boolean ResListDClassAfterEditField(Integer wn,string fieldname,Integer fn,Integer rownr,Integer changed)
+begin
+  Boolean res;
+  record INVc INr;
+  record ResListVc ResListr;
+  row ResListVc ResListrw;
+  
+  res = false;
+  switch (fieldname) begin    
+    case "ArtCode": 
+    GetWindowRecord(wn,ResListr);
+    DeselectWindow(wn,false);   
+    MatrowGet(ResListr,rownr,ResListrw);
+    INr.Code = ResListrw.ArtCode;
+    If ReadFirstMain(INr,1,true) begin
+      ResListrw.Description = INr.Name;
+      MatRowPut(ResListr,rownr,ResListrw);
+      PutWindowRecord(wn,ResListr);
+    end;
+  end;
+  
+return;
+end;
+
+
+global
+function Boolean ResListBrokDClassAfterEditField(Integer wn,string fieldname,Integer fn,Integer rownr,Integer changed)
+begin
+  Boolean res;
+  record INVc INr;
+  record ResListBrokVc ResListr;
+  row ResListBrokVc ResListrw;
+  
+  res = false;
+  switch (fieldname) begin    
+    case "ArtCode": 
+    GetWindowRecord(wn,ResListr);
+    DeselectWindow(wn,false);   
+    MatrowGet(ResListr,rownr,ResListrw);
+    INr.Code = ResListrw.ArtCode;
+    If ReadFirstMain(INr,1,true) begin
+      ResListrw.Description = INr.Name;
+      MatRowPut(ResListr,rownr,ResListrw);
+      PutWindowRecord(wn,ResListr);
+    end;
+  end;
+  
+return;
+end;
+
+global
+function Boolean ResListDemoDClassAfterEditField(Integer wn,string fieldname,Integer fn,Integer rownr,Integer changed)
+begin
+  Boolean res;
+  record INVc INr;
+  record ResListDemoVc ResListr;
+  row ResListDemoVc ResListrw;
+  
+  res = false;
+  switch (fieldname) begin    
+    case "ArtCode": 
+    GetWindowRecord(wn,ResListr);
+    DeselectWindow(wn,false);   
+    MatrowGet(ResListr,rownr,ResListrw);
+    INr.Code = ResListrw.ArtCode;
+    If ReadFirstMain(INr,1,true) begin
+      ResListrw.Description = INr.Name;
+      MatRowPut(ResListr,rownr,ResListrw);
+      PutWindowRecord(wn,ResListr);
+    end;
+  end;
+  
+return;
+end;
