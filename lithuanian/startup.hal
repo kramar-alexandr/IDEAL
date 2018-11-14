@@ -27,6 +27,19 @@ begin
   SetText(1,"Prek˜");
   SetText(2,"Prek˜s klas˜");
   EndSet;
+  
+  /*StrSetBegin(584);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:04:47
+  StrSetText(ActVc,"Activities");
+  StrSetText(IntProjManActVc,"Project Activities");
+  StrSetText(IntProjManToDoActVc,"To Dos");
+  StrSetText(KitchenOrderVc,"Kitchen Orders");
+  StrSetText(OYVc,"Opportunities");
+  StrSetText(PRVc,"Projects");
+  StrSetText(QTVc,"Quotations");
+  StrSetText(ORVc,"Sales Orders");
+  StrSetText(SVOVc,"Service orders");
+  StrSetText(POOVc,"Purchase orders");
+  EndStrSet;*/
 
   return;
 end;

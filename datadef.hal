@@ -733,6 +733,19 @@ begin
   	KeySegment(BankID);
   	KeySegment(OwnID);
 	EndRecord;
+	
+	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
+  RecordField(Math,M4Matrix,0,0);
+  ArrayBegin(Math,-,1);
+  ArrayField(ViewName,M4Str,40,0);
+  ArrayField(ColumnName,M4Str,40,0);
+  ArrayField(Register,M4StrSet,584,0);
+  ArrayField(RegisterFilter,M4List,200,0);
+  ArrayField(Amounts,M4Set,594,0);
+  ArrayField(RegisterFilter2,M4List,200,0);
+  ArrayField(colnr,M4Set,46,0);
+  EndArray;
+  EndBlock;*/
  	
 return;
 end;
