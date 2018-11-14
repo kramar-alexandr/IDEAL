@@ -243,240 +243,261 @@ BEGIN
   Integer printedrownr;
   record TaxMatrixVc TMr;
   record GCVc GCr;
+  boolean returninv,rowprt;;
+  
+  
+  returninv = FIELDINFORM("BPI_FRETONLY");
+  
+  
   
   BlockLoad(SFb);
   BlockLoad(MSb);
   rwcnt = MatRowCnt(IVCashr);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(IVCashr,i,IVCashrw);
-    switch (IVCashrw.stp) begin
-      case kInvoiceRowTypeMultiBuyDiscount:
-        OUTFORMFIELD("F_ARTNR",IVCashrw.ArtCode);
-        OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
-        PrintValueInclZero("F_ANTAL",IVCashrw.Quant,M4UVal,LangNrr,SFb,false);
-        if (FIELDINFORM("F_APRIS")) then begin
-          GetFieldArgument(Docr,F_APRIS,tstr);
-          if (nonblank(tstr)) then begin
-            t = Round(IVCashrw.Price,SetRoundModeD(StringToInt(tstr)));
-            PrintValueInclZero("F_APRIS",t,M423Val,LangNrr,SFb,false);
-          end else begin
-            if (RoundRec.Discount==0) then begin
-              t = Round(IVCashrw.Price,SetRoundModeD(3));
-            end else begin
-              t = Round(IVCashrw.Price,DefaultRoundMode);
-            end;
-            PrintValueInclZero("F_APRIS",t,M423Val,LangNrr,SFb,false);
-          end;  
-        end;      
-        PrintValueInclZero("F_BELOPP",IVCashrw.Sum,M4Val,LangNrr,SFb,false);
-        PrintFormulaDiscount("F_RABATT",IVCashrw.vRebate,LangNrr,SFb,false);
-        EndFormRow;
-      case kInvoiceRowTypeStructuredItemComponent:
-        goto LkInvoiceRowTypeNormal;
-      case kInvoiceRowTypeNormal:
-LkInvoiceRowTypeNormal:;      
-        totsubtotwdisc = totsubtotwdisc + IVCashrw.Quant*IVCashrw.Price;
-        totdisc = totdisc + (IVCashrw.Quant*IVCashrw.Price - IVCashrw.Sum);
-        INr.Code = IVCashrw.ArtCode;
-        if (ReadFirstItem(IVCashrw.ArtCode,INr,true,true)) then begin
-        end;
-        if (nonblank(IVCashrw.ArtCode)) then begin
-          printedrownr = printedrownr + 1;
-          OUTFORMFIELD("F_ROWNR",printedrownr);
-          IntToText(IVCashr.LangCode,printedrownr,tstr);
-          OUTFORMFIELD("F_ROWNRINTEXT",tstr);
-        end;
-        OUTFORMFIELD("F_TRANSROW",i+1);      
-        OUTFORMFIELD("F_CUSTARTNR",IVCashrw.CustArtCode);
-        OUTFORMFIELD("F_ARTNR",IVCashrw.ArtCode);
-        if (FIELDINFORM("F_ARTNRBC39")) then begin
-          ItemBC39(IVCashrw.ArtCode,tstr);
-          OUTFORMFIELD("F_ARTNRBC39",tstr);
-        end;  
-        if (FIELDINFORM("F_ARTNRBCEAN")) then begin
-          ItemBCEAN(IVCashrw.ArtCode,tstr);
-          OUTFORMFIELD("F_ARTNRBCEAN",tstr);
-        end;  
-        if (FIELDINFORM("F_ARTNRBCEAN13")) then begin
-          ItemBCEAN13(IVCashrw.ArtCode,tstr);      
-          OUTFORMFIELD("F_ARTNRBCEAN13",tstr);
-        end;  
-        if (IVCashrw.ovst!=0) then begin 
-          OUTFORMFIELD("F_SPECIFIKATION",USetStr(33690) & " " & IVCashrw.Spec);
-        end else begin
-          OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
-        end;
-        PrintValueInclZero("F_ANTAL",IVCashrw.Quant,M4UVal,LangNrr,SFb,false);
-        if (MSb.UnitConvCalc==0) then begin
-          PrintValueInclZero("F_ANTAL2",IVCashrw.Quant*IVCashrw.Coefficient,M4UVal,LangNrr,SFb,false);
-        end else begin
-          PrintValueInclZero("F_ANTAL2",IVCashrw.Quant/IVCashrw.Coefficient,M4UVal,LangNrr,SFb,false);
-        end;
-        if (FIELDINFORM("F_APRIS")) then begin
-          GetFieldArgument(Docr,F_APRIS,tstr);
-          if (nonblank(tstr)) then begin
-            t = Round(IVCashrw.Price,SetRoundModeD(StringToInt(tstr)));
-            PrintValueInclZero("F_APRIS",t,M423Val,LangNrr,SFb,false);
-          end else begin
-            if (RoundRec.Discount==0) then begin
-              t = Round(IVCashrw.Price,SetRoundModeD(3));
-            end else begin
-              t = Round(IVCashrw.Price,DefaultRoundMode);
-            end;
-            PrintValueInclZero("F_APRIS",t,M423Val,LangNrr,SFb,false);
-          end;  
-        end;
-        UnpackRowFieldMatrix(IVCashrw,"TaxMatrix",TMr);
-        if (FIELDINFORM("F_APRISEXCLVAT")) then begin
-          FindSalesExVat(TMr,IVCashrw.VATCode,IVCashrw.Price,IVCashr.InclVAT,IVCashr.NoTAXonVAT,t);
-          GetFieldArgument(Docr,F_APRISEXCLVAT,tstr);
-          if (nonblank(tstr)) then begin
-            t = Round(t,SetRoundModeD(StringToInt(tstr)));
-            PrintValueInclZero("F_APRISEXCLVAT",t,M423Val,LangNrr,SFb,false);
-          end else begin
-            if (RoundRec.Discount==0) then begin
-              t = Round(t,SetRoundModeD(3));
-            end else begin
-              t = Round(t,DefaultRoundMode);
-            end;
-            PrintValueInclZero("F_APRISEXCLVAT",t,M423Val,LangNrr,SFb,false);
-          end;  
-        end;
-        PrintValueInclZero("F_BELOPP",IVCashrw.Sum,M4Val,LangNrr,SFb,false);
-        OUTFORMFIELD("F_MOMSKOD",IVCashrw.VATCode);
-        PrintFormulaDiscount("F_RABATT",IVCashrw.vRebate,LangNrr,SFb,false);
-        OUTFORMFIELD("F_SERIENR",IVCashrw.SerialNr);
-        OUTFORMFIELD("F_UNITCODE",IVCashrw.UnitCode);
-        if (FIELDINFORM("F_ENHET")) then begin
-          SelectUnitText(IVCashr.LangCode,INr.Unittext,tstr);
-          OUTFORMFIELD("F_ENHET",tstr);
-        end;  
-        OUTFORMFIELD("F_BASPRIS",INr.UPrice1);
-        tstr = ValToString(IVCashrw.FIFO*IVCashrw.Quant,M45Val,SFb.thousSep,SFb.decimalPt,LangNrr.CutDecimals);
-        OUTFORMFIELD("F_SUMFIFO",tstr);
-        if (IVCashrw.PriceFactor==blankval) then begin
-          tstr = "";
-        end else begin
-          tstr = ValToString(IVCashrw.FIFO*IVCashrw.Quant,M4UVal,SFb.thousSep,SFb.decimalPt,LangNrr.CutDecimals);
-        end;
-        OUTFORMFIELD("F_PRICEFACTOR",tstr);
-        OUTFORMFIELD("F_EXCISE",IVCashrw.ExciseNr);
-        if (FIELDINFORM("F_ORIGINCOUNTRY")) then begin
-          GetOriginCoutry(IVCashrw.ArtCode,"",tstr);
-          OUTFORMFIELD("F_ORIGINCOUNTRY",tstr);
-        end;
-        CashInvVat(IVCashrw.stp,IVCashr.InclVAT,IVCashr.NoTAXonVAT,0,IVCashrw.VATCode,IVCashrw.Sum,vatprc,vatval,vatexclprc,vatinclprc,rowtax);
-        if (FIELDINFORM("F_ROWBASE")) then begin
-          t = IVCashrw.Sum;
-          if (IVCashr.InclVAT>0) then begin
-            if (t!=0) then begin
-              t = t - vatval;
-            end;
-          end;    
-          OUTFORMFIELD("F_ROWBASE",t);
-        end;
-        if (nonblank(IVCashrw.ArtCode)) then begin
-          if (FIELDINFORM("F_ROWVATVAL")) then begin
-            if (true) then begin//nonblank(vatval)
-            GetFieldArgument(Docr,F_ROWVATVAL,tstr);
-            if (nonblank(tstr)) then begin
-              PrintValueInclZero("F_ROWVATVAL",Round(vatval,SetRoundModeD(StringToInt(tstr))),M45Val,LangNrr,SFb,false);
-            end else begin
-              if (blank(vatprc)) then begin 
-                PrintValueInclZero("F_ROWVATVAL",0,M4Val,LangNrr,SFb,false);
-              end else begin
-                PrintValueInclZero("F_ROWVATVAL",vatval,M4Val,LangNrr,SFb,false);
-              end;
-            end;
-            end;
-          end;
-        end;
-        if (blank(vatprc)) then begin 
-          PrintValue("F_ROWVATPRC",0,M4Val,LangNrr,SFb,false);
-        end else begin
-          PrintValueInclZero("F_ROWVATPRC",vatprc,M4Val,LangNrr,SFb,false);
-        end;
-        PrintValueInclZero("F_ROWVATEXCLPRC",vatexclprc,M4Val,LangNrr,SFb,false);
-        OUTFORMFIELD("F_ROWSUMIFNOVAT",IVCashrw.Sum-vatval);      
-        OUTFORMFIELD("F_ROWPRICE",IVCashrw.Price-vatval/IVCashrw.Quant);      
-        AddVATBase(VATr,IVCashrw.VATCode,IVCashrw.Sum,blankval,vatcnt,IVCashr.InclVAT,IVCashr.NoTAXonVAT);
-
-        OUTFORMFIELD("F_MOTHERNR",IVCashrw.MotherNr);
-        BTr.ArtCode  = IVCashrw.ArtCode;
-        BTr.SerialNr = IVCashrw.SerialNr;
-        if (ReadFirstMain(BTr,2,true)) then begin 
-          OUTFORMFIELD("F_SUPPSERIALNR",BTr.SuppSerialNr);
-          OUTFORMFIELD("F_MAJORSTONE",BTr.MajStoneDet);
-          OUTFORMFIELD("F_COLOUR",BTr.Colour);
-          OUTFORMFIELD("F_CLARITY",BTr.Clarity);
-          OUTFORMFIELD("F_CERT",BTr.Cert);
-          OUTFORMFIELD("F_MINORSTONE",BTr.MinStoneDet);
-          OUTFORMFIELD("F_METAL",BTr.Metal);
-          OUTFORMFIELD("F_ROWWEIGHT",BTr.RowWeight);
-          OUTFORMFIELD("F_SIZE",BTr.Size);
-          OUTFORMFIELD("F_LENGTH",BTr.Length);
-      
-          OUTFORMFIELD("F_WATCHBRAND",BTr.WatchBrand);
-          OUTFORMFIELD("F_STYLENAME",BTr.StyleName);
-          OUTFORMFIELD("F_WATCHMETAL",BTr.WatchMetal);
-          OUTFORMFIELD("F_MOVEMENT",BTr.Movement);
-          OUTFORMFIELD("F_BRCSTR",BTr.BrcStr);
-          OUTFORMFIELD("F_GENDER",BTr.Gender);
-          OUTFORMFIELD("F_OTHER",BTr.Other);
-          OUTFORMFIELD("F_OTHER2",BTr.Other2);
-        end;  
-
-        if (FIELDINFORM("F_ROWTOT")) then begin
-          v = IVCashrw.Sum;
-          if (IVCashr.InclVAT==0) then begin
-            v = v + vatval;
-          end;
-          if ((nonblank(vatval)) or (nonblank(IVCashrw.Sum))) then begin
-            GetFieldArgument(Docr,F_ROWTOT,tstr);
-            if (nonblank(tstr)) then begin
-              if (blank(IVCashrw.ArtCode)) then begin
-                PrintValue("F_ROWTOT",Round(v,SetRoundModeD(StringToInt(tstr))),M45Val,LangNrr,SFb,false);
-              end else begin
-                PrintValueInclZero("F_ROWTOT",Round(v,SetRoundModeD(StringToInt(tstr))),M45Val,LangNrr,SFb,false);
-              end;
-            end else begin
-              if (blank(IVCashrw.ArtCode)) then begin
-                PrintValue("F_ROWTOT",v,M4Val,LangNrr,SFb,false);
-              end else begin
-                PrintValueInclZero("F_ROWTOT",v,M4Val,LangNrr,SFb,false);
-              end;
-            end;
-          end;
-        end;
-
-
-        EndFormRow;
-      case kInvoiceRowTypeGiftVoucherSold:
-        OUTFORMFIELD("F_ROWNAME",USetStr(8112));
-        OUTFORMFIELD("F_ARTNR",IVCashrw.GCNr);
-        OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
-        OUTFORMFIELD("F_GCNr",IVCashrw.GCNr);
-        GCr.SerNr = IVCashrw.GCNr;
-        ReadFirstMain(GCr,1,true);
-        OUTFORMFIELD("F_GCExpiryDate",GCr.ExpiryDate);
-        PrintValueInclZero("F_ANTAL",1.00,M4UVal,LangNrr,SFb,false);
-        PrintValueInclZero("F_BELOPP",IVCashrw.Sum,M4Val,LangNrr,SFb,false);
-        EndFormRow;
-        totsubtotwdisc = totsubtotwdisc + IVCashrw.Quant*IVCashrw.Price;
-        AddVATBase(VATr,IVCashrw.VATCode,IVCashrw.Sum,blankval,vatcnt,IVCashr.InclVAT,IVCashr.NoTAXonVAT);
-
-      case kInvoiceRowTypeGiftVoucherPayment:
-        OUTFORMFIELD("F_ROWNAME",USetStr(8113));
-        OUTFORMFIELD("F_ARTNR",IVCashrw.GCNr);
-        OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
-        OUTFORMFIELD("F_GCNr",IVCashrw.GCNr);
-        PrintValueInclZero("F_ANTAL",1.00,M4UVal,LangNrr,SFb,false);
-        PrintValueInclZero("F_BELOPP",IVCashrw.Sum,M4Val,LangNrr,SFb,false);
-        EndFormRow;
-
-      case kInvoiceRowTypeLoyaltyPointsPayment:
-        PointsSpent = PointsSpent + IVCashrw.Points;
+    rowprt = true;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:00:23
+    if(returninv and IVCashrw.Quant>0)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:00:24
+    	rowprt = false;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:00:24
+    end;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:00:25
+    if(returninv and IVCashrw.stp!=kInvoiceRowTypeNormal)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:00:24
+    	rowprt = false;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:00:24
     end;
+    
+    
+    if(rowprt)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:01:00
+			switch (IVCashrw.stp) begin
+				case kInvoiceRowTypeMultiBuyDiscount:
+					OUTFORMFIELD("F_ARTNR",IVCashrw.ArtCode);
+					OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
+					PrintValueInclZero("F_ANTAL",IVCashrw.Quant,M4UVal,LangNrr,SFb,false);
+					if (FIELDINFORM("F_APRIS")) then begin
+						GetFieldArgument(Docr,F_APRIS,tstr);
+						if (nonblank(tstr)) then begin
+							t = Round(IVCashrw.Price,SetRoundModeD(StringToInt(tstr)));
+							PrintValueInclZero("F_APRIS",t,M423Val,LangNrr,SFb,false);
+						end else begin
+							if (RoundRec.Discount==0) then begin
+								t = Round(IVCashrw.Price,SetRoundModeD(3));
+							end else begin
+								t = Round(IVCashrw.Price,DefaultRoundMode);
+							end;
+							PrintValueInclZero("F_APRIS",t,M423Val,LangNrr,SFb,false);
+						end;  
+					end;      
+					PrintValueInclZero("F_BELOPP",IVCashrw.Sum,M4Val,LangNrr,SFb,false);
+					PrintFormulaDiscount("F_RABATT",IVCashrw.vRebate,LangNrr,SFb,false);
+					EndFormRow;
+				case kInvoiceRowTypeStructuredItemComponent:
+					goto LkInvoiceRowTypeNormal;
+				case kInvoiceRowTypeNormal:
+	LkInvoiceRowTypeNormal:;      
+					totsubtotwdisc = totsubtotwdisc + IVCashrw.Quant*IVCashrw.Price;
+					totdisc = totdisc + (IVCashrw.Quant*IVCashrw.Price - IVCashrw.Sum);
+					INr.Code = IVCashrw.ArtCode;
+					if (ReadFirstItem(IVCashrw.ArtCode,INr,true,true)) then begin
+					end;
+					if (nonblank(IVCashrw.ArtCode)) then begin
+						printedrownr = printedrownr + 1;
+						OUTFORMFIELD("F_ROWNR",printedrownr);
+						IntToText(IVCashr.LangCode,printedrownr,tstr);
+						OUTFORMFIELD("F_ROWNRINTEXT",tstr);
+					end;
+					OUTFORMFIELD("F_TRANSROW",i+1);      
+					OUTFORMFIELD("F_CUSTARTNR",IVCashrw.CustArtCode);
+					OUTFORMFIELD("F_ARTNR",IVCashrw.ArtCode);
+					if (FIELDINFORM("F_ARTNRBC39")) then begin
+						ItemBC39(IVCashrw.ArtCode,tstr);
+						OUTFORMFIELD("F_ARTNRBC39",tstr);
+					end;  
+					if (FIELDINFORM("F_ARTNRBCEAN")) then begin
+						ItemBCEAN(IVCashrw.ArtCode,tstr);
+						OUTFORMFIELD("F_ARTNRBCEAN",tstr);
+					end;  
+					if (FIELDINFORM("F_ARTNRBCEAN13")) then begin
+						ItemBCEAN13(IVCashrw.ArtCode,tstr);      
+						OUTFORMFIELD("F_ARTNRBCEAN13",tstr);
+					end;  
+					if (IVCashrw.ovst!=0) then begin 
+						OUTFORMFIELD("F_SPECIFIKATION",USetStr(33690) & " " & IVCashrw.Spec);
+					end else begin
+						OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
+					end;
+					if(returninv)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:07:26
+						PrintValueInclZero("F_ANTAL",-IVCashrw.Quant,M4UVal,LangNrr,SFb,false);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:07:29
+					end else begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:07:27
+						PrintValueInclZero("F_ANTAL",IVCashrw.Quant,M4UVal,LangNrr,SFb,false);
+					end;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:07:27
+					if (MSb.UnitConvCalc==0) then begin
+						PrintValueInclZero("F_ANTAL2",IVCashrw.Quant*IVCashrw.Coefficient,M4UVal,LangNrr,SFb,false);
+					end else begin
+						PrintValueInclZero("F_ANTAL2",IVCashrw.Quant/IVCashrw.Coefficient,M4UVal,LangNrr,SFb,false);
+					end;
+					if (FIELDINFORM("F_APRIS")) then begin
+						GetFieldArgument(Docr,F_APRIS,tstr);
+						if (nonblank(tstr)) then begin
+							t = Round(IVCashrw.Price,SetRoundModeD(StringToInt(tstr)));
+							PrintValueInclZero("F_APRIS",t,M423Val,LangNrr,SFb,false);
+						end else begin
+							if (RoundRec.Discount==0) then begin
+								t = Round(IVCashrw.Price,SetRoundModeD(3));
+							end else begin
+								t = Round(IVCashrw.Price,DefaultRoundMode);
+							end;
+							PrintValueInclZero("F_APRIS",t,M423Val,LangNrr,SFb,false);
+						end;  
+					end;
+					UnpackRowFieldMatrix(IVCashrw,"TaxMatrix",TMr);
+					if (FIELDINFORM("F_APRISEXCLVAT")) then begin
+						FindSalesExVat(TMr,IVCashrw.VATCode,IVCashrw.Price,IVCashr.InclVAT,IVCashr.NoTAXonVAT,t);
+						GetFieldArgument(Docr,F_APRISEXCLVAT,tstr);
+						if (nonblank(tstr)) then begin
+							t = Round(t,SetRoundModeD(StringToInt(tstr)));
+							PrintValueInclZero("F_APRISEXCLVAT",t,M423Val,LangNrr,SFb,false);
+						end else begin
+							if (RoundRec.Discount==0) then begin
+								t = Round(t,SetRoundModeD(3));
+							end else begin
+								t = Round(t,DefaultRoundMode);
+							end;
+							PrintValueInclZero("F_APRISEXCLVAT",t,M423Val,LangNrr,SFb,false);
+						end;  
+					end;
+					PrintValueInclZero("F_BELOPP",IVCashrw.Sum,M4Val,LangNrr,SFb,false);
+					OUTFORMFIELD("F_MOMSKOD",IVCashrw.VATCode);
+					PrintFormulaDiscount("F_RABATT",IVCashrw.vRebate,LangNrr,SFb,false);
+					OUTFORMFIELD("F_SERIENR",IVCashrw.SerialNr);
+					OUTFORMFIELD("F_UNITCODE",IVCashrw.UnitCode);
+					if (FIELDINFORM("F_ENHET")) then begin
+						SelectUnitText(IVCashr.LangCode,INr.Unittext,tstr);
+						OUTFORMFIELD("F_ENHET",tstr);
+					end;  
+					OUTFORMFIELD("F_BASPRIS",INr.UPrice1);
+					tstr = ValToString(IVCashrw.FIFO*IVCashrw.Quant,M45Val,SFb.thousSep,SFb.decimalPt,LangNrr.CutDecimals);
+					OUTFORMFIELD("F_SUMFIFO",tstr);
+					if (IVCashrw.PriceFactor==blankval) then begin
+						tstr = "";
+					end else begin
+						tstr = ValToString(IVCashrw.FIFO*IVCashrw.Quant,M4UVal,SFb.thousSep,SFb.decimalPt,LangNrr.CutDecimals);
+					end;
+					OUTFORMFIELD("F_PRICEFACTOR",tstr);
+					OUTFORMFIELD("F_EXCISE",IVCashrw.ExciseNr);
+					if (FIELDINFORM("F_ORIGINCOUNTRY")) then begin
+						GetOriginCoutry(IVCashrw.ArtCode,"",tstr);
+						OUTFORMFIELD("F_ORIGINCOUNTRY",tstr);
+					end;
+					CashInvVat(IVCashrw.stp,IVCashr.InclVAT,IVCashr.NoTAXonVAT,0,IVCashrw.VATCode,IVCashrw.Sum,vatprc,vatval,vatexclprc,vatinclprc,rowtax);
+					if (FIELDINFORM("F_ROWBASE")) then begin
+						t = IVCashrw.Sum;
+						if (IVCashr.InclVAT>0) then begin
+							if (t!=0) then begin
+								t = t - vatval;
+							end;
+						end;    
+						OUTFORMFIELD("F_ROWBASE",t);
+					end;
+					if (nonblank(IVCashrw.ArtCode)) then begin
+						if (FIELDINFORM("F_ROWVATVAL")) then begin
+							if (true) then begin//nonblank(vatval)
+							GetFieldArgument(Docr,F_ROWVATVAL,tstr);
+							if (nonblank(tstr)) then begin
+								PrintValueInclZero("F_ROWVATVAL",Round(vatval,SetRoundModeD(StringToInt(tstr))),M45Val,LangNrr,SFb,false);
+							end else begin
+								if (blank(vatprc)) then begin 
+									PrintValueInclZero("F_ROWVATVAL",0,M4Val,LangNrr,SFb,false);
+								end else begin
+									PrintValueInclZero("F_ROWVATVAL",vatval,M4Val,LangNrr,SFb,false);
+								end;
+							end;
+							end;
+						end;
+					end;
+					if (blank(vatprc)) then begin 
+						PrintValue("F_ROWVATPRC",0,M4Val,LangNrr,SFb,false);
+					end else begin
+						PrintValueInclZero("F_ROWVATPRC",vatprc,M4Val,LangNrr,SFb,false);
+					end;
+					PrintValueInclZero("F_ROWVATEXCLPRC",vatexclprc,M4Val,LangNrr,SFb,false);
+					OUTFORMFIELD("F_ROWSUMIFNOVAT",IVCashrw.Sum-vatval);      
+					OUTFORMFIELD("F_ROWPRICE",IVCashrw.Price-vatval/IVCashrw.Quant);      
+					AddVATBase(VATr,IVCashrw.VATCode,IVCashrw.Sum,blankval,vatcnt,IVCashr.InclVAT,IVCashr.NoTAXonVAT);
+
+					OUTFORMFIELD("F_MOTHERNR",IVCashrw.MotherNr);
+					BTr.ArtCode  = IVCashrw.ArtCode;
+					BTr.SerialNr = IVCashrw.SerialNr;
+					if (ReadFirstMain(BTr,2,true)) then begin 
+						OUTFORMFIELD("F_SUPPSERIALNR",BTr.SuppSerialNr);
+						OUTFORMFIELD("F_MAJORSTONE",BTr.MajStoneDet);
+						OUTFORMFIELD("F_COLOUR",BTr.Colour);
+						OUTFORMFIELD("F_CLARITY",BTr.Clarity);
+						OUTFORMFIELD("F_CERT",BTr.Cert);
+						OUTFORMFIELD("F_MINORSTONE",BTr.MinStoneDet);
+						OUTFORMFIELD("F_METAL",BTr.Metal);
+						OUTFORMFIELD("F_ROWWEIGHT",BTr.RowWeight);
+						OUTFORMFIELD("F_SIZE",BTr.Size);
+						OUTFORMFIELD("F_LENGTH",BTr.Length);
+			
+						OUTFORMFIELD("F_WATCHBRAND",BTr.WatchBrand);
+						OUTFORMFIELD("F_STYLENAME",BTr.StyleName);
+						OUTFORMFIELD("F_WATCHMETAL",BTr.WatchMetal);
+						OUTFORMFIELD("F_MOVEMENT",BTr.Movement);
+						OUTFORMFIELD("F_BRCSTR",BTr.BrcStr);
+						OUTFORMFIELD("F_GENDER",BTr.Gender);
+						OUTFORMFIELD("F_OTHER",BTr.Other);
+						OUTFORMFIELD("F_OTHER2",BTr.Other2);
+					end;  
+
+					if (FIELDINFORM("F_ROWTOT")) then begin
+						v = IVCashrw.Sum;
+						if (IVCashr.InclVAT==0) then begin
+							v = v + vatval;
+						end;
+						if ((nonblank(vatval)) or (nonblank(IVCashrw.Sum))) then begin
+							GetFieldArgument(Docr,F_ROWTOT,tstr);
+							if (nonblank(tstr)) then begin
+								if (blank(IVCashrw.ArtCode)) then begin
+									PrintValue("F_ROWTOT",Round(v,SetRoundModeD(StringToInt(tstr))),M45Val,LangNrr,SFb,false);
+								end else begin
+									PrintValueInclZero("F_ROWTOT",Round(v,SetRoundModeD(StringToInt(tstr))),M45Val,LangNrr,SFb,false);
+								end;
+							end else begin
+								if (blank(IVCashrw.ArtCode)) then begin
+									PrintValue("F_ROWTOT",v,M4Val,LangNrr,SFb,false);
+								end else begin
+									PrintValueInclZero("F_ROWTOT",v,M4Val,LangNrr,SFb,false);
+								end;
+							end;
+						end;
+					end;
+
+
+					EndFormRow;
+				case kInvoiceRowTypeGiftVoucherSold:
+					OUTFORMFIELD("F_ROWNAME",USetStr(8112));
+					OUTFORMFIELD("F_ARTNR",IVCashrw.GCNr);
+					OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
+					OUTFORMFIELD("F_GCNr",IVCashrw.GCNr);
+					GCr.SerNr = IVCashrw.GCNr;
+					ReadFirstMain(GCr,1,true);
+					OUTFORMFIELD("F_GCExpiryDate",GCr.ExpiryDate);
+					PrintValueInclZero("F_ANTAL",1.00,M4UVal,LangNrr,SFb,false);
+					PrintValueInclZero("F_BELOPP",IVCashrw.Sum,M4Val,LangNrr,SFb,false);
+					EndFormRow;
+					totsubtotwdisc = totsubtotwdisc + IVCashrw.Quant*IVCashrw.Price;
+					AddVATBase(VATr,IVCashrw.VATCode,IVCashrw.Sum,blankval,vatcnt,IVCashr.InclVAT,IVCashr.NoTAXonVAT);
+
+				case kInvoiceRowTypeGiftVoucherPayment:
+					OUTFORMFIELD("F_ROWNAME",USetStr(8113));
+					OUTFORMFIELD("F_ARTNR",IVCashrw.GCNr);
+					OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
+					OUTFORMFIELD("F_GCNr",IVCashrw.GCNr);
+					PrintValueInclZero("F_ANTAL",1.00,M4UVal,LangNrr,SFb,false);
+					PrintValueInclZero("F_BELOPP",IVCashrw.Sum,M4Val,LangNrr,SFb,false);
+					EndFormRow;
+
+				case kInvoiceRowTypeLoyaltyPointsPayment:
+					PointsSpent = PointsSpent + IVCashrw.Points;
+			end;
+		end;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 November 2018 15:00:50
   end;    
   PrintValueInclZero("F_SUBTOTALWITHOUTDISCOUNT",totsubtotwdisc,M4Val,LangNrr,SFb,negamountf);
   PrintValue("F_TOTALDISCOUNT",totdisc,M4Val,LangNrr,SFb,negamountf);
