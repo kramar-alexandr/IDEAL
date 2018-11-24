@@ -1196,15 +1196,83 @@ global
 updating procedure IVCashDClassTouchScreenPrint()
 begin
   record IVCashVc IVCashr;
-
+	integer wn;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 23 November 2018 15:16:41
+  string 255 tagstr,butstr,page;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 23 November 2018 15:17:29
+	LongInt pos;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 23 November 2018 15:19:09
+	Integer butnr,rwcnt;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 23 November 2018 15:19:30
+	record POSButtonsVc POSBr;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 11:47:42
+  row POSButtonsVc POSBrw;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 11:47:42
+  boolean found;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 11:47:43
+  string 20 doc,lang;
+  record RcVc RepSpec;
+  // Edit Start ---------------------------------------------- Edit Start
+	//Saturday, 24 November 2018 11:47:39
+	
+  wn = CurWindow;// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 23 November 2018 15:16:42
+  tagstr = PushButtonTag;
+  pos = 0;
+  GetNextSubstring(tagstr,pos,",",butstr);
+  GetNextSubstring(tagstr,pos,",",page);
+  butnr = StringToInt(butstr);
+  found = POSButtonsForWindow2(wn,page,POSBr);
+  
+	// Edit End ---------------------------------------------- Edit End
+	
+  if (found) then begin
+    rwcnt = MatRowCnt(POSBr);
+  	if (butnr>rwcnt) then begin
+      goto lIVCashDClassTouchScreenPrint;
+    end;
+    MatRowGet(POSBr,butnr-1,POSBrw);    
+  end;
+  
+lIVCashDClassTouchScreenPrint:;
+  
   if (WindowDoOK(CurWindow,0)) then begin
     GetWindowRecord(CurWindow,IVCashr);
     if (IVCashr.OKFlag!=0) then begin//must work like this at least for Poland but i think for any country
+      IVCashr.PrintOptions = POSBrw.Code;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 11:54:01
+      doc = firstinrange(IVCashr.PrintOptions,20);
+      lang = lastinrange(IVCashr.PrintOptions,20);
+      if(lang==doc)then begin
+      	lang = "";
+      end;
+      if(doc=="LANG" and blank(lang))then begin
+      	RepSpec.f2 = doc;
+      	RepSpec.f3 = lang;
+      	OpenWindow("IVCashLngprnWClass",0,wn,"","",RepSpec);
+      	goto lIVCashDClassTouchScreenPrint;
+      end;
       RecordActionIVCash_Print(IVCashr,"",false);
     end;
   end;
+lIVCashDClassTouchScreenPrint:;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 12:36:12 
   return;
 end;
+
+global
+updating procedure LangPrintInvoicedsm()// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 12:43:43
+begin
+	integer wn,mwn;
+	record IVCashVc IVCashr;
+	record RcVc RepSpec;
+	
+	wn = CurWindow;
+	deselectwindow(wn,true);
+	mwn = motherwindow(wn);
+	getwindowrecord(mwn,IVCashr);
+	getwindowrecord(wn,RepSpec);
+	
+	IVCashr.PrintOptions = RepSpec.f2 & ":" RepSpec.f1;
+	
+	closewindow(wn);
+	
+	RecordActionIVCash_Print(IVCashr,"",false);
+	
+return;
+end;
+
+
 
 function val Max(val v1,val v2)
 begin

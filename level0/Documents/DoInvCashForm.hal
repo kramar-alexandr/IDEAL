@@ -652,6 +652,10 @@ begin
   CUr.Code = IVCashr.CustCode;
   if (ReadFirstMain(CUr,1,true)) then begin
   end;
+  
+  OUTFORMFIELD("BPIF_CUPHONE",CUr.Phone);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 23 November 2018 13:55:30
+  
+  
   BlockLoad(RoundRec);  
   BlockLoad(SFb);  
   BlockLoad(CYb);  
@@ -1003,7 +1007,46 @@ BEGIN
   vector string 10 ivpaymode;
   val PointsSpent;
   row LegalInvNrBlock LINrbrw;
+  string 50 doccode,blngcode;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 12:00:52
+  boolean fnd;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 12:06:31
+ // Edit Start ---------------------------------------------- Edit Start
+	//Saturday, 24 November 2018 12:00:55
+	 
+  if(nonblank(IVCashr.PrintOptions))then begin
+  	doccode = firstinrange(IVCashr.PrintOptions,20);
+  	blngcode = lastinrange(IVCashr.PrintOptions,5);
+  	
+  	if(blngcode==doccode)then begin
+  		blngcode = "";
+  	end;
+  	
+  	if(nonblank(doccode))then begin
+  		Docr.Code = doccode;
+  		if(readfirstmain(Docr,1,true))then begin
+  			formcode = Docr.Code;
+  			
+  			if (OpenForm(formcode)) then begin  
+					PrintInvoiceWatermarks(IVCashr,false,-1);
+					CommonDocumentFields(RepSpec);
+					NumberofDocumentPages(FDrw.FPCode,MatRowCnt(IVCashr));
+					OUTFORMFIELD("F_DOCTYPE",USetStr(23455));
+					Docr.Code = formcode;
+					PrintInvCashForm(RepSpec,LangNrr,Docr,IVCashr);
+					CloseForm;        
+  			end else begin
+					printf = false;
+					MessageBox(1546,formcode);
+				end;
+  			goto LDoInvCashForm;
+  		end;
+  	end;
+  end;
   
+	// Edit End ---------------------------------------------- Edit End
+  if(nonblank(blngcode))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 12:00:45
+  	IVCashr.LangCode = blngcode;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 12:00:46
+  end;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 12:00:46
+	  
   GetLangNr(IVCashr.LangCode,LangNrr);
   FDr.repname = RepSpec.repname;
   FDr.shortname = RepSpec.shortname;
@@ -1042,6 +1085,7 @@ BEGIN
       end;
     end;
 LBREAK:;
+		
     if (nonblank(formcode)) then begin
       if (OpenForm(formcode)) then begin  
           PrintInvoiceWatermarks(IVCashr,false,-1);

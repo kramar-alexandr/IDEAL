@@ -1236,3 +1236,15 @@ begin
   EndWindow;
 
 end;
+
+
+window IVCashLngprnWClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real v;
+  WindowBegin("Specify Language",IVCashLngprnWClass,CGother,RcType);
+  SetWRect(20,80,350,150);
+  EditFieldTL(140,v=6,70,"Language",M4Code,Normal,10,f1,false,LangSClass);
+  HalPushButton(-120,-40,-20,-20,"LangPrintInvoicedsm","Print");
+  EndWindow;
+end;
