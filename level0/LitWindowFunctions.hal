@@ -941,6 +941,7 @@ begin
         procstr = "";
       case kPOSButtonTypePrintInvoice:  
         procstr = procstr & "TouchScreenPrint"; 
+        tagstr = i + 1;// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 11:50:58
       case kPOSButtonTypePrintOrder:  
         procstr = procstr & "TouchScreenPrint";
       case kPOSButtonTypePrintFireOrder:  
