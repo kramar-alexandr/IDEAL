@@ -1241,7 +1241,7 @@ not needed any more
           end;
         end;
         if (lightFlag==false) then begin
-          if ((check==true and transf) and (nonblank(IVrw.ArtCode))) then begin
+          if ((check==true) and (nonblank(IVrw.ArtCode))) then begin// and transf // Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 18 December 2018 14:59:09
             if (MSb.dontAllowOvership==1) then begin
               if (HasLocalization("RUS") and IsStandardProduct) then begin 
               end else begin   
@@ -1377,7 +1377,7 @@ not needed any more
             end;
           end;
         end;
-        if ((check==true) and (nonblank(IVrw.ArtCode)) and IVp.UpdStockFlag !=0) then begin//SerialNrs// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:53:58
+        if ((check==true) and (nonblank(IVrw.ArtCode)) and IVp.UpdStockFlag!=0) then begin//SerialNrs// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:53:58
 //        if ((IVp.UpdStockFlag!=0) and ((IVrw.OrdRow==-1) or (IVp.QTNr!=-1))) then begin
         if (IVrw.NotUpdStockFlag==0) then begin
           if (INr.SerNrf<3) then begin
