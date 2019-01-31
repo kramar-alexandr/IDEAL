@@ -2396,20 +2396,21 @@ begin
 		if (IVr.OKFlag!=0) then begin
 		end else begin   
 		//START-CUST   November 28, 2014 by PST
+			if(IVr.InvDate!=currentdate)then begin
+				recordcopy(oldIVr,IVr);
+				IVr.InvDate = currentdate;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:09
+				IVr.TransDate = currentdate;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:10
+				if(IVr.PayDate<currentdate)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:11
+					IVr.PayDate = currentdate;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:11
+				end;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:12
+				recordupdate(oldIVr,IVr,false);
+			end;
+
 		  if LMb.DefaulBaggerSupervisor == 1 then begin
 			  PinPadCntr.LocalMachine = LMb.LocalMachineCode;
 			  if ReadFirstMain(PinPadCntr,1,true) then begin end;
 			  if PinPadVoid2(PinPadCntr.ToBeVoided) then begin
 				  if CheckPinPad(IVr) == true then begin
-				  	if(IVr.InvDate!=currentdate)then begin
-							recordcopy(oldIVr,IVr);
-							IVr.InvDate = currentdate;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:09
-							IVr.TransDate = currentdate;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:10
-							if(IVr.PayDate<currentdate)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:11
-								IVr.PayDate = currentdate;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:11
-							end;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 23 January 2019 11:17:12
-							recordupdate(oldIVr,IVr,false);
-						end;
 					  if PinPad(IVr,response) == true then begin
 					  	PinPadCntr.LocalMachine = LMb.LocalMachineCode;
 					  	ResetLoop(PinPadCntr);
