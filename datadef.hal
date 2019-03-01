@@ -135,6 +135,7 @@ begin
   RecordField(RetItmPrice5,M423Val,0,0);
   RecordField(DeliveryType,M4Str,100,0);
   RecordField(SaleType,M4Str,100,0);
+  RecordField(AllowChVAT,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 01 03 2019 y. at 3:00:49 PM
   ArrayField(PriceExclVAT,M423Val,0,0); 
   EndRecordAdd;
   

@@ -16,6 +16,57 @@ remote inner procedure IVVc_PastePayDeal(var record IVVc,string,string); //JP: H
 
 
 
+
+global
+function Boolean IVDClassAllowChVATButtonAction(Integer wn,Integer value)// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 01 03 2019 y. at 3:08:00 PM
+BEGIN
+  Boolean res;
+ 	record IVVc IVr;
+ 	
+ 	res = true;
+ 	getwindowrecord(wn,IVr);
+ 	
+ 	if (WindowState(wn)==Rs_insert) then begin
+    GetWindowRecord(wn,IVr);
+    if (IVr.OKFlag!=0) then begin
+    	if(IVr.AllowChVAT==1)then begin
+      	res = UserCanAction("ChangeAllowChVAT",false);
+      end else begin
+      	res = true;
+      end;
+    end else begin
+      res = true;
+    end;
+  end;
+ 	if (WindowState(wn)==Rs_normal) then begin
+    GetWindowRecord(wn,IVr);
+    if (IVr.OKFlag!=0) then begin
+      if(IVr.AllowChVAT==1)then begin
+      	res = UserCanAction("ChangeAllowChVAT",false);
+      end else begin
+      	res = true;
+      end;
+    end else begin
+      res = true;
+    end;
+  end;  
+  if (WindowState(wn)==Rs_update) then begin
+    GetPrevWindowRecord(wn,IVr);
+    if (IVr.OKFlag!=0) then begin
+      if(IVr.AllowChVAT==1)then begin
+      	res = UserCanAction("ChangeAllowChVAT",false);
+      end else begin
+      	res = true;
+      end;
+    end else begin
+      res = true;
+    end;
+  end;
+  IVDClassAllowChVATButtonAction = res;
+  RETURN;
+END;
+
+
 global
 procedure IVWebText(string text,val value,integer type,string cur)
 begin

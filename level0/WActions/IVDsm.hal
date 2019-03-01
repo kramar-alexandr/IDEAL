@@ -2534,6 +2534,9 @@ begin
         if (WindowDoOK(nwn,0)) then begin
           UpdateBrowses("IVVc");
         end;
+        if(IVr.AllowChVAT==1)then begin
+        	messagebox(1000105,"");
+        end;
       end else begin
         MessageBox(res,"");
       end;
