@@ -64,6 +64,8 @@ begin
   end;
   HalPushButton(h2,v+=vs+40,h2+140,v+25,"GCIVsm","Parduoti Dov.k/Rank.");
   HalPushButton(h2,v=v+vs+5,h2+140,v+30,"PrintGift","Spausdinti Dov.k/Rank.");
+	CheckBox(h3,v,0,"Ar grˆìintas PVM?",AllowChVAT);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 01 03 2019 y. at 3:05:44 PM
+
   //EditField(h3,v+=vs,80,"Projektas",Normal,PRCode,false,0);
   //EditField(h3,v+=vs,80,"Kredito prieìastis",Normal,Reason,false,StandProblemsSClass); 
   //CheckBox(h4,v=6,0,"Abejotina",DisputedFlag);
@@ -491,7 +493,6 @@ begin
   CheckBox(h3,v+=16,0,"Nesi÷sti kaip E-fakt.",NoEInvoice);
   CheckBox(h3,v+=16,0,"Fiskalin˜ fakt.",FiscalFlag);
   CheckBox(h3,v+=16,0,"Sav. atsisk.",SelfBilling);
-  CheckBox(h3,v+=16,0,"Ar grˆìintas PVM?",AllowChVAT);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 01 03 2019 y. at 3:05:44 PM
   Tile(6,150,false,"6",PriceList); vs = 20;
   EditField(h1,v=vm,80,"Kainoraätis",Normal,PriceList,false,PLDefSClass);
   EditField(h1,v+=vs,80,"Nuolaid÷ lentel˜",Normal,RebCode,false,0);
