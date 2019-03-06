@@ -609,7 +609,7 @@ begin
   	SpecialMenu("Atidaryti D/K operacijˆ",'t',8,"OpenTRFromIV");
     SpecialMenu("Sukurti veiklˆ",'c',9,"CreateActFromIVDsm"); 
 		SpecialMenu("Sukurti kasos pajamas",' ',1,"DoCLInFromIVD");
-		SpecialMenu("Sukurti kredito paìymˆ",' ',20,"CreateCreditNoteIVDsm");
+		SpecialMenu("Sukurti kredito paìymˆ/grˆìinimˆ",' ',20,"CreateCreditNoteIVDsm");// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 06 03 2019 y. at 10:03:21 AM
 		SpecialMenu("Sukurti kredito sutart°",' ',25,"CreateCredManIVsm");
 		SpecialMenu("Sukurti kontraktˆ",' ',13,"COFromIVDsm");
 		SpecialMenu("Sukurti koregavimo faktðrˆ",' ',16,"CorrectionIVsm");
@@ -620,7 +620,7 @@ begin
   	SpecialMenu("Vadybininko nuolaidos perraäymas",' ',24,"MgrsDiscOverrideIVDsm"); 
     SpecialMenu("Apple Warranty Status Check",'w',26,"WarrantyStatusIVDsm"); 
     //START-CUST   October 2, 2014 by PST
-    SpecialMenu("Sukurti grˆìinimˆ",'',27,"CreatePOSReturnIVDsm"); 
+    //SpecialMenu("Sukurti grˆìinimˆ",'',27,"CreatePOSReturnIVDsm"); //off Edit ************************** BPI Ukraine - KramarAlexandr - 03, 06 03 2019 y. at 9:55:23 AM
     SpecialMenu("Pin Pad VOID",'',27,"PinPadVoidIVDsm");
     //END-CUST October 2, 2014 by PST
 //     SpecialMenu("Delete Invoice (don't use)",' ',10,"iDeal_ForceDeleteIVDsm");//hal-146; edz REMOVED BECAUSE HAL-309
