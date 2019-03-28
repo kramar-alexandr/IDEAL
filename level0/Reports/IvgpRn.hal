@@ -442,8 +442,8 @@ begin
   
   SetRepCol(2,60);
   SetRepCol(3,140);
-  SetRepCol(4,340);
-  SetRepCol(5,410);
+  SetRepCol(4,400);
+  SetRepCol(5,440);
   SetRepCol(6,480);
 
   if (RepSpec.flags[12]==1) then begin 
@@ -457,6 +457,7 @@ begin
       OutString(0,0,USetStr(2352),false);
       OutString(2,0,USetStr(2353),false);
       OutString(3,0,USetStr(2354),false);
+      OutString(340,0,"RMA nr.",false);// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 28 03 2019 y. at 4:49:21 PM
       OutString(4,0,USetStr(2642),true);
       OutString(5,0,USetStr(2644),true);
       OutString(6,0,USetStr(2643),true);
@@ -906,6 +907,9 @@ begin
 									OutString(0,"DblIVVc",tstr,false);
 									OutDate(2,0,IVr.InvDate,false);
 									OutString(3,0,IVr.Addr0,false);
+									if(RepSpec.ArtMode==0)then begin
+										OutString(340,0,IVr.OfficialSerNr,false);// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 28 03 2019 y. at 4:49:21 PM
+									end;
 									OutVal(4,0,iv,M4Val,true);
 									gpperc = (gps/iv)*100;
 									OutVal(5,0,gpperc,M4Val,true);
@@ -920,6 +924,9 @@ begin
 								OutString(0,"DblIVVc",tstr,false);
 								OutDate(2,0,IVr.InvDate,false);
 								OutString(3,0,IVr.Addr0,false);
+								if(RepSpec.ArtMode==0)then begin
+									OutString(340,0,IVr.OfficialSerNr,false);// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 28 03 2019 y. at 4:49:21 PM
+								end;
 								OutVal(4,0,iv,M4Val,true);
 								gpperc = (gps/iv)*100;
 								OutVal(5,0,gpperc,M4Val,true);
