@@ -1,3 +1,5 @@
+external inner function Boolean UserHasLimitedAccess(var string,var string);
+
 global 
 procedure IDEALSLVATLitRClassReportDefaults(Integer wn)
 BEGIN
@@ -31,3 +33,25 @@ begin
   SelectWindow(wn);
   return;
 end;
+
+
+global
+procedure IVGPRClassReportDefaults(Integer wn)
+BEGIN
+  record RcVc RepSpec;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"IVGPRClass");  
+  if (UserHasLimitedAccess(RepSpec.AccStr,RepSpec.f5)) then begin
+  end;
+  RepSpec.flags[1] = 1;
+  RepSpec.flags[2] = 1;
+  RepSpec.flags[3] = 1;
+  RepSpec.flags[4] = 1;
+  RepSpec.flags[5] = 1;// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 15 04 2019 y. at 11:59:23 AM
+  RepSpec.flags[12] = 1;// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 15 04 2019 y. at 11:59:49 AM
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  RETURN;
+END;
