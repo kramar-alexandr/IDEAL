@@ -3,6 +3,7 @@ external function Boolean HasJewelleryInterface();
 external procedure M4PadString(string,Integer,string,Boolean,var string);
 external function Boolean CanOpenIVCashPayment();
 external procedure MulVATIV(string,val,var val,var val,Integer,Integer);// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 00:16:34
+external updating procedure IVCashDClassTouchScreenFinishButtonRun(Boolean,Integer);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:40:25 PM
 
 /*
 procedure AddStringListRow(Integer wn,string artcode,string spec,val q,val p,val s,string tag)
@@ -1072,5 +1073,50 @@ begin
           WindowFieldGoto(wn,RepSpec,rownr,field,flagp);
       end;        
   end;
+  return;
+end;
+
+//====== Redefed from POSButtonsVc
+global
+function Integer POSButtonsDClassSelectSetToPaste(Integer wn,string fieldname)
+begin
+  Integer res;
+  record POSButtonsVc POSBr;
+  
+  res = -1;
+  GetWindowRecord(wn,POSBr);
+  switch (fieldname) begin
+    case "ButtonType":
+      res = 1431;// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:04:29 PM
+      switch (StringSetFromString(465,POSBr.WindowClass)) begin
+        case "RestAccDClass":
+          if (IsStandardProduct) then begin
+            res = 525;
+          end else begin
+            res = 494;
+          end;
+        case "NPTSIVCashDClass":
+          if (IsStandardProduct) then begin
+            res = 524;
+          end else begin
+            res = 1495;// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:04:32 PM
+          end;
+        case "IVDClass":
+          res = 518;
+      end;
+    case "WindowClass":
+      if (IsBooks) then begin res = 506; end;
+      if (ProgramType==typPOSStandalone) then begin res = 506; end;
+  end;
+  POSButtonsDClassSelectSetToPaste = res;
+  return;
+end;
+
+
+
+global
+updating procedure IVCashDClassTouchScreenFinishButtonWoNInv()// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:42:47 PM
+begin
+  IVCashDClassTouchScreenFinishButtonRun(false,-1);
   return;
 end;

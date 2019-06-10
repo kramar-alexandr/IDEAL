@@ -1,3 +1,17 @@
+enum begin
+  kPOSButtonTypePrintFiscalInvoice = 136,
+  kPOSButtonTypePrintCourtesyReceipt = 137,
+  kPOSButtonTypeCreateInvoice = 138,
+  kPOSButtonTypeSwishPayment = 139,
+  kPOSButtonTypeItemGroup = 140,
+  kPOSButtonTypeCashupMaint = 141,
+  kPOSButtonTypeQRPayment = 142,
+  kPOSButtonFinishIfInStock = 200,// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 15:04:18
+  kPOSButtonAddHeaderComment = 201,// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 17:44:27
+	kPOSButtonBuyBackItem = 202,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:34:55 PM
+	kPOSButtonTypeFinishWoNInv = 203// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 05 2019 y. at 9:36:35 PM
+end;
+
 event startup
 begin
   SetLangMode(LangLithuanian, "LIT", 0);
@@ -434,6 +448,271 @@ begin
   StrSetText(YodleeData,"Importuojami Yodlee duomenys"); 
   StrSetText(RestAPI,"Rest API"); //!!SAMETRANSLATION
   EndStrSet;
+  
+  SetBegin(1431);
+  SetText(kPOSButtonTypeBlank,"Tuä‹ias");
+  SetText(kPOSButtonTypeAddCommentLine,"Prid˜ti komentaro eilut«");  
+  SetText(kPOSButtonTypeAddHeaderLine,"Prid˜ti antraät˜s eilut«");   
+  SetText(kPOSButtonTypeAddHiddenLine,"Prid˜ti pasl˜ptˆ linijˆ");   
+  SetText(kPOSButtonTypeServiceCharge,"Prid˜ti paslaug÷ mokest°");  
+  SetText(kPOSButtonTypeAddSubtotalLine,"Prid˜ti tarpin« linijˆ");   
+  SetText(kPOSButtonTypeAddOrderDiscount,"Prid˜ti uìs. nuolaidˆ");  
+  SetText(kPOSButtonTypeAllInvoices,"Visos faktðros");
+  SetText(kPOSButtonTypeAmendLine,"Keisti eilut«");
+  SetText(kPOSButtonTypeAppleCancelAEOrder,"Apple Cancel AE Order");   //!!SAMETRANSLATION
+  SetText(kPOSButtonTypeAppleCreateAEOrder,"Apple Create AE Order");   //!!SAMETRANSLATION
+  SetText(kPOSButtonTypeAppleWarrantyStatusCheck,"Apple Warranty Status Check");   //!!SAMETRANSLATION
+  SetText(kPOSButtonTypeBaggerSearch,"Pakuotojo paieäka");
+  SetText(kPOSButtonTypeBookings,"Uìsakymai");  
+  SetText(kPOSButtonTypeCalculateTip,"Skai‹iuoti arbatpinigius");  
+  SetText(kPOSButtonTypeCashPayment,"Grynieji");
+  SetText(kPOSButtonTypeCashupReport,"Cash Up Report");
+  SetText(kPOSButtonTypeCashupMaint,"Kasos sesij÷ uìdarymas");
+  SetText(kPOSButtonTypeChangeAddress,"Pakeisti adresˆ"); 
+  SetText(kPOSButtonTypeEditDate,"Pakeisti datˆ");
+  SetText(kPOSButtonTypeChangeDiscountMatrix,"Pakeisti nuolaid÷ matricˆ");
+  SetText(kPOSButtonTypeChangeTerms,"Pakeisti sˆlygas"); 
+  SetText(kPOSButtonTypeLogin,"Pakeisti vartotojˆ");  
+  SetText(kPOSButtonTypeChequePayment,"‰ekis");
+  SetText(kPOSButtonTypeCloseSession,"Uìdaryti sesijˆ"); 
+  SetText(kPOSButtonTypePrintCourtesyReceipt,"Courtesy Receipt");  
+  //  if (HasLocalization("POL")) then begin
+    SetText(kPOSButtonTypeCorrectionInvoice,"Koreguojanti faktðra");
+//  end;
+  SetText(kPOSButtonTypeCreateActivity,"Sukurti veiklˆ"); 
+  SetText(kPOSButtonTypeCreateCashin,"Sukurti Kasos pajamas"); 
+  SetText(kPOSButtonTypeCreateCashOut,"Sukurti Kasos iälaidas"); 
+  SetText(kPOSButtonTypeCreateCorrectionInvoice,"Sukurti koregavimo faktðrˆ");
+  SetText(kPOSButtonTypeCreateCreditNote,"Sukurti kredito paìymˆ"); 
+  SetText(kPOSButtonTypeCreateCreditEMail,"Sukurti el. paätˆ"); 
+  SetText(kPOSButtonTypeCreateInvoice,"Create Invoice");
+  SetText(kPOSButtonTypeCreateGC,"Sukurti dovan÷ kuponˆ"); 
+  SetText(kPOSButtonTypeCreditCardPayment,"Kreditin˜ kortel˜");
+  SetText(kPOSButtonTypeCreditCardPaymentReversal,"Kreditin˜s kortel˜s mok˜jimo grˆìinimas");
+  SetText(kPOSButtonTypeCreditCardTerminalReports,"Kreditin˜s kortel˜s terminalo ataskaitos");
+  SetText(kPOSButtonTypeCreditNote,"Kredito paìyma"); 
+  SetText(kPOSButtonTypeCustomerSearch,"Pirk˜jo paieäka");
+  SetText(kPOSButtonTypeCustomerSearchFiltered,"Pirk˜jo paieäka BF"); 
+  SetText(kPOSButtonTypeDebitCardPayment,"Debetin˜ kortel˜");
+  SetText(kPOSButtonTypeDeleteItem,"Iätrinti prek«");
+  SetText(kPOSButtonTypeGotoPage,"Rodyti puslap°");
+  SetText(kPOSButtonTypeVolumetricBarCodeScan,"Dinaminis barkodas");
+  SetText(kPOSButtonTypeEnterReferenceNumber,"¯vesti nuorodos numer°"); 
+  SetText(kPOSButtonTypeFinish,"Baigti"); 
+  SetText(kPOSButtonTypeFinishWoNInv,"Baigti without new invoice");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:01:05 PM
+  
+  SetText(kPOSButtonBuyBackItem,"Buy Back Item");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:33:34 PM
+  SetText(kPOSButtonAddHeaderComment,"Add Header Comment");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:33:54 PM
+  SetText(kPOSButtonFinishIfInStock,"Finish If In Stock");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:34:32 PM
+  
+  SetText(kPOSButtonTypePrintFiscalInvoice,"Fiscal Invoice");  
+  SetText(kPOSButtonTypeFullPayment,"Pilnas apmok˜jimas");
+  SetText(kPOSButtonTypeGetCashFloat,"Kasos iälaidos");
+  SetText(kPOSButtonTypeGiftReceipt,"Dovanos ‹ekis");
+  SetText(kPOSButtonTypeGiftVoucherPayment,"Dovanos kuponas");
+  SetText(kPOSButtonTypeIncludePage,"¯traukti puslap°");
+  SetText(kPOSButtonTypeInstructions,"Instrukcijos");  
+  SetText(kPOSButtonTypeInvalidateInvoice,"Sustabdyti faktðrˆ");
+  SetText(kPOSButtonTypeInvoiceStatus,"Faktðros bðkl˜"); 
+  SetText(kPOSButtonTypeItem,"Prek˜");
+  SetText(kPOSButtonTypeItemGroup,"Preki÷ grup˜");
+  SetText(kPOSButtonTypeItemSearch,"Prek˜s paieäka");
+  SetText(kPOSButtonTypeItemStatus,"Prek˜s bðkl˜");
+  SetText(kPOSButtonTypeKitchenOrder,"Uìs. virtuvei");   
+  //SetText(kPOSButtonTypeLevelUp,"Level Up");
+  SetText(kPOSButtonTypeLoyaltyPointsBonus,"Lojalumo premijos taäkai");
+  SetText(kPOSButtonTypeLoyaltyCard,"Lojalumo kortel˜");
+  SetText(kPOSButtonTypeLoyaltyPointsPayment,"Lojalumo taäk÷ mok˜jimas");
+  SetText(kPOSButtonTypeManagerDiscountOverride,"Vadovo nuolaidos pakeitimas"); 
+  SetText(kPOSButtonTypeMergeBarTabs,"Sujungti stalo uìsakymus");
+  SetText(kPOSButtonTypeMoveToBarTab,"Perkelti prekes ° stalo uìsakymˆ"); 
+  SetText(kPOSButtonTypeMainSerialNr,"¯renginio serijinis numeris");  
+  SetText(kPOSButtonTypeEnterReferenceNumber,"¯vesti nuorodos numer°"); 
+  SetText(kPOSButtonTypeModifier,"Modifikatorius");
+  SetText(kPOSButtonTypeOnAccountPayment,"Avansinis mok˜jimas");
+  SetText(kPOSButtonTypeOnHotelGuestAccount,"Vieäbu‹io sve‹io sˆskaita");  
+  SetText(kPOSButtonTypeOpenRecord,"Atidaryti °raäˆ");
+  SetText(kPOSButtonTypeOpenCashDrawer,"Atidaryti gryn÷j÷ stal‹i÷"); 
+  SetText(kPOSButtonTypeEditCustomerRecord,"Atidaryti Pirk˜jo °raäˆ");
+  SetText(kPOSButtonTypeEditItemRecord,"Atidaryti prek˜s °raäˆ");
+  SetText(kPOSButtonTypeOpenCalendar,"Atidaryti kalendori÷");   
+  SetText(kPOSButtonTypeOpenNLTransaction,"Atidaryti D/K operacijˆ");   
+  SetText(kPOSButtonTypeOpenTaxMatrix,"Atidaryti Mok. matricˆ");   
+  SetText(kPOSButtonTypOpenInvoices,"Atidaryti faktðras");  
+  SetText(kPOSButtonTypeSpecialMenu,"Operacij÷ meniu funkcijos");
+  SetText(kPOSButtonTypeOpenSession,"Atidaryti sesijˆ"); 
+  SetText(kPOSButtonTypeOverrideOfficialSerNr,"Nepaisyti oficialaus serijos numerio"); 
+  SetText(kPOSButtonTypePauseSales,"Sustabdyti pardavimus");   
+  SetText(kPOSButtonTypePasteQuotation,"¯terpti pasiðlymˆ");   
+  SetText(kPOSButtonTypePasteSalesOrder,"¯terpti pardavim÷ uìsakymˆ");   
+  SetText(kPOSButtonTypePayment,"Mok˜ti");
+  SetText(kPOSButtonTypePaymentButtonsLayout,"Mok˜ti (mygtuk÷ iäd˜stymas)");
+  SetText(kPOSButtonTypePaymentOneMode,"Mok˜ti (vieno reìimo)"); 
+  SetText(kPOSButtonTypePOSCommand,"POS komanda");
+  SetText(kPOSButtonTypePriceLookup,"Kainos paieäka");
+    SetText(kPOSButtonTypePreviousSalesPrices,"Ankstesn˜s pardavim÷ kainos");
+  SetText(kPOSButtonTypePrintCancellation,"Spausdinti atäaukimˆ");  
+  SetText(kPOSButtonTypePrintFireOrder,"Spausdinti fire uìsakymˆ");  
+  SetText(kPOSButtonTypePrintInvoice,"Spausdinti faktðrˆ");  
+  SetText(kPOSButtonTypePrintProformaInvoice,"Spausdinti Proforma faktðrˆ");   
+  SetText(kPOSButtonTypePrintOrder,"Spausdinti kortel«");  
+  SetText(kPOSButtonTypePrintTab,"Print Tab to Receipt Printer");   //!!SAMETRANSLATION
+  SetText(kPOSButtonTypePrintOrderToKitchen,"Spausdinti kortel« ° virtuv«");  
+  SetText(kPOSButtonTypePutCashFloat,"Kasos pajamos");
+  SetText(kPOSButtonTypeConnectToCCTerminal,"Prisijungti prie kred. kort. terminalo"); 
+  SetText(kPOSButtonTypeRegisterClerk,"Registruoti kasininkˆ fiskaliniame printeryje"); 
+  SetText(kPOSButtonTypeReprintLastCCSlip,"Perspausdinti paskutin° CC kvitˆ"); 
+  SetText(kPOSButtonTypeReprintReceipt,"Perspausdinti ‹ek°");
+  SetText(kPOSButtonTypeResumeSales,"Atnaujinti pardavimus");   
+  SetText(kPOSButtonTypeReturn,"Grˆìinti");
+  SetText(kPOSButtonTypeReturnInvoiceNo,"Grˆìinamos fak. nr.");
+  SetText(kPOSButtonTypeReturnReason,"Grˆìinimo prieìastis");
+  SetText(kPOSButtonTypeRunReportOnServer,"Paleisti ataskaitˆ serveryje");
+  SetText(kPOSButtonTypeSalesAssistant,"Pard. asistentas");
+  SetText(kPOSButtonTypeSelectSalesman,"Pasirinkti pardav˜jˆ");
+  SetText(kPOSButtonTypeGiftVoucherSales,"Parduoti dovanos kuponˆ");
+  SetText(kPOSButtonTypeSendToFiscalDevice,"Si÷sti ° Fiscalin° °rengin°"); 
+   SetText(kPOSButtonTypeSendEMail,"Si÷sti e-laiäkˆ");  
+  SetText(kPOSButtonTypeSeniorCitizenDiscount,"Pensininko nuolaida");
+  SetText(kPOSButtonTypeLookupSerialNr,"Serijinio numerio paieäka");
+  SetText(kPOSButtonTypeSetBarTabClass,"Nustatyti Staliuko uìsakym÷ klas«");  
+  SetText(kPOSButtonTypeSetCovers,"Nustatyti virä÷ (covers)");  
+  SetText(kPOSButtonTypeSetTable,"Nustatyti staliukˆ");  
+  SetText(kPOSButtonTypeHotelGuests,"Rodyti vieäbu‹io sve‹ius");  
+  SetText(kPOSButtonTypeSplitBarTabs,"Padalinti baro korteles");  
+  SetText(kPOSButtonTypeSplitItem,"Padalinti prek«");
+  SetText(kPOSButtonTypeSupervisorSearch,"Priìiðr˜tojo paieäka");
+  SetText(kPOSButtonTypSaveInvoice,"Iäsaugoti faktðrˆ");  
+  SetText(kPOSButtonTypeSwishPayment,"Swish");
+  SetText(kPOSButtonTypeSyncNow,"Sinchr. dabar");
+//  SetText(kPOSButtonTypeLevelDown,"Level Down");
+  SetText(kPOSButtonTypeLevelTop,"Viräutinis lygis");
+  SetText(kPOSButtonTypeTransfertoInvoice,"Perkelti ° faktðras");
+    SetText(kPOSButtonTypeTransfertoQuotation,"Perkelti ° pasiðlymˆ");
+  SetText(kPOSButtonTypeTransfertoSL,"Perkelti ° pardavim÷ knygˆ");
+  SetText(kPOSButtonTypeTransfertoOrder,"Perkelti ° pardavimo uìsakymˆ");
+  SetText(kPOSButtonTypeUnregisterClerk,"Iäregistruoti kasininkˆ iä fiskalinio printerio"); 
+  SetText(kPOSButtonTypeVoidRow,"Anuliuoti eilut«");  
+  SetText(kPOSButtonTypeXReading,"X-Skaitymas");
+  SetText(kPOSButtonTypeYReading,"Y-Skaitymas");
+  SetText(kPOSButtonTypeZReading,"Z-Skaitymas");
+  SetText(kPOSButtonTypeHansaLogReport,"¯vyki÷ ìurnalo ataskaita");
+  EndSet;
+  
+  SetBegin(1495); // pos invoice, subset of 431
+  SetText(kPOSButtonTypeBlank,"Tuä‹ias");
+  SetText(kPOSButtonTypeAddCommentLine,"Prid˜ti komentaro eilut«"); 
+  SetText(kPOSButtonTypeAddHeaderLine,"Prid˜ti antraät˜s linijˆ");
+  SetText(kPOSButtonTypeAllInvoices,"Visos faktðros"); 
+  SetText(kPOSButtonTypeAmendLine,"Keisti eilut«");
+  SetText(kPOSButtonTypeAppleCancelAEOrder,"Apple nutraukti AE uìsakymˆ");  
+  SetText(kPOSButtonTypeAppleCreateAEOrder,"Apple sukurti AE uìsakymˆ");  
+  SetText(kPOSButtonTypeAppleWarrantyStatusCheck,"Apple garantijos patikrinimas");
+  SetText(kPOSButtonTypeBaggerSearch,"Pakuotojo paieäka");
+  SetText(kPOSButtonTypeCashPayment,"Grynieji");
+  SetText(kPOSButtonTypeLogin,"Pakeisti vartotojˆ");  
+  SetText(kPOSButtonTypeCashupReport,"Kasos ataskaita"); 
+  SetText(kPOSButtonTypeCashupMaint,"Kasos sesij÷ uìdarymas");
+  SetText(kPOSButtonTypePrintCourtesyReceipt,"Courtesy Receipt");  
+  SetText(kPOSButtonTypeHansaLogReport,"¯vyki÷ ìurnalo ataskaita");
+  SetText(kPOSButtonTypeChangeAddress,"Pakeisti adresˆ");
+  SetText(kPOSButtonTypeChangeDiscountMatrix,"Pakeisti nuolaid÷ lentel«");
+  SetText(kPOSButtonTypeChangeTerms,"Pakeisti sˆlygas");
+  SetText(kPOSButtonTypeChequePayment,"‰ekis");
+  SetText(kPOSButtonTypeCloseSession,"Uìdaryti sesijˆ"); 
+  //  if (HasLocalization("POL")) then begin
+    SetText(kPOSButtonTypeCorrectionInvoice,"Taisymo faktðra");
+//  end;
+  SetText(kPOSButtonTypeCreateGC,"Sukurti dovan÷ kuponˆ"); 
+  SetText(kPOSButtonTypeCreateInvoice,"Create Invoice");
+  SetText(kPOSButtonTypeCreditCardPayment,"Kreditin˜ kortel˜");
+  SetText(kPOSButtonTypeCreditCardPaymentReversal,"Kreditin˜s kortel˜s mok˜jimo grˆìinimas");
+  SetText(kPOSButtonTypeCreditCardTerminalReports,"Kreditin˜s kortel˜s terminalo ataskaitos");
+  SetText(kPOSButtonTypeCreditNote,"Kredito paìyma");
+  SetText(kPOSButtonTypeCustomerSearch,"Pirk˜jo paieäka");
+  SetText(kPOSButtonTypeCustomerSearchFiltered,"Pirk˜jo paieäka BF"); 
+  SetText(kPOSButtonTypeXReading,"Dienos ataskaita");
+  SetText(kPOSButtonTypeZReading,"Dienos Z ataskaita");
+  SetText(kPOSButtonTypeDebitCardPayment,"Debetin˜ kortel˜");
+  SetText(kPOSButtonTypeDeleteItem,"Iätrinti prek«");
+  SetText(kPOSButtonTypeMainSerialNr,"Prietaiso serijinis numeris"); 
+  SetText(kPOSButtonTypeGotoPage,"Rodyti puslap°");
+  SetText(kPOSButtonTypeVolumetricBarCodeScan,"Dinaminis barkodas");
+  SetText(kPOSButtonTypeEnterReferenceNumber,"¯veskite nuorodos numer°"); 
+  SetText(kPOSButtonTypeFinish,"Baigti");  
+	SetText(kPOSButtonTypeFinishWoNInv,"Baigti without new invoice");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:01:05 PM
+  
+  SetText(kPOSButtonBuyBackItem,"Buy Back Item");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:33:34 PM
+  SetText(kPOSButtonAddHeaderComment,"Add Header Comment");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:33:54 PM
+  SetText(kPOSButtonFinishIfInStock,"Finish If In Stock");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:34:32 PM
+  
+  SetText(kPOSButtonTypePrintFiscalInvoice,"Fiscal Invoice");  
+  SetText(kPOSButtonTypeFullPayment,"Pilnas apmok˜jimas"); 
+  SetText(kPOSButtonTypeGetCashFloat,"Kasos iälaidos");
+  SetText(kPOSButtonTypeGiftReceipt,"Dovanos grˆìinimas");
+  SetText(kPOSButtonTypeGiftVoucherPayment,"Dovanos kuponas");
+  SetText(kPOSButtonTypeIncludePage,"¯terpti puslap°"); 
+  SetText(kPOSButtonTypeInvalidateInvoice,"Sustabdyti faktðrˆ");
+  SetText(kPOSButtonTypeItem,"Prek˜");
+  SetText(kPOSButtonTypeItemGroup,"Preki÷ grup˜");
+  SetText(kPOSButtonTypeItemSearch,"Prek˜s paieäka");
+  SetText(kPOSButtonTypeItemStatus,"Prek˜s bðkl˜");
+  //SetText(kPOSButtonTypeLevelUp,"Level Up");
+  SetText(kPOSButtonTypeLoyaltyPointsBonus,"Lojalumo premijos taäkai");
+  SetText(kPOSButtonTypeLoyaltyCard,"Lojalumo kortel˜s");
+  SetText(kPOSButtonTypeLoyaltyPointsPayment,"Lojalumo taäk÷ apmok˜jimas");
+  SetText(kPOSButtonTypeManagerDiscountOverride,"Vadovo nuolaidos pakeitimas"); 
+  SetText(kPOSButtonTypeModifier,"Modifikatorius");
+  SetText(kPOSButtonTypeOnAccountPayment,"Avansinis mok˜jimas");
+  SetText(kPOSButtonTypeOnHotelGuestAccount,"Vieäbu‹io sve‹io sˆskaita");   
+  SetText(kPOSButtonTypeOpenCashDrawer,"Atidaryti gryn÷j÷ stal‹i÷");
+  SetText(kPOSButtonTypeEditCustomerRecord,"Atidaryti Pirk˜jo °raäˆ");
+    SetText(kPOSButtonTypeEditItemRecord,"Atidaryti Prek˜s °raäˆ");
+  SetText(kPOSButtonTypOpenInvoices,"Neapmok˜tos faktðros");  
+  SetText(kPOSButtonTypeOpenSession,"Atidaryti sesijˆ"); 
+  SetText(kPOSButtonTypeOpenTaxMatrix,"Atidaryti mokes‹i÷ matricˆ");
+  SetText(kPOSButtonTypeSpecialMenu,"Funkcij÷ Meniu eilut˜"); 
+  SetText(kPOSButtonTypeOverrideOfficialSerNr,"Nepaisyti oficialaus serijos numerio"); 
+  SetText(kPOSButtonTypePayment,"Mok˜ti");
+  SetText(kPOSButtonTypePaymentButtonsLayout,"Mok˜ti (mygtuk÷ iäd˜stymas)"); 
+  SetText(kPOSButtonTypePaymentOneMode,"Mok˜ti (vieno reìimo)"); 
+  SetText(kPOSButtonTypePOSCommand,"POS komanda");
+  SetText(kPOSButtonTypePriceLookup,"Kainos paieäka");
+  SetText(kPOSButtonTypePreviousSalesPrices,"Ankstesn˜s pardavimo kainos");
+  SetText(kPOSButtonTypePrintInvoice,"Spausdinti faktðrˆ");
+  SetText(kPOSButtonTypePutCashFloat,"Kasos pajamos");
+  SetText(kPOSButtonTypeConnectToCCTerminal,"Prisijungti prie K. kort. terminalo");
+  SetText(kPOSButtonTypePauseSales,"Sustabdyti pardavimus");   
+  SetText(kPOSButtonTypePasteQuotation,"¯terpti pasiðlymˆ");
+  SetText(kPOSButtonTypePasteSalesOrder,"¯terpti pardavim÷ uìsakymˆ");
+  SetText(kPOSButtonTypeQRPayment,"Scan to Pay (QR)");
+  SetText(kPOSButtonTypeRegisterClerk,"Registruoti kasininkˆ fiskaliniame printeryje"); 
+  SetText(kPOSButtonTypeReprintLastCCSlip,"Perspausdinti paskutin° CC kvitˆ"); 
+  SetText(kPOSButtonTypeReprintReceipt,"Perspausdinti °plaukˆ"); 
+  SetText(kPOSButtonTypeResumeSales,"Atnaujinti pardavimus");   
+  SetText(kPOSButtonTypeReturn,"Grˆìinti");
+  SetText(kPOSButtonTypeReturnInvoiceNo,"Grˆì. fakt. nr.");
+  SetText(kPOSButtonTypeReturnReason,"Grˆì. prieìastis");
+  SetText(kPOSButtonTypeRunReportOnServer,"Paleisti ataskaitˆ serveryje");
+  SetText(kPOSButtonTypeSalesAssistant,"Pardav˜jas");
+  SetText(kPOSButtonTypSaveInvoice,"Iäsaugoti faktðrˆ");  
+  SetText(kPOSButtonTypeSelectSalesman,"Pasirinkti pardav˜jˆ");
+  SetText(kPOSButtonTypeGiftVoucherSales,"Parduoti dovan÷ kuponˆ");
+    SetText(kPOSButtonTypeSendEMail,"Si÷sti e-laiäkˆ");
+  SetText(kPOSButtonTypeSeniorCitizenDiscount,"Pensinink÷ nuolaida");
+  SetText(kPOSButtonTypeLookupSerialNr,"Ser. nr. paieäka");
+  SetText(kPOSButtonTypeSplitItem,"Padalinti prekes");
+  SetText(kPOSButtonTypeSupervisorSearch,"Priìiðr˜tojo paieäka");
+  SetText(kPOSButtonTypeSwishPayment,"Swish");
+//  SetText(kPOSButtonTypeLevelDown,"Level Down");
+  SetText(kPOSButtonTypeLevelTop,"Viräutinis lygis");
+  SetText(kPOSButtonTypeTransfertoInvoice,"Perkelti ° faktðrˆ");
+    SetText(kPOSButtonTypeTransfertoQuotation,"Perkelti ° pasiðlymˆ");
+  SetText(kPOSButtonTypeTransfertoSL,"Perk˜limas ° pardavim÷ knygˆ");
+  SetText(kPOSButtonTypeTransfertoOrder,"Perkelti ° pardavimo uìsakymˆ");
+  SetText(kPOSButtonTypeUnregisterClerk,"Iäregistruoti kasininkˆ fiskaliniame printeryje"); 
+  SetText(kPOSButtonTypeVoidRow,"Paäalinti eilut«");
+  EndSet;
   
   return;
 end;

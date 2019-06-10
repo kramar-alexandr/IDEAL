@@ -737,6 +737,10 @@ begin
   	KeySegment(OwnID);
 	EndRecord;
 	
+	RecordAddBegin(POSButtonsVc,"BPI_POSButtonsVc");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:59:47 PM
+  	ChangeMatrixField(ButtonType,M4Set,1431,0); //Change set from 431 -> 1431
+  EndRecordAdd;
+	
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
   RecordField(Math,M4Matrix,0,0);
   ArrayBegin(Math,-,1);

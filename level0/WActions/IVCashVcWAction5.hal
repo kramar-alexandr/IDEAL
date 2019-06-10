@@ -129,6 +129,12 @@ external function boolean CheckPinPadCash(record IVCashVc);// Edit *************
 external updating function boolean PinPadVoid2(longint);
 external function boolean PinPadCash(var record IVCashVc,var string);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 13 March 2018 17:00:33
 
+enum begin
+  kPOSButtonFinishIfInStock = 200,// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 15:04:18
+  kPOSButtonAddHeaderComment = 201,// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 17:44:27
+	kPOSButtonBuyBackItem = 202,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:44:10 PM
+	kPOSButtonTypeFinishWoNInv = 203// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 05 2019 y. at 9:36:35 PM
+end;
 
 updating function longint CheckPinPadTerminal(integer wn,var record IVCashVc IVCashr)// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 13 March 2018 16:43:33
 begin
@@ -3272,6 +3278,9 @@ begin
   switch (POSBrw.ButtonType) begin
     case kPOSButtonTypeFinish:
       IVCashDClassTouchScreenFinishButtonRun(true,-1);   
+      res = true;
+    case kPOSButtonTypeFinishWoNInv:
+      IVCashDClassTouchScreenFinishButtonRun(false,-1);   
       res = true;
     case kPOSButtonTypeTransfertoSL:
       IVCashDClassTouchScreenTransfertoSL;
