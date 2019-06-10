@@ -882,14 +882,14 @@ begin
       if (HasLocalization("LVA")) then begin
         chkbx = 4;
       end;
-      ButtonFrame(h-130,v+=3*vs+chkbx*16,490,2,"Automatinis sand˜lio atnaujinimas POS modulyje");
+      ButtonFrame(h-130,v+=3*vs+chkbx*16,490,3,"Automatinis sand˜lio atnaujinimas POS modulyje");
       end else begin
         v = v + 40;
       if (HasLocalization("LVA")) then begin
         v = v+3*16;
       end;
       if (HasModRest) then begin
-        ButtonFrame(h-130,v,490,2,"Automatinis sand˜lio atnaujinimas POS modulyje");
+        ButtonFrame(h-130,v,490,3,"Automatinis sand˜lio atnaujinimas POS modulyje");
       end else begin
         v = v;
       end;
@@ -902,6 +902,8 @@ begin
 
     CheckBox(h2,v,0,"Vykdyti sand˜lio atnaujinimˆ",UpdStockMaint); 
     CheckBox(h2,v+=18,0,"Kurti patvirtintus sand˜lio nuraäymus",POSOKSD);
+    CheckBox(h2,v+=18,0,"OK Goods Receipts",AUTOOKPU);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:39:48 PM
+
   end;
   if (HasModIN) then begin
     ButtonFrame(h-130,v+=40,490,2,"Automatinis sand˜lio atnaujinimas Restorano modulyje");

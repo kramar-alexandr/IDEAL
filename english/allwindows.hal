@@ -870,10 +870,10 @@ begin
   EditField(h,v+=vs,120,"Buy Back Item",Normal,BuyBackItemCode,false,INSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - середа, 15 листопада 2017 р. о 21:57:28
   if (HasModIN) then begin
     if (IsEnterprise) then begin
-      ButtonFrame(h-130,v+=3*vs+2*16,490,2,"POS");
+      ButtonFrame(h-130,v+=3*vs+2*16,490,3,"POS");
     end else begin
       if (HasModRest) then begin
-        ButtonFrame(h-130,v+=40,490,2,"POS");
+        ButtonFrame(h-130,v+=40,490,3,"POS");
       end else begin
         v = v + 40;
       end;
@@ -886,6 +886,7 @@ begin
 
     CheckBox(h2,v,0,"Run Update #Stock# Maintenance",UpdStockMaint);
     CheckBox(h2,v+=18,0,"OK #Stock Depreciations#",POSOKSD);
+    CheckBox(h2,v+=18,0,"OK Goods Receipts",AUTOOKPU);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:39:48 PM
   end;
   if (HasModRest) then begin
     ButtonFrame(h-130,v+=40,490,2,"Restaurant");
