@@ -3524,6 +3524,12 @@ begin
         nwn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);  
       end;
     end;
+  end else begin
+    wn = FindWindow("NPTSIVCashLClass");
+    if(nonblank(wn)) then begin
+      CloseWindow(wn);
+    end;
+    nwn = OpenWindow("NPTSIVCashLClass",1,0,subset,"",IVCashr);
   end;
   return;
 end;
