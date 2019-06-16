@@ -1110,6 +1110,12 @@ BEGIN
         PrintEpsonTMTReceipt(IVr,LSPDr);
       case kSerialPortDeviceModelFiscPrinterBematechMP2100:
         IVVc_PrintBematechMP2100Receipt(IVr,LSPDr);
+//CUST-BEGIN
+/*not developed yet. 
+      case 200:
+        IVVc_PrintAPSAReceipt(IVr,LSPDr);
+*/
+//CUST-END
     end;
   end;
   return;

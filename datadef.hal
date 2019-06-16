@@ -36,6 +36,7 @@ SourceFile("halcust/english", 3);// Edit ************************** BPI Ukraine 
 SourceFile("halcust/RActions", 3);
 SourceFile("halcust/Reports", 3);
 SourceFile("halcust/Exports", 3);
+SourceFile("halcust/Printers", 3);
 SourceFile("halcust/WActions", 3);
 SourceFile("halcust/Web", 3);
 SourceFile("halcust/WebNG", 3);

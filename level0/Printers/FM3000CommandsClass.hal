@@ -42,6 +42,10 @@ external procedure PMsg_PeriodicReport(record RcVc,record LSerialPortDeviceVc);
 external procedure PMsg_YearlyReport(record LSerialPortDeviceVc,date);
 external procedure BematechMP2100XReport(record LSerialPortDeviceVc);
 external procedure BematechMP2100ZReport(record LSerialPortDeviceVc);
+//CUST-BEGIN
+external outer function Integer APSA_PrintZReport(record LSerialPortDeviceVc);
+external outer function Integer APSA_PrintXReport(record LSerialPortDeviceVc);
+//CUST-END
 
 function Integer FPOpen(record LSerialPortDeviceVc LSPDr)
 begin
@@ -497,6 +501,10 @@ begin
         FM32PrintDailyReportdll(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB05:// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 23 January 2018 12:19:54
       	FB05MonthlyReport(LSPDr);
+//CUST-BEGIN
+      case 200:
+        APSA_PrintXReport(LSPDr);
+//CUST-END
     end;
   end else begin// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 23 January 2018 12:24:22
   	// Edit Start ---------------------------------------------- Edit Start
@@ -562,6 +570,10 @@ begin
         FM32DailyReportdll(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB05:
         FB05DailyReport(LSPDr);
+//CUST-BEGIN
+      case 200:
+        APSA_PrintZReport(LSPDr);
+//CUST-END
     end;
   end else begin
   	// Edit Start ---------------------------------------------- Edit Start

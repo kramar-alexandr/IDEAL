@@ -1,0 +1,436 @@
+external inner function val MulRateToBase1(var string,val,val,val,val,val,val,roundmode);
+
+enum begin
+  kAPSACommandOpen = 0,
+  kAPSACommandVAT = 1,
+  kAPSACommandClose = 2,
+  kAPSACommandAddItem = 3,
+  kAPSACommandPay = 4,
+  kAPSACommandStatus = 5,
+  kAPSACommandBeginReceipt = 6,
+  kAPSACommandEndReceipt = 7,
+  kAPSACommandComment = 8,
+  kAPSACommandZReport = 9,
+  kAPSACommandXReport = 10
+end;
+
+function string 255 GetAPSAUrl(record LSerialPortDeviceVc LSPDr)
+begin
+  string 255 res;
+
+  res = LSPDr.Port;
+
+  GetAPSAUrl = res;
+  return;
+end;
+
+function Integer ExecAPSARequest(record LSerialPortDeviceVc LSPDr,string path,area request)
+begin
+  string 255 url,stat;
+  area reply;
+  Integer res;
+  JSON js;
+  Longint tick;
+
+  url = GetAPSAUrl(LSPDr);
+  res = 12400;//problem with connection
+  if (SendWebRequest(url,8111,-1,false,"POST",path,"application/json","",false,request,reply,30)) then begin
+    stat = GetStringFromArea(reply,0,2);
+    if (right(path,4)=="open") then begin
+      js = ParseJSONArea(reply);
+      if (JSONGet(js,"OpenResult")=="000000" or len(JSONGet(js,"OpenResult"))!=6) then begin
+        res = 19389;//failed to open session
+      end else begin
+        res = 0;
+      end;
+    end else begin
+      if (stat=="OK") then begin
+        res = 0;
+      end;
+      if (stat=="ER") then begin
+        res = 19381;//problem with reply. possibly get more info and return to user
+      end;
+      if (stat=="NO") then begin
+        res = 12400;//no connection to printer
+      end;
+    end;
+  end;
+  tick = GetCurTick;
+  writeareatofile(reply,"_apsa.reply." & tick & ".txt",0);
+  writeareatofile(request,"_apsa.request" & tick & ".txt",0);
+
+  ExecAPSARequest = res;
+  return;
+end;
+
+function Integer SendAPSASimpleCommand(record LSerialPortDeviceVc LSPDr,Integer command)
+begin
+  Integer res;
+  area request;
+  string 255 path;
+
+  switch (command) begin
+    case kAPSACommandOpen:
+      path = "/json/fp550/Open";
+      AddTextToArea("{""port"":""0"",""settings"":""0""}",request);
+    case kAPSACommandClose:
+      path = "/json/fp550/Close";
+    case kAPSACommandBeginReceipt:
+      path = "/json/fp550/Cmdline/";
+      AddTextToArea("{""cmd"":""48"",""parameter"":""""}",request);
+    case kAPSACommandEndReceipt:
+      path = "/json/fp550/Cmdline/";
+      AddTextToArea("{""cmd"":""56"",""parameter"":""""}",request);
+    case kAPSACommandZReport:
+      path = "/json/fp550/Cmdline/";
+      AddTextToArea("{""cmd"":""56"",""parameter"":""0""}",request);
+    case kAPSACommandXReport:
+      path = "/json/fp550/Cmdline/";
+      AddTextToArea("{""cmd"":""56"",""parameter"":""2""}",request);
+  end;
+
+  res = ExecAPSARequest(LSPDr,path,request);
+
+  SendAPSASimpleCommand = res;
+  return;
+end;
+
+function Integer IVCash_PrintRecItem(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,row IVCashVc IVCashrw,Boolean voidf)
+begin
+  Integer res;
+  area request;
+  string 255 path,itemline,spec;
+
+  spec = ConvertStringToCodePage("CP1257",IVCashrw.Spec);
+  if (nonblank(IVCashrw.SerialNr)) then begin
+    spec = spec & chr(10) & IVCashrw.SerialNr;
+  end;
+  if (voidf) then begin
+    IVCashrw.Quant = -IVCashrw.Quant;
+  end;
+
+  itemline = spec & chr(9) & IVCashrw.Price & IVCashrw.VATCode & "*" & ValToString(IVCashrw.Quant,M40Val,"",".",0) & "," & IVCashrw.vRebate;
+
+  path = "/json/fp550/Cmdline/";
+  AddTextToArea("{""cmd"":""49"",""parameter"":""" & itemline & """}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request);
+
+  IVCash_PrintRecItem = res;
+  return;
+end;
+
+procedure IVCash_CalculatePaymentModeSums(record IVCashVc IVCashr,var vector val vpaymodesums)
+begin
+  row IVCashVc IVCashrw;
+  Integer i,rwcnt;
+  val t;
+  
+  vpaymodesums[kInvoiceRowTypeCreditCardPayment] = 0.00;
+  vpaymodesums[kInvoiceRowTypeCashPayment] = 0.00;
+  rwcnt = MatRowCnt(IVCashr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVCashr,i,IVCashrw);
+    switch (IVCashrw.stp) begin
+//      case kInvoiceRowTypeGiftVoucherPayment:
+      case kInvoiceRowTypeCreditCardPayment:
+        vpaymodesums[kInvoiceRowTypeCreditCardPayment] = vpaymodesums[kInvoiceRowTypeCreditCardPayment] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
+//      case kInvoiceRowTypeLoyaltyPointsPayment:
+      case kInvoiceRowTypeCashPayment:
+        vpaymodesums[kInvoiceRowTypeCashPayment] = vpaymodesums[kInvoiceRowTypeCashPayment] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
+//      case kInvoiceRowTypeChequePayment:
+    end;
+  end;
+  t = IVCashr.BaseSum4 - vpaymodesums[kInvoiceRowTypeCashPayment] - vpaymodesums[kInvoiceRowTypeCreditCardPayment];
+  if (t>0) then begin
+    vpaymodesums[kInvoiceRowTypeCashPayment] = vpaymodesums[kInvoiceRowTypeCashPayment] + t;  
+  end;
+  return;
+end;
+
+function Integer SendAPSAPayments(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr)
+begin
+  Integer res;
+  area request;
+  string 255 path;
+  vector val vpaymodesums;
+
+  //payments = GetPayments;
+
+  IVCash_CalculatePaymentModeSums(IVCashr,vpaymodesums);
+  
+  path = "/json/fp550/Cmdline/";
+  if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""C" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request);
+  end;
+
+  SetAreaZeroSize(request);
+  if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""P" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request);
+  end;
+
+  SendAPSAPayments = res;
+  return;
+end;
+
+
+function Integer BeginFiscalReceipt(record LSerialPortDeviceVc LSPDr)
+begin
+  Integer res;
+  
+  res = SendAPSASimpleCommand(LSPDr,kAPSACommandBeginReceipt);
+
+  BeginFiscalReceipt = res;
+  return;
+end;
+
+function Integer APSAOpen(record LSerialPortDeviceVc LSPDr)
+begin
+  Integer res;
+  
+  res = SendAPSASimpleCommand(LSPDr,kAPSACommandOpen);
+
+  APSAOpen = res;
+  return;
+end;
+
+function Integer APSAClose(record LSerialPortDeviceVc LSPDr)
+begin
+  Integer res;
+  
+  res = SendAPSASimpleCommand(LSPDr,kAPSACommandClose);
+
+  APSAClose = res;
+  return;
+end;
+
+function Integer IVCash_PrintCommentLine(record LSerialPortDeviceVc LSPDr,string comment)
+begin
+  Integer res;
+  string 255 path;
+  area request;
+
+  path = "/json/fp550/Cmdline/";
+  AddTextToArea("{""cmd"":""54"",""parameter"":""" & ConvertStringToCodePage("CP1257",comment) & """}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request);
+
+  IVCash_PrintCommentLine = res;
+  return;
+end;
+
+
+function Integer IVCash_EndFiscalReceipt(record LSerialPortDeviceVc LSPDr)
+begin
+  Integer res;
+
+  res = SendAPSASimpleCommand(LSPDr,kAPSACommandEndReceipt);
+
+  IVCash_EndFiscalReceipt = res;
+  return;
+end;
+
+
+function Integer IVCash_PrintItemRows(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr)
+begin
+  Integer res,noErr;
+  row IVCashVc IVCashrw;
+  Integer i,rwcnt;
+
+  rwcnt = MatRowCnt(IVCashr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVCashr,i,IVCashrw);
+    switch (IVCashrw.stp) begin
+      case kInvoiceRowTypeStructuredItemComponent:
+        goto LkInvoiceRowTypeNormal2;
+      case kInvoiceRowTypeNormal:
+LkInvoiceRowTypeNormal2:;
+        if (nonblank(IVCashrw.ArtCode)) then begin
+          res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false);
+          if (res!=noErr) then begin
+            goto LPrintItemRows;
+          end;
+        end else begin
+          res = IVCash_PrintCommentLine(LSPDr,IVCashrw.Spec);
+          if (res!=noErr) then begin
+            goto LPrintItemRows;
+          end;
+        end;
+      case kInvoiceRowTypeVoid:
+        res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,true);
+        if (res!=noErr) then begin
+          goto LPrintItemRows;
+        end;
+    end;
+  end;
+LPrintItemRows:;  
+  IVCash_PrintItemRows = res;
+  return;
+end;
+
+
+global
+updating procedure IVCashVc_PrintAPSAReceipt(var record IVCashVc IVCashr,record LSerialPortDeviceVc LSPDr)
+begin
+  record IVCashVc oldIVCashr;
+  Integer noErr,res;
+  record LocalMachineBlock LMb;
+  record MachineCashVc MCr;
+  vector val vatrates;
+  
+  noErr = 0;
+  //res = APSACheckStatus;
+  if (res==noErr) then begin
+    noErr = 0;
+    BlockLoad(LMb);
+
+  /*  
+    res = LoadAPSAVATRates(vatrates);
+    if (res!=noErr) then begin
+      goto LIVCashVc_PrintAPSAReceipt;
+    end;
+  */
+    res = APSAOpen(LSPDr);
+    if (res!=noErr) then begin
+      goto LIVCashVc_PrintAPSAReceipt;
+    end;
+    res = BeginFiscalReceipt(LSPDr);
+    if (res!=noErr) then begin
+      goto LIVCashVc_PrintAPSAReceipt;
+    end;
+    res = IVCash_PrintItemRows(LSPDr,IVCashr);
+    if (res!=noErr) then begin
+      goto LIVCashVc_PrintAPSAReceipt;
+    end;
+    res = SendAPSAPayments(LSPDr,IVCashr);
+    if (res!=noErr) then begin
+      goto LIVCashVc_PrintAPSAReceipt;
+    end;
+    
+    res = IVCash_EndFiscalReceipt(LSPDr);
+    if (res!=noErr) then begin
+      goto LIVCashVc_PrintAPSAReceipt;
+    end;
+    res = APSAClose(LSPDr);
+    if (res!=noErr) then begin
+      goto LIVCashVc_PrintAPSAReceipt;
+    end;
+    if (IVCashr.Prntdf!=0) then begin
+      RecordCopy(oldIVCashr,IVCashr);
+      IVCashr.Prntdf = 1;
+      RecordUpdate(oldIVCashr,IVCashr,false);
+    end;    
+LIVCashVc_PrintAPSAReceipt:;
+    if (res!=0) then begin
+      MessageBox(res,"");
+    end;
+  end;
+  return;
+end;
+
+global
+function Integer APSA_PrintZReport(record LSerialPortDeviceVc LSPDr)
+begin
+  Integer res;
+  
+  res = SendAPSASimpleCommand(LSPDr,kAPSACommandZReport);
+
+  APSA_PrintZReport = res;
+  return;
+end;
+
+global
+function Integer APSA_PrintXReport(record LSerialPortDeviceVc LSPDr)
+begin
+  Integer res;
+  
+  res = SendAPSASimpleCommand(LSPDr,kAPSACommandXReport);
+
+  APSA_PrintXReport = res;
+  return;
+end;
+
+function Integer MoneyOutCurr(record LSerialPortDeviceVc LSPDr,record CashVc Cashr)
+begin
+  Integer res,msglen,noErr;
+  string 255 path;
+  area request;
+    
+  path = "/json/fp550/Cmdline/";
+  AddTextToArea("{""cmd"":""70"",""parameter"":""" & ValToString(-Cashr.Total,M4UVal,"",".",0) & """}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request);
+
+  MoneyOutCurr = res;
+  return;
+end;
+
+function Integer MoneyInCurr(record LSerialPortDeviceVc LSPDr,record CashVc Cashr)
+begin
+  Integer res,msglen,noErr;
+  string 255 path;
+  area request;
+    
+  path = "/json/fp550/Cmdline/";
+  AddTextToArea("{""cmd"":""70"",""parameter"":""" & ValToString(Cashr.Total,M4UVal,"",".",0) & """}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request);
+
+  MoneyInCurr = res;
+  return;
+end;
+
+global
+function Integer APSA_CashEvent(var record CashVc Cashr,record LSerialPortDeviceVc LSPDr)
+begin
+  Integer noErr,res;
+  
+//  res = FB05Open(LSPDr);
+//  if (res==noErr) then begin    
+    switch (Cashr.Event) begin
+      case 0:
+        res = MoneyOutCurr(LSPDr,Cashr);
+      case 1:
+        res = MoneyInCurr(LSPDr,Cashr);
+    end;
+LPrintFB05CashEvent:;
+//    FB05Close;
+    if (res!=0) then begin
+      MessageBox(res,"");
+    end;
+//  end;
+
+  APSA_CashEvent = res;
+  return;
+end;
+
+global
+procedure SetPOSWindowDisplayModeFiscalPrinterAPSA(record LSerialPortDeviceVc LSPDr,string dispstr,string disp2str)
+begin
+  Integer res,msglen,noErr;
+  string 255 path;
+  area request;
+    
+  //clear 
+
+  path = "/json/fp550/Cmdline/";
+ 
+  AddTextToArea("{""cmd"":""33"",""parameter"":""""}",request);
+  res = ExecAPSARequest(LSPDr,path,request);
+
+  if (nonblank(dispstr)) then begin
+    SetAreaZeroSize(request);
+    AddTextToArea("{""cmd"":""47"",""parameter"":""" & ConvertStringToCodePage("CP1257",dispstr) & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request);
+  end;
+
+  if (nonblank(disp2str)) then begin
+    SetAreaZeroSize(request);
+    AddTextToArea("{""cmd"":""35"",""parameter"":""" & ConvertStringToCodePage("CP1257",disp2str) & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request);
+  end;
+
+  return;
+end;
