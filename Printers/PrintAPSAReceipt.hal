@@ -366,7 +366,7 @@ end;
 
 
 global
-updating procedure IVCashVc_PrintAPSAReceipt(var record IVCashVc IVCashr,record LSerialPortDeviceVc LSPDr)
+updating function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc IVCashr,record LSerialPortDeviceVc LSPDr)
 begin
   record IVCashVc oldIVCashr;
   Integer noErr,res;
@@ -414,15 +414,17 @@ begin
     end;
 */
     if (IVCashr.Prntdf!=0) then begin
-      RecordCopy(oldIVCashr,IVCashr);
+      //RecordCopy(oldIVCashr,IVCashr);
       IVCashr.Prntdf = 1;
-      RecordUpdate(oldIVCashr,IVCashr,false);
+      //RecordUpdate(oldIVCashr,IVCashr,false);
     end;    
 LIVCashVc_PrintAPSAReceipt:;
     if (res!=0) then begin
       MessageBox(res,"");
     end;
   end;
+
+  IVCashVc_PrintAPSAReceipt = res;
   return;
 end;
 

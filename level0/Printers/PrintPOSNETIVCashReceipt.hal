@@ -31,7 +31,7 @@ external procedure IVCashVc_PrintRCHFleaReceipt(var record IVCashVc,record LSeri
 external updating procedure IVCashVc_PrintEpsonTMTReceipt(var record IVCashVc,record LSerialPortDeviceVc);
 external procedure IVCashVc_PrintBematechMP2100Receipt(var record IVCashVc,record LSerialPortDeviceVc);
 //CUST-BEGIN
-external outer updating procedure IVCashVc_PrintAPSAReceipt(var record IVCashVc,record LSerialPortDeviceVc);
+external outer updating function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc,record LSerialPortDeviceVc);
 //CUST-END
 
 procedure StripOneZero(var string res)
@@ -869,8 +869,10 @@ BEGIN
         IVCashVc_PrintEpsonTMTReceipt(IVCashr,LSPDr);
       case kSerialPortDeviceModelFiscPrinterBematechMP2100:
         IVCashVc_PrintBematechMP2100Receipt(IVCashr,LSPDr);
+/*Moved this to before OKing invoice, so that we don't ok invoice before fiscal receipt is ok
       case 200:
         IVCashVc_PrintAPSAReceipt(IVCashr,LSPDr);
+*/
     end;
   end;
   end;
