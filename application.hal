@@ -1,3 +1,5 @@
+external procedure APSAManageConnection(Boolean);
+
 procedure SetTimedEventScheduler()
 begin
   
@@ -37,6 +39,29 @@ BEGIN
 RETURN;
 END;
 
+global
+updating function Boolean OnLogout(string user)
+begin
+  Boolean res;
+
+  res = inner.OnLogout(user);
+  APSAManageConnection(false);
+
+  OnLogout = res;
+  return;
+end;
+
+global
+updating function Boolean OnLogin()
+begin
+  Boolean res;
+
+  res = inner.OnLogin;
+  APSAManageConnection(true);
+
+  OnLogin = res;
+  return;
+end;
 
 
 	

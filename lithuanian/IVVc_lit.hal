@@ -325,6 +325,9 @@ begin
   Setting("Rezervacijos",ResListLClass,modSL);
   Setting("Rezervacijos - BROKAI",ResListBrokLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:34:09
   Setting("Rezervacijos - DEMO",ResListDemoLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:34:09
+  Setting("Touchless Payments",TouchlessPaymentTClass,modPOS);
+
+
 return;
 end;
 
@@ -1936,6 +1939,26 @@ begin
   v = 6; vs = 20; h = 80; h2 = 240;
   EditField(h,vm=v, 55,"Kodas",Normal,Code,false,0);
   EditField(h2,v, 70,"Komentaras",Normal,Comment,true,0);
+  EndWindow;
+	
+	return;
+end;
+
+window TouchlessPaymentTClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs;
+  
+  windowBegin("Touchless Payments",TouchlessPaymentTClass,CGSbl,-);
+  SetBlid(TouchlessPayBlock);
+  SetWRect(20,80,450,300);
+  Sizeable(-1,-1,0,0);
+  h = 100;
+  EditField(h,v=6,-40,"IP Address",Normal,IPAddress,false,0);
+  EditField(h,v=v+20,-40,"Port",Normal,Port,false,0);
+  EditField(h,v=v+20,-40,"User Name",Normal,UserName,false,0);
+  EditField(h,v=v+20,-40,"Password",Normal,Password,false,0);
+  EditField(h,v=v+20,-40,"Project ID",Normal,ProjectID,false,0);
   EndWindow;
 	
 	return;

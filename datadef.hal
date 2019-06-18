@@ -33,15 +33,14 @@ SourceFile("halcust/level0/WebNG",0);
 SourceFile("halcust/WebNG", 3);
 SourceFile("halcust/lithuanian", 3);
 SourceFile("halcust/english", 3);// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:23:00
+SourceFile("halcust/Printers", 3);
 SourceFile("halcust/RActions", 3);
 SourceFile("halcust/Reports", 3);
 SourceFile("halcust/Exports", 3);
-SourceFile("halcust/Printers", 3);
 SourceFile("halcust/WActions", 3);
 SourceFile("halcust/Web", 3);
 SourceFile("halcust/WebNG", 3);
 SourceFile("halcust/Swedbank",3);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 13:02:23
-
 
 SourceFile("halcust/timedevents/lithuanian",3);
 SourceFile("halcust/timedevents/Tools",3);
@@ -741,6 +740,14 @@ begin
 	RecordAddBegin(POSButtonsVc,"BPI_POSButtonsVc");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:59:47 PM
   	ChangeMatrixField(ButtonType,M4Set,1431,0); //Change set from 431 -> 1431
   EndRecordAdd;
+
+    BlockBegin(TouchlessPayBlock,-,"");
+    RecordField(IPAddress,M4Str,40,0);
+    RecordField(Port,M4Long,0,0);
+    RecordField(UserName,M4Str,40,0);
+    RecordField(Password,M4Str,40,0);
+    RecordField(ProjectID,M4Str,40,0);
+    EndBlock;
 	
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
   RecordField(Math,M4Matrix,0,0);

@@ -90,7 +90,9 @@ external procedure Bambora_Cancel_Request(Integer);
 remote procedure IVVc_PasteSalesMan(var record IVVc,string);
 external procedure POSAudit_LogIVCashVcRow(record IVCashVc,row IVCashVc,Integer);
 external function val FindVAT(string,val,Integer,Integer);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 06 03 2018 y. 07:58:51
-
+//CUST-BEGIN
+external outer procedure InitTouchlessPayment(val,string,string,var string,Integer);
+//CUST-END
 
 global 
 procedure SelectHWStoreWClass()
@@ -4237,6 +4239,19 @@ begin
                 VerifoneBanksys_Purchase(received,paymode,alabel[selpmrow],vwn);
               end;
               goto LProceedNPTSPaymentOneModeTClass;
+//CUST-BEGIN
+            case 201:
+              vRepSpec.UsedOnly = kLocalCCTerminalVerifoneBanksys;
+              vRepSpec.ArtMode = 1;
+              vRepSpec.long1 = IVCr.SerNr;
+              vRepSpec.AccStr = paymode;
+              vRepSpec.f5 = alabel[selpmrow];
+              vRepSpec.CurncyCode = crncy;
+              vwn = OpenWindow("CCPayVerifoneProcessingWClass",0,wn,"","",vRepSpec);
+              DeselectWindow(vwn,false);
+              InitTouchlessPayment(received,paymode,alabel[selpmrow],transactionid,vwn);
+              goto LProceedNPTSPaymentOneModeTClass;
+//CUST-END
           end;
 
 
