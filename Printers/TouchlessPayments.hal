@@ -135,7 +135,7 @@ begin
   AddTextToArea("""amount"": " & ValToString(received*100,M4Val,"",".",1) & ",",request);
   AddTextToArea("""cash"": 0,",request);
   AddTextToArea("""currency"": ""EUR"",",request);
-  AddTextToArea("""TransactionId"": """ & MakeUUID & """,",request);
+  AddTextToArea("""TransactionId"": """ & left(MakeUUID,30) & """,",request);
   timestamp = CurrentDate & " " & CurrentTime;
   AddTextToArea("""time"": """ & timestamp & """,",request);
   AddTextToArea("""language"": ""LT"",",request);
