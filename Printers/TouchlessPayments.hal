@@ -132,7 +132,7 @@ begin
   AddStringToArea("""amount"": " & ValToString(received*100,M4Val,"",".",1) & ",",request);
   AddStringToArea("""cash"": 0,",request);
   AddStringToArea("""currency"": ""EUR"",",request);
-  AddStringToArea("""docNum"": """ & transactionid & """,",request);
+  AddStringToArea("""docNum"": """ & sernr & """,",request);
   timestamp = CurrentDate & " " & CurrentTime;
   AddStringToArea("""time"": """ & timestamp & """,",request);
   AddStringToArea("""language"": ""LT"",",request);
@@ -142,6 +142,7 @@ begin
   SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
 
 logtext(0,"InitTouchlessPayment 1 " & url & ":" & port);
+logtext(0,"InitTouchlessPayment request " & GetStringFromArea(request,0,255));
   if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,30)) then begin
 logtext(0,"InitTouchlessPayment 2 " & GetStringFromArea(reply,0,255));
 
