@@ -85,7 +85,7 @@ begin
 end;
 
 global
-procedure InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Longint sernr,string crncy,Integer wn)
+procedure InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Longint tsernr,string crncy,Integer wn)
 begin
   string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr;
   Boolean res;
@@ -99,6 +99,7 @@ begin
   record TouchlessPayBlock TPb;
   Integer ProcessingWn;
   record RcVc vRepSpec;
+  Longint sernr;
 
   vRepSpec.UsedOnly = kLocalCCTerminalVerifoneBanksys;
   vRepSpec.ArtMode = 1;
@@ -127,6 +128,11 @@ begin
   GetTouchlessPaymentURL(TPb,url,port);
   path = "/Authorize";
  
+  sernr = tsernr;
+  if (sernr<0) then begin
+    sernr = NextSerNr("IVCashVc",CurrentDate,-1,false,"");
+  end;
+
   AddTextToArea("{",request);
   AddTextToArea("""posId"": """ & LSPDr.Port & """,",request);
   AddTextToArea("""amount"": " & ValToString(received*100,M4Val,"",".",1) & ",",request);

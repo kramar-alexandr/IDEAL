@@ -201,6 +201,22 @@ begin
   return;
 end;
 
+function Integer IVCash_PrintCommentLine(record LSerialPortDeviceVc LSPDr,string comment,vector string vChr)
+begin
+  Integer res;
+  string 255 path;
+  area request;
+  JSON js;
+
+  path = "/json/fp550/Cmdline";
+  AddTextToArea("{""cmd"":""54"",""parameter"":""" & GetCleanName(comment,vChr) & """}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request,js);
+
+  IVCash_PrintCommentLine = res;
+  return;
+end;
+
 function Integer IVCash_PrintRecItem(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,row IVCashVc IVCashrw,Boolean voidf,vector val vatrates,vector string vChr)
 begin
   Integer res;
@@ -209,9 +225,6 @@ begin
   JSON js;
 
   spec = IVCashrw.Spec;
-  if (nonblank(IVCashrw.SerialNr)) then begin
-    spec = spec & "\\n" & IVCashrw.SerialNr;
-  end;
   
   if (voidf) then begin
     IVCashrw.Quant = -IVCashrw.Quant;
@@ -232,6 +245,10 @@ begin
   AddTextToArea("{""cmd"":""49"",""parameter"":""" & itemline & """}",request);
 
   res = ExecAPSARequest(LSPDr,path,request,js);
+
+  if (nonblank(IVCashrw.SerialNr)) then begin
+    IVCash_PrintCommentLine(LSPDr,USetStr(1141) & IVCashrw.SerialNr,vChr);
+  end;
 
   IVCash_PrintRecItem = res;
   return;
@@ -331,23 +348,6 @@ begin
   APSAClose = res;
   return;
 end;
-
-function Integer IVCash_PrintCommentLine(record LSerialPortDeviceVc LSPDr,string comment,vector string vChr)
-begin
-  Integer res;
-  string 255 path;
-  area request;
-  JSON js;
-
-  path = "/json/fp550/Cmdline";
-  AddTextToArea("{""cmd"":""54"",""parameter"":""" & GetCleanName(comment,vChr) & """}",request);
-
-  res = ExecAPSARequest(LSPDr,path,request,js);
-
-  IVCash_PrintCommentLine = res;
-  return;
-end;
-
 
 function Integer IVCash_EndFiscalReceipt(record LSerialPortDeviceVc LSPDr)
 begin
