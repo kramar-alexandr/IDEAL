@@ -190,7 +190,7 @@ begin
 
   for (i=0;i<len(tstr);i=i+1) begin
     c = asc(mid(tstr,i,1));
-    if (c>170) then begin
+    if (c>170 or c==39 or c==34) then begin
       res = res & vChr[c];
     end else begin
       res = res & mid(tstr,i,1);
@@ -212,7 +212,6 @@ begin
   if (nonblank(IVCashrw.SerialNr)) then begin
     spec = spec & "\\n" & IVCashrw.SerialNr;
   end;
-  spec = spec & "\\n" & "dddd";
   
   if (voidf) then begin
     IVCashrw.Quant = -IVCashrw.Quant;
@@ -246,11 +245,13 @@ begin
   
   vpaymodesums[kInvoiceRowTypeCreditCardPayment] = 0.00;
   vpaymodesums[kInvoiceRowTypeCashPayment] = 0.00;
+  vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] = 0.00;
   rwcnt = MatRowCnt(IVCashr);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(IVCashr,i,IVCashrw);
     switch (IVCashrw.stp) begin
-//      case kInvoiceRowTypeGiftVoucherPayment:
+      case kInvoiceRowTypeGiftVoucherPayment:
+          vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] = vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] + IVCashrw.Sum;
       case kInvoiceRowTypeCreditCardPayment:
         vpaymodesums[kInvoiceRowTypeCreditCardPayment] = vpaymodesums[kInvoiceRowTypeCreditCardPayment] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
 //      case kInvoiceRowTypeLoyaltyPointsPayment:
@@ -287,6 +288,12 @@ begin
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request,js);
+  end;
+
+  SetAreaZeroSize(request);
+  if (vpaymodesums[kInvoiceRowTypeGiftVoucherPayment]!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tD" & ValToString(vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js);
   end;
 

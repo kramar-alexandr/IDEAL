@@ -85,7 +85,7 @@ begin
 end;
 
 global
-procedure InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Integer ProcessingWn)
+procedure InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Longint sernr,string crncy,Integer wn)
 begin
   string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr;
   Boolean res;
@@ -97,11 +97,31 @@ begin
   Integer mwn,pmwn,tries;
   Longint port;
   record TouchlessPayBlock TPb;
+  Integer ProcessingWn;
+  record RcVc vRepSpec;
+
+  vRepSpec.UsedOnly = kLocalCCTerminalVerifoneBanksys;
+  vRepSpec.ArtMode = 1;
+  vRepSpec.long1 = sernr;
+  vRepSpec.AccStr = paymode;
+  vRepSpec.f5 = label;
+  vRepSpec.CurncyCode = crncy;
+  ProcessingWn = OpenWindow("CCPayVerifoneProcessingWClass",0,wn,"","",vRepSpec);
+  DeselectWindow(ProcessingWn,false);
 
   BlockLoad(LMb);
   if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)==false) then begin  
+    GetWindowRecord(ProcessingWn,RepSpec);
+    PutWindowString(ProcessingWn,"Status",USetStr(22123));        
+    PutWindowString(ProcessingWn,"Result",USetStr(27429));        
+    PutWindowRecord(ProcessingWn,RepSpec);
     goto LInitTouchlessPayment;
-  end;  
+  end else begin
+    GetWindowRecord(ProcessingWn,RepSpec);
+    PutWindowString(ProcessingWn,"Status",USetStr(27370));        
+    PutWindowString(ProcessingWn,"Result","");        
+    PutWindowRecord(ProcessingWn,RepSpec);
+  end;
 
   BlockLoad(TPb);
   GetTouchlessPaymentURL(TPb,url,port);
@@ -127,16 +147,11 @@ begin
       transactionid = JSONGet(js,"TransactionId");
       AuthorisationCode = JSONGet(js,"AuthorizationCode");
       receiptnr = JSONGet(js,"Stan");
-      
       res = true;
     end;
   end;
 
   if (res) then begin
-    GetWindowRecord(ProcessingWn,RepSpec);
-    PutWindowString(ProcessingWn,"Status",USetStr(22123));        
-    PutWindowString(ProcessingWn,"Result",USetStr(27429));        
-    PutWindowRecord(ProcessingWn,RepSpec);
 
     while (ConfirmTouchlessPayment(TPb,LSPDr,transactionid,paymentstat)==false and tries<300) begin//5 minutes
       sleep(1);
