@@ -141,7 +141,10 @@ begin
 
   SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
 
+logtext(0,"InitTouchlessPayment 1 " & url & ":" & port);
   if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,30)) then begin
+logtext(0,"InitTouchlessPayment 2 " & GetStringFromArea(reply,0,255));
+
     js = ParseJSONArea(reply);
     if (JSONGet(js,"result")=="Ok") then begin
       transactionid = JSONGet(js,"TransactionId");
