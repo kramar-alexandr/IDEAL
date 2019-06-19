@@ -39,6 +39,7 @@ BEGIN
 RETURN;
 END;
 
+/* CHN::Removed
 global
 updating function Boolean OnLogout(string user)
 begin
@@ -50,6 +51,7 @@ begin
   OnLogout = res;
   return;
 end;
+*/
 
 global
 updating function Boolean OnLogin()
