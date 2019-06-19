@@ -146,7 +146,7 @@ begin
 
 logtext(0,"InitTouchlessPayment 1 " & url & ":" & port);
 logtext(0,"InitTouchlessPayment request " & GetStringFromArea(request,0,255));
-  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,30)) then begin
+  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,60)) then begin
 logtext(0,"InitTouchlessPayment 2 " & GetStringFromArea(reply,0,255));
 
     js = ParseJSONArea(reply);
