@@ -393,6 +393,21 @@ LkInvoiceRowTypeNormal2:;
         if (res!=noErr) then begin
           goto LPrintItemRows;
         end;
+    case kInvoiceRowTypeGiftVoucherSold:
+      if (IVCashrw.GCNr>0) then begin
+        IVCashrw.Spec = USetStr(24194) & " " & IVCashrw.GCNr;
+        IVCashrw.Quant = 1;
+        IVCashrw.Price = IVCashrw.Sum;
+        res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates,vChr);
+        if (res!=noErr) then begin
+          goto LPrintItemRows;
+        end;
+      end else begin
+        res = IVCash_PrintCommentLine(LSPDr,IVCashrw.Spec,vChr);
+        if (res!=noErr) then begin
+          goto LPrintItemRows;
+        end;
+      end;
     end;
   end;
 LPrintItemRows:;  
