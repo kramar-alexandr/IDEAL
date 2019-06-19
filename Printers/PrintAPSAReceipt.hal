@@ -142,7 +142,53 @@ LGetVATCode:;
   return;
 end;
 
-function Integer IVCash_PrintRecItem(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,row IVCashVc IVCashrw,Boolean voidf,vector val vatrates)
+procedure LoadSpecialCharacters(var vector string vChr)
+begin
+  string 255 find,replace,str1,str2;
+  Longint pos,pos2;
+  string 255 find1,find2,find3,find4;
+  string 255 replace1,replace2,replace3,replace4;
+
+  find1 = "192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,216,217,218,219,220,221,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,241,242,243,244,245,246,248,249,250,251,252,253,255,256,257,258,";
+  find2 = "259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,313,314,315,316,317,318,319,320,";
+  find3 = "321,322,323,324,325,326,327,328,329,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,381,382,383,402,";
+  find4 = "416,417,431,432,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,506,507,508,509,510,511,902,940,904,941,908,972,911,974,906,943,970,912,910,973,971,944,905,942";
+  replace1 = "39,65,65,65,65,65,65,65,69,67,69,69,69,69,73,73,73,73,68,78,79,79,79,79,79,79,85,85,85,85,89,115,97,97,97,97,97,97,97,101,99,101,101,101,101,105,105,105,105,110,111,111,111,111,111,111,117,117,117,117,121,121,65,97,65,97,65,97,67,99,67,99,67,";
+  replace2 = "99,67,99,68,100,68,100,69,101,69,101,69,101,69,101,69,101,71,103,71,103,71,103,71,103,72,104,72,104,73,105,73,105,73,105,73,105,73,105,73,74,105,106,74,106,75,107,76,108,76,108,76,108,76,108,108,108,78,110,78,110,78,110,110,79,111,79,111,79,111,79,";
+  replace3 = "69,111,101,82,114,82,114,82,114,83,115,83,115,83,115,83,115,84,116,84,116,84,116,85,117,85,117,85,117,85,117,85,117,85,117,87,119,89,121,89,90,122,90,122,90,122,115,102,79,111,85,117,65,97,73,105,79,111,85,117,85,117,85,117,85,117,85,117,65,";
+  replace4 = "97,65,69,97,101,79,111,913,945,917,949,927,959,937,969,921,953,953,953,933,965,965,965,919,951";
+ 
+  find = find1 & find2 & find3 & find4;
+  replace = replace1 & replace2 & replace3 & replace4;
+ 
+  while (GetNextSubstring(replace,pos2,",",str2)) begin
+    GetNextSubstring(find,pos,",",str1);
+    vChr[str1] = chr(StringToInt(str2));
+  end;
+
+
+  return;
+end;
+
+function string 255 GetCleanName(string tstr,vector string vChr)
+begin
+  Integer i,c;
+  string 255 res;
+
+  for (i=0;i<len(tstr);i=i+1) begin
+    c = asc(mid(tstr,i,1));
+    if (c>170) then begin
+      res = res & vChr[c];
+    end else begin
+      res = res & mid(tstr,i,1);
+    end;
+  end;
+
+  GetCleanName = ConvertStringToCodePage("CP1257",res);
+  return;
+end;
+
+function Integer IVCash_PrintRecItem(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,row IVCashVc IVCashrw,Boolean voidf,vector val vatrates,vector string vChr)
 begin
   Integer res;
   area request;
@@ -165,9 +211,9 @@ begin
   end;
   
   if (nonblank(IVCashrw.vRebate)) then begin
-    itemline = itemline & "," & IVCashrw.vRebate;
+    itemline = itemline & ",-" & IVCashrw.vRebate;
   end;
-  itemline = ConvertStringToCodePage("CP1257",itemline);
+  itemline = GetCleanName(itemline,vChr);
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""49"",""parameter"":""" & itemline & """}",request);
 
@@ -264,7 +310,7 @@ begin
   return;
 end;
 
-function Integer IVCash_PrintCommentLine(record LSerialPortDeviceVc LSPDr,string comment)
+function Integer IVCash_PrintCommentLine(record LSerialPortDeviceVc LSPDr,string comment,vector string vChr)
 begin
   Integer res;
   string 255 path;
@@ -272,7 +318,7 @@ begin
   JSON js;
 
   path = "/json/fp550/Cmdline";
-  AddTextToArea("{""cmd"":""54"",""parameter"":""" & ConvertStringToCodePage("CP1257",comment) & """}",request);
+  AddTextToArea("{""cmd"":""54"",""parameter"":""" & GetCleanName(comment,vChr) & """}",request);
 
   res = ExecAPSARequest(LSPDr,path,request,js);
 
@@ -297,6 +343,9 @@ begin
   Integer res,noErr;
   row IVCashVc IVCashrw;
   Integer i,rwcnt;
+  vector string 255 vChr;
+
+  LoadSpecialCharacters(vChr);
 
   rwcnt = MatRowCnt(IVCashr);
   for (i=0;i<rwcnt;i=i+1) begin
@@ -307,18 +356,18 @@ begin
       case kInvoiceRowTypeNormal:
 LkInvoiceRowTypeNormal2:;
         if (nonblank(IVCashrw.ArtCode)) then begin
-          res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates);
+          res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates,vChr);
           if (res!=noErr) then begin
             goto LPrintItemRows;
           end;
         end else begin
-          res = IVCash_PrintCommentLine(LSPDr,IVCashrw.Spec);
+          res = IVCash_PrintCommentLine(LSPDr,IVCashrw.Spec,vChr);
           if (res!=noErr) then begin
             goto LPrintItemRows;
           end;
         end;
       case kInvoiceRowTypeVoid:
-        res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,true,vatrates);
+        res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,true,vatrates,vChr);
         if (res!=noErr) then begin
           goto LPrintItemRows;
         end;
@@ -513,8 +562,10 @@ begin
   string 255 path;
   area request;
   JSON js;
+  vector string 255 vChr;
     
   //clear 
+  LoadSpecialCharacters(vChr);
 
   path = "/json/fp550/Cmdline";
  
@@ -523,13 +574,13 @@ begin
 
   if (nonblank(dispstr)) then begin
     SetAreaZeroSize(request);
-    AddTextToArea("{""cmd"":""47"",""parameter"":""" & ConvertStringToCodePage("CP1257",dispstr) & """}",request);
+    AddTextToArea("{""cmd"":""47"",""parameter"":""" & GetCleanName(dispstr,vChr) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js);
   end;
 
   if (nonblank(disp2str)) then begin
     SetAreaZeroSize(request);
-    AddTextToArea("{""cmd"":""35"",""parameter"":""" & ConvertStringToCodePage("CP1257",disp2str) & """}",request);
+    AddTextToArea("{""cmd"":""35"",""parameter"":""" & GetCleanName(disp2str,vChr) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js);
   end;
 
