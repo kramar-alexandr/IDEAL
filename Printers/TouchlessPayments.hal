@@ -129,16 +129,13 @@ begin
   path = "/Authorize";
  
   sernr = tsernr;
-  if (sernr<0) then begin
-    sernr = NextSerNr("IVCashVc",CurrentDate,-1,false,"");
-  end;
 
   AddTextToArea("{",request);
   AddTextToArea("""posId"": """ & LSPDr.Port & """,",request);
   AddTextToArea("""amount"": " & ValToString(received*100,M4Val,"",".",1) & ",",request);
   AddTextToArea("""cash"": 0,",request);
   AddTextToArea("""currency"": ""EUR"",",request);
-  AddTextToArea("""docNum"": """ & sernr & """,",request);
+  AddTextToArea("""TransactionId"": """ & MakeUUID & """,",request);
   timestamp = CurrentDate & " " & CurrentTime;
   AddTextToArea("""time"": """ & timestamp & """,",request);
   AddTextToArea("""language"": ""LT"",",request);
