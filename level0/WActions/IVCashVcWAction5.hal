@@ -130,7 +130,7 @@ external updating function boolean PinPadVoid2(longint);
 external function boolean PinPadCash(var record IVCashVc,var string);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 13 March 2018 17:00:33
 //CUST-BEGIN
 external outer updating function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc,record LSerialPortDeviceVc);
-external outer procedure InitTouchlessPayment(val,string,string,var string,Longint,string,Integer);
+external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer);
 //CUST-END
 
 enum begin

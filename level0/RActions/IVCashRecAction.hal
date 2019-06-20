@@ -1391,7 +1391,7 @@ u might want to put loyalty card or bagger 1st
           end;
         end;
 //CUST-BEGIN
-        infound = true or IVCashrw.GCNr>0;
+        infound = infound or IVCashrw.GCNr>0;
 //CUST-END
       otherwise
         infound = infound or nonblank(IVCashrw.ArtCode);

@@ -45,6 +45,9 @@ external procedure IVVc_PrintRCHFleaReceipt(var record IVVc,record LSerialPortDe
 external updating procedure PrintEpsonTMTReceipt(var record IVVc,record LSerialPortDeviceVc);
 external procedure IVVc_PrintBematechMP2100Receipt(var record IVVc,record LSerialPortDeviceVc);
 external procedure RestAccVc_PrintBematechMP2100Receipt(var record RestAccVc,record LSerialPortDeviceVc);
+//CUST-BEGIN
+external outer updating procedure IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
+//CUST-END
 
 procedure StripOneZero(var string res)
 BEGIN
@@ -1111,10 +1114,8 @@ BEGIN
       case kSerialPortDeviceModelFiscPrinterBematechMP2100:
         IVVc_PrintBematechMP2100Receipt(IVr,LSPDr);
 //CUST-BEGIN
-/*not developed yet. 
       case 200:
         IVVc_PrintAPSAReceipt(IVr,LSPDr);
-*/
 //CUST-END
     end;
   end;
