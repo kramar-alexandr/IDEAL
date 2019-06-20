@@ -92,6 +92,7 @@ external procedure POSAudit_LogIVCashVcRow(record IVCashVc,row IVCashVc,Integer)
 external function val FindVAT(string,val,Integer,Integer);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 06 03 2018 y. 07:58:51
 //CUST-BEGIN
 external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer);
+external procedure IVCashDClassTouchScreenCreditNoteRemote_iDeal(Longint,var record IVCashVc);
 //CUST-END
 
 global 
@@ -2959,7 +2960,7 @@ updating procedure ProceedReturnInvNoNPTSSClassExecute(Integer wn)
 begin
   Integer mwn,rownr;
   record RcVc RepSpec;
-  record IVCashVc IVCashr;
+  record IVCashVc IVCashr,newIVCashr;
   record IVCashVc prevIVCashr;
   row IVCashVc IVCashrw;
   string 255 tstr,t2;
@@ -2993,7 +2994,13 @@ begin
               CloseWindow(wn);
               goto LProceedReturnInvNoNPTSSClass;
             end;
+//CUST-BEGIN
+          case Rs_insert:
+            CloseWindow(wn);
+//CUST-END
         end;
+//CUST-BEGIN 
+/*       
         ClearRow(IVCashr,IVCashrw,kInvoiceRowTypeReturnIVNr);    
         IVCashrw.OrgIVNr = RepSpec.long1;
         IVCashrw.StandProblemCode = RepSpec.f1;
@@ -3006,6 +3013,18 @@ begin
         WindowDoOK(mwn,0);
         CloseWindow(wn);
         POSAudit_LogIVCashVcRow(IVCashr,IVCashrw,kPOSEventTypeAddRow);
+*/
+        IVCashDClassTouchScreenCreditNoteRemote_iDeal(RepSpec.long1,IVCashr);    
+        IVCashSumup(IVCashr,true);
+        PutWindowRecord(mwn,IVCashr);
+        WindowDoOK(mwn,0);
+        GetWindowRecord(mwn,IVCashr);
+        IVCashSumupSoftEditFields(mwn,IVCashr);
+        IVCashDClass_RefreshStringList(mwn,IVCashr);
+
+
+//CUST-END
+
     end;
   end;
 LProceedReturnInvNoNPTSSClass:;  

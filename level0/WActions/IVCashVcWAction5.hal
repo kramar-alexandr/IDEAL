@@ -1562,7 +1562,12 @@ what is it for ?  , just makes line not to be selected
       case kPOSButtonTypePayment:
         BlockLoad(Rahaxib);
         switch (Rahaxib.TerminalType) begin
+//CUST-BEGIN
+          case 201:
+            goto LkLocalCCTerminalNone;
+//CUST-END
           case kLocalCCTerminalNone:
+LkLocalCCTerminalNone:;
             // OpenCashPayTouchScreenDClass(wn,-1,IVCashr.SerNr,IVCashr.RetValue,IVCashr.Sum4-IVCashr.TendValue,IVCashr.CurncyCode,POSBrw.Code,POSBrw.Label);
 /*
 retval is calculted in sumup
