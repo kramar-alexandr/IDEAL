@@ -2370,7 +2370,7 @@ return;
 end;
 
 //CUST-BEGIN
-updating procedure CheckAndPrintReceiptDo(record IVVc IVr,record LocalMachineBlock LMb)
+updating procedure CheckAndPrintReceiptDo(var record IVVc IVr,record LocalMachineBlock LMb)
 begin
    record LSerialPortDeviceVc LSPDr; 
 
