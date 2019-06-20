@@ -92,6 +92,7 @@ begin
   row IVVc IVrw; 
   Integer rownr; 
   
+logtext(0,"UpdateIVVcWithTouchlessPay");
   GetWindowRecord(mwn,IVr);
   IVr.RecValue = blankval;
   ClearRow(IVr,IVrw,kInvoiceRowTypeCreditCardPayment);  
@@ -105,8 +106,10 @@ begin
   rownr = MatRowCnt(IVr);
   MatRowPut(IVr,rownr,IVrw);
   IVSumup(IVr,true);
+  IVr.OKFlag = 1;
   PutWindowRecord(mwn,IVr);
   if (WindowDoOK(mwn,0)) then begin
+logtext(0,"UpdateIVVcWithTouchlessPay 2");
   end;
 
   return;
@@ -203,16 +206,19 @@ begin
   end;
 
   FileName = GetWindowFileName(mwn);
-
+logtext(0,"InitTouchlessPayment 1 " & FileName & ":" & paymentstat);
   if (mwn>0) then begin
+logtext(0,"InitTouchlessPayment 2 ");
     CloseWindow(ProcessingWn);
     SelectWindow(mwn);
     DeselectWindow(mwn,true);
 
     if (paymentstat=="Approved") then begin
       fres = true;
+logtext(0,"InitTouchlessPayment 3 ");
       switch (FileName) begin
         case "IVVc":
+logtext(0,"InitTouchlessPayment 4 ");
            qupdating.UpdateIVVcWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr)
        case "IVCashVc":
           qupdating.UpdateIVCashWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr)
