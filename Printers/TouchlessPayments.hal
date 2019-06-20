@@ -213,7 +213,7 @@ logtext(0,"InitTouchlessPayment 2 ");
     SelectWindow(mwn);
     DeselectWindow(mwn,true);
 
-    if (paymentstat=="Approved") then begin
+    if (paymentstat=="Approved" or paymentstat=="Patvirtinta") then begin
       fres = true;
 logtext(0,"InitTouchlessPayment 3 ");
       switch (FileName) begin
