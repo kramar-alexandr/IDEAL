@@ -2,6 +2,7 @@ external inner function Boolean FindLocalSerialPortDevice(Integer,LongInt,string
 external inner procedure IVCashSumup(var record IVCashVc,Boolean);
 external inner procedure IVCashDClass_RefreshStringList(Integer,record IVCashVc);
 external inner updating procedure IVCashDClassTouchScreenFinishButton();
+external inner procedure IVSumup(var record IVVc,Boolean);
 
 procedure GetTouchlessPaymentURL(record TouchlessPayBlock TPb,var string url,var Longint port)
 begin
@@ -103,7 +104,7 @@ begin
   IVrw.CCReceiptNr = receiptnr;
   rownr = MatRowCnt(IVr);
   MatRowPut(IVr,rownr,IVrw);
-  IVCashSumup(IVr,true);
+  IVSumup(IVr,true);
   PutWindowRecord(mwn,IVr);
   if (WindowDoOK(mwn,0)) then begin
   end;

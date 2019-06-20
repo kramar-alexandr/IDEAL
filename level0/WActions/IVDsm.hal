@@ -89,6 +89,10 @@ external updating function boolean PinPadVoid2(longint);
 external updating function boolean PinPadVoidCash(record IVCashVc);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 March 2018 14:23:31
 
 //END-CUST PST 2015-September-29
+//CUST-BEGIn
+external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer);
+external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
+//CUST-END
 
 global
 procedure DoMgrsDiscOverrideIVDsm(Integer wn,Integer rownr)
@@ -1924,6 +1928,22 @@ begin
         end;
 Trace("CredCardIVsmDo","");
         OpenCCPayVerifoneBanksysOClass(wn,pmcode,pmcodelabel,IVr.SerNr,IVr.RetnValue,t,IVr.CurncyCode);
+//CUST-BEGIN
+      case 201: 
+        pmcode = GetWindowString(wn,"IVPMCode" & btnNr);
+        if (blank(pmcode)) then begin
+          pmcode = GetWindowString(wn,"PMCode" & btnNr);
+        end;
+        if (blank(pmcode)) then begin
+          BlockLoad(DefCashRec);
+          pmcode =  DefCashRec.DefCCPayMode;
+        end;
+        pmcodelabel = GetWindowString(wn,"IVPMCodeLabel" & btnNr);
+        if (blank(pmcodelabel)) then begin
+          pmcodelabel = GetWindowString(wn,"PMCodeLabel" & btnNr);
+        end;
+        InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn);
+//CUST-END
     end;
   end;
   if (IsWebClient) then begin
@@ -2349,6 +2369,24 @@ CheckPinPadCash = res;
 return;
 end;
 
+//CUST-BEGIN
+updating procedure CheckAndPrintReceiptDo(record IVVc IVr,record LocalMachineBlock LMb)
+begin
+   record LSerialPortDeviceVc LSPDr; 
+
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalPrinter,-1,LMb.LocalMachineCode,LSPDr)) then begin  
+    switch (LSPDr.Printer) begin
+      case 200:
+        IVVc_PrintAPSAReceipt(IVr,LSPDr);
+      otherwise
+        PrintFB05Receipt(IVr,LSPDr);
+    end;
+  end;
+
+  return;
+end;
+//CUST-END
+
 //END-CUST PST 2015-September-29
 
 global
@@ -2419,7 +2457,7 @@ begin
 						  IVr.InvComment = "CEKIS";
 						  IVr.BankCode = PinPadCntr.Counter;
 						  recordupdate(oldIVr,IVr,false);
-						  PrintFB05Receipt(IVr,LSPDr);
+              CheckAndPrintReceiptDo(IVr,LMb);
 							CloseWindow(wn);
 							nwn = OpenWindow("IVDClass",1,0,"","",IVr);	 
 					  end else begin
@@ -2432,7 +2470,7 @@ begin
 						recordcopy(oldIVr,IVr);
 						IVr.InvComment = "CEKIS";
 						recordupdate(oldIVr,IVr,false);
-						PrintFB05Receipt(IVr,LSPDr);
+            CheckAndPrintReceiptDo(IVr,LMb);
 						CloseWindow(wn);
 						nwn = OpenWindow("IVDClass",1,0,"","",IVr);	  
 				  end;
@@ -2443,7 +2481,7 @@ begin
 			  recordcopy(oldIVr,IVr);
 			  IVr.InvComment = "CEKIS";
 			  recordupdate(oldIVr,IVr,false);
-			  PrintFB05Receipt(IVr,LSPDr);
+        CheckAndPrintReceiptDo(IVr,LMb);
 			  CloseWindow(wn);
 			  nwn = OpenWindow("IVDClass",1,0,"","",IVr);
 		  end;  // Use PinPad
