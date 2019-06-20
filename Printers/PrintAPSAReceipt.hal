@@ -229,8 +229,12 @@ begin
 
   spec = IVCashrw.Spec;
   
-  if (voidf or IVCashr.InvType==kPOSInvoiceTypeCredit) then begin
+  if (voidf) then begin
     retf = true;
+  end;
+  if (IVCashrw.Quant<0) then begin
+    retf = true;
+    IVCashrw.Quant = -IVCashrw.Quant;//to make it positive
   end;
 
   vatcode = GetVATCode(IVCashr.InclVAT,IVCashrw.VATCode,vatrates);
@@ -246,7 +250,7 @@ begin
   itemline = GetCleanName(itemline,vChr);
   path = "/json/fp550/Cmdline";
   if (retf) then begin
-    retsum = retsum + IVCashrw.Sum;
+    retsum = retsum + (-IVCashrw.Sum);//to make the value positive
     AddTextToArea("{""cmd"":""1049"",""parameter"":""" & itemline & """}",request);
   end else begin    
     AddTextToArea("{""cmd"":""49"",""parameter"":""" & itemline & """}",request);
