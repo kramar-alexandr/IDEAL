@@ -576,6 +576,7 @@ begin
   record LocalMachineBlock LMb;
   record MachineCashVc MCr;
   vector val vatrates;
+  string 255 receiptnr;
   
   noErr = 0;
   //res = APSACheckStatus;
@@ -596,7 +597,11 @@ begin
     if (res!=noErr) then begin
       goto LIVCashVc_PrintAPSAReceipt;
     end;
-    
+    res = GetReceiptNumber(LSPDr,receiptnr);
+    if (res!=noErr) then begin
+      goto LIVVc_PrintAPSAReceipt;
+    end;
+  
     res = EndFiscalReceipt(LSPDr,IVCashr.SerNr);
     if (res!=noErr) then begin
       goto LIVCashVc_PrintAPSAReceipt;
@@ -604,6 +609,7 @@ begin
     if (IVCashr.Prntdf!=0) then begin
       //RecordCopy(oldIVCashr,IVCashr);
       IVCashr.Prntdf = 1;
+      IVCashr.RefStr = receiptnr;//Is this the correct field?
       //RecordUpdate(oldIVCashr,IVCashr,false);
     end;    
 LIVCashVc_PrintAPSAReceipt:;
