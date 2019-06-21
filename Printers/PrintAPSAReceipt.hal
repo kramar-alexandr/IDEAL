@@ -29,15 +29,26 @@ begin
   return;
 end;
 
-function Integer ExecAPSARequest(record LSerialPortDeviceVc LSPDr,string path,area request,var JSON js)
+function Integer ExecAPSARequest(record LSerialPortDeviceVc LSPDr,string path,area request,var JSON js,Boolean clearf)
 begin
-  string 255 url,stat;
-  area reply;
+  string 255 url,stat,path2;
+  area reply,request2;
   Integer res;
   Longint tick;
+  JSON js2;
+
+  if (clearf) then begin
+    path2 = "/json/fp550/Cmdline";
+    AddTextToArea("{""cmd"":""57"",""parameter"":""""}",request2);    
+    res = ExecAPSARequest(LSPDr,path2,request2,js2,false);
+    if (res!=0) then begin
+      goto LExecAPSARequest;
+    end;
+  end;
 
   url = GetAPSAUrl(LSPDr);
   res = 12400;//problem with connection
+
   if (SendWebRequest(url,8111,-1,false,"POST",path,"application/json","",false,request,reply,30)) then begin
     js = ParseJSONArea(reply);
     if (right(path,4)=="open") then begin
@@ -72,6 +83,7 @@ begin
   writeareatofile(reply,"_apsa.reply." & tick & ".txt",0);
   writeareatofile(request,"_apsa.request" & tick & ".txt",0);
 
+LExecAPSARequest:;
   ExecAPSARequest = res;
   return;
 end;
@@ -82,6 +94,7 @@ begin
   area request;
   string 255 path;
   JSON js;
+  Boolean clearf;
 
   switch (command) begin
     case kAPSACommandOpen:
@@ -92,18 +105,21 @@ begin
     case kAPSACommandBeginReceipt:
       path = "/json/fp550/Cmdline";
       AddTextToArea("{""cmd"":""48"",""parameter"":""""}",request);
+      clearf = true;
     case kAPSACommandEndReceipt:
       path = "/json/fp550/Cmdline";
       AddTextToArea("{""cmd"":""56"",""parameter"":""""}",request);
     case kAPSACommandZReport:
       path = "/json/fp550/Cmdline";
       AddTextToArea("{""cmd"":""69"",""parameter"":""0""}",request);
+      clearf = true;
     case kAPSACommandXReport:
       path = "/json/fp550/Cmdline";
       AddTextToArea("{""cmd"":""69"",""parameter"":""2""}",request);
+      clearf = true;
   end;
 
-  res = ExecAPSARequest(LSPDr,path,request,js);
+  res = ExecAPSARequest(LSPDr,path,request,js,clearf);
 
   SendAPSASimpleCommand = res;
   return;
@@ -214,7 +230,7 @@ begin
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""54"",""parameter"":""" & GetCleanName(comment,vChr) & """}",request);
 
-  res = ExecAPSARequest(LSPDr,path,request,js);
+  res = ExecAPSARequest(LSPDr,path,request,js,false);
 
   PrintCommentLine = res;
   return;
@@ -256,7 +272,7 @@ begin
     AddTextToArea("{""cmd"":""49"",""parameter"":""" & itemline & """}",request);
   end;
 
-  res = ExecAPSARequest(LSPDr,path,request,js);
+  res = ExecAPSARequest(LSPDr,path,request,js,false);
 
   if (nonblank(IVCashrw.SerialNr)) then begin
     PrintCommentLine(LSPDr,USetStr(1141) & IVCashrw.SerialNr,vChr);
@@ -311,19 +327,19 @@ begin
   path = "/json/fp550/Cmdline";
   if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tC" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeGiftVoucherPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tD" & ValToString(vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
   IVCash_SendAPSAPayments = res;
@@ -434,7 +450,7 @@ begin
   
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""113"",""parameter"":""""}",request);
-  res = ExecAPSARequest(LSPDr,path,request,js);
+  res = ExecAPSARequest(LSPDr,path,request,js,false);
   if (res!=0) then begin
     goto LEndFiscalReceipt;
   end;
@@ -506,7 +522,7 @@ LkInvoiceRowTypeNormal2:;
     path = "/json/fp550/Cmdline";
     AddTextToArea("{""cmd"":""1070"",""parameter"":""C" & retsum & """}",request);
 
-    res = ExecAPSARequest(LSPDr,path,request,js);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
     if (res!=noErr) then begin
       goto LPrintItemRows;
     end;
@@ -529,7 +545,7 @@ begin
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""83"",""parameter"":""""}",request);
 
-  res = ExecAPSARequest(LSPDr,path,request,js);
+  res = ExecAPSARequest(LSPDr,path,request,js,false);
   if (res==0) then begin
     stat = JSONGet(js,"CmdlineResult");
     GetNextSubString(stat,pos,",",tstr);
@@ -627,7 +643,7 @@ begin
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""49"",""parameter"":""" & itemline & """}",request);
 
-  res = ExecAPSARequest(LSPDr,path,request,js);
+  res = ExecAPSARequest(LSPDr,path,request,js,false);
 
   if (nonblank(IVrw.SerialNr)) then begin
     PrintCommentLine(LSPDr,USetStr(1141) & IVrw.SerialNr,vChr);
@@ -660,7 +676,7 @@ begin
 //      case kInvoiceRowTypeChequePayment:
     end;
   end;
-  t = IVr.BaseSum4 - vpaymodesums[kInvoiceRowTypeCashPayment] - vpaymodesums[kInvoiceRowTypeCreditCardPayment];
+  t = IVr.BaseSum4 - vpaymodesums[kInvoiceRowTypeCashPayment] - vpaymodesums[kInvoiceRowTypeCreditCardPayment] - vpaymodesums[kInvoiceRowTypeGiftVoucherPayment];
   if (t>0) then begin
     vpaymodesums[kInvoiceRowTypeCashPayment] = vpaymodesums[kInvoiceRowTypeCashPayment] + t;  
   end;
@@ -682,19 +698,19 @@ begin
   path = "/json/fp550/Cmdline";
   if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tC" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeGiftVoucherPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tD" & ValToString(vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
   IVVc_SendAPSAPayments = res;
@@ -843,7 +859,7 @@ begin
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""70"",""parameter"":""" & ValToString(-Cashr.Total,M4UVal,"",".",0) & """}",request);
 
-  res = ExecAPSARequest(LSPDr,path,request,js);
+  res = ExecAPSARequest(LSPDr,path,request,js,true);
 
   MoneyOutCurr = res;
   return;
@@ -859,7 +875,7 @@ begin
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""70"",""parameter"":""" & ValToString(Cashr.Total,M4UVal,"",".",0) & """}",request);
 
-  res = ExecAPSARequest(LSPDr,path,request,js);
+  res = ExecAPSARequest(LSPDr,path,request,js,true);
 
   MoneyInCurr = res;
   return;
@@ -904,18 +920,18 @@ begin
   path = "/json/fp550/Cmdline";
  
   AddTextToArea("{""cmd"":""33"",""parameter"":""""}",request);
-  res = ExecAPSARequest(LSPDr,path,request,js);
+  res = ExecAPSARequest(LSPDr,path,request,js,true);
 
   if (nonblank(dispstr)) then begin
     SetAreaZeroSize(request);
     AddTextToArea("{""cmd"":""47"",""parameter"":""" & GetCleanName(dispstr,vChr) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
   if (nonblank(disp2str)) then begin
     SetAreaZeroSize(request);
     AddTextToArea("{""cmd"":""35"",""parameter"":""" & GetCleanName(disp2str,vChr) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
   return;
