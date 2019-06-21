@@ -774,6 +774,12 @@ begin
               goto LProceedGiftVoucherTouchScreenDClass;
             end;
         end;
+        if (RepSpec.vals0>IVCashr.Sum4) then begin 
+          MessageBox(300000,"");
+          WindowFieldGoto(wn,RepSpec,-1,"f1",true);
+          goto LProceedGiftVoucherTouchScreenDClass;
+        end;
+
         ClearRow(IVCashr,IVCashrw,kInvoiceRowTypeGiftVoucherPayment);
         IVCashrw.stp = kInvoiceRowTypeGiftVoucherPayment;
         IVCashrw.Sum = RepSpec.vals0;

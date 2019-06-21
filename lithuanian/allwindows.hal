@@ -3698,3 +3698,35 @@ begin
   */
   EndWindow;
 end;
+
+window GiftVoucherTouchScreenDClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer,iPad")
+begin
+  real h,h2,h3,h4,hm,l,v,v3,vm,vs,v4;
+  real fieldh,fieldh2,keypadh,keypadh2,keypadv,fntsize;
+  record LocalMachineBlock LMb;
+
+  BlockLoad(LMb);
+  WindowBegin("Dovan÷ kupono apmok˜jimas",GiftVoucherTouchScreenDClass,CGother,RcType);
+  AutoSizeWindow(false);
+//  Modality(kModalityGlobal);
+  UseView(RcVc);
+  SetWRect(80,200,650,510);
+  AutoSizeWindow(false);
+  SetupColumWithKeypadWindow(fieldh,fieldh2,keypadh,keypadh2,keypadv,vs,fntsize);
+
+  h = fieldh; h2 = 170; v=40;
+
+  EditFieldTLX(h,v=6,150,"Dovan÷ kuponas",M4Str,Normal,100,25,patM4black,f1,false,GCSSClass); 
+  EditFieldTLX(h,v+=35,150,"Suma",M4Val,ViewOnly,100,25,patM4black,vals0,true,0); 
+
+  if (LMb.POSButtonsPosition==kPOSButtonsPositionRight) then begin
+    keypadh = keypadh + 40;
+    keypadh2 = keypadh2 + 40;
+  end;
+  v = keypadv;
+  POSKeyPad(v,keypadh,v + 250,keypadh2,2,"NPTSPaymentToolKeyPad",kKeyPadEnter);  
+  v = v + 255;
+  SplitButton(keypadh,v,keypadh2,v + vs,2,"CancelCCPayTouchScreenDClass","Atäaukti" & F_Label("F2"),"ProceedGiftVoucherTouchScreenDClass","T«sti" & F_Label("F1"),20);  
+  EndWindow;
+end;
