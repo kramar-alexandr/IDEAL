@@ -16,7 +16,8 @@ enum begin
   kAPSACommandZReport = 9,
   kAPSACommandXReport = 10,
   kAPSACommandBeginCreditReceipt = 11,
-  kAPSACommandEndCreditReceipt = 12
+  kAPSACommandEndCreditReceipt = 12,
+  kAPSACommandCheckBalance = 13
 end;
 
 function string 255 GetAPSAUrl(record LSerialPortDeviceVc LSPDr)
@@ -116,6 +117,10 @@ begin
     case kAPSACommandXReport:
       path = "/json/fp550/Cmdline";
       AddTextToArea("{""cmd"":""69"",""parameter"":""2""}",request);
+      clearf = true;
+    case kAPSACommandCheckBalance:
+      path = "/json/fp550/Cmdline";
+      AddTextToArea("{""cmd"":""70"",""parameter"":""""}",request);
       clearf = true;
   end;
 
@@ -395,12 +400,13 @@ begin
   vector string 255 vChr;
   
   if (sernr>0) then begin
-    /*
+
     path = "/json/fp550/Cmdline";
-    AddTextToArea("{""cmd"":""84"",""parameter"":""2\\t" & sernr & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
-    */
+    AddTextToArea("{""cmd"":""84"",""parameter"":""3," & sernr & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
+/*
     res = PrintCommentLine(LSPDr,sernr,vChr);
+*/
     if (res!=0) then begin
       goto LEndFiscalReceipt;
     end;
@@ -422,12 +428,12 @@ begin
   vector string 255 vChr;
   
   if (sernr>0) then begin
-    /*
     path = "/json/fp550/Cmdline";
-    AddTextToArea("{""cmd"":""84"",""parameter"":""2\\t" & sernr & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js);
-    */
+    AddTextToArea("{""cmd"":""84"",""parameter"":""3," & sernr & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
+/*
     res = PrintCommentLine(LSPDr,sernr,vChr);
+*/
     if (res!=0) then begin
       goto LEndFiscalReceipt;
     end;
@@ -567,7 +573,7 @@ begin
   return;
 end;
 
-function Boolean IVCashHasNegativeAmounts(record IVCashVc IVCashr)
+function Boolean IVCashHasNegativeAmounts(record IVCashVc IVCashr,var val retval)
 begin
   Integer i,rwcnt;
   row IVCashVc IVCashrw;
@@ -582,7 +588,63 @@ begin
     end;
   end;
 
+  retval = IVCashr.Sum4;
+
   IVCashHasNegativeAmounts = res;
+  return;
+end;
+
+function string 255 RemoveLeadingZero(string tstr)
+begin
+  string 255 res,c;
+  Integer i;
+  Boolean testf,skipf;
+
+  for (i=0;i<len(tstr);i=i+1) begin
+    skipf = false;
+    c = mid(tstr,i,1);
+    if (testf==false) then begin
+      if (c=="+" or c=="0") then begin
+        skipf = true;
+      end else begin
+        testf = true;
+      end;
+    end;
+    if (!skipf) then begin
+      res = res & c;
+    end;
+  end;
+
+  RemoveLeadingZero = res;
+  return;
+end;
+
+function Integer CheckForBalance(record LSerialPortDeviceVc LSPDr,val sum)
+begin
+  string 255 path,stat,tmp;
+  area request;
+  JSON js;
+  Integer res;
+  Longint l,pos;
+  val v;
+  
+  path = "/json/fp550/Cmdline";
+  AddTextToArea("{""cmd"":""70"",""parameter"":""""}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request,js,false);
+  stat = JSONGet(js,"CmdlineResult");
+  GetNextSubString(stat,pos,",",tmp);
+  GetNextSubString(stat,pos,",",tmp);
+  GetNextSubString(stat,pos,",",tmp);
+  tmp = RemoveLeadingZero(tmp);
+  l = StringToLongint(tmp);
+  v = l/100;
+  stopalert(v & ":" );
+  if (v<sum) then begin
+    res = 1000106;
+  end;
+
+  CheckForBalance = res;
   return;
 end;
 
@@ -595,6 +657,7 @@ begin
   record MachineCashVc MCr;
   vector val vatrates;
   string 255 receiptnr;
+  val retval;
   
   noErr = 0;
   //res = APSACheckStatus;
@@ -603,7 +666,11 @@ begin
     if (res!=noErr) then begin
       goto LIVCashVc_PrintAPSAReceipt;
     end;
-    if (IVCashHasNegativeAmounts(IVCashr)) then begin
+    if (IVCashHasNegativeAmounts(IVCashr,retval)) then begin
+      res = CheckForBalance(LSPDr,retval);
+      if (res!=noErr) then begin
+        goto LIVCashVc_PrintAPSAReceipt;
+      end;      
       res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates);
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
@@ -829,7 +896,7 @@ LPrintItemRows:;
   return;
 end;
 
-function Boolean IVHasNegativeAmounts(record IVVc IVr)
+function Boolean IVHasNegativeAmounts(record IVVc IVr,var val retval)
 begin
   Integer i,rwcnt;
   row IVVc IVrw;
@@ -848,6 +915,8 @@ begin
     end;
   end;
 
+  retval = IVr.Sum4;
+
   IVHasNegativeAmounts = res;
   return;
 end;
@@ -859,7 +928,8 @@ begin
   record IVVc oldIVr;
   Integer noErr,res;
   vector val vatrates;  
-  string 255 receiptnr
+  string 255 receiptnr;
+  val retval;
 
   noErr = 0;
   if (res==noErr) then begin
@@ -868,7 +938,11 @@ begin
       goto LIVVc_PrintAPSAReceipt;
     end;
 
-    if (IVHasNegativeAmounts(IVr)) then begin
+    if (IVHasNegativeAmounts(IVr,retval)) then begin
+      res = CheckForBalance(LSPDr,retval);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;      
       res = IVVc_PrintItemRows(LSPDr,IVr,vatrates);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
@@ -892,7 +966,7 @@ begin
         goto LIVVc_PrintAPSAReceipt;
       end;
 
-      res = EndFiscalReceipt(LSPDr,-1);
+      res = EndFiscalReceipt(LSPDr,IVr.SerNr);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;

@@ -115,6 +115,7 @@ begin
   SString(1000103,"Negali bðti ta pati patalpa"); // Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 10:11:18
   SString(1000104,"¯veskite tokiˆ datˆ, kokia yra nurodyta gavimo sˆskaitoje"); // Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 8 June 2018 13:48:28
   SString(1000105,"áioms prek˜ms buvo iäraäytas PVM grˆìinimo dokumentas. D˜l to likusi grˆìintina suma turi bðti jau be PVM: jai iäraäyti KIO, bet sˆskaitˆ kredituoti pilnai sumai. Daugiau info WIKI.");// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 01 03 2019 y. at 3:22:40 PM
+  SString(1000106,"There is not enough many in Cash Drawer");
 
   
   StrSetBegin(3); /* Try to keep them in alphabetical order */
