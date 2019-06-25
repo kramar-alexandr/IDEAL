@@ -599,7 +599,7 @@ begin
     end;
     res = GetReceiptNumber(LSPDr,receiptnr);
     if (res!=noErr) then begin
-      goto LIVVc_PrintAPSAReceipt;
+      goto LIVCashVc_PrintAPSAReceipt;
     end;
   
     res = EndFiscalReceipt(LSPDr,IVCashr.SerNr);
