@@ -17,7 +17,8 @@ enum begin
   kAPSACommandXReport = 10,
   kAPSACommandBeginCreditReceipt = 11,
   kAPSACommandEndCreditReceipt = 12,
-  kAPSACommandCheckBalance = 13
+  kAPSACommandCheckBalance = 13,
+  kAPSACommandPeriodicReport = 14
 end;
 
 function string 255 GetAPSAUrl(record LSerialPortDeviceVc LSPDr)
@@ -995,6 +996,9 @@ begin
   Integer res;
   
   res = SendAPSASimpleCommand(LSPDr,kAPSACommandZReport);
+  if (res!=0) then begin
+    MessageBox(res,"");
+  end;
 
   APSA_PrintZReport = res;
   return;
@@ -1006,10 +1010,35 @@ begin
   Integer res;
   
   res = SendAPSASimpleCommand(LSPDr,kAPSACommandXReport);
+  if (res!=0) then begin
+    MessageBox(res,"");
+  end;
 
   APSA_PrintXReport = res;
   return;
 end;
+
+global
+function Integer APSA_PrintPeriodicReport(record LSerialPortDeviceVc LSPDr,record RcVc RepSpec)
+begin
+  Integer res;
+  string 255 path;
+  area request;
+  JSON js;
+  
+  path = "/json/fp550/Cmdline";
+  AddTextToArea("{""cmd"":""79"",""parameter"":""" & DateToString(RepSpec.d1,"DDMMYY") & "," & DateToString(RepSpec.d2,"DDMMYY") & """}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request,js,true);
+  if (res!=0) then begin
+    MessageBox(res,"");
+  end;
+
+  APSA_PrintPeriodicReport = res;
+  return;
+end;
+
+
 
 function Integer MoneyOutCurr(record LSerialPortDeviceVc LSPDr,record CashVc Cashr)
 begin
