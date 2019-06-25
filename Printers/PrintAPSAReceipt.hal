@@ -639,7 +639,6 @@ begin
   tmp = RemoveLeadingZero(tmp);
   l = StringToLongint(tmp);
   v = l/100;
-  stopalert(v & ":" );
   if (v<sum) then begin
     res = 1000106;
   end;
