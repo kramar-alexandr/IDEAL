@@ -526,7 +526,7 @@ LkInvoiceRowTypeNormal2:;
   end;
   if (retf) then begin
     path = "/json/fp550/Cmdline";
-    AddTextToArea("{""cmd"":""1070"",""parameter"":""C" & (-retsum) & """}",request);
+    AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-retsum) & """}",request);
 
     res = ExecAPSARequest(LSPDr,path,request,js,false);
     if (res!=noErr) then begin
