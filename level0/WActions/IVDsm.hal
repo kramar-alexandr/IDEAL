@@ -2418,7 +2418,7 @@ begin
   if windowstate(wn) == 0 then begin
 		PDr.Code = IVr.PayDeal;
 		if ReadFirstMain(PDr,1,true) then begin
-			if PDr.PDType != 2 then begin
+			if (PDr.PDType!=2 and IVr.InvType!=kInvoiceTypeCredit) then begin
 				MessageBox(18021,"");
 				goto skipf;
 			end;
@@ -2427,7 +2427,7 @@ begin
 		  MessageBox(18022,"");
 			goto skipf;
 		end;
-		if blank(IVr.RetnValue) then begin
+		if (blank(IVr.RetnValue) and IVr.InvType!=kInvoiceTypeCredit) then begin
 			MessageBox(18023,"");
 			goto skipf;
 		end;

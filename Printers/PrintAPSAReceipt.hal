@@ -520,7 +520,7 @@ LkInvoiceRowTypeNormal2:;
   end;
   if (retf) then begin
     path = "/json/fp550/Cmdline";
-    AddTextToArea("{""cmd"":""1070"",""parameter"":""C" & retsum & """}",request);
+    AddTextToArea("{""cmd"":""1070"",""parameter"":""C" & (-retsum) & """}",request);
 
     res = ExecAPSARequest(LSPDr,path,request,js,false);
     if (res!=noErr) then begin
@@ -567,6 +567,24 @@ begin
   return;
 end;
 
+function Boolean IVCashHasNegativeAmounts(record IVCashVc IVCashr)
+begin
+  Integer i,rwcnt;
+  row IVCashVc IVCashrw;
+  Boolean res;
+  
+  rwcnt = MatRowCnt(IVCashr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVCashr,i,IVCashrw);
+    if (IVCashrw.Quant<0) then begin
+      res = true;
+      i = rwcnt;
+    end;
+  end;
+
+  IVCashHasNegativeAmounts = res;
+  return;
+end;
 
 global
 updating function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc IVCashr,record LSerialPortDeviceVc LSPDr)
@@ -585,27 +603,35 @@ begin
     if (res!=noErr) then begin
       goto LIVCashVc_PrintAPSAReceipt;
     end;
-    res = BeginFiscalReceipt(LSPDr);
-    if (res!=noErr) then begin
-      goto LIVCashVc_PrintAPSAReceipt;
+    if (IVCashHasNegativeAmounts(IVCashr)) then begin
+      res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates);
+      if (res!=noErr) then begin
+        goto LIVCashVc_PrintAPSAReceipt;
+      end;
+    end else begin
+      res = BeginFiscalReceipt(LSPDr);
+      if (res!=noErr) then begin
+        goto LIVCashVc_PrintAPSAReceipt;
+      end;
+      res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates);
+      if (res!=noErr) then begin
+        goto LIVCashVc_PrintAPSAReceipt;
+      end;
+      res = IVCash_SendAPSAPayments(LSPDr,IVCashr);
+      if (res!=noErr) then begin
+        goto LIVCashVc_PrintAPSAReceipt;
+      end;
+      res = GetReceiptNumber(LSPDr,receiptnr);
+      if (res!=noErr) then begin
+        goto LIVCashVc_PrintAPSAReceipt;
+      end;
+    
+      res = EndFiscalReceipt(LSPDr,IVCashr.SerNr);
+      if (res!=noErr) then begin
+        goto LIVCashVc_PrintAPSAReceipt;
+      end;
     end;
-    res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates);
-    if (res!=noErr) then begin
-      goto LIVCashVc_PrintAPSAReceipt;
-    end;
-    res = IVCash_SendAPSAPayments(LSPDr,IVCashr);
-    if (res!=noErr) then begin
-      goto LIVCashVc_PrintAPSAReceipt;
-    end;
-    res = GetReceiptNumber(LSPDr,receiptnr);
-    if (res!=noErr) then begin
-      goto LIVCashVc_PrintAPSAReceipt;
-    end;
-  
-    res = EndFiscalReceipt(LSPDr,IVCashr.SerNr);
-    if (res!=noErr) then begin
-      goto LIVCashVc_PrintAPSAReceipt;
-    end;
+
     if (IVCashr.Prntdf!=0) then begin
       //RecordCopy(oldIVCashr,IVCashr);
       IVCashr.Prntdf = 1;
@@ -622,17 +648,21 @@ LIVCashVc_PrintAPSAReceipt:;
   return;
 end;
 
-function Integer IVVc_PrintRecItem(record LSerialPortDeviceVc LSPDr,record IVVc IVr,row IVVc IVrw,Boolean voidf,vector val vatrates,vector string vChr)
+function Integer IVVc_PrintRecItem(record LSerialPortDeviceVc LSPDr,record IVVc IVr,row IVVc IVrw,Boolean voidf,vector val vatrates,vector string vChr,var Boolean retf,var val retsum)
 begin
   Integer res;
   area request;
   string 255 path,itemline,spec,vatcode;
   JSON js;
+  val t;
 
   spec = IVrw.Spec;
   
-  if (voidf) then begin
-    IVrw.Quant = -IVrw.Quant;
+  if (voidf or IVr.InvType==kInvoiceTypeCredit) then begin
+    retf = true;
+    IVrw.Price = IVrw.Sum;
+    IVrw.vRebate = t;//to blank the value;
+    IVrw.Quant = 1;
   end;
 
   vatcode = GetVATCode(IVr.InclVAT,IVrw.VATCode,vatrates);
@@ -647,7 +677,13 @@ begin
   end;
   itemline = GetCleanName(itemline,vChr);
   path = "/json/fp550/Cmdline";
-  AddTextToArea("{""cmd"":""49"",""parameter"":""" & itemline & """}",request);
+  if (retf) then begin
+    retsum = retsum + IVrw.Sum;//to make the value positive
+
+    AddTextToArea("{""cmd"":""1049"",""parameter"":""" & itemline & """}",request);
+  end else begin    
+    AddTextToArea("{""cmd"":""49"",""parameter"":""" & itemline & """}",request);
+  end;
 
   res = ExecAPSARequest(LSPDr,path,request,js,false);
 
@@ -729,6 +765,11 @@ begin
   row IVVc IVrw;
   Integer i,rwcnt;
   vector string 255 vChr;
+  Boolean retf;
+  val retsum;
+  string 255 path;
+  area request;
+  JSON js;
 
   LoadSpecialCharacters(vChr);
 
@@ -741,7 +782,7 @@ begin
       case kInvoiceRowTypeNormal:
 LkInvoiceRowTypeNormal2:;
         if (nonblank(IVrw.ArtCode)) then begin
-          res = IVVc_PrintRecItem(LSPDr,IVr,IVrw,false,vatrates,vChr);
+          res = IVVc_PrintRecItem(LSPDr,IVr,IVrw,false,vatrates,vChr,retf,retsum);
           if (res!=noErr) then begin
             goto LPrintItemRows;
           end;
@@ -752,7 +793,7 @@ LkInvoiceRowTypeNormal2:;
           end;
         end;
       case kInvoiceRowTypeVoid:
-        res = IVVc_PrintRecItem(LSPDr,IVr,IVrw,true,vatrates,vChr);
+        res = IVVc_PrintRecItem(LSPDr,IVr,IVrw,true,vatrates,vChr,retf,retsum);
         if (res!=noErr) then begin
           goto LPrintItemRows;
         end;
@@ -761,7 +802,7 @@ LkInvoiceRowTypeNormal2:;
         IVrw.Spec = USetStr(24194) & " " & IVrw.GCNr;
         IVrw.Quant = 1;
         IVrw.Price = IVrw.Sum;
-        res = IVVc_PrintRecItem(LSPDr,IVr,IVrw,false,vatrates,vChr);
+        res = IVVc_PrintRecItem(LSPDr,IVr,IVrw,false,vatrates,vChr,retf,retsum);
         if (res!=noErr) then begin
           goto LPrintItemRows;
         end;
@@ -773,10 +814,44 @@ LkInvoiceRowTypeNormal2:;
       end;
     end;
   end;
+
+  if (retf) then begin
+    path = "/json/fp550/Cmdline";
+    AddTextToArea("{""cmd"":""1070"",""parameter"":""C" & (-retsum) & """}",request);
+
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
+    if (res!=noErr) then begin
+      goto LPrintItemRows;
+    end;
+  end;
 LPrintItemRows:;  
   IVVc_PrintItemRows = res;
   return;
 end;
+
+function Boolean IVHasNegativeAmounts(record IVVc IVr)
+begin
+  Integer i,rwcnt;
+  row IVVc IVrw;
+  Boolean res;
+  
+  if (IVr.InvType==kInvoiceTypeCredit) then begin
+    res = true;
+  end else begin
+    rwcnt = MatRowCnt(IVr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(IVr,i,IVrw);
+      if (IVrw.Quant<0) then begin
+        res = true;
+        i = rwcnt;
+      end;
+    end;
+  end;
+
+  IVHasNegativeAmounts = res;
+  return;
+end;
+
 
 global
 updating function Integer IVVc_PrintAPSAReceipt(var record IVVc IVr,record LSerialPortDeviceVc LSPDr)
@@ -793,27 +868,34 @@ begin
       goto LIVVc_PrintAPSAReceipt;
     end;
 
-    res = BeginFiscalReceipt(LSPDr);
-    if (res!=noErr) then begin
-      goto LIVVc_PrintAPSAReceipt;
-    end;
-    res = IVVc_PrintItemRows(LSPDr,IVr,vatrates);
-    if (res!=noErr) then begin
-      goto LIVVc_PrintAPSAReceipt;
-    end;
-    res = IVVc_SendAPSAPayments(LSPDr,IVr);
-    if (res!=noErr) then begin
-      goto LIVVc_PrintAPSAReceipt;
-    end;
-    
-    res = GetReceiptNumber(LSPDr,receiptnr);
-    if (res!=noErr) then begin
-      goto LIVVc_PrintAPSAReceipt;
-    end;
+    if (IVHasNegativeAmounts(IVr)) then begin
+      res = IVVc_PrintItemRows(LSPDr,IVr,vatrates);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;
+    end else begin
+      res = BeginFiscalReceipt(LSPDr);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;
+      res = IVVc_PrintItemRows(LSPDr,IVr,vatrates);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;
+      res = IVVc_SendAPSAPayments(LSPDr,IVr);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;
+      
+      res = GetReceiptNumber(LSPDr,receiptnr);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;
 
-    res = EndFiscalReceipt(LSPDr,-1);
-    if (res!=noErr) then begin
-      goto LIVVc_PrintAPSAReceipt;
+      res = EndFiscalReceipt(LSPDr,-1);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;
     end;
     if (IVr.Prntdf!=0) then begin
     	RecordCopy(oldIVr,IVr);        
