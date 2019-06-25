@@ -92,6 +92,7 @@ external updating function boolean PinPadVoidCash(record IVCashVc);// Edit *****
 //CUST-BEGIn
 external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer);
 external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
+external updating function LongInt IVVcRecordCheck(record IVVc,record IVVc,LongInt,LongInt);
 //CUST-END
 
 global
@@ -1762,7 +1763,7 @@ begin
   record IVVc IVr;
   record IVVc prevIVr;
   row IVVc IVrw;
-  Integer wn,rownr,nwn;
+  Integer wn,rownr,nwn,err;
   LongInt rowstp;
   val fr,to1,to2,br1,br2;
   val t,t1;  
@@ -1942,7 +1943,15 @@ Trace("CredCardIVsmDo","");
         if (blank(pmcodelabel)) then begin
           pmcodelabel = GetWindowString(wn,"PMCodeLabel" & btnNr);
         end;
-        InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn);
+        IVr.OKFlag = 1;
+
+        SetRecordCheckVc("IVVc");
+        err = IVVcRecordCheck(IVr,prevIVr,WindowState(wn),1);
+        if(err==-1)then begin
+          MessageBox(RecordCheckLastErrorNo,"");
+        end else begin
+          InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn);
+        end;
 //CUST-END
     end;
   end;
