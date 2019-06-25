@@ -820,6 +820,7 @@ begin
   		IVr.InvComment = "CEKIS";    
       IVr.RefStr = receiptnr;
       IVr.Prntdf = 1;
+      IVr.OKFlag = 1;
 	  	RecordUpdate(oldIVr,IVr,false);  
     end;    
 LIVVc_PrintAPSAReceipt:;

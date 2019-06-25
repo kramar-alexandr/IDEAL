@@ -3,7 +3,7 @@ external inner procedure IVCashSumup(var record IVCashVc,Boolean);
 external inner procedure IVCashDClass_RefreshStringList(Integer,record IVCashVc);
 external inner updating procedure IVCashDClassTouchScreenFinishButton();
 external inner procedure IVSumup(var record IVVc,Boolean);
-external updating procedure IVFinishAndPrint();
+external inner updating procedure IVFinishAndPrint();
 
 procedure GetTouchlessPaymentURL(record TouchlessPayBlock TPb,var string url,var Longint port)
 begin
@@ -107,7 +107,7 @@ logtext(0,"UpdateIVVcWithTouchlessPay");
   rownr = MatRowCnt(IVr);
   MatRowPut(IVr,rownr,IVrw);
   IVSumup(IVr,true);
-  IVr.OKFlag = 1;
+//  IVr.OKFlag = 1;
   PutWindowRecord(mwn,IVr);
   if (WindowDoOK(mwn,0)) then begin
     SelectWindow(mwn);
@@ -195,7 +195,7 @@ begin
     end;
   end;
 
-//  paymentstat = "Approved";
+  paymentstat = "Approved";
 
   pmwn = MotherWindow(ProcessingWn);
   if (GetWindowClass(pmwn)=="NPTSPaymentOneModeTClass") then begin
