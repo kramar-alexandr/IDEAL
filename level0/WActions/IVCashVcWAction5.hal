@@ -1993,12 +1993,29 @@ begin
     SetPOSWindowDisplay("",tstr);
     PutWindowRecord(wn,IVCashr);
     IVCashDClass_RefreshStringList(wn,IVCashr);
-    
+    NewTimedTask("RefreshIVCashWindow","RefreshIVCashWindow","RefreshIVCashWindow",wn,CurrentDate,AddSeconds(CurrentTime,1),"","");
+
 //    ReRunWindowDef(wn);
   end;
 
 // TESTHT28ENQ;
 LIVCashDClassTouchScreenFinishButtonRun:;  
+  return;
+end;
+
+//CHN::190625>>Added this workaround for refreshing string list after finishing sale
+//This is a terrible fix, but I could not think of anything else
+global
+procedure RefreshIVCashWindow(string args)
+begin
+  Integer wn;
+  record IVCashVc IVCashr;
+
+  wn = StringToInt(args);
+  GetWindowRecord(wn,IVCashr);
+
+  IVCashDClass_RefreshStringList(wn,IVCashr);
+
   return;
 end;
 
