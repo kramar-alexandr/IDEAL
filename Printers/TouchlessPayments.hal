@@ -223,6 +223,8 @@ logtext(0,"InitTouchlessPayment 2 ");
        case "IVCashVc":
           qupdating.UpdateIVCashWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr)
       end;
+    end else begin
+      MessageBox(27386,0);
     end;
   end;
 
