@@ -527,7 +527,7 @@ end;
 global
 procedure VoidBankPaymentWClassProceed()
 begin
-  string 255 FileName,transactionid;
+  string 255 FileName;
   Integer mwn,wn;
   record IVVc IVr;
   record IVCashVc IVCashr;
@@ -543,13 +543,13 @@ begin
     switch (FileName) begin
       case "IVVc":
         GetWindowRecord(mwn,IVr);
-        if (InitTouchlessPaymentReturn(transactionid,mwn)==false) then begin
+        if (InitTouchlessPaymentReturn(RepSpec.f1,mwn)==false) then begin
           MessageBox(20259,"");
         end;
 
       case "IVCashVc":
         GetWindowRecord(mwn,IVCashr);
-        if (InitTouchlessPaymentReturn(transactionid,mwn)==false) then begin
+        if (InitTouchlessPaymentReturn(RepSpec.f1,mwn)==false) then begin
           MessageBox(20259,"");
         end;
 
