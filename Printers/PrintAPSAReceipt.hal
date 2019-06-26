@@ -82,8 +82,6 @@ begin
     end;
   end;
   tick = GetCurTick;
-  writeareatofile(reply,"_apsa.reply." & tick & ".txt",0);
-  writeareatofile(request,"_apsa.request" & tick & ".txt",0);
 
 LExecAPSARequest:;
 //res = 12400;//for debug process
