@@ -714,6 +714,8 @@ begin
   SetText(kPOSButtonTypeTransfertoOrder,"Perkelti ° pardavimo uìsakymˆ");
   SetText(kPOSButtonTypeUnregisterClerk,"Iäregistruoti kasininkˆ fiskaliniame printeryje"); 
   SetText(kPOSButtonTypeVoidRow,"Paäalinti eilut«");
+  SetText(kPOSButtonTypeVoidBankPayment,"Void Bank Payment");//CHN::190626
+  
   EndSet;
   
   return;
