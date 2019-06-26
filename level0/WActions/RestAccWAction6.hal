@@ -35,6 +35,8 @@ external outer procedure IVWebText(string,val,integer,string);
 //END-CUST PST 2015-October-01
 //CUST-START
 external outer procedure SetPOSWindowDisplayModeFiscalPrinterAPSA(record LSerialPortDeviceVc,string,string);
+external outer updating procedure IVCashVc_PrintAPSAReceiptCopy(var record IVCashVc,record LSerialPortDeviceVc);
+external outer updating procedure IVCashVc_PrintAPSAReceipt(var record IVCashVc,record LSerialPortDeviceVc);
 //CUST-END
 
 global
@@ -873,6 +875,12 @@ begin
               goto LIVCashPrintReceipt;
           end;
         end;
+//CUST-BEGIN
+      case 200:
+        if (rownr==-1) then begin//check if IVCashp.Prntd
+          qupdating.IVCashVc_PrintAPSAReceipt(IVCashp,LSPDr);
+        end;
+//CUST-END
     end;
   end;
   if (found==false) then begin

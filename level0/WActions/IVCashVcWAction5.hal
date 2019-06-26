@@ -1945,24 +1945,6 @@ begin
     end;
   end;
 
-//CUST-BEGIN
-  if (err==0) then begin    
-    if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalPrinter,-1,LMb.LocalMachineCode,LSPDr)) then begin  
-      if (IVCashr.FiscalFlag!=0) then begin
-        if (IVCashr.Invalid==0) then begin
-          switch (LSPDr.Printer) begin
-            case 200:
-              err = IVCashVc_PrintAPSAReceipt(IVCashr,LSPDr);
-              if (err>0) then begin
-                new_recordf = false;
-              end;
-          end;
-        end;
-      end;
-    end;
-  end;
-//CUST-END
-
   if (err==0) then begin
     PutWindowRecord(wn,IVCashr);
     save_recordf = true;      
