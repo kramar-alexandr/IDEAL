@@ -87,7 +87,7 @@ begin
 end;
 
 global
-updating procedure UpdateIVCashWithTouchlessPayReturn(Integer mwn,val received,string AuthorisationCode,string paymode,string label,string timestamp,string transactionid,string receiptnr)
+updating procedure UpdateIVCashWithTouchlessPayReturn(Integer mwn,string AuthorisationCode)
 begin
   row IVCashVc IVCashrw;
   record IVCashVc IVCashr;
@@ -142,7 +142,7 @@ begin
 end;
 
 global
-updating procedure UpdateIVVcWithTouchlessPayReturn(Integer mwn,val received,string AuthorisationCode,string paymode,string label,string timestamp,string transactionid,string receiptnr)
+updating procedure UpdateIVVcWithTouchlessPayReturn(Integer mwn,string AuthorisationCode)
 begin
   record IVVc IVr;
   row IVVc IVrw; 
@@ -285,17 +285,13 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
       fres = true;
 
       if (received>0) then begin
-        qupdating.StoreLastTouchlessPayment(receiptnr,received,timestamp);
+        qupdating.StoreLastTouchlessPayment(transactionid,received,timestamp);
       end;
       switch (FileName) begin
         case "IVVc":
            qupdating.UpdateIVVcWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr)
-       case "IVCashVc":
-          if (received<0) then begin
-            qupdating.UpdateIVCashWithTouchlessPayReturn(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr);
-          end else begin
-            qupdating.UpdateIVCashWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr);
-          end;
+        case "IVCashVc":
+          qupdating.UpdateIVCashWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr);
       end;
     end else begin
       MessageBox(27386,0);
@@ -305,6 +301,111 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
 
 LInitTouchlessPayment:;
   InitTouchlessPayment = fres;
+  return;
+end;
+
+global
+function Boolean InitTouchlessPaymentReturn(string transactionid,Integer wn)
+begin
+  string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr;
+  Boolean res,fres;
+  JSON js;
+  area request,reply;
+  record LocalMachineBlock LMb;  
+  record LSerialPortDeviceVc LSPDr;
+  record RcVc RepSpec;
+  Integer mwn,pmwn,tries;
+  Longint port;
+  record TouchlessPayBlock TPb;
+  Integer ProcessingWn;
+  record RcVc vRepSpec;
+  Longint sernr;
+
+  vRepSpec.UsedOnly = kLocalCCTerminalVerifoneBanksys;
+  vRepSpec.ArtMode = 1;
+  vRepSpec.long1 = sernr;
+  ProcessingWn = OpenWindow("CCPayVerifoneProcessingWClass",0,wn,"","",vRepSpec);
+  DeselectWindow(ProcessingWn,false);
+
+  BlockLoad(LMb);
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)==false) then begin  
+    GetWindowRecord(ProcessingWn,RepSpec);
+    PutWindowString(ProcessingWn,"Status",USetStr(22123));        
+    PutWindowString(ProcessingWn,"Result",USetStr(27429));        
+    PutWindowRecord(ProcessingWn,RepSpec);
+    goto LInitTouchlessPayment;
+  end else begin
+    GetWindowRecord(ProcessingWn,RepSpec);
+    PutWindowString(ProcessingWn,"Status",USetStr(27370));        
+    PutWindowString(ProcessingWn,"Result","");        
+    PutWindowRecord(ProcessingWn,RepSpec);
+  end;
+
+  BlockLoad(TPb);
+  GetTouchlessPaymentURL(TPb,url,port);
+  path = "/Authorize";
+ 
+  AddTextToArea("{",request);
+  AddTextToArea("""posId"": """ & LSPDr.Port & """,",request);
+  AddTextToArea("""transactionId"": """ & transactionid & """",request);
+  AddTextToArea("}",request);
+
+  SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
+
+  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,60)) then begin
+    js = ParseJSONArea(reply);
+    if (JSONGet(js,"result")=="Ok") then begin
+      AuthorisationCode = JSONGet(js,"AuthorizationCode");
+      receiptnr = JSONGet(js,"Stan");//this is return number
+      timestamp = JSONGet(js,"time");//this is return number
+      res = true;
+    end;
+  end;
+
+  if (res) then begin
+    while (ConfirmTouchlessPayment(TPb,LSPDr,transactionid,paymentstat)==false and tries<300) begin//5 minutes
+      sleep(1);
+      tries = tries + 1;
+    end;
+  end;
+
+//  paymentstat = "Approved";//for debug process
+
+  pmwn = MotherWindow(ProcessingWn);
+  if (GetWindowClass(pmwn)=="NPTSPaymentOneModeTClass") then begin
+    mwn = MotherWindow(pmwn);
+  end else begin
+    mwn = mwn;
+    if (mwn<=0) then begin
+      mwn = pmwn;
+    end;
+  end;
+
+  FileName = GetWindowFileName(mwn);
+  if (mwn>0) then begin
+    CloseWindow(ProcessingWn);
+    SelectWindow(mwn);
+    DeselectWindow(mwn,true);
+logtext(0,"payment stat=" & paymentstat);
+logtext(0,"reply " & GetStringFromArea(reply,0,255));
+logtext(0,"request " & GetStringFromArea(request,0,255));
+    if (paymentstat=="Transactions is cancelled" or paymentstat=="Patvirtinta") then begin
+      fres = true;
+
+      switch (FileName) begin
+        case "IVVc":
+          qupdating.UpdateIVVcWithTouchlessPayReturn(mwn,AuthorisationCode)
+        case "IVCashVc":
+          qupdating.UpdateIVCashWithTouchlessPayReturn(mwn,AuthorisationCode);
+      end;
+    end else begin
+      MessageBox(27386,0);
+    end;
+  end;
+
+
+LInitTouchlessPayment:;
+  InitTouchlessPaymentReturn = fres;
   return;
 end;
 
@@ -353,13 +454,15 @@ begin
   string 255 transactionid,rrn,timestamp;
   record TouchlessPayBlock TPb;
   
-  //do we have to check the amounts?
-  if (IVCashHasCCPayments(IVCashr,sum,rrn,timestamp)) then begin
-  end else begin
+//do we have to check the amounts?
+//  if (IVCashHasCCPayments(IVCashr,sum,rrn,timestamp)) then begin
+//  end else begin
+//disabled code above cause it was used for different function. You can refund any deal with it. we don't need it
     BlockLoad(TPb);
     sum = TPb.LastSum;
     rrn = TPb.LastRrn;
-  end;
+    timestamp = TPb.LastTimeStamp;
+//  end;
   if (sum>0) then begin
     OpenVoidBankPaymentWClass(wn,sum,rrn,timestamp);
   end else begin
@@ -402,13 +505,14 @@ begin
   record TouchlessPayBlock TPb;
   
   //do we have to check the amounts?
-  if (IVVchHasCCPayments(IVr,sum,rrn,timestamp)) then begin
-  end else begin
+  //if (IVVchHasCCPayments(IVr,sum,rrn,timestamp)) then begin
+  //end else begin
+  //disabled code above cause it was used for different function. You can refund any deal with it. we don't need it
     BlockLoad(TPb);
     sum = TPb.LastSum;
     rrn = TPb.LastRrn;
     timestamp = TPb.LastTimeStamp;
-  end;
+  //end;
 
   if (sum>0) then begin
     OpenVoidBankPaymentWClass(wn,sum,rrn,timestamp);
@@ -439,13 +543,13 @@ begin
     switch (FileName) begin
       case "IVVc":
         GetWindowRecord(mwn,IVr);
-        if (InitTouchlessPayment(-RepSpec.vals0,"","",transactionid,-1,IVr.CurncyCode,mwn,RepSpec.f1,RepSpec.searchstr)==false) then begin
+        if (InitTouchlessPaymentReturn(transactionid,mwn)==false) then begin
           MessageBox(20259,"");
         end;
 
       case "IVCashVc":
         GetWindowRecord(mwn,IVCashr);
-        if (InitTouchlessPayment(-RepSpec.vals0,"","",transactionid,-1,IVCashr.CurncyCode,mwn,RepSpec.f1,RepSpec.searchstr)==false) then begin
+        if (InitTouchlessPaymentReturn(transactionid,mwn)==false) then begin
           MessageBox(20259,"");
         end;
 
