@@ -343,7 +343,7 @@ begin
 
   BlockLoad(TPb);
   GetTouchlessPaymentURL(TPb,url,port);
-  path = "/Authorize";
+  path = "/Reverse";
  
   AddTextToArea("{",request);
   AddTextToArea("""posId"": """ & LSPDr.Port & """,",request);
