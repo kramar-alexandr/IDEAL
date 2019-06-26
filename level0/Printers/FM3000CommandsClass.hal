@@ -43,9 +43,9 @@ external procedure PMsg_YearlyReport(record LSerialPortDeviceVc,date);
 external procedure BematechMP2100XReport(record LSerialPortDeviceVc);
 external procedure BematechMP2100ZReport(record LSerialPortDeviceVc);
 //CUST-BEGIN
-external outer function Integer APSA_PrintZReport(record LSerialPortDeviceVc);
-external outer function Integer APSA_PrintXReport(record LSerialPortDeviceVc);
-external outer function Integer APSA_PrintPeriodicReport(record LSerialPortDeviceVc,record RcVc);
+external outer procedure APSA_PrintZReport(record LSerialPortDeviceVc);
+external outer procedure APSA_PrintXReport(record LSerialPortDeviceVc);
+external outer procedure APSA_PrintPeriodicReport(record LSerialPortDeviceVc,record RcVc);
 
 //CUST-END
 
@@ -192,7 +192,7 @@ begin
       POSNETProtocol_DailyReport(LSPDr,RepSpec.d1);
 //CUST-BEGIN
       case 200:
-        APSA_PrintZReport(LSPDr);
+        threadasync.APSA_PrintZReport(LSPDr);
 //CUST-END
     case kSerialPortDeviceModelNone:
       MessageBox(22123,"");
@@ -280,7 +280,7 @@ begin
       POSNETProtocol_MonthlyReport(LSPDr,RepSpec.d1);
 //CUST-BEGIN
       case 200:
-        APSA_PrintXReport(LSPDr);
+        threadasync.APSA_PrintXReport(LSPDr);
 //CUST-END
     case kSerialPortDeviceModelNone:
       MessageBox(22123,"");
@@ -470,7 +470,7 @@ begin
       FB15PeriodicReportdll(RepSpec,LSPDr);
 //CUST-BEGIN
       case 200:
-        APSA_PrintPeriodicReport(LSPDr,RepSpec);
+        threadasync.APSA_PrintPeriodicReport(LSPDr,RepSpec);
 //CUST-END
     case kSerialPortDeviceModelNone:
       MessageBox(22123,"");
@@ -517,7 +517,7 @@ begin
       	FB05MonthlyReport(LSPDr);
 //CUST-BEGIN
       case 200:
-        APSA_PrintXReport(LSPDr);
+        threadasync.APSA_PrintXReport(LSPDr);
 //CUST-END
     end;
   end else begin// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 23 January 2018 12:24:22
@@ -586,7 +586,7 @@ begin
         FB05DailyReport(LSPDr);
 //CUST-BEGIN
       case 200:
-        APSA_PrintZReport(LSPDr);
+        threadasync.APSA_PrintZReport(LSPDr);
 //CUST-END
     end;
   end else begin
@@ -624,7 +624,7 @@ begin
       	FB05DailyReport(LSPDr);
 //CUST-BEGIN
       case 200:
-        APSA_PrintXReport(LSPDr);
+        threadasync.APSA_PrintXReport(LSPDr);
 //CUST-END
     end;
 	// Edit End ---------------------------------------------- Edit End

@@ -51,7 +51,7 @@ begin
   url = GetAPSAUrl(LSPDr);
   res = 12400;//problem with connection
 
-  if (SendWebRequest(url,8111,-1,false,"POST",path,"application/json","",false,request,reply,30)) then begin
+  if (SendWebRequest(url,8111,-1,false,"POST",path,"application/json","",false,request,reply,60)) then begin
     js = ParseJSONArea(reply);
     if (right(path,4)=="open") then begin
       if (JSONGet(js,"OpenResult")=="000000" or len(JSONGet(js,"OpenResult"))!=6) then begin
@@ -90,6 +90,7 @@ LExecAPSARequest:;
   return;
 end;
 
+global
 function Integer SendAPSASimpleCommand(record LSerialPortDeviceVc LSPDr,Integer command)
 begin
   Integer res;
@@ -991,7 +992,7 @@ LIVVc_PrintAPSAReceipt:;
 end;
 
 global
-function Integer APSA_PrintZReport(record LSerialPortDeviceVc LSPDr)
+procedure APSA_PrintZReport(record LSerialPortDeviceVc LSPDr)
 begin
   Integer res;
   
@@ -1000,12 +1001,11 @@ begin
     MessageBox(res,"");
   end;
 
-  APSA_PrintZReport = res;
   return;
 end;
 
 global
-function Integer APSA_PrintXReport(record LSerialPortDeviceVc LSPDr)
+procedure APSA_PrintXReport(record LSerialPortDeviceVc LSPDr)
 begin
   Integer res;
   
@@ -1014,12 +1014,11 @@ begin
     MessageBox(res,"");
   end;
 
-  APSA_PrintXReport = res;
   return;
 end;
 
 global
-function Integer APSA_PrintPeriodicReport(record LSerialPortDeviceVc LSPDr,record RcVc RepSpec)
+procedure APSA_PrintPeriodicReport(record LSerialPortDeviceVc LSPDr,record RcVc RepSpec)
 begin
   Integer res;
   string 255 path;
@@ -1034,7 +1033,6 @@ begin
     MessageBox(res,"");
   end;
 
-  APSA_PrintPeriodicReport = res;
   return;
 end;
 
