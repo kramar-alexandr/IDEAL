@@ -93,6 +93,7 @@ external updating function boolean PinPadVoidCash(record IVCashVc);// Edit *****
 external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer);
 external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
 external updating function LongInt IVVcRecordCheck(record IVVc,record IVVc,LongInt,LongInt);
+external procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
 //CUST-END
 
 global
@@ -2287,24 +2288,32 @@ updating procedure PinPadVoidIVCashDsm()
 begin
   Integer wn,wnst,nwn;
   record IVCashVc IVCashr,prevIVCashr,oldIVCashr;
+  record RahaxiBlock Rahaxib; 
+  
   
   wn = CurWindow;
   DeselectWindow(wn,false);
   GetWindowRecord(wn,IVCashr);
-  if windowstate(wn) == 0 then begin
-    if  nonblank(IVCashr.BankCode) or IVCashr.InvDate != CurrentDate then begin
-  	  if PinPadVoidCash(IVCashr) == true  then begin
-  	  	CloseWindow(wn);
-				nwn = OpenWindow("IVCashDClass",1,0,"","",IVCashr);
-  	  end else begin
-  	  	MessageBox(1,"    ATSISAKYMAS NEPATVIRTINTAS!!!!");
-  	  end;
-  	end else begin
-  	  MessageBox(1,"   Operacija negalima");
-  	end;
-	end else begin
-	  MessageBox(18044,"");
-	end;
+  if (WindowState(wn)==0) then begin
+    BlockLoad(Rahaxib);
+    switch (Rahaxib.TerminalType) begin
+      case 201:
+        TouchlessVoidIVCashPayment(IVCashr,wn);
+      otherwise
+        if  nonblank(IVCashr.BankCode) or IVCashr.InvDate != CurrentDate then begin
+          if PinPadVoidCash(IVCashr) == true  then begin
+            CloseWindow(wn);
+            nwn = OpenWindow("IVCashDClass",1,0,"","",IVCashr);
+          end else begin
+            MessageBox(1,"    ATSISAKYMAS NEPATVIRTINTAS!!!!");
+          end;
+        end else begin
+          MessageBox(1,"   Operacija negalima");
+        end;
+    end;
+  end else begin
+    MessageBox(18044,"");
+  end;
 return;
 end;
 

@@ -86,6 +86,7 @@ begin
   writeareatofile(request,"_apsa.request" & tick & ".txt",0);
 
 LExecAPSARequest:;
+//res = 12400;//for debug process
   ExecAPSARequest = res;
   return;
 end;
