@@ -677,6 +677,10 @@ begin
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
+      res = GetReceiptNumber(LSPDr,receiptnr);
+      if (res!=noErr) then begin
+        goto LIVCashVc_PrintAPSAReceipt;
+      end;
     end else begin
       res = BeginFiscalReceipt(LSPDr);
       if (res!=noErr) then begin
@@ -946,6 +950,10 @@ begin
         goto LIVVc_PrintAPSAReceipt;
       end;      
       res = IVVc_PrintItemRows(LSPDr,IVr,vatrates);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;
+      res = GetReceiptNumber(LSPDr,receiptnr);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
