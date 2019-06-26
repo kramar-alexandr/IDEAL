@@ -2034,7 +2034,7 @@ begin
 		end;
 	end;
   //END-CUST October 16, 2014 by PST
-  if (Rahaxib.TerminalType==kLocalCCTerminalNone) begin
+  if (Rahaxib.TerminalType==kLocalCCTerminalNone or Rahaxib.TerminalType==201) begin
     switch (WindowActiveField(wn)) begin
       otherwise
         BlockLoad(DefCashRec);
