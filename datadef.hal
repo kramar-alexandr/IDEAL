@@ -750,7 +750,8 @@ begin
     RecordField(Password,M4Str,40,0);
     RecordField(ProjectID,M4Str,40,0);
     RecordField(LastRrn,M4Str,40,0);
-    RecordField(LastSum,M4Val,40,0);
+    RecordField(LastSum,M4Val,0,0);
+    RecordField(LastTimeStamp,M4Str,40,0);
     EndBlock;
 	
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54

@@ -166,20 +166,21 @@ begin
 end;
 
 global
-updating procedure StoreLastTouchlessPayment(string rrn,val sum)
+updating procedure StoreLastTouchlessPayment(string rrn,val sum,string timestamp)
 begin
   record TouchlessPayBlock TPb;
    
   BlockLoad(TPb);
   TPb.LastRrn = rrn;
   TPb.LastSum = sum;
+  TPb.LastTimeStamp = timestamp;
   BlockStore(TPb);
 
   return;
 end;
 
 global
-function Boolean InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Longint tsernr,string crncy,Integer wn,string rrn)
+function Boolean InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Longint tsernr,string crncy,Integer wn,string rrn,string origdatetime)
 begin
   string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr;
   Boolean res,fres;
@@ -234,7 +235,8 @@ begin
   AddTextToArea("""time"": """ & timestamp & """,",request);
   AddTextToArea("""language"": ""LT"",",request);
   if (nonblank(rrn)) then begin
-    AddTextToArea("""Rrn"": """ & rrn & """,",request);
+    AddTextToArea("""Stan"": """ & rrn & """,",request);
+    AddTextToArea("""OriginalDateTime"":""" & origdatetime & """,",request);
   end;
   AddTextToArea("""preAuthorize"": false",request);
   AddTextToArea("}",request);
@@ -246,7 +248,8 @@ begin
     if (JSONGet(js,"result")=="Ok") then begin
       transactionid = JSONGet(js,"TransactionId");
       AuthorisationCode = JSONGet(js,"AuthorizationCode");
-      receiptnr = JSONGet(js,"Rrn");//this is return number
+      receiptnr = JSONGet(js,"Stan");//this is return number
+      timestamp = JSONGet(js,"time");//this is return number
       res = true;
     end;
   end;
@@ -282,7 +285,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
       fres = true;
 
       if (received>0) then begin
-        qupdating.StoreLastTouchlessPayment(receiptnr,received);
+        qupdating.StoreLastTouchlessPayment(receiptnr,received,timestamp);
       end;
       switch (FileName) begin
         case "IVVc":
@@ -306,18 +309,19 @@ LInitTouchlessPayment:;
 end;
 
 global
-procedure OpenVoidBankPaymentWClass(Integer wn,val amount,string rnn)
+procedure OpenVoidBankPaymentWClass(Integer wn,val amount,string rnn,string timestamp)
 begin
   record RcVc RepSpec;
   
   RepSpec.vals0 = amount;
   RepSpec.f1 = rnn;
+  RepSpec.searchstr = timestamp;
   OpenWindow("VoidBankPaymentWClass",0,wn,"","",RepSpec);
 
   return;
 end;
 
-function Boolean IVCashHasCCPayments(record IVCashVc IVCashr,var val sum,var string rrn)
+function Boolean IVCashHasCCPayments(record IVCashVc IVCashr,var val sum,var string rrn,var string timestamp)
 begin
   Boolean res;
   row IVCashVc IVCashrw;
@@ -330,6 +334,7 @@ begin
       if (IVCashrw.Spec!="LIZINGAS" and IVCashrw.Spec!="Leasing") then begin
         sum = sum + IVCashrw.Sum;
         rrn = IVCashrw.CCReceiptNr;
+        timestamp = IVCashrw.CCTimestamp;
       end;
     end;
   end;
@@ -345,18 +350,18 @@ global
 procedure TouchlessVoidIVCashPayment(record IVCashVc IVCashr,Integer wn)
 begin
   val sum;
-  string 255 transactionid,rrn;
+  string 255 transactionid,rrn,timestamp;
   record TouchlessPayBlock TPb;
   
   //do we have to check the amounts?
-  if (IVCashHasCCPayments(IVCashr,sum,rrn)) then begin
+  if (IVCashHasCCPayments(IVCashr,sum,rrn,timestamp)) then begin
   end else begin
     BlockLoad(TPb);
     sum = TPb.LastSum;
     rrn = TPb.LastRrn;
   end;
   if (sum>0) then begin
-    OpenVoidBankPaymentWClass(wn,sum,rrn);
+    OpenVoidBankPaymentWClass(wn,sum,rrn,timestamp);
   end else begin
     MessageBox(0,"Failed to retrieve void Amount");
   end;
@@ -364,7 +369,7 @@ begin
   return;
 end;
 
-function Boolean IVVchHasCCPayments(record IVVc IVr,var val sum,var string rrn)
+function Boolean IVVchHasCCPayments(record IVVc IVr,var val sum,var string rrn,var string timestamp)
 begin
   Boolean res;
   row IVVc IVrw;
@@ -377,6 +382,7 @@ begin
       if (IVrw.Spec!="LIZINGAS" and IVrw.Spec!="Leasing") then begin
         sum = sum + IVrw.Sum;
         rrn = IVrw.CCReceiptNr;
+        timestamp = IVrw.CCTimestamp;
       end;
     end;
   end;
@@ -392,19 +398,20 @@ global
 procedure TouchlessVoidIVVcPayment(record IVVc IVr,Integer wn)
 begin
   val sum;
-  string 255 transactionid,rrn;
+  string 255 transactionid,rrn,timestamp;
   record TouchlessPayBlock TPb;
   
   //do we have to check the amounts?
-  if (IVVchHasCCPayments(IVr,sum,rrn)) then begin
+  if (IVVchHasCCPayments(IVr,sum,rrn,timestamp)) then begin
   end else begin
     BlockLoad(TPb);
     sum = TPb.LastSum;
     rrn = TPb.LastRrn;
+    timestamp = TPb.LastTimeStamp;
   end;
 
   if (sum>0) then begin
-    OpenVoidBankPaymentWClass(wn,sum,rrn);
+    OpenVoidBankPaymentWClass(wn,sum,rrn,timestamp);
   end else begin
     MessageBox(0,"Failed to retrieve void Amount");
   end;
@@ -432,13 +439,13 @@ begin
     switch (FileName) begin
       case "IVVc":
         GetWindowRecord(mwn,IVr);
-        if (InitTouchlessPayment(-RepSpec.vals0,"","",transactionid,-1,IVr.CurncyCode,mwn,RepSpec.f1)==false) then begin
+        if (InitTouchlessPayment(-RepSpec.vals0,"","",transactionid,-1,IVr.CurncyCode,mwn,RepSpec.f1,RepSpec.searchstr)==false) then begin
           MessageBox(20259,"");
         end;
 
       case "IVCashVc":
         GetWindowRecord(mwn,IVCashr);
-        if (InitTouchlessPayment(-RepSpec.vals0,"","",transactionid,-1,IVCashr.CurncyCode,mwn,RepSpec.f1)==false) then begin
+        if (InitTouchlessPayment(-RepSpec.vals0,"","",transactionid,-1,IVCashr.CurncyCode,mwn,RepSpec.f1,RepSpec.searchstr)==false) then begin
           MessageBox(20259,"");
         end;
 

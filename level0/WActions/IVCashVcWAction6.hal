@@ -91,7 +91,7 @@ remote procedure IVVc_PasteSalesMan(var record IVVc,string);
 external procedure POSAudit_LogIVCashVcRow(record IVCashVc,row IVCashVc,Integer);
 external function val FindVAT(string,val,Integer,Integer);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 06 03 2018 y. 07:58:51
 //CUST-BEGIN
-external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string);
+external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string,string);
 external procedure IVCashDClassTouchScreenCreditNoteRemote_iDeal(Longint,var record IVCashVc);
 //CUST-END
 
@@ -4266,7 +4266,7 @@ begin
               goto LProceedNPTSPaymentOneModeTClass;
 //CUST-BEGIN
             case 201:
-              InitTouchlessPayment(received,paymode,alabel[selpmrow],transactionid,IVCr.SerNr,crncy,wn,"");
+              InitTouchlessPayment(received,paymode,alabel[selpmrow],transactionid,IVCr.SerNr,crncy,wn,"","");
               goto LProceedNPTSPaymentOneModeTClass;
 //CUST-END
           end;

@@ -130,7 +130,7 @@ external updating function boolean PinPadVoid2(longint);
 external function boolean PinPadCash(var record IVCashVc,var string);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 13 March 2018 17:00:33
 //CUST-BEGIN
 external outer updating function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc,record LSerialPortDeviceVc);
-external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string);
+external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string,string);
 external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
 external updating procedure PinPadVoidIVCashDsm();
 //CUST-END
@@ -1640,7 +1640,7 @@ retval is calculted in sumup
             CredCardPOSPIVCashsmExecute(POSBrw.Code,POSBrw.Label);
 //CUST-BEGIN
           case 201:
-            InitTouchlessPayment(IVCashr.Sum4-IVCashr.TendValue,POSBrw.Code,POSBrw.Label,tstr,IVCashr.SerNr,IVCashr.CurncyCode,wn,"");
+            InitTouchlessPayment(IVCashr.Sum4-IVCashr.TendValue,POSBrw.Code,POSBrw.Label,tstr,IVCashr.SerNr,IVCashr.CurncyCode,wn,"","");
 //CUST-END
           otherwise
             CredCardPOSPIVCashsm;

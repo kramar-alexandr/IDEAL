@@ -90,7 +90,7 @@ external updating function boolean PinPadVoidCash(record IVCashVc);// Edit *****
 
 //END-CUST PST 2015-September-29
 //CUST-BEGIn
-external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string);
+external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string,string);
 external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
 external updating function LongInt IVVcRecordCheck(record IVVc,record IVVc,LongInt,LongInt);
 external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
@@ -1953,7 +1953,7 @@ Trace("CredCardIVsmDo","");
         if(err==-1)then begin
           MessageBox(RecordCheckLastErrorNo,"");
         end else begin
-          InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn,"");
+          InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn,"","");
         end;
 //CUST-END
     end;
