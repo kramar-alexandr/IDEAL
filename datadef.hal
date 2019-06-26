@@ -754,6 +754,7 @@ begin
     RecordField(LastTimeStamp,M4Str,40,0);
     EndBlock;
 	
+  //CHN::just updating the set
     BlockBegin(RestPMBlock,-,"");
     NewAutosyncHBlock(kSyncDirectionToClient);
     RecordField(Math,M4Matrix,0,0);
@@ -769,6 +770,31 @@ begin
     ArrayField(CurncyCode,M4Code,5,CurncyCodeVc);
     EndArray;
     EndBlock;
+
+  //CHN::just updating the set
+    BlockBegin(RahaxiBlock,-,"");
+  //  ImpExpLevel(0); // really?
+    BlockForAllCompanies; // stored in client
+    RecordField(RahaxiServerIP,M4Str,60,0);
+    RecordField(RahaxiServerPort,M4Long,0,0);
+    RecordField(TerminalType,M4Set,14446,0);//CUST 411 >> 14446
+    RecordField(TerminalBaudRate,M4Long,0,0);
+    RecordField(PrintRetailer,M4Int,0,0);
+    RecordField(NoSignature,M4Int,0,0);
+    RecordField(LogComm,M4Int,0,0);
+    RecordField(PrintReceipt,M4Int,0,0);
+    RecordField(CutReceipt,M4Int,0,0);
+    EndBlock;
+
+  //CHN::just updating the set
+    RecordAddBegin(SerialPortDeviceVc,"SerialPortDeviceVc_iDeal");
+    ChangeField(Printer,M4Set,14447,0);//CUST 415>>14447
+    EndRecordAdd;
+
+  //CHN::just updating the set
+    RecordAddBegin(LSerialPortDeviceVc,"LSerialPortDeviceVc_iDeal");
+    ChangeField(Printer,M4Set,14447,0);//CUST 415>>14447
+    EndRecordAdd;
 
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
   RecordField(Math,M4Matrix,0,0);
