@@ -1965,3 +1965,23 @@ begin
 	
 	return;
 end;
+
+window VoidBankPaymentWClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real v,vs;
+  record RcVc RepSPec;
+
+  WindowBegin("Void Bank Payment",VoidBankPaymentWClass,CGother,-);
+  SetWRect(20,80,450,190);
+  DynamicWindow;
+  Sizeable(-1,-1,0,0);
+  UseView(RcVc);
+  v = 6; vs = 20;
+  GetWindowRecord(CurWindow,RepSpec);
+  StaticText(20,v+=vs,"Void Bank payment for " & RepSpec.vals0 & " EUR?",false);
+  ColourPushButton(20,v+=vs,120,v+45,"VoidBankPaymentWClassProceed","Proceed",20);
+  ColourPushButton(140,v,240,v+45,"VoidBankPaymentWClassCancel","Cancel",20);
+
+  EndWindow;
+end;
