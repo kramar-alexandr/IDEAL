@@ -738,6 +738,29 @@ begin
   return;
 end;
 
+function Boolean PayDealIsLease(string pmcode)
+begin
+  record RestPMBlock RPMb;
+  row RestPMBlock RPMbrw;
+  Integer i,rwcnt;
+  Boolean res;
+
+  BlockLoad(RPMb);
+  rwcnt = MatRowCnt(RPMb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(RPMb,i,RPMbrw);
+    if (RPMbrw.PMCode==pmcode) then begin
+      if (RPMbrw.rowstp==99) then begin
+        res = true;
+        i = rwcnt;
+      end;
+    end;
+  end;
+
+  PayDealIsLease = res;
+  return;
+end;
+
 procedure IVVc_CalculatePaymentModeSums(record IVVc IVr,var vector val vpaymodesums)
 begin
   row IVVc IVrw;
@@ -747,6 +770,7 @@ begin
   vpaymodesums[kInvoiceRowTypeCreditCardPayment] = 0.00;
   vpaymodesums[kInvoiceRowTypeCashPayment] = 0.00;
   vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] = 0.00;
+  vpaymodesums["Lease"] = 0;
   rwcnt = MatRowCnt(IVr);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(IVr,i,IVrw);
@@ -754,14 +778,18 @@ begin
       case kInvoiceRowTypeGiftVoucherPayment:
           vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] = vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] + IVrw.Sum;
       case kInvoiceRowTypeCreditCardPayment:
-        vpaymodesums[kInvoiceRowTypeCreditCardPayment] = vpaymodesums[kInvoiceRowTypeCreditCardPayment] + MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
+        if (PayDealIsLease(IVrw.PayMode)) then begin
+          vpaymodesums["Lease"] = vpaymodesums["Lease"] + MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
+        end else begin
+          vpaymodesums[kInvoiceRowTypeCreditCardPayment] = vpaymodesums[kInvoiceRowTypeCreditCardPayment] + MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
+        end;
 //      case kInvoiceRowTypeLoyaltyPointsPayment:
       case kInvoiceRowTypeCashPayment:
         vpaymodesums[kInvoiceRowTypeCashPayment] = vpaymodesums[kInvoiceRowTypeCashPayment] + MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
 //      case kInvoiceRowTypeChequePayment:
     end;
   end;
-  t = IVr.BaseSum4 - vpaymodesums[kInvoiceRowTypeCashPayment] - vpaymodesums[kInvoiceRowTypeCreditCardPayment] - vpaymodesums[kInvoiceRowTypeGiftVoucherPayment];
+  t = IVr.BaseSum4 - vpaymodesums[kInvoiceRowTypeCashPayment] - vpaymodesums[kInvoiceRowTypeCreditCardPayment] - vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] - vpaymodesums["Lease"];
   if (t>0) then begin
     vpaymodesums[kInvoiceRowTypeCashPayment] = vpaymodesums[kInvoiceRowTypeCashPayment] + t;  
   end;
@@ -795,6 +823,12 @@ begin
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeGiftVoucherPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tD" & ValToString(vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
+  end;
+
+  SetAreaZeroSize(request);
+  if (vpaymodesums["Lease"]!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tL" & ValToString(vpaymodesums["Lease"],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
