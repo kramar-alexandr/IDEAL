@@ -1953,7 +1953,7 @@ begin
   SetBlid(TouchlessPayBlock);
   SetWRect(20,80,450,300);
   Sizeable(-1,-1,0,0);
-  h = 100;
+  h = 150;
   EditField(h,v=6,-40,"IP Address",Normal,IPAddress,false,0);
   EditField(h,v=v+20,-40,"Port",Normal,Port,false,0);
   EditField(h,v=v+20,-40,"User Name",Normal,UserName,false,0);

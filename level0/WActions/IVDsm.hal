@@ -93,8 +93,8 @@ external updating function boolean PinPadVoidCash(record IVCashVc);// Edit *****
 external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string);
 external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
 external updating function LongInt IVVcRecordCheck(record IVVc,record IVVc,LongInt,LongInt);
-external procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
-external procedure TouchlessVoidIVVcPayment(record IVVc,Integer);
+external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
+external outer procedure TouchlessVoidIVVcPayment(record IVVc,Integer);
 
 //CUST-END
 
@@ -2296,12 +2296,12 @@ begin
   wn = CurWindow;
   DeselectWindow(wn,false);
   GetWindowRecord(wn,IVCashr);
-  if (WindowState(wn)==0) then begin
-    BlockLoad(Rahaxib);
-    switch (Rahaxib.TerminalType) begin
-      case 201:
-        TouchlessVoidIVCashPayment(IVCashr,wn);
-      otherwise
+  BlockLoad(Rahaxib);
+  switch (Rahaxib.TerminalType) begin
+    case 201:
+      TouchlessVoidIVCashPayment(IVCashr,wn);
+    otherwise
+      if (WindowState(wn)==0) then begin
         if  nonblank(IVCashr.BankCode) or IVCashr.InvDate != CurrentDate then begin
           if PinPadVoidCash(IVCashr) == true  then begin
             CloseWindow(wn);
@@ -2312,9 +2312,9 @@ begin
         end else begin
           MessageBox(1,"   Operacija negalima");
         end;
-    end;
-  end else begin
-    MessageBox(18044,"");
+      end else begin
+        MessageBox(18044,"");
+      end;
   end;
 return;
 end;
@@ -2333,12 +2333,12 @@ begin
   wn = CurWindow;
   DeselectWindow(wn,false);
   GetWindowRecord(wn,IVr);
-  if windowstate(wn) == 0 then begin
-    BlockLoad(Rahaxib);
-    switch (Rahaxib.TerminalType) begin
-      case 201:
-        TouchlessVoidIVVcPayment(IVr,wn);
-      otherwise
+  BlockLoad(Rahaxib);
+  switch (Rahaxib.TerminalType) begin
+    case 201:
+      TouchlessVoidIVVcPayment(IVr,wn);
+    otherwise
+      if windowstate(wn) == 0 then begin
         if  nonblank(IVr.BankCode) or IVr.InvDate != CurrentDate then begin
           if PinPadVoid(IVr) == true  then begin
             CloseWindow(wn);
@@ -2349,11 +2349,9 @@ begin
         end else begin
           MessageBox(1,"   Operacija negalima");
         end;
-    end;
-	end else begin
-	  MessageBox(18044,"");
+      end;
 	end;
-return;
+  return;
 end;
 
 function boolean CheckPinPad(record IVVc IVr)
