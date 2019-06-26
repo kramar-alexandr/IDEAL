@@ -422,33 +422,6 @@ LEndFiscalReceipt:;
   return;
 end;
 
-function Integer EndFiscalCreditReceipt(record LSerialPortDeviceVc LSPDr,Longint sernr)
-begin
-  Integer res;
-  string 255 path;
-  area request;
-  JSON js;
-  vector string 255 vChr;
-  
-  if (sernr>0) then begin
-    path = "/json/fp550/Cmdline";
-    AddTextToArea("{""cmd"":""84"",""parameter"":""3," & sernr & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js,false);
-/*
-    res = PrintCommentLine(LSPDr,sernr,vChr);
-*/
-    if (res!=0) then begin
-      goto LEndFiscalReceipt;
-    end;
-    
-  end;
-  res = SendAPSASimpleCommand(LSPDr,kAPSACommandEndCreditReceipt);
-
-LEndFiscalReceipt:;
-  EndFiscalCreditReceipt = res;
-  return;
-end;
-
 function Integer GetReceiptNumber(record LSerialPortDeviceVc LSPDr,var string receiptnr)
 begin
   Integer res;
@@ -461,12 +434,13 @@ begin
   AddTextToArea("{""cmd"":""113"",""parameter"":""""}",request);
   res = ExecAPSARequest(LSPDr,path,request,js,false);
   if (res!=0) then begin
-    goto LEndFiscalReceipt;
+    goto LGetReceiptNumber;
   end;
   tstr = JSONGet(js,"CmdlineResult");
   GetNextSubstring(tstr,pos,",",tmp);
   GetNextSubstring(tstr,pos,",",receiptnr);
     
+LGetReceiptNumber:;
   GetReceiptNumber = res;
   return;
 end;
@@ -674,10 +648,6 @@ begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;      
       res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates);
-      if (res!=noErr) then begin
-        goto LIVCashVc_PrintAPSAReceipt;
-      end;
-      res = GetReceiptNumber(LSPDr,receiptnr);
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
@@ -950,10 +920,6 @@ begin
         goto LIVVc_PrintAPSAReceipt;
       end;      
       res = IVVc_PrintItemRows(LSPDr,IVr,vatrates);
-      if (res!=noErr) then begin
-        goto LIVVc_PrintAPSAReceipt;
-      end;
-      res = GetReceiptNumber(LSPDr,receiptnr);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
