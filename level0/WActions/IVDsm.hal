@@ -90,10 +90,12 @@ external updating function boolean PinPadVoidCash(record IVCashVc);// Edit *****
 
 //END-CUST PST 2015-September-29
 //CUST-BEGIn
-external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer);
+external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string);
 external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
 external updating function LongInt IVVcRecordCheck(record IVVc,record IVVc,LongInt,LongInt);
 external procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
+external procedure TouchlessVoidIVVcPayment(record IVVc,Integer);
+
 //CUST-END
 
 global
@@ -1951,7 +1953,7 @@ Trace("CredCardIVsmDo","");
         if(err==-1)then begin
           MessageBox(RecordCheckLastErrorNo,"");
         end else begin
-          InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn);
+          InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn,"");
         end;
 //CUST-END
     end;
@@ -2326,21 +2328,28 @@ updating procedure PinPadVoidIVDsm()
 begin
   Integer wn,wnst,nwn;
   record IVVc IVr,prevIVr,oldIVr;
+  record RahaxiBlock Rahaxib; 
   
   wn = CurWindow;
   DeselectWindow(wn,false);
   GetWindowRecord(wn,IVr);
   if windowstate(wn) == 0 then begin
-    if  nonblank(IVr.BankCode) or IVr.InvDate != CurrentDate then begin
-  	  if PinPadVoid(IVr) == true  then begin
-  	  	CloseWindow(wn);
-				nwn = OpenWindow("IVDClass",1,0,"","",IVr);
-  	  end else begin
-  	  	MessageBox(1,"    ATSISAKYMAS NEPATVIRTINTAS!!!!");
-  	  end;
-  	end else begin
-  	  MessageBox(1,"   Operacija negalima");
-  	end;
+    BlockLoad(Rahaxib);
+    switch (Rahaxib.TerminalType) begin
+      case 201:
+        TouchlessVoidIVVcPayment(IVr,wn);
+      otherwise
+        if  nonblank(IVr.BankCode) or IVr.InvDate != CurrentDate then begin
+          if PinPadVoid(IVr) == true  then begin
+            CloseWindow(wn);
+            nwn = OpenWindow("IVDClass",1,0,"","",IVr);
+          end else begin
+            MessageBox(1,"    ATSISAKYMAS NEPATVIRTINTAS!!!!");
+          end;
+        end else begin
+          MessageBox(1,"   Operacija negalima");
+        end;
+    end;
 	end else begin
 	  MessageBox(18044,"");
 	end;

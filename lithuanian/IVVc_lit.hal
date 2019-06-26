@@ -1959,6 +1959,8 @@ begin
   EditField(h,v=v+20,-40,"User Name",Normal,UserName,false,0);
   EditField(h,v=v+20,-40,"Password",Normal,Password,false,0);
   EditField(h,v=v+20,-40,"Project ID",Normal,ProjectID,false,0);
+  EditField(h,v=v+20,-40,"Last Trans. Number",Normal,LastRrn,false,0);
+  EditField(h,v=v+20,-40,"Last Trans. Amount",Normal,LastSum,false,0);
   EndWindow;
 	
 	return;

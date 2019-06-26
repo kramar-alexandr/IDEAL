@@ -166,7 +166,20 @@ begin
 end;
 
 global
-function Boolean InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Longint tsernr,string crncy,Integer wn)
+updating procedure StoreLastTouchlessPayment(string rrn,val sum)
+begin
+  record TouchlessPayBlock TPb;
+   
+  BlockLoad(TPb);
+  TPb.LastRrn = rrn;
+  TPb.LastSum = sum;
+  BlockStore(TPb);
+
+  return;
+end;
+
+global
+function Boolean InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Longint tsernr,string crncy,Integer wn,string rrn)
 begin
   string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr;
   Boolean res,fres;
@@ -220,6 +233,9 @@ begin
   timestamp = CurrentDate & " " & CurrentTime;
   AddTextToArea("""time"": """ & timestamp & """,",request);
   AddTextToArea("""language"": ""LT"",",request);
+  if (nonblank(rrn)) then begin
+    AddTextToArea("""Rrn"": """ & rrn & """,",request);
+  end;
   AddTextToArea("""preAuthorize"": false",request);
   AddTextToArea("}",request);
 
@@ -230,7 +246,7 @@ begin
     if (JSONGet(js,"result")=="Ok") then begin
       transactionid = JSONGet(js,"TransactionId");
       AuthorisationCode = JSONGet(js,"AuthorizationCode");
-      receiptnr = JSONGet(js,"Stan");
+      receiptnr = JSONGet(js,"Rrn");//this is return number
       res = true;
     end;
   end;
@@ -262,6 +278,10 @@ begin
 
     if (paymentstat=="Approved" or paymentstat=="Patvirtinta") then begin
       fres = true;
+
+      if (received>0) then begin
+        qupdating.StoreLastTouchlessPayment(receiptnr,received);
+      end;
       switch (FileName) begin
         case "IVVc":
            qupdating.UpdateIVVcWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr)
@@ -283,7 +303,7 @@ LInitTouchlessPayment:;
   return;
 end;
 
-function Boolean IVCashHasCCPayments(record IVCashVc IVCashr,var val sum)
+function Boolean IVCashHasCCPayments(record IVCashVc IVCashr,var val sum,var string rrn)
 begin
   Boolean res;
   row IVCashVc IVCashrw;
@@ -295,6 +315,7 @@ begin
     if IVCashrw.stp == kInvoiceRowTypeCreditCardPayment then begin
       if (IVCashrw.Spec!="LIZINGAS" and IVCashrw.Spec!="Leasing") then begin
         sum = sum + IVCashrw.Sum;
+        rrn = IVCashrw.CCReceiptNr;
       end;
     end;
   end;
@@ -310,15 +331,21 @@ global
 procedure TouchlessVoidIVCashPayment(record IVCashVc IVCashr,Integer wn)
 begin
   val sum;
-  string 255 transactionid;
+  string 255 transactionid,rrn;
+  record TouchlessPayBlock TPb;
 
 //IVCashVc - this action will be done only on credit invoices
   
   //do we have to check the amounts?
   if (IVCashr.OKFlag==0) then begin  
-    if (IVCashHasCCPayments(IVCashr,sum)) then begin
-      if (InitTouchlessPayment(-sum,"","",transactionid,IVCashr.SerNr,IVCashr.CurncyCode,wn)==false) then begin
+    if (IVCashHasCCPayments(IVCashr,sum,rrn)) then begin
+      if (InitTouchlessPayment(-sum,"","",transactionid,IVCashr.SerNr,IVCashr.CurncyCode,wn,rrn)==false) then begin
         MessageBox(20259,"");
+      end;
+    end else begin
+      BlockLoad(TPb);
+      if (InitTouchlessPayment(-TPb.LastSum,"","",transactionid,-1,IVCashr.CurncyCode,wn,TPb.LastRrn)==false) then begin
+      
       end;
     end;
   end;
@@ -326,7 +353,7 @@ begin
   return;
 end;
 
-function Boolean IVVchHasCCPayments(record IVVc IVr,var val sum)
+function Boolean IVVchHasCCPayments(record IVVc IVr,var val sum,var string rrn)
 begin
   Boolean res;
   row IVVc IVrw;
@@ -338,6 +365,7 @@ begin
     if IVrw.stp == kInvoiceRowTypeCreditCardPayment then begin
       if (IVrw.Spec!="LIZINGAS" and IVrw.Spec!="Leasing") then begin
         sum = sum + IVrw.Sum;
+        rrn = IVrw.CCReceiptNr;
       end;
     end;
   end;
@@ -353,13 +381,19 @@ global
 procedure TouchlessVoidIVVcPayment(record IVVc IVr,Integer wn)
 begin
   val sum;
-  string 255 transactionid;
+  string 255 transactionid,rrn;
+  record TouchlessPayBlock TPb;
   
   //do we have to check the amounts?
   if (IVr.OKFlag==0) then begin  
-    if (IVVchHasCCPayments(IVr,sum)) then begin
-      if (InitTouchlessPayment(-sum,"","",transactionid,IVr.SerNr,IVr.CurncyCode,wn)==false) then begin
+    if (IVVchHasCCPayments(IVr,sum,rrn)) then begin
+      if (InitTouchlessPayment(-sum,"","",transactionid,IVr.SerNr,IVr.CurncyCode,wn,rrn)==false) then begin
         MessageBox(20259,"");
+      end;
+    end else begin
+      BlockLoad(TPb);
+      if (InitTouchlessPayment(-TPb.LastSum,"","",transactionid,-1,IVr.CurncyCode,wn,TPb.LastRrn)==false) then begin
+      
       end;
     end;
   end;
