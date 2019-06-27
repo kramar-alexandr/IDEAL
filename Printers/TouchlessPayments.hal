@@ -244,7 +244,7 @@ begin
 
   SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
 
-  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,60)) then begin
+  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,80)) then begin
     js = ParseJSONArea(reply);
     if (JSONGet(js,"result")=="Ok") then begin
       transactionid = JSONGet(js,"TransactionId");
@@ -253,6 +253,8 @@ begin
       timestamp = JSONGet(js,"time");//this is return number
       clientreceipt = JSONGet(js,"clientReceipt");
       res = true;
+    end else begin
+      clientreceipt = JSONGet(js,"clientReceipt");
     end;
   end;
 
@@ -298,6 +300,9 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
 
     end else begin
       MessageBox(27386,0);
+      if (nonblank(clientreceipt)) then begin
+        threadasync.PrintTouchlessCardReceipt(clientreceipt);
+      end;
     end;
   end;
 
@@ -355,7 +360,7 @@ begin
 
   SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
 
-  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,60)) then begin
+  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,80)) then begin
     js = ParseJSONArea(reply);
     if (JSONGet(js,"result")=="Ok") then begin
       AuthorisationCode = JSONGet(js,"AuthorizationCode");
@@ -363,6 +368,8 @@ begin
       timestamp = JSONGet(js,"time");//this is return number
       clientreceipt = JSONGet(js,"clientReceipt");
       res = true;
+    end else begin
+      clientreceipt = JSONGet(js,"clientReceipt");
     end;
   end;
 
@@ -405,6 +412,9 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
       end;
     end else begin
       MessageBox(27386,0);
+      if (nonblank(clientreceipt)) then begin
+        threadasync.PrintTouchlessCardReceipt(clientreceipt);
+      end;
     end;
   end;
 
