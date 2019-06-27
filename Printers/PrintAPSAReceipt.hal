@@ -1309,3 +1309,67 @@ begin
 LAPSACloseConnection:;  
   return;
 end;
+
+procedure SplitString(string tstr,string split,var array string arr)
+begin
+  Longint pos;
+  string 255 tmp;
+  
+  while (GetNextSubstring(tstr,pos,split,tmp)) begin
+    arr[arr.length] = tmp;
+  end;
+
+  return;
+end;
+
+procedure PrintNonFiscalReceipt(record LSerialPortDeviceVc LSPDr,array string arr)
+begin
+  Integer res,i,noErr;
+  vector string 255 vChr;
+
+  LoadSpecialCharacters(vChr);
+
+  res = BeginFiscalReceiptCopy(LSPDr);
+  if (res!=noErr) then begin
+    goto LPrintNonFiscalReceipt;
+  end;
+  for (i=0;i<arr.length;i=i+1) begin
+    res = PrintCommentLine(LSPDr,arr[i],vChr);
+    if (res!=noErr) then begin
+      goto LPrintNonFiscalReceipt;
+    end;
+  end;
+  res = EndFiscalReceiptCopy(LSPDr,-1);
+  if (res!=noErr) then begin
+    goto LPrintNonFiscalReceipt;
+  end;
+
+LPrintNonFiscalReceipt:;
+  if (res!=noErr) then begin
+    MessageBox(res,"");
+  end;
+  return;
+end;
+
+global
+procedure PrintTouchlessCardReceipt(string tstr)
+begin
+  record LocalMachineBlock LMb;
+  record LSerialPortDeviceVc LSPDr;
+  Integer res;
+  array string 255 arr;
+ 
+  BlockLoad(LMb);  
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalPrinter,-1,LMb.LocalMachineCode,LSPDr)==false) then begin  
+    goto LPrintTouchlessCardReceipt;
+  end;
+  switch (LSPDr.Printer) begin
+    case 200:
+      SplitString(tstr,"\\n",arr);
+      PrintNonFiscalReceipt(LSPDr,arr);
+      PrintNonFiscalReceipt(LSPDr,arr);
+  end;
+
+LPrintTouchlessCardReceipt:;
+  return;
+end;

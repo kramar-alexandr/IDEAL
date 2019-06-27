@@ -4,6 +4,7 @@ external inner procedure IVCashDClass_RefreshStringList(Integer,record IVCashVc)
 external inner updating procedure IVCashDClassTouchScreenFinishButton();
 external inner procedure IVSumup(var record IVVc,Boolean);
 external inner updating procedure IVFinishAndPrint();
+external procedure PrintTouchlessCardReceipt(string);
 
 procedure GetTouchlessPaymentURL(record TouchlessPayBlock TPb,var string url,var Longint port)
 begin
@@ -182,7 +183,7 @@ end;
 global
 function Boolean InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Longint tsernr,string crncy,Integer wn,string rrn,string origdatetime)
 begin
-  string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr;
+  string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr,clientreceipt;
   Boolean res,fres;
   JSON js;
   area request,reply;
@@ -250,6 +251,7 @@ begin
       AuthorisationCode = JSONGet(js,"AuthorizationCode");
       receiptnr = JSONGet(js,"Stan");//this is return number
       timestamp = JSONGet(js,"time");//this is return number
+      clientreceipt = JSONGet(js,"clientReceipt");
       res = true;
     end;
   end;
@@ -283,7 +285,7 @@ logtext(0,"reply " & GetStringFromArea(reply,0,255));
 logtext(0,"request " & GetStringFromArea(request,0,255));
     if (paymentstat=="Approved" or paymentstat=="Patvirtinta") then begin
       fres = true;
-
+      threadasync.PrintTouchlessCardReceipt(clientreceipt);
       if (received>0) then begin
         qupdating.StoreLastTouchlessPayment(transactionid,received,timestamp);
       end;
@@ -293,6 +295,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
         case "IVCashVc":
           qupdating.UpdateIVCashWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr);
       end;
+
     end else begin
       MessageBox(27386,0);
     end;
@@ -307,7 +310,7 @@ end;
 global
 function Boolean InitTouchlessPaymentReturn(string transactionid,Integer wn)
 begin
-  string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr;
+  string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr,clientreceipt;
   Boolean res,fres;
   JSON js;
   area request,reply;
@@ -358,6 +361,7 @@ begin
       AuthorisationCode = JSONGet(js,"AuthorizationCode");
       receiptnr = JSONGet(js,"Stan");//this is return number
       timestamp = JSONGet(js,"time");//this is return number
+      clientreceipt = JSONGet(js,"clientReceipt");
       res = true;
     end;
   end;
@@ -392,6 +396,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
     if (paymentstat=="Transactions is cancelled" or paymentstat=="Patvirtinta") then begin
       fres = true;
 
+      threadasync.PrintTouchlessCardReceipt(clientreceipt);
       switch (FileName) begin
         case "IVVc":
           qupdating.UpdateIVVcWithTouchlessPayReturn(mwn,AuthorisationCode)
