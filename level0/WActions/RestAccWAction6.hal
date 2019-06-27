@@ -33,6 +33,11 @@ external procedure SetPOSWindowDisplayModeFiscalPrinterPOSNETLCD(record LSerialP
 //START-CUST PST 2015-October-01
 external outer procedure IVWebText(string,val,integer,string);
 //END-CUST PST 2015-October-01
+//CUST-START
+external outer procedure SetPOSWindowDisplayModeFiscalPrinterAPSA(record LSerialPortDeviceVc,string,string);
+external outer updating procedure IVCashVc_PrintAPSAReceiptCopy(var record IVCashVc,record LSerialPortDeviceVc);
+external outer updating procedure IVCashVc_PrintAPSAReceipt(var record IVCashVc,record LSerialPortDeviceVc);
+//CUST-END
 
 global
 procedure GetPrintData(string localmachine,var record MachineCashVc MCr)
@@ -93,6 +98,10 @@ begin
 //      SetPOSWindowDisplayModeFiscalPrinterPOSNETLCD(LSPDr,dispstr,disp2str);
    case kSerialPortDeviceModelFiscPrinterPOSNETwVATNr:
       SetPOSWindowDisplayModeFiscalPrinterPOSNETLCD(LSPDr,dispstr,disp2str);
+//CUST-BEGIN
+   case 200:
+      SetPOSWindowDisplayModeFiscalPrinterAPSA(LSPDr,dispstr,disp2str);
+//CUST-END
   end;
 LSetPOSWindowDisplay_SendToSerialPortDevices:;  
   return;
@@ -866,6 +875,12 @@ begin
               goto LIVCashPrintReceipt;
           end;
         end;
+//CUST-BEGIN
+      case 200:
+        if (rownr==-1) then begin//check if IVCashp.Prntd
+          qupdating.IVCashVc_PrintAPSAReceipt(IVCashp,LSPDr);
+        end;
+//CUST-END
     end;
   end;
   if (found==false) then begin

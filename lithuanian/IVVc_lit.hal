@@ -325,6 +325,9 @@ begin
   Setting("Rezervacijos",ResListLClass,modSL);
   Setting("Rezervacijos - BROKAI",ResListBrokLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:34:09
   Setting("Rezervacijos - DEMO",ResListDemoLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:34:09
+  Setting("Touchless Payments",TouchlessPaymentTClass,modPOS);
+
+
 return;
 end;
 
@@ -1939,4 +1942,47 @@ begin
   EndWindow;
 	
 	return;
+end;
+
+window TouchlessPaymentTClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs;
+  
+  windowBegin("Touchless Payments",TouchlessPaymentTClass,CGSbl,-);
+  SetBlid(TouchlessPayBlock);
+  SetWRect(20,80,450,300);
+  Sizeable(-1,-1,0,0);
+  h = 150;
+  EditField(h,v=6,-40,"IP Address",Normal,IPAddress,false,0);
+  EditField(h,v=v+20,-40,"Port",Normal,Port,false,0);
+  EditField(h,v=v+20,-40,"User Name",Normal,UserName,false,0);
+  EditField(h,v=v+20,-40,"Password",Normal,Password,false,0);
+  EditField(h,v=v+20,-40,"Project ID",Normal,ProjectID,false,0);
+  EditField(h,v=v+20,-40,"Last Trans. Number",Normal,LastRrn,false,0);
+  EditField(h,v=v+20,-40,"Last Trans. Amount",Normal,LastSum,false,0);
+  EditField(h,v=v+20,-40,"Last Trans. Time",Normal,LastTimeStamp,false,0);
+  EndWindow;
+	
+	return;
+end;
+
+window VoidBankPaymentWClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real v,vs;
+  record RcVc RepSPec;
+
+  WindowBegin("Void Bank Payment",VoidBankPaymentWClass,CGother,-);
+  SetWRect(20,80,450,190);
+  DynamicWindow;
+  Sizeable(-1,-1,0,0);
+  UseView(RcVc);
+  v = 6; vs = 20;
+  GetWindowRecord(CurWindow,RepSpec);
+  StaticText(20,v+=vs,"Void Bank payment for " & RepSpec.vals0 & " EUR?",false);
+  ColourPushButton(20,v+=vs,120,v+45,"VoidBankPaymentWClassProceed","Proceed",20);
+  ColourPushButton(140,v,240,v+45,"VoidBankPaymentWClassCancel","Cancel",20);
+
+  EndWindow;
 end;

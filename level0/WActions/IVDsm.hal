@@ -89,6 +89,14 @@ external updating function boolean PinPadVoid2(longint);
 external updating function boolean PinPadVoidCash(record IVCashVc);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 March 2018 14:23:31
 
 //END-CUST PST 2015-September-29
+//CUST-BEGIn
+external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string,string);
+external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
+external updating function LongInt IVVcRecordCheck(record IVVc,record IVVc,LongInt,LongInt);
+external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
+external outer procedure TouchlessVoidIVVcPayment(record IVVc,Integer);
+
+//CUST-END
 
 global
 procedure DoMgrsDiscOverrideIVDsm(Integer wn,Integer rownr)
@@ -1758,7 +1766,7 @@ begin
   record IVVc IVr;
   record IVVc prevIVr;
   row IVVc IVrw;
-  Integer wn,rownr,nwn;
+  Integer wn,rownr,nwn,err;
   LongInt rowstp;
   val fr,to1,to2,br1,br2;
   val t,t1;  
@@ -1924,6 +1932,30 @@ begin
         end;
 Trace("CredCardIVsmDo","");
         OpenCCPayVerifoneBanksysOClass(wn,pmcode,pmcodelabel,IVr.SerNr,IVr.RetnValue,t,IVr.CurncyCode);
+//CUST-BEGIN
+      case 201: 
+        pmcode = GetWindowString(wn,"IVPMCode" & btnNr);
+        if (blank(pmcode)) then begin
+          pmcode = GetWindowString(wn,"PMCode" & btnNr);
+        end;
+        if (blank(pmcode)) then begin
+          BlockLoad(DefCashRec);
+          pmcode =  DefCashRec.DefCCPayMode;
+        end;
+        pmcodelabel = GetWindowString(wn,"IVPMCodeLabel" & btnNr);
+        if (blank(pmcodelabel)) then begin
+          pmcodelabel = GetWindowString(wn,"PMCodeLabel" & btnNr);
+        end;
+        IVr.OKFlag = 1;
+
+        SetRecordCheckVc("IVVc");
+        err = IVVcRecordCheck(IVr,prevIVr,WindowState(wn),1);
+        if(err==-1)then begin
+          MessageBox(RecordCheckLastErrorNo,"");
+        end else begin
+          InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn,"","");
+        end;
+//CUST-END
     end;
   end;
   if (IsWebClient) then begin
@@ -2002,7 +2034,7 @@ begin
 		end;
 	end;
   //END-CUST October 16, 2014 by PST
-  if (Rahaxib.TerminalType==kLocalCCTerminalNone) begin
+  if (Rahaxib.TerminalType==kLocalCCTerminalNone or Rahaxib.TerminalType==201) begin
     switch (WindowActiveField(wn)) begin
       otherwise
         BlockLoad(DefCashRec);
@@ -2258,24 +2290,32 @@ updating procedure PinPadVoidIVCashDsm()
 begin
   Integer wn,wnst,nwn;
   record IVCashVc IVCashr,prevIVCashr,oldIVCashr;
+  record RahaxiBlock Rahaxib; 
+  
   
   wn = CurWindow;
   DeselectWindow(wn,false);
   GetWindowRecord(wn,IVCashr);
-  if windowstate(wn) == 0 then begin
-    if  nonblank(IVCashr.BankCode) or IVCashr.InvDate != CurrentDate then begin
-  	  if PinPadVoidCash(IVCashr) == true  then begin
-  	  	CloseWindow(wn);
-				nwn = OpenWindow("IVCashDClass",1,0,"","",IVCashr);
-  	  end else begin
-  	  	MessageBox(1,"    ATSISAKYMAS NEPATVIRTINTAS!!!!");
-  	  end;
-  	end else begin
-  	  MessageBox(1,"   Operacija negalima");
-  	end;
-	end else begin
-	  MessageBox(18044,"");
-	end;
+  BlockLoad(Rahaxib);
+  switch (Rahaxib.TerminalType) begin
+    case 201:
+      TouchlessVoidIVCashPayment(IVCashr,wn);
+    otherwise
+      if (WindowState(wn)==0) then begin
+        if  nonblank(IVCashr.BankCode) or IVCashr.InvDate != CurrentDate then begin
+          if PinPadVoidCash(IVCashr) == true  then begin
+            CloseWindow(wn);
+            nwn = OpenWindow("IVCashDClass",1,0,"","",IVCashr);
+          end else begin
+            MessageBox(1,"    ATSISAKYMAS NEPATVIRTINTAS!!!!");
+          end;
+        end else begin
+          MessageBox(1,"   Operacija negalima");
+        end;
+      end else begin
+        MessageBox(18044,"");
+      end;
+  end;
 return;
 end;
 
@@ -2288,25 +2328,30 @@ updating procedure PinPadVoidIVDsm()
 begin
   Integer wn,wnst,nwn;
   record IVVc IVr,prevIVr,oldIVr;
+  record RahaxiBlock Rahaxib; 
   
   wn = CurWindow;
   DeselectWindow(wn,false);
   GetWindowRecord(wn,IVr);
-  if windowstate(wn) == 0 then begin
-    if  nonblank(IVr.BankCode) or IVr.InvDate != CurrentDate then begin
-  	  if PinPadVoid(IVr) == true  then begin
-  	  	CloseWindow(wn);
-				nwn = OpenWindow("IVDClass",1,0,"","",IVr);
-  	  end else begin
-  	  	MessageBox(1,"    ATSISAKYMAS NEPATVIRTINTAS!!!!");
-  	  end;
-  	end else begin
-  	  MessageBox(1,"   Operacija negalima");
-  	end;
-	end else begin
-	  MessageBox(18044,"");
+  BlockLoad(Rahaxib);
+  switch (Rahaxib.TerminalType) begin
+    case 201:
+      TouchlessVoidIVVcPayment(IVr,wn);
+    otherwise
+      if windowstate(wn) == 0 then begin
+        if  nonblank(IVr.BankCode) or IVr.InvDate != CurrentDate then begin
+          if PinPadVoid(IVr) == true  then begin
+            CloseWindow(wn);
+            nwn = OpenWindow("IVDClass",1,0,"","",IVr);
+          end else begin
+            MessageBox(1,"    ATSISAKYMAS NEPATVIRTINTAS!!!!");
+          end;
+        end else begin
+          MessageBox(1,"   Operacija negalima");
+        end;
+      end;
 	end;
-return;
+  return;
 end;
 
 function boolean CheckPinPad(record IVVc IVr)
@@ -2349,6 +2394,24 @@ CheckPinPadCash = res;
 return;
 end;
 
+//CUST-BEGIN
+updating procedure CheckAndPrintReceiptDo(var record IVVc IVr,record LocalMachineBlock LMb)
+begin
+   record LSerialPortDeviceVc LSPDr; 
+
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalPrinter,-1,LMb.LocalMachineCode,LSPDr)) then begin  
+    switch (LSPDr.Printer) begin
+      case 200:
+        IVVc_PrintAPSAReceipt(IVr,LSPDr);
+      otherwise
+        PrintFB05Receipt(IVr,LSPDr);
+    end;
+  end;
+
+  return;
+end;
+//CUST-END
+
 //END-CUST PST 2015-September-29
 
 global
@@ -2371,7 +2434,7 @@ begin
   if windowstate(wn) == 0 then begin
 		PDr.Code = IVr.PayDeal;
 		if ReadFirstMain(PDr,1,true) then begin
-			if PDr.PDType != 2 then begin
+			if (PDr.PDType!=2 and IVr.InvType!=kInvoiceTypeCredit) then begin
 				MessageBox(18021,"");
 				goto skipf;
 			end;
@@ -2380,7 +2443,7 @@ begin
 		  MessageBox(18022,"");
 			goto skipf;
 		end;
-		if blank(IVr.RetnValue) then begin
+		if (blank(IVr.RetnValue) and IVr.InvType!=kInvoiceTypeCredit) then begin
 			MessageBox(18023,"");
 			goto skipf;
 		end;
@@ -2419,7 +2482,7 @@ begin
 						  IVr.InvComment = "CEKIS";
 						  IVr.BankCode = PinPadCntr.Counter;
 						  recordupdate(oldIVr,IVr,false);
-						  PrintFB05Receipt(IVr,LSPDr);
+              CheckAndPrintReceiptDo(IVr,LMb);
 							CloseWindow(wn);
 							nwn = OpenWindow("IVDClass",1,0,"","",IVr);	 
 					  end else begin
@@ -2432,7 +2495,7 @@ begin
 						recordcopy(oldIVr,IVr);
 						IVr.InvComment = "CEKIS";
 						recordupdate(oldIVr,IVr,false);
-						PrintFB05Receipt(IVr,LSPDr);
+            CheckAndPrintReceiptDo(IVr,LMb);
 						CloseWindow(wn);
 						nwn = OpenWindow("IVDClass",1,0,"","",IVr);	  
 				  end;
@@ -2443,7 +2506,7 @@ begin
 			  recordcopy(oldIVr,IVr);
 			  IVr.InvComment = "CEKIS";
 			  recordupdate(oldIVr,IVr,false);
-			  PrintFB05Receipt(IVr,LSPDr);
+        CheckAndPrintReceiptDo(IVr,LMb);
 			  CloseWindow(wn);
 			  nwn = OpenWindow("IVDClass",1,0,"","",IVr);
 		  end;  // Use PinPad

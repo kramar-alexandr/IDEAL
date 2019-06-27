@@ -33,6 +33,7 @@ SourceFile("halcust/level0/WebNG",0);
 SourceFile("halcust/WebNG", 3);
 SourceFile("halcust/lithuanian", 3);
 SourceFile("halcust/english", 3);// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:23:00
+SourceFile("halcust/Printers", 3);
 SourceFile("halcust/RActions", 3);
 SourceFile("halcust/Reports", 3);
 SourceFile("halcust/Exports", 3);
@@ -40,7 +41,6 @@ SourceFile("halcust/WActions", 3);
 SourceFile("halcust/Web", 3);
 SourceFile("halcust/WebNG", 3);
 SourceFile("halcust/Swedbank",3);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 13:02:23
-
 
 SourceFile("halcust/timedevents/lithuanian",3);
 SourceFile("halcust/timedevents/Tools",3);
@@ -740,7 +740,62 @@ begin
 	RecordAddBegin(POSButtonsVc,"BPI_POSButtonsVc");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:59:47 PM
   	ChangeMatrixField(ButtonType,M4Set,1431,0); //Change set from 431 -> 1431
   EndRecordAdd;
+
+    BlockBegin(TouchlessPayBlock,-,"");
+    BlockInServer;
+    BlockForAllCompanies;
+    RecordField(IPAddress,M4Str,40,0);
+    RecordField(Port,M4Long,0,0);
+    RecordField(UserName,M4Str,40,0);
+    RecordField(Password,M4Str,40,0);
+    RecordField(ProjectID,M4Str,40,0);
+    RecordField(LastRrn,M4Str,40,0);
+    RecordField(LastSum,M4Val,0,0);
+    RecordField(LastTimeStamp,M4Str,40,0);
+    EndBlock;
 	
+  //CHN::just updating the set
+    BlockBegin(RestPMBlock,-,"");
+    NewAutosyncHBlock(kSyncDirectionToClient);
+    RecordField(Math,M4Matrix,0,0);
+    ArrayBegin(Math,-,1);
+    ArrayField(PMCode,M4Code,2,0);
+    ArrayField(MachineName,M4Code,20,0);
+    ArrayField(ButtonType,M4Set,389,0);
+    ArrayField(Label,M4Str,60,0);
+    ArrayField(colnr,M4Set,46,0);
+    ArrayField(rowstp,M4Set,14445,0);//CUST 390>>14445
+    ArrayField(Drawers,M4UStr,60,0);
+    ArrayField(CardType,M4Set,37,0);
+    ArrayField(CurncyCode,M4Code,5,CurncyCodeVc);
+    EndArray;
+    EndBlock;
+
+  //CHN::just updating the set
+    BlockBegin(RahaxiBlock,-,"");
+  //  ImpExpLevel(0); // really?
+    BlockForAllCompanies; // stored in client
+    RecordField(RahaxiServerIP,M4Str,60,0);
+    RecordField(RahaxiServerPort,M4Long,0,0);
+    RecordField(TerminalType,M4Set,14446,0);//CUST 411 >> 14446
+    RecordField(TerminalBaudRate,M4Long,0,0);
+    RecordField(PrintRetailer,M4Int,0,0);
+    RecordField(NoSignature,M4Int,0,0);
+    RecordField(LogComm,M4Int,0,0);
+    RecordField(PrintReceipt,M4Int,0,0);
+    RecordField(CutReceipt,M4Int,0,0);
+    EndBlock;
+
+  //CHN::just updating the set
+    RecordAddBegin(SerialPortDeviceVc,"SerialPortDeviceVc_iDeal");
+    ChangeField(Printer,M4Set,14447,0);//CUST 415>>14447
+    EndRecordAdd;
+
+  //CHN::just updating the set
+    RecordAddBegin(LSerialPortDeviceVc,"LSerialPortDeviceVc_iDeal");
+    ChangeField(Printer,M4Set,14447,0);//CUST 415>>14447
+    EndRecordAdd;
+
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
   RecordField(Math,M4Matrix,0,0);
   ArrayBegin(Math,-,1);

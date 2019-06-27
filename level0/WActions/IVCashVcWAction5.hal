@@ -128,16 +128,21 @@ external procedure CancelAndOverrideLogout();// Edit ************************** 
 external function boolean CheckPinPadCash(record IVCashVc);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 13 March 2018 16:54:55
 external updating function boolean PinPadVoid2(longint);
 external function boolean PinPadCash(var record IVCashVc,var string);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 13 March 2018 17:00:33
-external function string 60 AddObjectToObjectList(string,string);
-
-
+external function string 60 AddObjectToObjectList(string,string);// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 12:04:32 PM
+//CUST-BEGIN
+external outer updating function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc,record LSerialPortDeviceVc);
+external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string,string);
+external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
+external updating procedure PinPadVoidIVCashDsm();
+//CUST-END
 
 enum begin
   kPOSButtonFinishIfInStock = 200,// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 15:04:18
   kPOSButtonAddHeaderComment = 201,// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 17:44:27
 	kPOSButtonBuyBackItem = 202,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:44:10 PM
 	kPOSButtonTypeFinishWoNInv = 203,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 05 2019 y. at 9:36:35 PM
-	kPOSButtonAddObjects = 204
+	kPOSButtonTypeVoidBankPayment = 204,// CHN::190626
+	kPOSButtonAddObjects = 205// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 12:03:34 PM
 end;
 
 
@@ -1615,7 +1620,12 @@ what is it for ?  , just makes line not to be selected
       case kPOSButtonTypePayment:
         BlockLoad(Rahaxib);
         switch (Rahaxib.TerminalType) begin
+//CUST-BEGIN
+          case 201:
+            goto LkLocalCCTerminalNone;
+//CUST-END
           case kLocalCCTerminalNone:
+LkLocalCCTerminalNone:;
             // OpenCashPayTouchScreenDClass(wn,-1,IVCashr.SerNr,IVCashr.RetValue,IVCashr.Sum4-IVCashr.TendValue,IVCashr.CurncyCode,POSBrw.Code,POSBrw.Label);
 /*
 retval is calculted in sumup
@@ -1684,6 +1694,10 @@ retval is calculted in sumup
             CredCardPOSPIVCashsmExecute(POSBrw.Code,POSBrw.Label);
           case kLocalCCTerminalIngenico6550:
             CredCardPOSPIVCashsmExecute(POSBrw.Code,POSBrw.Label);
+//CUST-BEGIN
+          case 201:
+            InitTouchlessPayment(IVCashr.Sum4-IVCashr.TendValue,POSBrw.Code,POSBrw.Label,tstr,IVCashr.SerNr,IVCashr.CurncyCode,wn,"","");
+//CUST-END
           otherwise
             CredCardPOSPIVCashsm;
         end;
@@ -1909,6 +1923,9 @@ begin
   string 255 tstr;
   record CashierDefBlock CDb;
   record RcVc RepSpec;
+//CUST-BEGIN
+  record LSerialPortDeviceVc LSPDr;
+//CUST-END
 
   wn = CurWindow;
   if (WindowValid(wn)==false) then begin
@@ -1983,6 +2000,7 @@ begin
       end;
     end;
   end;
+
   if (err==0) then begin
     PutWindowRecord(wn,IVCashr);
     save_recordf = true;      
@@ -2015,12 +2033,29 @@ begin
     SetPOSWindowDisplay("",tstr);
     PutWindowRecord(wn,IVCashr);
     IVCashDClass_RefreshStringList(wn,IVCashr);
- 
+    NewTimedTask("RefreshIVCashWindow","RefreshIVCashWindow","RefreshIVCashWindow",wn,CurrentDate,AddSeconds(CurrentTime,1),"","");
+
 //    ReRunWindowDef(wn);
   end;
 
 // TESTHT28ENQ;
 LIVCashDClassTouchScreenFinishButtonRun:;  
+  return;
+end;
+
+//CHN::190625>>Added this workaround for refreshing string list after finishing sale
+//This is a terrible fix, but I could not think of anything else
+global
+procedure RefreshIVCashWindow(string args)
+begin
+  Integer wn;
+  record IVCashVc IVCashr;
+
+  wn = StringToInt(args);
+  GetWindowRecord(wn,IVCashr);
+
+  IVCashDClass_RefreshStringList(wn,IVCashr);
+
   return;
 end;
 
@@ -4546,7 +4581,6 @@ begin
   record RcVc RepSpec;
   string 255 errormsg;// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 15:46:02
 	
-	
   wn = CurWindow;
   if (WindowValid(wn)==false) then begin
     goto LIVCashDClassTouchScreenFinishButtonRun;
@@ -4606,14 +4640,14 @@ begin
       end;
     end;
   end;
-  
+
   if (err==0) then begin
   	err = CheckPinPadTerminal(wn,IVCashr);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 13 March 2018 16:42:46
   	if(err>0)then begin
   		new_recordf = false;
   	end;
   end;
-  
+
   if (err==0) then begin
     if (IVCashPrintReceipt(wn,IVCashr,prevIVCashr,-1,true,true,LMb.IncrementalReceiptPrinting,wnst)==false) then begin
 //      MessageBox(22165,"");
@@ -4621,6 +4655,7 @@ begin
       new_recordf = false;
     end;
   end;
+
   if (err==0) then begin
     PutWindowRecord(wn,IVCashr);
     save_recordf = true;      
@@ -4872,5 +4907,14 @@ begin
       
   end;
 LProceedBuyBackItem:;  
+  return;
+end;
+
+global
+updating procedure IVCashDClassTouchScreenVoidBankPayment()
+begin
+  
+  PinPadVoidIVCashDsm;
+    
   return;
 end;

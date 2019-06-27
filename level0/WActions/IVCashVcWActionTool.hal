@@ -2496,3 +2496,49 @@ begin
   end;
   return;
 end;
+
+
+global
+procedure IVCashDClassTouchScreenCreditNoteRemote_iDeal(Longint ivcashno,var record IVCashVc newIVCashr)
+begin
+  record IVCashVc IVCashr;
+  row IVCashVc IVCashrw;
+  Integer i,rwcnt,cnt;
+  UUID buuid;
+  string 255 tstr;
+  Integer sernrf;
+
+  IVCashr.SerNr = ivcashno;
+  if (ReadFirstMain(IVCashr,1,true)) then begin
+/*
+    RecordCopy(newIVCashr,IVCashr);
+    newIVCashr.UUID = buuid;
+    newIVCashr.SerNr = -1;
+    newIVCashr.InvType = kPOSInvoiceTypeCredit;
+    newIVCashr.TransDate = CurrentDate;
+    newIVCashr.InvDate = CurrentDate;
+    newIVCashr.OKFlag = 0;
+    newIVCashr.Prntdf = 0;
+    rwcnt = MatRowCnt(newIVCashr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowDelete(newIVCashr,i);
+      rwcnt = MatRowCnt(newIVCashr);
+      i = i - 1;
+    end;
+    IVCashDClassTouchScreenCreditNoteRemote(IVCashr,newIVCashr);
+*/
+    rwcnt = MatRowCnt(IVCashr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(IVCashr,i,IVCashrw);
+      if (nonblank(IVCashrw.ArtCode)) then begin
+        IVCashrw.Quant = -IVCashrw.Quant;
+        cnt = MatRowCnt(newIVCashr);
+        MatRowPut(newIVCashr,cnt,IVCashrw);
+        if (IVCashVc_PasteArtCode(newIVCashr,cnt,true,tstr,sernrf)) then begin
+        end;
+      end;
+    end;
+  end;
+  
+  return;
+end;

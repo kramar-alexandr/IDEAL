@@ -1,0 +1,571 @@
+external inner function Boolean FindLocalSerialPortDevice(Integer,LongInt,string,var record LSerialPortDeviceVc);
+external inner procedure IVCashSumup(var record IVCashVc,Boolean);
+external inner procedure IVCashDClass_RefreshStringList(Integer,record IVCashVc);
+external inner updating procedure IVCashDClassTouchScreenFinishButton();
+external inner procedure IVSumup(var record IVVc,Boolean);
+external inner updating procedure IVFinishAndPrint();
+
+procedure GetTouchlessPaymentURL(record TouchlessPayBlock TPb,var string url,var Longint port)
+begin
+  
+  url = TPb.IPAddress;//"test-poshub.eps.lt";//91.220.114.67
+  port = TPb.Port;//1111;
+
+  return;
+end;
+
+function string 255 GetAuthatizationHeader(record TouchlessPayBlock TPb)
+begin
+  string 255 res;
+
+  res = "application/json" & chr(13) & chr(10) & "Authorization: Basic " & Base64Encode(TPb.UserName & ":" & TPb.Password);
+
+  GetAuthatizationHeader = res;
+  return;
+end;
+
+function Boolean ConfirmTouchlessPayment(record TouchlessPayBlock TPb,record LSerialPortDeviceVc LSPDr,string refid,var string paymentstat)
+begin
+  Boolean res;
+  JSON js;
+  area request,reply;
+  string 255 path,url;
+  Longint port;
+
+  GetTouchlessPaymentURL(TPb,url,port);
+  path = "/Confirm";
+
+  AddTextToArea("{",request);
+  AddTextToArea("""posId"": """ & LSPDr.Port & """,",request);
+  AddTextToArea("""transactionId"": """ & refid & """",request);
+  AddTextToArea("}",request);
+
+  SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
+
+  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,30)) then begin
+    js = ParseJSONArea(reply);
+    if (JSONGet(js,"result")=="Ok") then begin
+      //if (JSONGet(js,"text")=="Approved") then begin      
+        res = true;
+      //end;
+        paymentstat = JSONGet(js,"text");
+    end;
+  end;
+
+  ConfirmTouchlessPayment = res;
+  return;
+end;
+
+global
+updating procedure UpdateIVCashWithTouchlessPay(Integer mwn,val received,string AuthorisationCode,string paymode,string label,string timestamp,string transactionid,string receiptnr)
+begin
+  record IVCashVc IVCashr;
+  row IVCashVc IVCashrw; 
+  Integer rownr; 
+  
+  GetWindowRecord(mwn,IVCashr);
+  IVCashr.RecValue = blankval;
+  IVCashr.RecValue2 = blankval;
+  ClearRow(IVCashr,IVCashrw,kInvoiceRowTypeCreditCardPayment);  
+  IVCashrw.Sum = received;
+  IVCashrw.AuthorizationCode = AuthorisationCode;
+  IVCashrw.PayMode = paymode;
+  IVCashrw.Spec = label;
+  IVCashrw.CCTimestamp = timestamp;
+  IVCashrw.CCTransID = transactionid;
+  IVCashrw.CCReceiptNr = receiptnr;
+  rownr = MatRowCnt(IVCashr);
+  MatRowPut(IVCashr,rownr,IVCashrw);
+  IVCashSumup(IVCashr,true);
+  PutWindowRecord(mwn,IVCashr);
+  IVCashDClass_RefreshStringList(mwn,IVCashr);
+  if (WindowDoOK(mwn,0)) then begin
+    IVCashDClassTouchScreenFinishButton;
+  end;
+
+  return;
+end;
+
+global
+updating procedure UpdateIVCashWithTouchlessPayReturn(Integer mwn,string AuthorisationCode)
+begin
+  row IVCashVc IVCashrw;
+  record IVCashVc IVCashr;
+  Integer i,rwcnt;
+  
+  GetWindowRecord(mwn,IVCashr);
+  rwcnt = MatRowCnt(IVCashr);
+  for (i=rwcnt-1;i>=0;i=i-1) begin
+    MatRowGet(IVCashr,i,IVCashrw);
+    if (IVCashrw.stp==kInvoiceRowTypeCreditCardPayment) then begin
+      MatRowDelete(IVCashr,i);
+    end;
+  end;
+  IVCashSumup(IVCashr,true);
+  PutWindowRecord(mwn,IVCashr);
+  if (WindowDoOK(mwn,0)) then begin
+    SelectWindow(mwn);
+  end;
+  IVCashDClass_RefreshStringList(mwn,IVCashr);
+
+  return;
+end;
+
+global
+updating procedure UpdateIVVcWithTouchlessPay(Integer mwn,val received,string AuthorisationCode,string paymode,string label,string timestamp,string transactionid,string receiptnr)
+begin
+  record IVVc IVr;
+  row IVVc IVrw; 
+  Integer rownr; 
+  
+  GetWindowRecord(mwn,IVr);
+  IVr.RecValue = blankval;
+  ClearRow(IVr,IVrw,kInvoiceRowTypeCreditCardPayment);  
+  IVrw.Sum = received;
+  IVrw.AuthorizationCode = AuthorisationCode;
+  IVrw.PayMode = paymode;
+  IVrw.Spec = label;
+  IVrw.CCTimestamp = timestamp;
+  IVrw.CCTransID = transactionid;
+  IVrw.CCReceiptNr = receiptnr;
+  rownr = MatRowCnt(IVr);
+  MatRowPut(IVr,rownr,IVrw);
+  IVSumup(IVr,true);
+//  IVr.OKFlag = 1;
+  PutWindowRecord(mwn,IVr);
+  if (WindowDoOK(mwn,0)) then begin
+    SelectWindow(mwn);
+    IVFinishAndPrint;
+  end;
+
+  return;
+end;
+
+global
+updating procedure UpdateIVVcWithTouchlessPayReturn(Integer mwn,string AuthorisationCode)
+begin
+  record IVVc IVr;
+  row IVVc IVrw; 
+  Integer i,rwcnt;
+  
+  GetWindowRecord(mwn,IVr);
+  rwcnt = MatRowCnt(IVr);
+  for (i=rwcnt-1;i>=0;i=i-1) begin
+    MatRowGet(IVr,i,IVrw);
+    if (IVrw.stp==kInvoiceRowTypeCreditCardPayment) then begin
+      MatRowDelete(IVr,i);
+    end;
+  end;
+  IVSumup(IVr,true);
+  PutWindowRecord(mwn,IVr);
+  if (WindowDoOK(mwn,0)) then begin
+    SelectWindow(mwn);
+  end;
+
+  return;
+end;
+
+global
+updating procedure StoreLastTouchlessPayment(string rrn,val sum,string timestamp)
+begin
+  record TouchlessPayBlock TPb;
+   
+  BlockLoad(TPb);
+  TPb.LastRrn = rrn;
+  TPb.LastSum = sum;
+  TPb.LastTimeStamp = timestamp;
+  BlockStore(TPb);
+
+  return;
+end;
+
+global
+function Boolean InitTouchlessPayment(val received,string paymode,string label,var string transactionid,Longint tsernr,string crncy,Integer wn,string rrn,string origdatetime)
+begin
+  string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr;
+  Boolean res,fres;
+  JSON js;
+  area request,reply;
+  record LocalMachineBlock LMb;  
+  record LSerialPortDeviceVc LSPDr;
+  record RcVc RepSpec;
+  Integer mwn,pmwn,tries;
+  Longint port;
+  record TouchlessPayBlock TPb;
+  Integer ProcessingWn;
+  record RcVc vRepSpec;
+  Longint sernr;
+
+  vRepSpec.UsedOnly = kLocalCCTerminalVerifoneBanksys;
+  vRepSpec.ArtMode = 1;
+  vRepSpec.long1 = sernr;
+  vRepSpec.AccStr = paymode;
+  vRepSpec.f5 = label;
+  vRepSpec.CurncyCode = crncy;
+  ProcessingWn = OpenWindow("CCPayVerifoneProcessingWClass",0,wn,"","",vRepSpec);
+  DeselectWindow(ProcessingWn,false);
+
+  BlockLoad(LMb);
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)==false) then begin  
+    GetWindowRecord(ProcessingWn,RepSpec);
+    PutWindowString(ProcessingWn,"Status",USetStr(22123));        
+    PutWindowString(ProcessingWn,"Result",USetStr(27429));        
+    PutWindowRecord(ProcessingWn,RepSpec);
+    goto LInitTouchlessPayment;
+  end else begin
+    GetWindowRecord(ProcessingWn,RepSpec);
+    PutWindowString(ProcessingWn,"Status",USetStr(27370));        
+    PutWindowString(ProcessingWn,"Result","");        
+    PutWindowRecord(ProcessingWn,RepSpec);
+  end;
+
+  BlockLoad(TPb);
+  GetTouchlessPaymentURL(TPb,url,port);
+  path = "/Authorize";
+ 
+  sernr = tsernr;
+
+  AddTextToArea("{",request);
+  AddTextToArea("""posId"": """ & LSPDr.Port & """,",request);
+  AddTextToArea("""amount"": " & ValToString(received*100,M4Val,"",".",1) & ",",request);
+  AddTextToArea("""cash"": 0,",request);
+  AddTextToArea("""currency"": ""EUR"",",request);
+  AddTextToArea("""TransactionId"": """ & left(MakeUUID,30) & """,",request);
+  timestamp = CurrentDate & " " & CurrentTime;
+  AddTextToArea("""time"": """ & timestamp & """,",request);
+  AddTextToArea("""language"": ""LT"",",request);
+  if (nonblank(rrn)) then begin
+    AddTextToArea("""Stan"": """ & rrn & """,",request);
+    AddTextToArea("""OriginalDateTime"":""" & origdatetime & """,",request);
+  end;
+  AddTextToArea("""preAuthorize"": false",request);
+  AddTextToArea("}",request);
+
+  SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
+
+  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,60)) then begin
+    js = ParseJSONArea(reply);
+    if (JSONGet(js,"result")=="Ok") then begin
+      transactionid = JSONGet(js,"TransactionId");
+      AuthorisationCode = JSONGet(js,"AuthorizationCode");
+      receiptnr = JSONGet(js,"Stan");//this is return number
+      timestamp = JSONGet(js,"time");//this is return number
+      res = true;
+    end;
+  end;
+
+  if (res) then begin
+    while (ConfirmTouchlessPayment(TPb,LSPDr,transactionid,paymentstat)==false and tries<300) begin//5 minutes
+      sleep(1);
+      tries = tries + 1;
+    end;
+  end;
+
+//  paymentstat = "Approved";//for debug process
+
+  pmwn = MotherWindow(ProcessingWn);
+  if (GetWindowClass(pmwn)=="NPTSPaymentOneModeTClass") then begin
+    mwn = MotherWindow(pmwn);
+  end else begin
+    mwn = mwn;
+    if (mwn<=0) then begin
+      mwn = pmwn;
+    end;
+  end;
+
+  FileName = GetWindowFileName(mwn);
+  if (mwn>0) then begin
+    CloseWindow(ProcessingWn);
+    SelectWindow(mwn);
+    DeselectWindow(mwn,true);
+logtext(0,"payment stat=" & paymentstat);
+logtext(0,"reply " & GetStringFromArea(reply,0,255));
+logtext(0,"request " & GetStringFromArea(request,0,255));
+    if (paymentstat=="Approved" or paymentstat=="Patvirtinta") then begin
+      fres = true;
+
+      if (received>0) then begin
+        qupdating.StoreLastTouchlessPayment(transactionid,received,timestamp);
+      end;
+      switch (FileName) begin
+        case "IVVc":
+           qupdating.UpdateIVVcWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr)
+        case "IVCashVc":
+          qupdating.UpdateIVCashWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr);
+      end;
+    end else begin
+      MessageBox(27386,0);
+    end;
+  end;
+
+
+LInitTouchlessPayment:;
+  InitTouchlessPayment = fres;
+  return;
+end;
+
+global
+function Boolean InitTouchlessPaymentReturn(string transactionid,Integer wn)
+begin
+  string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr;
+  Boolean res,fres;
+  JSON js;
+  area request,reply;
+  record LocalMachineBlock LMb;  
+  record LSerialPortDeviceVc LSPDr;
+  record RcVc RepSpec;
+  Integer mwn,pmwn,tries;
+  Longint port;
+  record TouchlessPayBlock TPb;
+  Integer ProcessingWn;
+  record RcVc vRepSpec;
+  Longint sernr;
+
+  vRepSpec.UsedOnly = kLocalCCTerminalVerifoneBanksys;
+  vRepSpec.ArtMode = 1;
+  vRepSpec.long1 = sernr;
+  ProcessingWn = OpenWindow("CCPayVerifoneProcessingWClass",0,wn,"","",vRepSpec);
+  DeselectWindow(ProcessingWn,false);
+
+  BlockLoad(LMb);
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)==false) then begin  
+    GetWindowRecord(ProcessingWn,RepSpec);
+    PutWindowString(ProcessingWn,"Status",USetStr(22123));        
+    PutWindowString(ProcessingWn,"Result",USetStr(27429));        
+    PutWindowRecord(ProcessingWn,RepSpec);
+    goto LInitTouchlessPayment;
+  end else begin
+    GetWindowRecord(ProcessingWn,RepSpec);
+    PutWindowString(ProcessingWn,"Status",USetStr(27370));        
+    PutWindowString(ProcessingWn,"Result","");        
+    PutWindowRecord(ProcessingWn,RepSpec);
+  end;
+
+  BlockLoad(TPb);
+  GetTouchlessPaymentURL(TPb,url,port);
+  path = "/Reverse";
+ 
+  AddTextToArea("{",request);
+  AddTextToArea("""posId"": """ & LSPDr.Port & """,",request);
+  AddTextToArea("""transactionId"": """ & transactionid & """",request);
+  AddTextToArea("}",request);
+
+  SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
+
+  if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,60)) then begin
+    js = ParseJSONArea(reply);
+    if (JSONGet(js,"result")=="Ok") then begin
+      AuthorisationCode = JSONGet(js,"AuthorizationCode");
+      receiptnr = JSONGet(js,"Stan");//this is return number
+      timestamp = JSONGet(js,"time");//this is return number
+      res = true;
+    end;
+  end;
+
+  if (res) then begin
+    while (ConfirmTouchlessPayment(TPb,LSPDr,transactionid,paymentstat)==false and tries<300) begin//5 minutes
+      sleep(1);
+      tries = tries + 1;
+    end;
+  end;
+
+//  paymentstat = "Approved";//for debug process
+
+  pmwn = MotherWindow(ProcessingWn);
+  if (GetWindowClass(pmwn)=="NPTSPaymentOneModeTClass") then begin
+    mwn = MotherWindow(pmwn);
+  end else begin
+    mwn = mwn;
+    if (mwn<=0) then begin
+      mwn = pmwn;
+    end;
+  end;
+
+  FileName = GetWindowFileName(mwn);
+  if (mwn>0) then begin
+    CloseWindow(ProcessingWn);
+    SelectWindow(mwn);
+    DeselectWindow(mwn,true);
+logtext(0,"payment stat=" & paymentstat);
+logtext(0,"reply " & GetStringFromArea(reply,0,255));
+logtext(0,"request " & GetStringFromArea(request,0,255));
+    if (paymentstat=="Transactions is cancelled" or paymentstat=="Patvirtinta") then begin
+      fres = true;
+
+      switch (FileName) begin
+        case "IVVc":
+          qupdating.UpdateIVVcWithTouchlessPayReturn(mwn,AuthorisationCode)
+        case "IVCashVc":
+          qupdating.UpdateIVCashWithTouchlessPayReturn(mwn,AuthorisationCode);
+      end;
+    end else begin
+      MessageBox(27386,0);
+    end;
+  end;
+
+
+LInitTouchlessPayment:;
+  InitTouchlessPaymentReturn = fres;
+  return;
+end;
+
+global
+procedure OpenVoidBankPaymentWClass(Integer wn,val amount,string rnn,string timestamp)
+begin
+  record RcVc RepSpec;
+  
+  RepSpec.vals0 = amount;
+  RepSpec.f1 = rnn;
+  RepSpec.searchstr = timestamp;
+  OpenWindow("VoidBankPaymentWClass",0,wn,"","",RepSpec);
+
+  return;
+end;
+
+function Boolean IVCashHasCCPayments(record IVCashVc IVCashr,var val sum,var string rrn,var string timestamp)
+begin
+  Boolean res;
+  row IVCashVc IVCashrw;
+  Integer i,rwcnt;
+  
+  rwcnt = MatRowCnt(IVCashr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVCashr,i,IVCashrw);
+    if IVCashrw.stp == kInvoiceRowTypeCreditCardPayment then begin
+      if (IVCashrw.Spec!="LIZINGAS" and IVCashrw.Spec!="Leasing") then begin
+        sum = sum + IVCashrw.Sum;
+        rrn = IVCashrw.CCReceiptNr;
+        timestamp = IVCashrw.CCTimestamp;
+      end;
+    end;
+  end;
+  if (sum>0) then begin
+    res = true;
+  end;
+
+  IVCashHasCCPayments = res;
+  return;
+end;
+
+global
+procedure TouchlessVoidIVCashPayment(record IVCashVc IVCashr,Integer wn)
+begin
+  val sum;
+  string 255 transactionid,rrn,timestamp;
+  record TouchlessPayBlock TPb;
+  
+//do we have to check the amounts?
+//  if (IVCashHasCCPayments(IVCashr,sum,rrn,timestamp)) then begin
+//  end else begin
+//disabled code above cause it was used for different function. You can refund any deal with it. we don't need it
+    BlockLoad(TPb);
+    sum = TPb.LastSum;
+    rrn = TPb.LastRrn;
+    timestamp = TPb.LastTimeStamp;
+//  end;
+  if (sum>0) then begin
+    OpenVoidBankPaymentWClass(wn,sum,rrn,timestamp);
+  end else begin
+    MessageBox(0,"Failed to retrieve void Amount");
+  end;
+
+  return;
+end;
+
+function Boolean IVVchHasCCPayments(record IVVc IVr,var val sum,var string rrn,var string timestamp)
+begin
+  Boolean res;
+  row IVVc IVrw;
+  Integer i,rwcnt;
+  
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    if IVrw.stp == kInvoiceRowTypeCreditCardPayment then begin
+      if (IVrw.Spec!="LIZINGAS" and IVrw.Spec!="Leasing") then begin
+        sum = sum + IVrw.Sum;
+        rrn = IVrw.CCReceiptNr;
+        timestamp = IVrw.CCTimestamp;
+      end;
+    end;
+  end;
+  if (sum>0) then begin
+    res = true;
+  end;
+
+  IVVchHasCCPayments = res;
+  return;
+end;
+
+global
+procedure TouchlessVoidIVVcPayment(record IVVc IVr,Integer wn)
+begin
+  val sum;
+  string 255 transactionid,rrn,timestamp;
+  record TouchlessPayBlock TPb;
+  
+  //do we have to check the amounts?
+  //if (IVVchHasCCPayments(IVr,sum,rrn,timestamp)) then begin
+  //end else begin
+  //disabled code above cause it was used for different function. You can refund any deal with it. we don't need it
+    BlockLoad(TPb);
+    sum = TPb.LastSum;
+    rrn = TPb.LastRrn;
+    timestamp = TPb.LastTimeStamp;
+  //end;
+
+  if (sum>0) then begin
+    OpenVoidBankPaymentWClass(wn,sum,rrn,timestamp);
+  end else begin
+    MessageBox(0,"Failed to retrieve void Amount");
+  end;
+
+  return;
+end;
+
+//CUST-BEGIN void touchless payment transaction
+global
+procedure VoidBankPaymentWClassProceed()
+begin
+  string 255 FileName;
+  Integer mwn,wn;
+  record IVVc IVr;
+  record IVCashVc IVCashr;
+  record RcVc RepSpec;
+  
+  wn = CurWindow;
+  GetWindowRecord(wn,RepSpec);
+  mwn = MotherWindow(wn);
+  FileName = GetWindowFileName(mwn);
+  if (mwn>0) then begin
+    CloseWindow(wn);
+    SelectWindow(mwn);
+    switch (FileName) begin
+      case "IVVc":
+        GetWindowRecord(mwn,IVr);
+        if (InitTouchlessPaymentReturn(RepSpec.f1,mwn)==false) then begin
+          MessageBox(20259,"");
+        end;
+
+      case "IVCashVc":
+        GetWindowRecord(mwn,IVCashr);
+        if (InitTouchlessPaymentReturn(RepSpec.f1,mwn)==false) then begin
+          MessageBox(20259,"");
+        end;
+
+    end;
+  end;
+
+  return;
+end;
+
+global
+procedure VoidBankPaymentWClassCancel()
+begin
+  
+  CloseWindow(CurWindow);
+
+  return;
+end;
+
+//CUST-END

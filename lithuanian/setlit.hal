@@ -10,7 +10,8 @@ enum begin
   kPOSButtonAddHeaderComment = 201,// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 17:44:27
 	kPOSButtonBuyBackItem = 202,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:34:55 PM
 	kPOSButtonTypeFinishWoNInv = 203,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 05 2019 y. at 9:36:35 PM
-	kPOSButtonAddObjects = 204// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:50:31 AM
+	kPOSButtonTypeVoidBankPayment = 204,// CHN::190626
+	kPOSButtonAddObjects = 205// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:50:31 AM
 end;
 
 event startup
@@ -116,6 +117,7 @@ begin
   SString(1000103,"Negali bðti ta pati patalpa"); // Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 10:11:18
   SString(1000104,"¯veskite tokiˆ datˆ, kokia yra nurodyta gavimo sˆskaitoje"); // Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 8 June 2018 13:48:28
   SString(1000105,"áioms prek˜ms buvo iäraäytas PVM grˆìinimo dokumentas. D˜l to likusi grˆìintina suma turi bðti jau be PVM: jai iäraäyti KIO, bet sˆskaitˆ kredituoti pilnai sumai. Daugiau info WIKI.");// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 01 03 2019 y. at 3:22:40 PM
+  SString(1000106,"There is not enough many in Cash Drawer");
 
   
   StrSetBegin(3); /* Try to keep them in alphabetical order */
@@ -713,6 +715,8 @@ begin
   SetText(kPOSButtonTypeTransfertoOrder,"Perkelti ° pardavimo uìsakymˆ");
   SetText(kPOSButtonTypeUnregisterClerk,"Iäregistruoti kasininkˆ fiskaliniame printeryje"); 
   SetText(kPOSButtonTypeVoidRow,"Paäalinti eilut«");
+  SetText(kPOSButtonTypeVoidBankPayment,"Void Bank Payment");//CHN::190626
+  
   EndSet;
   
   return;

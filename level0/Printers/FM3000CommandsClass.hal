@@ -42,6 +42,12 @@ external procedure PMsg_PeriodicReport(record RcVc,record LSerialPortDeviceVc);
 external procedure PMsg_YearlyReport(record LSerialPortDeviceVc,date);
 external procedure BematechMP2100XReport(record LSerialPortDeviceVc);
 external procedure BematechMP2100ZReport(record LSerialPortDeviceVc);
+//CUST-BEGIN
+external outer procedure APSA_PrintZReport(record LSerialPortDeviceVc);
+external outer procedure APSA_PrintXReport(record LSerialPortDeviceVc);
+external outer procedure APSA_PrintPeriodicReport(record LSerialPortDeviceVc,record RcVc);
+
+//CUST-END
 
 function Integer FPOpen(record LSerialPortDeviceVc LSPDr)
 begin
@@ -184,6 +190,10 @@ begin
       POSNETProtocol_DailyReport_TCP(LSPDr,RepSpec.d1);
     case kSerialPortDeviceModelFiscPrinterPOSNETwVATNr:
       POSNETProtocol_DailyReport(LSPDr,RepSpec.d1);
+//CUST-BEGIN
+      case 200:
+        threadasync.APSA_PrintZReport(LSPDr);
+//CUST-END
     case kSerialPortDeviceModelNone:
       MessageBox(22123,"");
     otherwise
@@ -268,6 +278,10 @@ begin
       POSNETProtocol_MonthlyReport_TCP(LSPDr,RepSpec.d1);
     case kSerialPortDeviceModelFiscPrinterPOSNETwVATNr:
       POSNETProtocol_MonthlyReport(LSPDr,RepSpec.d1);
+//CUST-BEGIN
+      case 200:
+        threadasync.APSA_PrintXReport(LSPDr);
+//CUST-END
     case kSerialPortDeviceModelNone:
       MessageBox(22123,"");
     otherwise
@@ -454,6 +468,10 @@ begin
       FB15PeriodicReport(RepSpec,LSPDr);
     case kSerialPortDeviceModelFiscPrinterFB15DLL:      
       FB15PeriodicReportdll(RepSpec,LSPDr);
+//CUST-BEGIN
+      case 200:
+        threadasync.APSA_PrintPeriodicReport(LSPDr,RepSpec);
+//CUST-END
     case kSerialPortDeviceModelNone:
       MessageBox(22123,"");
     otherwise
@@ -497,6 +515,10 @@ begin
         FM32PrintDailyReportdll(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB05:// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 23 January 2018 12:19:54
       	FB05MonthlyReport(LSPDr);
+//CUST-BEGIN
+      case 200:
+        threadasync.APSA_PrintXReport(LSPDr);
+//CUST-END
     end;
   end else begin// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 23 January 2018 12:24:22
   	// Edit Start ---------------------------------------------- Edit Start
@@ -562,6 +584,10 @@ begin
         FM32DailyReportdll(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB05:
         FB05DailyReport(LSPDr);
+//CUST-BEGIN
+      case 200:
+        threadasync.APSA_PrintZReport(LSPDr);
+//CUST-END
     end;
   end else begin
   	// Edit Start ---------------------------------------------- Edit Start
@@ -596,6 +622,10 @@ begin
     switch (LSPDr.Printer) begin
       case kSerialPortDeviceModelFiscPrinterFB05:// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 23 January 2018 12:19:54
       	FB05DailyReport(LSPDr);
+//CUST-BEGIN
+      case 200:
+        threadasync.APSA_PrintXReport(LSPDr);
+//CUST-END
     end;
 	// Edit End ---------------------------------------------- Edit End
   end;
