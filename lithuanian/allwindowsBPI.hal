@@ -1250,3 +1250,14 @@ begin
   HalPushButton(-120,-40,-20,-20,"LangPrintInvoicedsm","Print");
   EndWindow;
 end;
+
+window IVCashAddObjectWClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real v;
+  WindowBegin("Specify Language",IVCashAddObjectWClass,CGother,RcType);
+  SetWRect(20,80,350,150);
+  EditFieldTL(140,v=6,150,"Add Object",M4Code,Normal,50,f1,false,ObjSClass);
+  HalPushButton(-120,-40,-20,-20,"IVCashAddObjectdsm","Proceed");
+  EndWindow;
+end;

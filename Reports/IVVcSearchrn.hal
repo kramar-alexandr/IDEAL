@@ -19,22 +19,40 @@ begin
   SetWRect(20,80,690,400);
 
   PeriodField(80,v+=20,"Periodas");
- EditFieldTL(h,v+=vs, 150,"Ieäkoti",M4Str,Normal,20,f1,false,0);
+ 	EditFieldTL(h,v+=vs, 150,"Ieäkoti",M4Str,Normal,20,f1,false,0);
+ 	CheckBox(h,v+=vs,0,"¯traukti POS faktðras",flags[0]);// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 10:46:28 AM
 
   EndWindow;
   
   return; 
 end;
 
+global 
+procedure IVVcSearchRClassReportDefaults(Integer wn)// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 10:46:26 AM
+BEGIN
+  record RcVc RepSpec;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"IVVcSearchRClass");  
+  RepSpec.flags[0] = 1;
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  
+  RETURN;
+END;
+
 global
 procedure IVVcSearchRn(record RcVc RepSpec)
 begin
   record IVVc IVr;
   row IVVc IVrw;
+  record IVCashVc IVCashr;
+  row IVCashVc IVCashrw;
   record LetVc Letr;
   boolean TrHs,testf;
   string 255 tstr;
-  integer cnt, rw,i;  
+  integer cnt,rw,i;  
  
   cnt = 0;
   rw = 1;
@@ -47,7 +65,10 @@ begin
   end;
   
   StartFormat(15);
-  OutString(60,0,"Fakt. nr.",false);
+		OutString(0,0,"Date",false);
+		OutString(60,0,"Fakt. nr.",false);
+		OutString(120,0,"Customer",false);
+		OutString(1,0,"Item",true);
   EndFormat;
   Gray_Divider(0,1);
   TrHs = true;
@@ -69,12 +90,69 @@ begin
       end;
       if (testf) then begin
         StartFormat(15);
+        OutString(0,0,IVr.InvDate,false);
         OutString(60,"DblIVVc",IVr.SerNr,false);
+        OutString(120,0,IVr.Addr0,false);
+        for (i=0;i<cnt;i=i+1) begin
+					MatRowGet(IVr,i,IVrw);
+					recordnew(Letr);
+					AddToText(IVrw.Spec,Letr);
+					if (StringInText(RepSpec.f1,Letr)) then begin
+						i = cnt;
+						OutString(1,0,IVrw.Spec,true);
+					end;
+				end;      
+				
         EndFormat;
       end;
     end;
   end;  
-
+  
+  if(RepSpec.flags[0]==1)then begin
+  Black_Divider(0,1);
+		StartFormat(15);
+			OutString(0,0,"Date",false);
+			OutString(60,0,"POS Fakt. nr.",false);
+			OutString(120,0,"Customer",false);
+			OutString(1,0,"Item",true);
+		EndFormat;
+	
+		TrHs = true;
+		IVCashr.InvDate = RepSpec.sStartDate;
+		while (LoopKey("InvDate",IVCashr,1,TrHs)) begin
+			if IVCashr.InvDate > RepSpec.sEndDate then begin
+				TrHs = false;
+			end;
+			if (TrHs) then begin
+				testf = false;
+				RecordNew(Letr);
+				cnt = MatRowCnt(IVCashr);
+				for (i=0;i<cnt;i=i+1) begin
+					MatRowGet(IVCashr,i,IVCashrw);
+					AddToText(IVCashrw.Spec,Letr);
+				end;      
+				if (StringInText(RepSpec.f1,Letr)) then begin
+					testf = true;
+				end;
+				if (testf) then begin
+					StartFormat(15);
+					OutString(0,0,IVCashr.InvDate,false);
+					OutString(60,"DblIVCashVc",IVCashr.SerNr,false);
+					OutString(120,0,IVCashr.Addr0,false);
+					for (i=0;i<cnt;i=i+1) begin
+						MatRowGet(IVCashr,i,IVCashrw);
+						recordnew(Letr);
+						AddToText(IVCashrw.Spec,Letr);
+						if (StringInText(RepSpec.f1,Letr)) then begin
+							i = cnt;
+							OutString(1,0,IVCashrw.Spec,true);
+						end;
+					end;  
+					EndFormat;
+				end;
+			end;
+		end;  
+	end;
   
   LSearchItemRn:;
   EndJob;
