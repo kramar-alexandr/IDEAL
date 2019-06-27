@@ -1352,11 +1352,11 @@ LPrintNonFiscalReceipt:;
 end;
 
 global
-procedure PrintTouchlessCardReceipt(string tstr)
+procedure PrintTouchlessCardReceipt(string tstr,Integer cnt)
 begin
   record LocalMachineBlock LMb;
   record LSerialPortDeviceVc LSPDr;
-  Integer res;
+  Integer res,i;
   array string 255 arr;
  
   BlockLoad(LMb);  
@@ -1366,8 +1366,9 @@ begin
   switch (LSPDr.Printer) begin
     case 200:
       SplitString(tstr,"\\n",arr);
-      PrintNonFiscalReceipt(LSPDr,arr);
-      PrintNonFiscalReceipt(LSPDr,arr);
+      for (i=0;i<cnt;i=i+1) begin
+        PrintNonFiscalReceipt(LSPDr,arr);
+      end;
   end;
 
 LPrintTouchlessCardReceipt:;
