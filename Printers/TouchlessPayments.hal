@@ -25,6 +25,21 @@ begin
   return;
 end;
 
+procedure logrequest(area request,area reply,string text)
+begin
+  string 255 fn;
+  Longint tick;
+
+  tick = GetCurTick;
+
+  fn = "_" & text & ".request." & tick & ".txt";
+  WriteAreaToFile(request,fn,0);
+  fn = "_" & text & ".reply." & tick & ".txt";
+  WriteAreaToFile(reply,fn,0);
+
+  return;
+end;
+
 function Boolean ConfirmTouchlessPayment(record TouchlessPayBlock TPb,record LSerialPortDeviceVc LSPDr,string refid,var string paymentstat)
 begin
   Boolean res;
@@ -52,6 +67,7 @@ begin
         paymentstat = JSONGet(js,"text");
     end;
   end;
+    logrequest(request,reply,"touchless");
 
   ConfirmTouchlessPayment = res;
   return;
@@ -257,6 +273,7 @@ begin
       clientreceipt = JSONGet(js,"clientReceipt");
     end;
   end;
+  logrequest(request,reply,"touchless");
 
   if (res) then begin
     while (ConfirmTouchlessPayment(TPb,LSPDr,transactionid,paymentstat)==false and tries<300) begin//5 minutes
