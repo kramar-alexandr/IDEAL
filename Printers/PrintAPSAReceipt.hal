@@ -85,8 +85,8 @@ begin
   end;
   tick = GetCurTick;
 
-WriteAreaToFile(request,"_aspa.request." & tick & ".txt",0);
-WriteAreaToFile(reply,"_aspa.reply." & tick & ".txt",0);
+//WriteAreaToFile(request,"_aspa.request." & tick & ".txt",0);
+//WriteAreaToFile(reply,"_aspa.reply." & tick & ".txt",0);
 
 LExecAPSARequest:;
 //res = 12400;//for debug process
@@ -253,6 +253,23 @@ begin
   PrintCommentLine = res;
   return;
 end;
+
+function Integer PrintCommentLine2(record LSerialPortDeviceVc LSPDr,string comment,vector string vChr)
+begin
+  Integer res;
+  string 255 path;
+  area request;
+  JSON js;
+
+  path = "/json/fp550/Cmdline";
+  AddTextToArea("{""cmd"":""42"",""parameter"":""" & GetCleanName(comment,vChr) & """}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request,js,false);
+
+  PrintCommentLine2 = res;
+  return;
+end;
+
 
 function Integer IVCash_PrintRecItem(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,row IVCashVc IVCashrw,Boolean voidf,vector val vatrates,vector string vChr,var Boolean retf,var val retsum)
 begin
@@ -1334,7 +1351,7 @@ begin
     goto LPrintNonFiscalReceipt;
   end;
   for (i=0;i<arr.length;i=i+1) begin
-    res = PrintCommentLine(LSPDr,arr[i],vChr);
+    res = PrintCommentLine2(LSPDr,arr[i],vChr);
     if (res!=noErr) then begin
       goto LPrintNonFiscalReceipt;
     end;

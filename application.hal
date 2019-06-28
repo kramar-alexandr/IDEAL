@@ -13,6 +13,8 @@ updating procedure OnApplicationStartupComplete()
 BEGIN
   time t;
   record UserVc USr;
+  JSON js;
+  string 255 clientReceipt;
   
   /*while(loopmain(USr,1,true))begin
   	logtext(0,USr.Code & " " & USr.AccessGroup);
@@ -35,7 +37,11 @@ BEGIN
   if (ServerMode or SingleUserMode) then begin
 		SetTimedEventScheduler;
   end;
-  
+  if (ClientMode) then begin
+    js = ParseJSONFile("test.txt");
+    clientReceipt = JSONGet(js,"clientReceipt");
+    PrintTouchlessCardReceipt(clientReceipt,1);
+  end;    
 RETURN;
 END;
 
