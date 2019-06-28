@@ -11,7 +11,8 @@ enum begin
 	kPOSButtonBuyBackItem = 202,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:34:55 PM
 	kPOSButtonTypeFinishWoNInv = 203,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 05 2019 y. at 9:36:35 PM
 	kPOSButtonTypeVoidBankPayment = 204,// CHN::190626
-	kPOSButtonAddObjects = 205// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:50:31 AM
+	kPOSButtonAddObjects = 205,// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:50:31 AM
+	kPOSButtonVATRetutn = 206// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 11:32:11 AM
 end;
 
 event startup
@@ -508,6 +509,7 @@ begin
   SetText(kPOSButtonAddHeaderComment,"Add Header Comment");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:33:54 PM
   SetText(kPOSButtonFinishIfInStock,"Finish If In Stock");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:34:32 PM
   SetText(kPOSButtonAddObjects,"Object");// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:43:05 AM
+  SetText(kPOSButtonVATRetutn,"VAT Return");// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 11:33:29 AM
   SetText(kPOSButtonTypePrintFiscalInvoice,"Fiscal Invoice");  
   SetText(kPOSButtonTypeFullPayment,"Pilnas apmok˜jimas");
   SetText(kPOSButtonTypeGetCashFloat,"Kasos iälaidos");
@@ -649,6 +651,7 @@ begin
   SetText(kPOSButtonAddHeaderComment,"Add Header Comment");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:33:54 PM
   SetText(kPOSButtonFinishIfInStock,"Finish If In Stock");// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:34:32 PM
   SetText(kPOSButtonAddObjects,"Object");// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:43:05 AM
+  SetText(kPOSButtonVATRetutn,"VAT Return");// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 11:33:29 AM
   SetText(kPOSButtonTypePrintFiscalInvoice,"Fiscal Invoice");  
   SetText(kPOSButtonTypeFullPayment,"Pilnas apmok˜jimas"); 
   SetText(kPOSButtonTypeGetCashFloat,"Kasos iälaidos");

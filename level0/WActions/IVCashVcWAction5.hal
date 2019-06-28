@@ -142,7 +142,8 @@ enum begin
 	kPOSButtonBuyBackItem = 202,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:44:10 PM
 	kPOSButtonTypeFinishWoNInv = 203,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 05 2019 y. at 9:36:35 PM
 	kPOSButtonTypeVoidBankPayment = 204,// CHN::190626
-	kPOSButtonAddObjects = 205// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 12:03:34 PM
+	kPOSButtonAddObjects = 205,// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 12:03:34 PM
+	kPOSButtonVATRetutn = 206// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 11:32:11 AM
 end;
 
 
@@ -194,6 +195,32 @@ procedure IVCashDClassTouchScreenAddObjectToInv()
 begin
 	
 	TouchScreenAddObjectToInv;
+	
+return;
+end;
+
+
+global procedure TouchScreenVATRetutn()// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:59:49 AM
+begin
+	integer wn,mwn;
+	record IVCashVc IVCashr;
+	record RcVc RepSpec;
+		
+	wn = curwindow;
+	getwindowrecord(wn,IVCashr);
+	//if(IVCashr.OKFlag==0)then begin
+	//	mwn = OpenWindow("IVCashAddObjectWClass",0,wn,"","",RepSpec);  
+	//end;
+	
+return;
+end;
+
+
+global
+procedure IVCashDClassTouchScreenVATRetutn()
+begin
+	
+	TouchScreenVATRetutn;
 	
 return;
 end;
@@ -3424,6 +3451,9 @@ begin
       res = true;
     case kPOSButtonAddObjects:// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:58:59 AM
       TouchScreenAddObjectToInv;
+      res = true;
+    case kPOSButtonVATRetutn:// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:58:59 AM
+      TouchScreenVATRetutn;
       res = true;
   end;
   IVCashDClassTouchScreenButton = res;
