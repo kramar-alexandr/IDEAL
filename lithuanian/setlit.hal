@@ -190,6 +190,7 @@ begin
   StrSetText(ChangeRecordMatrixWhenPending,"Pakeisti °raäo matricˆ, kol patvirtinimo bðkl˜ laukiama");
   StrSetText(ChangeDateinResourcePlanner,"Pakeisti datas resurs÷ planavime");
   StrSetText(ChangeAllowChVAT,"Leisti pakeisti OK ìym« PVM grˆìinimo opcijai");// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 01 03 2019 y. at 3:28:14 PM
+  StrSetText(ChangeAllowChVATPOS,"Leisti pakeisti OK ìym« PVM grˆìinimo opcijai POS");// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 4:38:29 PM
   StrSetText(AllowPasswdChanging,"Leisti pakeisti slaptaìodìius");
   StrSetText(ChangePrices,"Pakeisti kainas");
   StrSetText(AllowPOSerNrChange,"Leisti keisti Pirk. uìs. Nr.");

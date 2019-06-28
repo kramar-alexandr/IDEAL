@@ -734,6 +734,7 @@ begin
     CheckBox(h3+110,v,0,"Fiskalin˜ faktðra",FiscalFlag);
     EditField(h3,v+=vs,82,"Pakuotojas",Normal,Bagger,false,BaggerSClass);
     CheckBox(h3+110,v,0,"Kvitas su PVM",IPBookVAT);
+    CheckBox(h3+110,v+vs,0,"Ar grˆìintas PVM",VATRetFlag);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 4:12:20 PM
     if (HasLocalization("SWE")) then begin
       EditField(h2,v+=vs,82,"Gryn÷j÷ kvit. nr.",ViewOnly,FiscalDeviceSeqNr,false,0); 
     end;
