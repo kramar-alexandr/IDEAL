@@ -287,7 +287,7 @@ logtext(0,"reply " & GetStringFromArea(reply,0,255));
 logtext(0,"request " & GetStringFromArea(request,0,255));
     if (paymentstat=="Approved" or paymentstat=="Patvirtinta") then begin
       fres = true;
-      threadasync.PrintTouchlessCardReceipt(clientreceipt,2);
+      PrintTouchlessCardReceipt(clientreceipt,2);
       if (received>0) then begin
         qupdating.StoreLastTouchlessPayment(transactionid,received,timestamp);
       end;
@@ -301,7 +301,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
     end else begin
       MessageBox(27386,0);
       if (nonblank(clientreceipt)) then begin
-        threadasync.PrintTouchlessCardReceipt(clientreceipt,1);
+        PrintTouchlessCardReceipt(clientreceipt,1);
       end;
     end;
   end;
@@ -403,7 +403,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
     if (paymentstat=="Transactions is cancelled" or paymentstat=="Patvirtinta") then begin
       fres = true;
 
-      threadasync.PrintTouchlessCardReceipt(clientreceipt,2);
+      PrintTouchlessCardReceipt(clientreceipt,2);
       switch (FileName) begin
         case "IVVc":
           qupdating.UpdateIVVcWithTouchlessPayReturn(mwn,AuthorisationCode)
@@ -413,7 +413,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
     end else begin
       MessageBox(27386,0);
       if (nonblank(clientreceipt)) then begin
-        threadasync.PrintTouchlessCardReceipt(clientreceipt,1);
+        PrintTouchlessCardReceipt(clientreceipt,1);
       end;
     end;
   end;
