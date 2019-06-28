@@ -120,7 +120,8 @@ enum begin //edited by BPI {  //LITWINDOWFUNCT
 	kPOSButtonBuyBackItem = 202,
 	kPOSButtonTypeFinishWoNInv = 203,// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 13 05 2019 y. at 9:36:35 PM
 	kPOSButtonTypeVoidBankPayment = 204,// CHN::190626
-	kPOSButtonAddObjects = 205// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 12:03:02 PM
+	kPOSButtonAddObjects = 205,// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 12:03:02 PM
+	kPOSButtonVATRetutn = 206// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 11:32:11 AM
 end;
 
 
@@ -1039,6 +1040,8 @@ begin
       	procstr = procstr & "TouchScreenBuyBackItem";
       case kPOSButtonAddObjects:// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 3:37:28 PM
       	procstr = procstr & "TouchScreenAddObjectToInv";
+      case kPOSButtonVATRetutn:// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 11:35:07 AM
+      	procstr = procstr & "TouchScreenVATRetutn";
       case 	kPOSButtonTypeVoidBankPayment:// CHN::190626
         procstr = procstr & "TouchScreenVoidBankPayment";
     end;
