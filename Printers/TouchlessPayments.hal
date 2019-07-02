@@ -33,9 +33,9 @@ begin
   tick = GetCurTick;
 
   fn = "_" & text & ".request." & tick & ".txt";
-  WriteAreaToFile(request,fn,0);
+  //WriteAreaToFile(request,fn,0);
   fn = "_" & text & ".reply." & tick & ".txt";
-  WriteAreaToFile(reply,fn,0);
+  //WriteAreaToFile(reply,fn,0);
 
   return;
 end;
