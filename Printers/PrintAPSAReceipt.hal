@@ -1361,12 +1361,11 @@ L999:;
   RETURN;
 END;
 
-
 procedure SplitString(string tstr,var array string arr)
 begin
   Longint pos;
   string 255 tmp;
-
+ 
   pos = 0;
   ExtractObj2(tstr,pos,tmp);
   while (nonblank(tmp)) begin
