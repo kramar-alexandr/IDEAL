@@ -227,8 +227,8 @@ begin
 
   for (i=0;i<len(tstr);i=i+1) begin
     c = asc(mid(tstr,i,1));
-    if (c>170 or c==39 or c==34) then begin
-      res = res & vChr[c];
+    if (c==39 or c==34) then begin
+      //res = res;
     end else begin
       res = res & mid(tstr,i,1);
     end;
