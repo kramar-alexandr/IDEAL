@@ -2968,7 +2968,7 @@ updating procedure ProceedReturnInvNoNPTSSClassExecute(Integer wn)
 begin
   Integer mwn,rownr;
   record RcVc RepSpec;
-  record IVCashVc IVCashr,newIVCashr;
+  record IVCashVc IVCashr,newIVCashr,oldIVCashr;
   record IVCashVc prevIVCashr;
   row IVCashVc IVCashrw;
   string 255 tstr,t2;
@@ -3021,7 +3021,14 @@ begin
         WindowDoOK(mwn,0);
         CloseWindow(wn);
         POSAudit_LogIVCashVcRow(IVCashr,IVCashrw,kPOSEventTypeAddRow);
-*/
+        
+*/			
+				oldIVCashr.SerNr = RepSpec.long1;
+				if(readfirstmain(oldIVCashr,1,true))then begin
+					if(oldIVCashr.VATRetFlag==1)then begin
+						messagebox(1000105,"");
+					end;
+				end;
         IVCashDClassTouchScreenCreditNoteRemote_iDeal(RepSpec.long1,IVCashr);    
         IVCashSumup(IVCashr,true);
         PutWindowRecord(mwn,IVCashr);

@@ -169,6 +169,7 @@ begin
 			end;
 			putwindowrecord(mwn,IVCashr);
 			ReRunWindowDef(mwn);
+			IVCashDClass_RefreshStringList(mwn,IVCashr);
 		end;
 	end;
 return;
@@ -199,6 +200,55 @@ begin
 return;
 end;
 
+global
+function Boolean IVCashDClassVATRetFlagButtonAction(Integer wn,Integer value)// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 01 03 2019 y. at 3:08:00 PM
+BEGIN
+  Boolean res;
+ 	record IVCashVc IVr;
+ 	
+ 	res = true;
+ 	getwindowrecord(wn,IVr);
+ 	
+ 	if (WindowState(wn)==Rs_insert) then begin
+    GetWindowRecord(wn,IVr);
+    if (IVr.OKFlag!=0) then begin
+    	if(IVr.VATRetFlag==1)then begin
+      	res = UserCanAction("ChangeAllowChVAT",false);
+      end else begin
+      	res = true;
+      end;
+    end else begin
+      res = true;
+    end;
+  end;
+ 	if (WindowState(wn)==Rs_normal) then begin
+    GetWindowRecord(wn,IVr);
+    if (IVr.OKFlag!=0) then begin
+      if(IVr.VATRetFlag==1)then begin
+      	res = UserCanAction("ChangeAllowChVAT",false);
+      end else begin
+      	res = true;
+      end;
+    end else begin
+      res = true;
+    end;
+  end;  
+  if (WindowState(wn)==Rs_update) then begin
+    GetPrevWindowRecord(wn,IVr);
+    if (IVr.OKFlag!=0) then begin
+      if(IVr.VATRetFlag==1)then begin
+      	res = UserCanAction("ChangeAllowChVAT",false);
+      end else begin
+      	res = true;
+      end;
+    end else begin
+      res = true;
+    end;
+  end;
+  IVCashDClassVATRetFlagButtonAction = res;
+  RETURN;
+END;
+
 
 global procedure TouchScreenVATRetutn()// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 27 06 2019 y. at 9:59:49 AM
 begin
@@ -208,6 +258,16 @@ begin
 		
 	wn = curwindow;
 	getwindowrecord(wn,IVCashr);
+	if(IVCashr.OKFlag==0 or UserCanAction("ChangeAllowChVAT",false))then begin
+		if(IVCashr.VATRetFlag==1)then begin
+			IVCashr.VATRetFlag = 0;
+		end else begin
+			IVCashr.VATRetFlag = 1;
+		end;
+		putwindowrecord(wn,IVCashr);
+		ReRunWindowDef(wn);
+		IVCashDClass_RefreshStringList(wn,IVCashr);
+	end;
 	//if(IVCashr.OKFlag==0)then begin
 	//	mwn = OpenWindow("IVCashAddObjectWClass",0,wn,"","",RepSpec);  
 	//end;

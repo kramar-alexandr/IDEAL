@@ -1701,6 +1701,9 @@ already painted
 		StaticText(h,v,"Comment: " & IVCashr.InvComment,false);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 18:45:13
 		v = v + vs;// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 18:46:51
   end;
+  if (IVCashr.VATRetFlag==1) then begin
+		StaticText(h+200,v,"Grąžintas PVM",false);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 4:17:09 PM
+  end;
   
   if (HasJewelleryInterface) then begin
     if (nonblank(objects)) then begin
