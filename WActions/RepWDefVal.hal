@@ -1,6 +1,20 @@
 external inner function Boolean UserHasLimitedAccess(var string,var string);
 
 global 
+procedure IDEALLitiSAFRClassReportDefaults(Integer wn)
+BEGIN
+  record RcVc RepSpec;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  RepSpec.flags[9] = 1;
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  
+  RETURN;
+END;
+
+global 
 procedure IDEALSLVATLitRClassReportDefaults(Integer wn)
 BEGIN
   record RcVc RepSpec;

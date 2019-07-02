@@ -418,6 +418,70 @@ LNext1:;
   return;
 end;
 
+global// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 02 07 2019 y. at 11:30:59 PM
+procedure GetPOSInvoicesSums(record IVCashVc IVr,var record IVCashVc VirtVatr,var integer results,string excl_vatcodes)
+begin
+  integer rwcnt,rwcnt1,j,i;
+  row IVCashVc IVrw;
+  row IVCashVc VirtVatrw;
+  Boolean found;
+  row VATCodeBlock VATCbrw;
+  integer coef;
+  val ivsum;
+  
+  // EVS: HAL-258
+  coef = 1;
+  if (IVr.InvType == kInvoiceTypeCredit) then begin
+    coef = -coef;
+  end;
+  // :EVS
+  
+  results = 0;
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    if (nonblank(IVrw.VATCode) and (blank(excl_vatcodes) or !SetInSet(IVrw.VATCode,excl_vatcodes))) then begin // EVS: HAL-519
+      found = false;
+      rwcnt1 = MatRowCnt(VirtVatr);
+      for (j=0;j<rwcnt1;j=j+1) begin
+        MatRowGet(VirtVatr,j,VirtVatrw);
+        if (VirtVatrw.VATCode==IVrw.VATCode) then begin
+          found = true;
+          GetVATRow(IVrw.VATCode,VATCbrw);
+          if (IVr.InclVAT == 0) then begin
+            VirtVatrw.Sum = VirtVatrw.Sum + (coef*IVrw.Sum); // EVS: HAL-258 coef
+            ivsum = IVrw.Sum;
+          end else begin
+            VirtVatrw.Sum = VirtVatrw.Sum + ((coef*IVrw.Sum) * (100/(100+VirtVatrw.Price))); // EVS: HAL-178
+            ivsum = (IVrw.Sum) * (100/(100+VirtVatrw.Price));
+          end;
+          VirtVatrw.BasePrice = VirtVatrw.BasePrice + (coef*(ivsum * (VATCbrw.ExVatpr/100))); // EVS: HAL-258 coef
+          results = results + 1;
+          MatRowPut(VirtVatr,j,VirtVatrw);
+          goto LNext11;
+        end;
+      end;
+      if (found==false) then begin
+        MatRowGet(VirtVatr,rwcnt1,VirtVatrw);
+        GetVATRow(IVrw.VATCode,VATCbrw);
+        VirtVatrw.Price = VATCbrw.ExVatpr;
+        if (IVr.InclVAT == 0) then begin
+          VirtVatrw.Sum = coef*IVrw.Sum; // EVS: HAL-258 coef
+        end else begin
+          VirtVatrw.Sum = (coef*IVrw.Sum) * (100/(100+VirtVatrw.Price)); // EVS: HAL-178
+        end;
+        VirtVatrw.BasePrice = VirtVatrw.Sum * (VATCbrw.ExVatpr/100);
+        VirtVatrw.VATCode = IVrw.VATCode;
+        MatRowPut(VirtVatr,rwcnt1,VirtVatrw);
+        results = results + 1;
+      end;
+LNext11:;
+    end;
+  end;
+  
+  return;
+end;
+
 global // EVS: HAL-258 wrapping to make it global
 procedure HALGetInvoicesSums(record IVVc IVr,var record IVVc VirtVatr,var integer results, string excl_vatcodes)
 begin
