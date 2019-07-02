@@ -1327,13 +1327,51 @@ LAPSACloseConnection:;
   return;
 end;
 
-procedure SplitString(string tstr,string split,var array string arr)
+global
+procedure ExtractObj2(string ostr,var Longint pos,var string rstr)
+BEGIN
+  string 1 c1;
+
+  rstr = "";
+L47:;
+  if (pos>=len(ostr)) then begin goto L999; end;
+  c1 = Mid(ostr,pos,2); 
+  pos = pos + 1;
+  if ((c1=="\\n")) then begin
+    if (len(rstr)==0) then begin 
+      goto L47; 
+    end;
+    pos = pos + 1;
+    goto L888;
+  end;
+  //if ((len(rstr)<20)) then begin 
+    rstr = rstr & left(c1,1);
+  //end;
+  goto L47;
+L888:;
+  if (pos>len(ostr)) then begin goto L999; end;
+  c1 = Mid(ostr,pos,2);  
+  pos = pos + 1;
+  if ((c1=="\\n")) then begin 
+    pos = pos + 1;  
+    goto L888; 
+  end;
+  pos = pos - 1;
+L999:;
+  RETURN;
+END;
+
+
+procedure SplitString(string tstr,var array string arr)
 begin
   Longint pos;
   string 255 tmp;
-  
-  while (GetNextSubstring(tstr,pos,split,tmp)) begin
+
+  pos = 0;
+  ExtractObj2(tstr,pos,tmp);
+  while (nonblank(tmp)) begin
     arr[arr.length] = tmp;
+    ExtractObj2(tstr,pos,tmp);
   end;
 
   return;
@@ -1382,7 +1420,7 @@ begin
   end;
   switch (LSPDr.Printer) begin
     case 200:
-      SplitString(tstr,"\\n",arr);
+      SplitString(tstr,arr);
       for (i=0;i<cnt;i=i+1) begin
         PrintNonFiscalReceipt(LSPDr,arr);
       end;
