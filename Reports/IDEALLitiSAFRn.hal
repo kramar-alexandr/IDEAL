@@ -995,7 +995,7 @@ begin
   
   Black_Divider(0,200);
   StartFormat(15);
-  OutString(0,0,USetStr(39726),false);
+  OutString(0,0,USetStr(39733),false);
   EndFormat;
   Black_Divider(0,200);
   
