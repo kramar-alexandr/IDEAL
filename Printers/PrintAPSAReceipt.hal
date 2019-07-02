@@ -234,7 +234,7 @@ begin
     end;
   end;
 
-  GetCleanName = ConvertStringToCodePage("CP1257",res);
+  GetCleanName = ConvertStringToCodePage("UTF8",res);
   return;
 end;
 
