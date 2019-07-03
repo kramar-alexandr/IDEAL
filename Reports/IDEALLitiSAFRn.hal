@@ -1076,7 +1076,7 @@ begin
         MatRowGet(IVCashr,0,IVCashrw);
         CDIVCashr.SerNr = IVCashrw.OrdRow;
         ReadFirstMain(CDIVCashr,1,true);
-        OutString(200,"DblIVCashVc",IVCashr.SerNr,true);
+        OutString(200,"DblIVCashVc",CDIVCashr.SerNr,true);
         OutString(210,0,CDIVCashr.TransDate,false);
       end;
       //if (IVCashr.ServiceDelDate!=IVCashr.InvDate and nonblank(IVCashr.ServiceDelDate)) then begin
