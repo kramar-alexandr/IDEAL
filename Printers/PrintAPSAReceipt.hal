@@ -709,7 +709,7 @@ begin
 end;
 
 global
-updating function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc IVCashr,record LSerialPortDeviceVc LSPDr)
+function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc IVCashr,record LSerialPortDeviceVc LSPDr)
 begin
   record IVCashVc oldIVCashr;
   Integer noErr,res;

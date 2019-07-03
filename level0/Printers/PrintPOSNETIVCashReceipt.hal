@@ -31,7 +31,7 @@ external procedure IVCashVc_PrintRCHFleaReceipt(var record IVCashVc,record LSeri
 external updating procedure IVCashVc_PrintEpsonTMTReceipt(var record IVCashVc,record LSerialPortDeviceVc);
 external procedure IVCashVc_PrintBematechMP2100Receipt(var record IVCashVc,record LSerialPortDeviceVc);
 //CUST-BEGIN
-external outer updating function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc,record LSerialPortDeviceVc);
+external outer function Integer IVCashVc_PrintAPSAReceipt(var record IVCashVc,record LSerialPortDeviceVc);
 //CUST-END
 
 procedure StripOneZero(var string res)
