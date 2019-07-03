@@ -1031,6 +1031,9 @@ begin
       end;
     end;
     // :EVS
+    if(blank(IVcashr.OfficialSerNr))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 9:34:32 AM
+    	testf = false;
+    end;
     
     if (results>0 and found and testf) then begin
     	logtext(0,"1 " & IVCashr.SerNr);
