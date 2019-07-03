@@ -3551,6 +3551,8 @@ begin
   EditFieldTL(h,v+=vs,-20,"Ne°tr. PVM kodo",M4UStr,Normal,255,f11,false,VATCodeSClass); // EVS: HAL-519
   CheckBox(h,v+=30,0,"¯traukti °plaukas ir mok˜jimus",flags[0]); //!!TRANSLATE
   CheckBox(h,v+=16, 0,"Sukeisti °mon˜s kodˆ su PVM mok. kodu",flags[8]); //!!TRANSLATE
+  CheckBox(h,v+=16, 0,"¯traukti POS faktðras",flags[9]);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 02 07 2019 y. at 11:21:00 PM
+
   EndWindow;
 end;
 

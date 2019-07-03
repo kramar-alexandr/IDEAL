@@ -1017,7 +1017,7 @@ begin
       testf = false;
     end;
     if (nonblank(RepSpec.f2)) then begin
-      testf = CheckIVCashVATCode(IVCashr.SerNr, RepSpec.f2);
+      testf = CheckIVCashVATCode(IVCashr.SerNr,RepSpec.f2);
     end;
     if (found and testf) then begin
       RecordNew(VirtVatr);
@@ -1036,7 +1036,6 @@ begin
     end;
     
     if (results>0 and found and testf) then begin
-    	logtext(0,"1 " & IVCashr.SerNr);
       cnt = cnt + 1;
       Gray_Divider(0,1);
       StartFormat(15);
@@ -1052,7 +1051,7 @@ begin
       OutString(480,0,USetStr(39725),true);
       EndFormat;
 
-      OutString(0,"DblIVCashVc",IVCashr.SerNr,false);
+      OutString(0,"DblIVCashVcOff",IVCashr.OfficialSerNr,false);
       OutString(50,0,IVCashr.TransDate,false);
       if (IVCashr.InvType==kInvoiceTypeCredit) then begin
         OutString(100,0,"KS",false);
@@ -1076,7 +1075,7 @@ begin
         MatRowGet(IVCashr,0,IVCashrw);
         CDIVCashr.SerNr = IVCashrw.OrdRow;
         ReadFirstMain(CDIVCashr,1,true);
-        OutString(200,"DblIVCashVc",CDIVCashr.SerNr,true);
+        OutString(200,"DblIVCashVcOff",CDIVCashr.OfficialSerNr,true);
         OutString(210,0,CDIVCashr.TransDate,false);
       end;
       //if (IVCashr.ServiceDelDate!=IVCashr.InvDate and nonblank(IVCashr.ServiceDelDate)) then begin
