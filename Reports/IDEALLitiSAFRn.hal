@@ -4,6 +4,7 @@ external inner procedure HT2Per(Date,Date,var string);
 external inner function Boolean GetPMRow(string,var row PMBlock);
 external procedure HALGetPInvoicesSums(record VIVc,var record IVVc,var integer,string);
 external procedure HALGetInvoicesSums(record IVVc,var record IVVc,var integer,string);
+external procedure GetPOSInvoicesSums(record IVCashVc,var record IVCashVc,var integer,string);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 02 07 2019 y. at 11:31:51 PM
 
 
 function Boolean TestReceiptsCustomers(record RcVc RepSpec,string CustCode)
@@ -234,6 +235,29 @@ begin
 
   end;
   CheckIVVATCode = (vcnt>0);
+  return;
+end;
+
+function boolean CheckIVCashVATCode(string sernr, string vat)// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 02 07 2019 y. at 11:33:09 PM
+begin
+  record IVCashVc IVr;
+  row IVCashVc IVrw;
+  integer i, cnt, vcnt;
+
+  IVr.SerNr = sernr;
+  vcnt = 0;
+  if (ReadFirstMain(IVr,1,true)) then
+  begin
+    cnt = MatRowCnt(IVr);
+    for (i=0;i<cnt;i=i+1) begin
+      MatRowGet(IVr, i, IVrw);
+        if (IVrw.Sum!=0) and (SetInSet(IVrw.VATCode,vat)) then begin
+        vcnt = vcnt + 1;
+      end;
+    end;
+
+  end;
+  CheckIVCashVATCode = (vcnt>0);
   return;
 end;
 
@@ -957,6 +981,181 @@ begin
   return;
 end;
 
+procedure ExportPOSInvoices(record RcVc RepSpec)
+begin
+  record IVCashVc IVCashr,CDIVCashr;
+  row IVCashVc IVCashrw;
+  Boolean found,testf;
+  record CUVc CUr;
+  record IVCashVc VirtVatr;
+  row IVCashVc VirtVatrw;
+  integer results,i,rwcnt,cnt;
+  string 255 tstr;
+  record PDVc PDr;
+  
+  Black_Divider(0,200);
+  StartFormat(15);
+  OutString(0,0,USetStr(39733),false);
+  EndFormat;
+  Black_Divider(0,200);
+  
+  StartFormat(15);
+  EndFormat;
+  
+  cnt = 0;
+  found = true;
+  IVCashr.TransDate = RepSpec.sStartDate;
+  while (LoopKey("TransDate",IVCashr,1,found)) begin
+    tstr = "";
+    testf = true;
+    results = 0;
+    
+    found = DateInRange(IVCashr.TransDate,RepSpec.sStartDate,RepSpec.sEndDate);
+    
+    if (IVCashr.OKFlag==0) then begin testf = false; end;
+    if (nonblank(RepSpec.f1) and SetInSet(IVCashr.PayDeal,RepSpec.f1)) then begin
+      testf = false;
+    end;
+    if (nonblank(RepSpec.f2)) then begin
+      testf = CheckIVCashVATCode(IVCashr.SerNr,RepSpec.f2);
+    end;
+    if (found and testf) then begin
+      RecordNew(VirtVatr);
+      GetPOSInvoicesSums(IVCashr,VirtVatr,results,RepSpec.f11); // EVS: HAL-519
+    end;
+    // EVS: HAL-260
+    if (results>0 and found and testf and nonblank(RepSpec.f10)) then begin
+      CUr.Code = IVCashr.CustCode;
+      if (ReadFirstMain(CUr,1,true) and nonblank(CUr.CustCat)) then begin
+        testf = !SetInSet(CUr.CustCat,RepSpec.f10);
+      end;
+    end;
+    // :EVS
+    if(blank(IVcashr.OfficialSerNr))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 9:34:32 AM
+    	testf = false;
+    end;
+    
+    if (results>0 and found and testf) then begin
+      cnt = cnt + 1;
+      Gray_Divider(0,1);
+      StartFormat(15);
+      OutString(0,0,USetStr(39719),false);
+      OutString(50,0,USetStr(39720),false);
+      OutString(100,0,USetStr(39721),false);
+      //if (IVCashr.ServiceDelDate!=IVCashr.InvDate and nonblank(IVCashr.ServiceDelDate)) then begin
+      //  OutString(250,0,USetStr(39733),false);
+      //end;
+      OutString(300,0,USetStr(39722),false);
+      OutString(380,0,USetStr(39723),true);
+      OutString(430,0,USetStr(39724),true);
+      OutString(480,0,USetStr(39725),true);
+      EndFormat;
+
+      OutString(0,"DblIVCashVcOff",IVCashr.OfficialSerNr,false);
+      OutString(50,0,IVCashr.TransDate,false);
+      if (IVCashr.InvType==kInvoiceTypeCredit) then begin
+        OutString(100,0,"KS",false);
+      end else begin
+        if (IVCashr.Invalid!=0) then begin
+          OutString(100,0,"AN",false);
+        end else begin
+          if (IVCashr.InvType==kInvoiceTypeDebit) then begin
+            OutString(100,0,"DS",false);
+          end else begin
+            OutString(100,0,"SF",false);
+          end;
+        end;
+      end;
+      PDr.Code = IVCashr.PayDeal;
+      ReadFirstMain(PDr,1,true);
+      if (PDr.PDType==10) then begin
+        OutString(130,0,"T",false);
+      end;
+      if (IVCashr.InvType==kInvoiceTypeDebit or IVCashr.InvType==kInvoiceTypeCredit) then begin
+        MatRowGet(IVCashr,0,IVCashrw);
+        CDIVCashr.SerNr = IVCashrw.OrdRow;
+        ReadFirstMain(CDIVCashr,1,true);
+        OutString(200,"DblIVCashVcOff",CDIVCashr.OfficialSerNr,true);
+        OutString(210,0,CDIVCashr.TransDate,false);
+      end;
+      //if (IVCashr.ServiceDelDate!=IVCashr.InvDate and nonblank(IVCashr.ServiceDelDate)) then begin
+      //  OutString(250,0,IVCashr.ServiceDelDate,false);
+      //end;
+      rwcnt = MatRowCnt(VirtVatr);
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(VirtVatr,i,VirtVatrw);
+        if (i>0) then begin
+          StartFormat(15);
+        end;
+        OutString(300,0,VirtVatrw.VATCode,false);
+        OutString(380,0,ValToString(VirtVatrw.BasePrice,M4Val,"",".",0),true);
+        OutString(430,0,ValToString(VirtVatrw.Price,M4Val,"",".",0),true);
+        OutString(480,0,ValToString(VirtVatrw.Sum,M4Val,"",".",0),true);
+        EndFormat;
+      end;
+      StartFormat(15);
+      EndFormat;
+      StartFormat(15);
+      CUr.Code = IVCashr.CustCode; 
+      ReadFirstMain(CUr,1,true);
+      StartFormat(15);
+      OutString(0,0,USetStr(39711),false);
+      OutString(50,0,USetStr(39712),false);
+      OutString(250,0,USetStr(39713),false);
+      OutString(350,0,USetStr(39714),false);
+      OutString(440,0,USetStr(39715),false);
+      EndFormat;
+      OutString(0,"DblCUVc",CUr.Code,false);
+      if (blank(CUr.Name)) then begin
+        OutString(50,0,USetStr(26701),false);
+      end else begin
+        OutString(50,0,left(CUr.Name,100),false);
+      end;
+      if (RepSpec.flags[8]==0) then begin
+        if (nonblank(CUr.VATNr)) then begin
+          OutString(250,0,CUr.VATNr,false);
+        end else begin
+          OutString(250,0,"ND",false);
+        end;
+        if (nonblank(CUr.RegNr1)) then begin
+          OutString(350,0,CUr.RegNr1,false);
+        end else begin
+          OutString(350,0,"ND",false);
+        end;
+      end else begin
+        if (nonblank(CUr.RegNr1)) then begin
+          OutString(250,0,CUr.RegNr1,false);
+        end else begin
+          OutString(250,0,"ND",false);
+        end;
+        if (nonblank(CUr.VATNr)) then begin
+          OutString(350,0,CUr.VATNr,false);
+        end else begin
+          OutString(350,0,"ND",false);
+        end;
+      end;
+      ExportSAFCountryTag("",CUr.InvAddr4,CUr.CountryCode,false);
+      EndFormat;
+      StartFormat(15);
+      EndFormat;
+      Gray_Divider(0,1);
+    end;
+  end;
+  
+  if (cnt==0) then begin
+    StartFormat(15);
+    OutString(0,0,USetStr(39700),false);
+    EndFormat;
+    StartFormat(15);
+    EndFormat;
+  end else begin
+    StartFormat(15);
+    EndFormat;
+  end;
+  
+  return;
+end;
+
 procedure ExportPayments(record RcVc RepSpec)
 begin
   Boolean found,testf;
@@ -1260,7 +1459,9 @@ begin
   EndFormat;
   
   ExportInvoices(RepSpec);
-  
+  if(RepSpec.flags[9]==1)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 02 07 2019 y. at 11:25:13 PM
+		ExportPOSInvoices(RepSpec);
+  end;
   StartFormat(15);
   EndFormat;
   

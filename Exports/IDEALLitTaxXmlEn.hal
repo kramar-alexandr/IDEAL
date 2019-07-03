@@ -418,6 +418,70 @@ LNext1:;
   return;
 end;
 
+global// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 02 07 2019 y. at 11:30:59 PM
+procedure GetPOSInvoicesSums(record IVCashVc IVr,var record IVCashVc VirtVatr,var integer results,string excl_vatcodes)
+begin
+  integer rwcnt,rwcnt1,j,i;
+  row IVCashVc IVrw;
+  row IVCashVc VirtVatrw;
+  Boolean found;
+  row VATCodeBlock VATCbrw;
+  integer coef;
+  val ivsum;
+  
+  // EVS: HAL-258
+  coef = 1;
+  if (IVr.InvType == kInvoiceTypeCredit) then begin
+    coef = -coef;
+  end;
+  // :EVS
+  
+  results = 0;
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    if (nonblank(IVrw.VATCode) and (blank(excl_vatcodes) or !SetInSet(IVrw.VATCode,excl_vatcodes))) then begin // EVS: HAL-519
+      found = false;
+      rwcnt1 = MatRowCnt(VirtVatr);
+      for (j=0;j<rwcnt1;j=j+1) begin
+        MatRowGet(VirtVatr,j,VirtVatrw);
+        if (VirtVatrw.VATCode==IVrw.VATCode) then begin
+          found = true;
+          GetVATRow(IVrw.VATCode,VATCbrw);
+          if (IVr.InclVAT == 0) then begin
+            VirtVatrw.Sum = VirtVatrw.Sum + (coef*IVrw.Sum); // EVS: HAL-258 coef
+            ivsum = IVrw.Sum;
+          end else begin
+            VirtVatrw.Sum = VirtVatrw.Sum + ((coef*IVrw.Sum) * (100/(100+VirtVatrw.Price))); // EVS: HAL-178
+            ivsum = (IVrw.Sum) * (100/(100+VirtVatrw.Price));
+          end;
+          VirtVatrw.BasePrice = VirtVatrw.BasePrice + (coef*(ivsum * (VATCbrw.ExVatpr/100))); // EVS: HAL-258 coef
+          results = results + 1;
+          MatRowPut(VirtVatr,j,VirtVatrw);
+          goto LNext11;
+        end;
+      end;
+      if (found==false) then begin
+        MatRowGet(VirtVatr,rwcnt1,VirtVatrw);
+        GetVATRow(IVrw.VATCode,VATCbrw);
+        VirtVatrw.Price = VATCbrw.ExVatpr;
+        if (IVr.InclVAT == 0) then begin
+          VirtVatrw.Sum = coef*IVrw.Sum; // EVS: HAL-258 coef
+        end else begin
+          VirtVatrw.Sum = (coef*IVrw.Sum) * (100/(100+VirtVatrw.Price)); // EVS: HAL-178
+        end;
+        VirtVatrw.BasePrice = VirtVatrw.Sum * (VATCbrw.ExVatpr/100);
+        VirtVatrw.VATCode = IVrw.VATCode;
+        MatRowPut(VirtVatr,rwcnt1,VirtVatrw);
+        results = results + 1;
+      end;
+LNext11:;
+    end;
+  end;
+  
+  return;
+end;
+
 global // EVS: HAL-258 wrapping to make it global
 procedure HALGetInvoicesSums(record IVVc IVr,var record IVVc VirtVatr,var integer results, string excl_vatcodes)
 begin
@@ -445,6 +509,30 @@ begin
 
   end;
   CheckIVVATCode = (vcnt>0);
+  return;
+end;
+
+
+function boolean CheckIVCashVATCode(string sernr, string vat)// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 11:24:39 AM
+begin
+  record IVCashVc IVCashr;
+  row IVCashVc IVCashrw;
+  integer i, cnt, vcnt;
+
+  IVCashr.SerNr = sernr;
+  vcnt = 0;
+  if (ReadFirstMain(IVCashr,1,true)) then
+  begin
+    cnt = MatRowCnt(IVCashr);
+    for (i=0;i<cnt;i=i+1) begin
+      MatRowGet(IVCashr, i, IVCashrw);
+        if (IVCashrw.Sum!=0) and (SetInSet(IVCashrw.VATCode,vat)) then begin
+        vcnt = vcnt + 1;
+      end;
+    end;
+
+  end;
+  CheckIVCashVATCode = (vcnt>0);
   return;
 end;
 
@@ -682,6 +770,7 @@ begin
     if (results>0) then begin
       if (firstf) then begin
         ExportPlainXml("<isaf:SalesInvoices>",level);
+        RepSpec.flags[10] = 1;// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 9:57:55 AM
         firstf = false;
         level = level + 1;
       end;
@@ -794,6 +883,188 @@ begin
         ExportTagXml("isaf:TaxPercentage",ValToString(VirtVatrw.Price,M4Val,"",".",0),level);
         ExportTagXml("isaf:Amount",ValToString(VirtVatrw.BasePrice,M4Val,"",".",0),level);
         ExportTagXml("isaf:VATPointDate2",IVr.TransDate,level);
+        level = level - 1;
+        ExportPlainXml("</isaf:DocumentTotal>",level);
+      end;
+      level = level - 1;
+      ExportPlainXml("</isaf:DocumentTotals>",level);
+      level = level - 1;
+      ExportPlainXml("</isaf:Invoice>",level);
+    end;
+  end;
+  if (firstf==false) then begin
+    level = level - 1;
+    if(RepSpec.flags[9]==0)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 9:55:50 AM
+			ExportPlainXml("</isaf:SalesInvoices>",level);
+    end;
+  end;
+  return;
+end;
+
+procedure ExportPOSInvoices(record RcVc RepSpec,var Integer level)
+begin
+  record IVCashVc IVCashr,CDIVCashr;
+  row IVCashVc IVCashrw;
+  Boolean found,testf,firstf;
+  record CUVc CUr;
+  record IVCashVc VirtVatr;
+  row IVCashVc VirtVatrw;
+  integer results,i,rwcnt;
+  string 255 tstr;
+  record PDVc PDr;
+  
+  firstf = true;
+  found = true;
+  IVCashr.TransDate = RepSpec.sStartDate;
+  while (LoopKey("TransDate",IVCashr,1,found)) begin
+    tstr = "";
+    testf = true;
+    found = DateInRange(IVCashr.TransDate,RepSpec.sStartDate,RepSpec.sEndDate);
+    if (IVCashr.Invalid!=0) then begin
+      testf = false;
+    end;
+    if (IVCashr.OKFlag==0) then begin testf = false; end;
+    if (nonblank(RepSpec.f1) and SetInSet(IVCashr.PayDeal, RepSpec.f1)) then begin
+      testf = false;
+    end;
+    if (nonblank(RepSpec.f2) and testf) then begin // EVS fixing std logic
+      testf = CheckIVCashVATCode(IVCashr.SerNr, RepSpec.f2);
+    end;
+    // EVS: HAL-260
+    if (testf and nonblank(RepSpec.f10)) then begin
+      CUr.Code = IVCashr.CustCode;
+      if (ReadFirstMain(CUr,1,true) and nonblank(CUr.CustCat)) then begin
+        testf = !SetInSet(CUr.CustCat,RepSpec.f10);
+      end;
+    end;
+    // :EVS
+    if(blank(IVcashr.OfficialSerNr))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 9:34:32 AM
+    	testf = false;
+    end;
+    if (found and testf) then begin
+      RecordNew(VirtVatr);
+      GetPOSInvoicesSums(IVCashr,VirtVatr,results,RepSpec.f11); // EVS: HAL-519
+    end else begin
+      results = 0; // EVS fixing std logic
+    end;
+    if (results>0) then begin
+      if (firstf) then begin
+      	if(RepSpec.flags[10]==0)then begin
+					ExportPlainXml("<isaf:SalesInvoices>",level);
+        end;
+        firstf = false;
+        level = level + 1;
+      end;
+      ExportPlainXml("<isaf:Invoice>",level);
+      level = level + 1;
+      // EVS: HAL-229
+//       if (nonblank(RepSpec.f4)) then begin
+//         if (IVCashr.SerNr>0) then begin
+//           tstr = RepSpec.f4 & IVCashr.SerNr;
+//         end else begin
+//           tstr = "";
+//         end;
+//       end else begin
+//         tstr = IVCashr.OfficialSerNr;
+//       end;
+      //tstr = RepSpec.f4 & IVCashr.SerNr;
+      tstr = IVCashr.OfficialSerNr;
+      // :EVS
+      ExportTagXml("isaf:InvoiceNo",tstr,level);
+      ExportPlainXml("<isaf:CustomerInfo>",level);
+      level = level + 1;
+      ExportTagXml("isaf:CustomerID",IVCashr.CustCode,level);
+      CUr.Code = IVCashr.CustCode; 
+      ReadFirstMain(CUr,1,true);
+      if (RepSpec.flags[8]==0) then begin
+        if (nonblank(CUr.VATNr)) then begin
+          ExportTagXml("isaf:VATRegistrationNumber",CUr.VATNr,level);
+        end else begin
+          ExportTagXml("isaf:VATRegistrationNumber","ND",level);
+        end;
+        if (nonblank(CUr.RegNr1)) then begin
+          ExportTagXml("isaf:RegistrationNumber",CUr.RegNr1,level);
+        end else begin
+          ExportTagXml("isaf:RegistrationNumber","ND",level);
+        end;
+      end else begin
+        if (nonblank(CUr.RegNr1)) then begin
+          ExportTagXml("isaf:VATRegistrationNumber",CUr.RegNr1,level);
+        end else begin
+          ExportTagXml("isaf:VATRegistrationNumber","ND",level);
+        end;
+        if (nonblank(CUr.VATNr)) then begin
+          ExportTagXml("isaf:RegistrationNumber",CUr.VATNr,level);
+        end else begin
+          ExportTagXml("isaf:RegistrationNumber","ND",level);
+        end;
+      end;
+      ExportSAFCountryTag("",CUr.InvAddr4,CUr.CountryCode,false,level);
+      if (blank(CUr.Name)) then begin
+        ExportTagXml("isaf:Name",USetStr(26701),level);
+      end else begin
+        ExportTagXml("isaf:Name",SAFTProductDescription(CUr.Name,100),level);
+      end;
+      level = level - 1;
+      ExportPlainXml("</isaf:CustomerInfo>",level);
+      ExportTagXml("isaf:InvoiceDate",IVCashr.TransDate,level);
+      if (IVCashr.InvType==kInvoiceTypeCredit) then begin
+        ExportTagXml("isaf:InvoiceType","KS",level);
+      end else begin
+        if (IVCashr.Invalid!=0) then begin
+          ExportTagXml("isaf:InvoiceType","AN",level);
+        end else begin
+          if (IVCashr.InvType==kInvoiceTypeDebit) then begin
+            ExportTagXml("isaf:InvoiceType","DS",level);
+          end else begin
+            ExportTagXml("isaf:InvoiceType","SF",level);
+          end;
+        end;
+      end;
+      PDr.Code = IVCashr.PayDeal;
+      ReadFirstMain(PDr,1,true);
+      if (PDr.PDType==10) then begin
+        ExportTagXml("isaf:SpecialTaxation","T",level);
+      end else begin
+        ExportTagXml("isaf:SpecialTaxation","",level);
+      end;
+      if (IVCashr.InvType==kInvoiceTypeDebit or IVCashr.InvType==kInvoiceTypeCredit) then begin
+        ExportPlainXml("<isaf:References>",level);
+        MatRowGet(IVCashr,0,IVCashrw);
+        if (IVCashrw.OrdRow > -1) then begin // EVS: HAL-259
+          level = level + 1;
+          ExportPlainXml("<isaf:Reference>",level);
+          level = level + 1;
+          ExportTagXml("isaf:ReferenceNo",RepSpec.f4 & IVCashrw.OrdRow,level);
+          CDIVCashr.SerNr = IVCashrw.OrdRow;
+          ReadFirstMain(CDIVCashr,1,true);
+          ExportTagXml("isaf:ReferenceDate",CDIVCashr.TransDate,level);
+          level = level - 1;
+          ExportPlainXml("</isaf:Reference>",level);
+          level = level - 1;
+        end;
+        ExportPlainXml("</isaf:References>",level);
+      end else begin
+        ExportPlainXml("<isaf:References>",level);
+        ExportPlainXml("</isaf:References>",level);
+      end;
+      //if (IVCashr.ServiceDelDate!=IVCashr.InvDate and nonblank(IVCashr.ServiceDelDate)) then begin
+      //  ExportTagXml("isaf:VATPointDate",IVCashr.ServiceDelDate,level);
+      //end else begin
+        ExportTagXml("isaf:VATPointDate",IVCashr.TransDate,level);
+      //end;
+      ExportPlainXml("<isaf:DocumentTotals>",level);
+      level = level + 1;
+      rwcnt = MatRowCnt(VirtVatr);
+      for (i=0;i<rwcnt;i=i+1) begin
+        MatRowGet(VirtVatr,i,VirtVatrw);
+        ExportPlainXml("<isaf:DocumentTotal>",level);
+        level = level + 1;
+        ExportTagXml("isaf:TaxableValue",ValToString(VirtVatrw.Sum,M4Val,"",".",0),level);
+        ExportTagXml("isaf:TaxCode",VirtVatrw.VATCode,level);
+        ExportTagXml("isaf:TaxPercentage",ValToString(VirtVatrw.Price,M4Val,"",".",0),level);
+        ExportTagXml("isaf:Amount",ValToString(VirtVatrw.BasePrice,M4Val,"",".",0),level);
+        ExportTagXml("isaf:VATPointDate2",IVCashr.TransDate,level);
         level = level - 1;
         ExportPlainXml("</isaf:DocumentTotal>",level);
       end;
@@ -1088,10 +1359,16 @@ Integer level;
   level = level + 1;
   ExportPurchaseInvoices(RepSpec,level);
   ExportInvoices(RepSpec,level);
+  
   if (RepSpec.flags[0]==1) then begin
     ExportPayments(RepSpec,level,results);
     ExportReceipts(RepSpec,level,results)
   end;
+  
+  if (RepSpec.flags[9]==1) then begin
+  	ExportPosInvoices(RepSpec,level);
+  end;
+  
   level = level - 1;  
   ExportPlainXml("</isaf:SourceDocuments>",level);
   level = level - 1;  

@@ -1,6 +1,59 @@
 external inner function Boolean UserHasLimitedAccess(var string,var string);
 
 global 
+procedure IDEALLitiSAFRClassReportDefaults(Integer wn)
+BEGIN
+  record RcVc RepSpec;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  RepSpec.flags[9] = 1;
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  
+  RETURN;
+END;
+
+global 
+procedure IDEALLitTaxXmlEClassReportDefaults(Integer wn)
+BEGIN
+  record RcVc RepSpec;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  RepSpec.flags[9] = 1;
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  
+  RETURN;
+END;
+
+
+global// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 9:44:29 AM
+procedure DblIVCashVcOff(string dblstr,string l,Integer currepwn)
+begin
+  Integer wn;
+  record IVCashVc IVr;
+  
+  if(nonblank(l))then begin
+		IVr.OfficialSerNr = FirstInRange(l,10);
+		if (ReadFirstKey("OfficialSerNr",IVr,1,true)) then begin
+			wn = OpenWindow("IVCashDClass",1,0,"","",IVr);
+			goto LDblIVCashOffVc;
+		end;    
+  end; 
+  if(nonblank(dblstr))then begin
+		IVr.OfficialSerNr = FirstInRange(dblstr,10);
+		if (ReadFirstKey("OfficialSerNr",IVr,1,true)) then begin
+			wn = OpenWindow("IVCashDClass",1,0,"","",IVr);
+			goto LDblIVCashOffVc;
+		end; 
+  end;    
+LDblIVCashOffVc:;  
+  return;
+end;
+
+global 
 procedure IDEALSLVATLitRClassReportDefaults(Integer wn)
 BEGIN
   record RcVc RepSpec;
