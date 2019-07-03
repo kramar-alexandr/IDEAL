@@ -512,6 +512,30 @@ begin
   return;
 end;
 
+
+function boolean CheckIVCashVATCode(string sernr, string vat)// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 11:24:39 AM
+begin
+  record IVCashVc IVCashr;
+  row IVCashVc IVCashrw;
+  integer i, cnt, vcnt;
+
+  IVCashr.SerNr = sernr;
+  vcnt = 0;
+  if (ReadFirstMain(IVCashr,1,true)) then
+  begin
+    cnt = MatRowCnt(IVCashr);
+    for (i=0;i<cnt;i=i+1) begin
+      MatRowGet(IVCashr, i, IVCashrw);
+        if (IVCashrw.Sum!=0) and (SetInSet(IVCashrw.VATCode,vat)) then begin
+        vcnt = vcnt + 1;
+      end;
+    end;
+
+  end;
+  CheckIVCashVATCode = (vcnt>0);
+  return;
+end;
+
 function boolean CheckVIVATCode(string sernr, string vat)
 begin
   record VIVc VIr;
@@ -904,7 +928,7 @@ begin
       testf = false;
     end;
     if (nonblank(RepSpec.f2) and testf) then begin // EVS fixing std logic
-      testf = CheckIVVATCode(IVCashr.SerNr, RepSpec.f2);
+      testf = CheckIVCashVATCode(IVCashr.SerNr, RepSpec.f2);
     end;
     // EVS: HAL-260
     if (testf and nonblank(RepSpec.f10)) then begin
