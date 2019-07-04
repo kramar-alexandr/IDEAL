@@ -743,7 +743,6 @@ begin
   EndRecordAdd;
 
     BlockBegin(TouchlessPayBlock,-,"");
-    BlockInServer;
     BlockForAllCompanies;
     RecordField(IPAddress,M4Str,40,0);
     RecordField(Port,M4Long,0,0);
