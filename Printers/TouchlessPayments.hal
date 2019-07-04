@@ -302,7 +302,7 @@ begin
 logtext(0,"payment stat=" & paymentstat);
 logtext(0,"reply " & GetStringFromArea(reply,0,255));
 logtext(0,"request " & GetStringFromArea(request,0,255));
-    if (paymentstat=="Approved" or paymentstat=="Patvirtinta") then begin
+    if (paymentstat=="Approved" or paymentstat=="Patvirtinta" or paymentstat=="Autorizuota") then begin
       fres = true;
       PrintTouchlessCardReceipt(clientreceipt,2);
       if (received>0) then begin
