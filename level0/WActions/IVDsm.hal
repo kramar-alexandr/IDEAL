@@ -92,7 +92,6 @@ external updating function boolean PinPadVoidCash(record IVCashVc);// Edit *****
 //CUST-BEGIn
 external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string,string);
 external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
-external updating function LongInt IVVcRecordCheck(record IVVc,record IVVc,LongInt,LongInt);
 external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
 external outer procedure TouchlessVoidIVVcPayment(record IVVc,Integer);
 
@@ -1946,13 +1945,11 @@ Trace("CredCardIVsmDo","");
         if (blank(pmcodelabel)) then begin
           pmcodelabel = GetWindowString(wn,"PMCodeLabel" & btnNr);
         end;
-        IVr.OKFlag = 1;
-
-        SetRecordCheckVc("IVVc");
-        err = IVVcRecordCheck(IVr,prevIVr,WindowState(wn),1);
-        if(err==-1)then begin
-          MessageBox(RecordCheckLastErrorNo,"");
-        end else begin
+        
+        //IVr.OKFlag = 1;
+        //SetRecordCheckVc("IVVc");
+        //err = IVVcRecordCheck(IVr,prevIVr,WindowState(wn),1);
+        if (WindowDoOK(wn,0)) then begin
           InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn,"","");
         end;
 //CUST-END
