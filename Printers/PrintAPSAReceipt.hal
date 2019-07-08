@@ -2,6 +2,8 @@ external inner function val MulRateToBase1(var string,val,val,val,val,val,val,ro
 external inner procedure GetVATdouble(string,var val,var val,Integer);
 external inner function Boolean FindLocalSerialPortDevice(Integer,LongInt,string,var record LSerialPortDeviceVc);
 external inner procedure SetPOSWindowDisplay_SendToSerialPortDevices(string,string);
+external inner updating procedure OpenPOSSessionsm();
+external inner updating procedure ClosePOSSessionsm();
 
 enum begin
   kAPSACommandOpen = 0,
@@ -1189,6 +1191,8 @@ begin
   res = SendAPSASimpleCommand(LSPDr,kAPSACommandZReport);
   if (res!=0) then begin
     MessageBox(res,"");
+  end else begin
+    queued.ClosePOSSessionsm;
   end;
 
   return;
@@ -1254,6 +1258,7 @@ begin
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""70"",""parameter"":""" & ValToString(Cashr.Total,M4UVal,"",".",0) & """}",request);
 
+  qupdating.OpenPOSSessionsm;
   res = ExecAPSARequest(LSPDr,path,request,js,true);
 
   MoneyInCurr = res;
