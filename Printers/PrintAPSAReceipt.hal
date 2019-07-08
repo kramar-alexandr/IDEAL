@@ -21,6 +21,7 @@ enum begin
   kAPSACommandPeriodicReport = 14,
   kAPSACommandBeginReceiptCopy = 15,
   kAPSACommandEndReceiptCopy = 16
+  kAPSACommandOpenCashDrawer = 17
 end;
 
 function string 255 GetAPSAUrl(record LSerialPortDeviceVc LSPDr)
@@ -135,6 +136,9 @@ begin
     case kAPSACommandEndReceiptCopy:
       path = "/json/fp550/Cmdline";
       AddTextToArea("{""cmd"":""39"",""parameter"":""""}",request);
+    case kAPSACommandOpenCashDrawer:
+      path = "/json/fp550/Cmdline";
+      AddTextToArea("{""cmd"":""106"",""parameter"":""""}",request);
   end;
 
   res = ExecAPSARequest(LSPDr,path,request,js,clearf);
@@ -505,6 +509,15 @@ LEndFiscalReceiptCopy:;
   return;
 end;
 
+function string 255 FixReceiptNumber(string receiptnr)
+begin
+  string 255 res;
+  
+  res = StringToLongint(receiptnr)+1;
+
+  FixReceiptNumber = res;
+  return;
+end;
 
 function Integer GetReceiptNumber(record LSerialPortDeviceVc LSPDr,var string receiptnr)
 begin
@@ -523,6 +536,8 @@ begin
   tstr = JSONGet(js,"CmdlineResult");
   GetNextSubstring(tstr,pos,",",tmp);
   GetNextSubstring(tstr,pos,",",receiptnr);
+
+  receiptnr = FixReceiptNumber(receiptnr);
     
 LGetReceiptNumber:;
   GetReceiptNumber = res;
@@ -740,15 +755,15 @@ begin
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
+      res = GetReceiptNumber(LSPDr,receiptnr);
+      if (res!=noErr) then begin
+        goto LIVCashVc_PrintAPSAReceipt;
+      end;
       res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates);
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
       res = IVCash_SendAPSAPayments(LSPDr,IVCashr);
-      if (res!=noErr) then begin
-        goto LIVCashVc_PrintAPSAReceipt;
-      end;
-      res = GetReceiptNumber(LSPDr,receiptnr);
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
@@ -1123,6 +1138,11 @@ begin
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
+      res = GetReceiptNumber(LSPDr,receiptnr);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;
+
       res = IVVc_PrintItemRows(LSPDr,IVr,vatrates);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
@@ -1132,11 +1152,6 @@ begin
         goto LIVVc_PrintAPSAReceipt;
       end;
       
-      res = GetReceiptNumber(LSPDr,receiptnr);
-      if (res!=noErr) then begin
-        goto LIVVc_PrintAPSAReceipt;
-      end;
-
       res = EndFiscalReceipt(LSPDr,IVr.SerNr);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
@@ -1426,5 +1441,14 @@ begin
   end;
 
 LPrintTouchlessCardReceipt:;
+  return;
+end;
+
+global
+procedure OpenASPACashDrawer(record LSerialPortDeviceVc LSPDr)
+begin
+  
+  SendAPSASimpleCommand(LSPDr,kAPSACommandOpenCashDrawer);
+
   return;
 end;
