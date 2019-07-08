@@ -1945,7 +1945,14 @@ Trace("CredCardIVsmDo","");
         if (blank(pmcodelabel)) then begin
           pmcodelabel = GetWindowString(wn,"PMCodeLabel" & btnNr);
         end;
-        
+        IVrw.PayMode =  LMb.FiscalPrinterEJournalPath2;
+        if mixpayment == true then begin
+          IVr.PayDeal = LMb.TerminalID;
+        end else begin
+          IVr.PayDeal = LMb.FiscalPrinterEJournalPath2;
+        end;
+        IVVc_PastePayDeal(IVr,"",LMb.DefReturnLocation);
+        PutWindowRecord(wn,IVr);
         //IVr.OKFlag = 1;
         //SetRecordCheckVc("IVVc");
         //err = IVVcRecordCheck(IVr,prevIVr,WindowState(wn),1);
