@@ -617,21 +617,21 @@ begin
     switch (LINrbrw.SelectionType) begin
       case kLegalInvNrSelectionTypeManual:
         if (blank(LINrbrw.Serie)) then begin
-          IVp.OfficialSerNr = "";
+          //IVp.OfficialSerNr = "";//CUST
         end;
       case kLegalInvNrSelectionTypeAtOK:
-        IVp.OfficialSerNr = "";
+        //IVp.OfficialSerNr = "";//CUST
       case kLegalInvNrSelectionTypeAtInsert:
         if (blank(LINrbrw.Serie)) or (stat==Rs_insert) then begin
           if (HasLocalization("POL")==false) then begin
-            IVp.OfficialSerNr = "";
+            //IVp.OfficialSerNr = "";//CUST
           end;
         end;
       case kLegalInvNrSelectionTypeAtSendingERecord:
         if (HasLocalization("ARG")) then begin
           if (LINrbrw.OutArgEInvoices==kOutArgEInvoicesSend) then begin
             if (blank(IVp.CAEExpiry)) then begin
-              IVp.OfficialSerNr = "";
+              //IVp.OfficialSerNr = "";//CUST
             end;
           end;
         end;
@@ -682,9 +682,9 @@ begin
             goto L99;
           end else begin
             if (OfficialSerialNrCanBeBlank("IVVc",CUr.Classification,IVp.OKFlag,IVp.OfficialSerNr,IVp.BranchID,IVp.MachineName,IVp.InvDate,IVp.InvType,IVp.Status)==false) then begin
-              RecordCheckError(2210,"",-1,"OfficialSerNr");
-              res = -1;
-              goto L99;
+              //RecordCheckError(2210,"",-1,"OfficialSerNr");
+              //res = -1;
+              //goto L99;
             end;
           end;
         end;
@@ -1061,9 +1061,13 @@ LSkipOfficialSerNrCheck:;
         end;
       end;
       if (testf==false) then begin
+//CUST-BEGIN >> removed this check because they are just storing some internal number here
+/*
         RecordCheckError(errcode," " & IVp.OfficialSerNr,-1,"OfficialSerNr");      
         res = -1;
         goto L99;
+*/
+//CUST-END
       end;
     end;
   end;
