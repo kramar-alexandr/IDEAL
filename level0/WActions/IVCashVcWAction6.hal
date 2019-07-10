@@ -1297,20 +1297,28 @@ begin
   Boolean testf;
   record DefCashBlock DCb;
   row PMBlock PMrw;
+//CUST-BEGIN
+  record LocalMachineBlock LMb;
+//CUST-END
   
   label = "";
-  res = defaultpaymode;
+//  res = defaultpaymode;//CUST
   if (blank(res)) then begin
     BlockLoad(DCb);
     switch (rowtype) begin
       case kInvoiceRowTypeCashPayment:
-        res = DCb.DefCashPayMode;
+//CUST-BEGIN should be done for CC payments as well?
+        //res = DCb.DefCashPayMode;
+        BlockLoad(LMb);
+        res = LMb.FiscalPrinterEJournalPath;
+//CUST-END
       case kInvoiceRowTypeCreditCardPayment:
         res = DCb.DefCCPayMode;
       case kInvoiceRowTypeSwishPayment:
         res = DCb.DefCCPayMode;
     end;
   end;
+
   if (nonblank(res)) then begin
     goto LLocalMachinePaymentMode2;    
   end;

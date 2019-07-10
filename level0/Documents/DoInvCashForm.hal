@@ -926,7 +926,12 @@ begin
     end;
   end;
   
-  PrintCashInvRows(RepSpec,IVCashr,negamountf,VATr,vatcnt,LangNrr,Docr,RoundRec,PointsSpent);
+ //CUST-BEGIN
+  OutAddress("F_LEVADRESS",CUr.DelAddr0,CUr.DelAddr1,CUr.DelAddr2,CUr.DelAddr3,CUr.DelAddr3,CUr.DelAddr4);
+  OUTFORMFIELD("F_KUNDTEL",CUr.Phone);
+//CUST-END
+
+ PrintCashInvRows(RepSpec,IVCashr,negamountf,VATr,vatcnt,LangNrr,Docr,RoundRec,PointsSpent);
   PrintLoyaltyCard(LangNrr,IVCashr.LoyaltyCardNr,IVCashr.LCMLevel,IVCashr.Points,PointsSpent,IVCashr.SerNr,"IVCashVc");
   PrintLastPageFields(Docr,LangNrr,IVCashr,VATr,vatcnt,RoundRec,SFb);
 

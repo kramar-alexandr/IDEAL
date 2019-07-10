@@ -1986,3 +1986,19 @@ begin
 
   EndWindow;
 end;
+
+window ItemPasteSpecTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs;
+  WindowBegin("Check Key Actions",ItemPasteSpecTClass,CGHbl,HBlRecType);
+  SetBlid(ItemPasteSpecBlock);
+  SetWRect(20,80,500,291);
+  Sizeable(-1,-1,0,0);
+  h = 20; v = 27;
+  MatrixBegin(h,v,-50,-20,-,100);
+  MatCol(1,24,"Window",0,WindowClass,false,StrSetSClass);
+  MatCol(1,-100,"Show",0,ShowFlag,false,SetSClass);
+  EndMatrix;
+  EndWindow;
+end;

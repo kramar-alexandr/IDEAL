@@ -1,0 +1,116 @@
+function Boolean AllowItemPasteSpecial(string windowclass)
+begin
+  Boolean res;
+  Integer i,rwcnt;
+  record ItemPasteSpecBlock ISb;
+  row ItemPasteSpecBlock ISbrw;
+
+  res = true;
+  BlockLoad(ISb);
+  rwcnt = MatRowCnt(ISb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(ISb,i,ISbrw);
+    if (ISbrw.WindowClass==windowclass) then begin
+      res = (ISbrw.ShowFlag==1);
+      i = rwcnt;
+    end;
+  end;
+
+  AllowItemPasteSpecial = res;
+  return;
+end;
+
+global
+function string 40 StockMovDClassSpecPasteName(Integer wn,string defpsname)
+begin
+  string 255 psname;
+  
+  psname = inner.StockMovDClassSpecPasteName(wn,defpsname);
+  if (blank(psname)) then begin
+    psname = defpsname;
+  end;
+  switch (WindowActiveField(wn)) begin
+    case "ArtCode":
+      if (AllowItemPasteSpecial("StockMovVc")==false) then begin
+        psname = "";
+      end;
+  end;
+  StockMovDClassSpecPasteName = psname;
+  return;
+end;
+
+global
+function string 40 StockTakeDClassSpecPasteName(Integer wn,string defpsname)
+begin
+  string 255 psname;
+  
+  psname = inner.StockTakeDClassSpecPasteName(wn,defpsname);
+  if (blank(psname)) then begin
+    psname = defpsname;
+  end;
+  switch (WindowActiveField(wn)) begin
+    case "ArtCode":
+      if (AllowItemPasteSpecial("StockTakeVc")==false) then begin
+        psname = "";
+      end;
+  end;
+  StockTakeDClassSpecPasteName = psname;
+  return;
+end;
+
+global
+function string 40 PUDClassSpecPasteName(Integer wn,string defpsname)
+begin
+  string 255 psname;
+  
+  psname = inner.PUDClassSpecPasteName(wn,defpsname);
+  if (blank(psname)) then begin
+    psname = defpsname;
+  end;
+  switch (WindowActiveField(wn)) begin
+    case "ArtCode":
+      if (AllowItemPasteSpecial("PUVc")==false) then begin
+        psname = "";
+      end;
+  end;
+  PUDClassSpecPasteName = psname;
+  return;
+end;
+
+global
+function string 40 IVDClassSpecPasteName(Integer wn,string defpsname)
+begin
+  string 255 psname;
+  
+  psname = inner.IVDClassSpecPasteName(wn,defpsname);
+  if (blank(psname)) then begin
+    psname = defpsname;
+  end;
+  switch (WindowActiveField(wn)) begin
+    case "ArtCode":
+      if (AllowItemPasteSpecial("IVVc")==false) then begin
+        psname = "";
+      end;
+  end;
+  IVDClassSpecPasteName = psname;
+  return;
+end;
+
+global
+function string 40 ORDClassSpecPasteName(Integer wn,string defpsname)
+begin
+  string 255 psname;
+  
+  psname = inner.ORDClassSpecPasteName(wn,defpsname);
+  if (blank(psname)) then begin
+    psname = defpsname;
+  end;
+  switch (WindowActiveField(wn)) begin
+    case "ArtCode":
+      if (AllowItemPasteSpecial("ORVc")==false) then begin
+        psname = "";
+      end;
+  end;
+  ORDClassSpecPasteName = psname;
+  return;
+end;

@@ -20,6 +20,8 @@ begin
 	Setting("IDEAL - SwedBank import Statement",SwedbankImportLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 13:04:09
 	Setting("IDEAL - SEB Bank import Statement",SEBbankImportLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 15:36:35
   Setting("IDEAL - Banking Statement Import settings",BankImportSetTClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 9 October 2018 15:59:21
+  
+  Setting("iDeal - Paste Special",ItemPasteSpecTClass,modSY);
 
   
   SetBegin(14444);

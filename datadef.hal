@@ -742,6 +742,7 @@ begin
   	ChangeMatrixField(ButtonType,M4Set,1431,0); //Change set from 431 -> 1431
   EndRecordAdd;
 
+//CHN::touchless payment. Setting for each client separately
     BlockBegin(TouchlessPayBlock,-,"");
     BlockForAllCompanies;
     RecordField(IPAddress,M4Str,40,0);
@@ -753,6 +754,16 @@ begin
     RecordField(LastSum,M4Val,0,0);
     RecordField(LastTimeStamp,M4Str,40,0);
     EndBlock;
+
+//CHN::Setting to determine if item paste special should be used for certain windows. In theory this could be expanded to "per field" functionality as well
+    BlockBegin(ItemPasteSpecBlock,-,"");
+    RecordField(Math,M4Matrix,0,0);
+    ArrayBegin(Math,-,1);
+    ArrayField(WindowClass,M4StrSet,-12,0);
+    ArrayField(ShowFlag,M4Set,432,0);
+    EndArray;
+    EndBlock;
+  
 	
   //CHN::just updating the set
     BlockBegin(RestPMBlock,-,"");
