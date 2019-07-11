@@ -652,10 +652,7 @@ begin
   CUr.Code = IVCashr.CustCode;
   if (ReadFirstMain(CUr,1,true)) then begin
   end;
-  
-  OUTFORMFIELD("BPIF_CUPHONE",CUr.Phone);// Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 23 November 2018 13:55:30
-  
-  
+    
   BlockLoad(RoundRec);  
   BlockLoad(SFb);  
   BlockLoad(CYb);  
@@ -927,7 +924,7 @@ begin
   end;
   
  //CUST-BEGIN
-  OutAddress("F_LEVADRESS",CUr.DelAddr0,CUr.DelAddr1,CUr.DelAddr2,CUr.DelAddr3,CUr.DelAddr4,"");
+  OutAddress("F_LEVADRESS",CUr.Name,CUr.DelAddr0,CUr.DelAddr1,CUr.DelAddr2,CUr.DelAddr3,CUr.DelAddr4);
   OUTFORMFIELD("F_KUNDTEL",CUr.Phone);
 //CUST-END
 
