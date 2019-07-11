@@ -26,6 +26,15 @@ enum begin
   kAPSACommandOpenCashDrawer = 17
 end;
 
+global
+procedure MessageBoxMain(Longint num)
+begin
+  
+  MessageBox(num,"");
+
+  return;
+end;
+
 function string 255 GetAPSAUrl(record LSerialPortDeviceVc LSPDr)
 begin
   string 255 res;
@@ -849,7 +858,7 @@ begin
 //    end;
 LIVCashVc_PrintAPSAReceipt:;
     if (res!=0) then begin
-      MessageBox(res,"");
+      queued.MessageBoxMain(res);
     end;
   end;
 
@@ -1190,7 +1199,7 @@ begin
   
   res = SendAPSASimpleCommand(LSPDr,kAPSACommandZReport);
   if (res!=0) then begin
-    MessageBox(res,"");
+    queued.MessageBoxMain(res);
   end else begin
     queued.ClosePOSSessionsm;
   end;
@@ -1205,7 +1214,7 @@ begin
   
   res = SendAPSASimpleCommand(LSPDr,kAPSACommandXReport);
   if (res!=0) then begin
-    MessageBox(res,"");
+    queued.MessageBoxMain(res);
   end;
 
   return;
@@ -1224,7 +1233,7 @@ begin
 
   res = ExecAPSARequest(LSPDr,path,request,js,true);
   if (res!=0) then begin
-    MessageBox(res,"");
+    queued.MessageBoxMain(res);
   end;
 
   return;
