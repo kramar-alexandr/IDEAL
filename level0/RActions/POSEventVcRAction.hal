@@ -96,25 +96,33 @@ BEGIN
 END;
 
 global
+updating procedure iDealRunCashupMn(string drawer,string machine)
+begin
+  record RcVc RepSpec;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 19:25:46
+  
+  RepSpec.d1 = currentdate;
+  RepSpec.sStartTime = currenttime;
+  RepSpec.f1 = machine;//LocalMachine
+  RepSpec.f4 = drawer;//Drawer
+  RepSpec.flags[1] = 1;
+  RepSpec.flags[2] = 1;
+  RepSpec.flags[3] = 1;
+  RepSpec.flags[8] = 1;
+  CashupMn(RepSpec);
+
+  return;
+end;
+
+global
 updating function LongInt POSEventVcRecordSaveAfter(var record POSEventVc POSEr,record POSEventVc POSE2r,LongInt stat,LongInt long4)
 begin
   LongInt res;
-  record RcVc RepSpec;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 19:25:46
 	record CashierDefBlock CDb;
 	
 	blockload(CDb);
 	if(CDb.RunCashupMaintenance>0)then begin
 		if(POSEr.Event==2)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 15:43:46
-			RepSpec.d1 = currentdate;
-			RepSpec.sStartTime = currenttime;
-			RepSpec.f1 = POSEr.MachineName;//LocalMachine
-			RepSpec.f4 = POSEr.Drawer;//Drawer
-			RepSpec.flags[1] = 1;
-  		RepSpec.flags[2] = 1;
-			RepSpec.flags[3] = 1;
-			RepSpec.flags[8] = 1;
-			
-			CashupMn(RepSpec);
+      iDealRunCashupMn(POSEr.Drawer,POSEr.MachineName);
 		end;
 	end;
 	
@@ -133,16 +141,7 @@ begin
 	blockload(CDb);
   if(CDb.RunCashupMaintenance>0)then begin
 		if(POSEr.Event==2 and POSE2r.Event!=2)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 15:43:46
-			RepSpec.d1 = currentdate;
-			RepSpec.sStartTime = currenttime;
-			RepSpec.f1 = POSEr.MachineName;//LocalMachine
-			RepSpec.f4 = POSEr.Drawer;//Drawer
-			RepSpec.flags[1] = 1;
-  		RepSpec.flags[2] = 1;
-			RepSpec.flags[3] = 1;
-			RepSpec.flags[8] = 1;
-			
-			CashupMn(RepSpec);
+      iDealRunCashupMn(POSEr.Drawer,POSEr.MachineName);
 		end;
 	end;
   
