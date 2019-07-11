@@ -366,9 +366,9 @@ begin
   
   switch (GetWindowClass(wn)) begin
     case "NPTSIVCashDClass":
-      if (ClientMode==false) then begin
+      //if (ClientMode==false) then begin//CUST-REMOVED to refresh the window on opening
         ReRunWindowDef(wn);
-      end;
+      //end;//CUST-REMOVED
   end;
   SetWindowSubset(wn,GetWindowSubset(wn));
   return;

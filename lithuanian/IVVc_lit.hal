@@ -314,6 +314,10 @@ external inner function Boolean HasPLIntegratedWithNL();
 external inner function Boolean HasSLIntegratedWithNL();
 external inner function Boolean HasIntegratedNL();
 external inner function Boolean HasConsStockMoveInvoices();
+external inner procedure SetupColumWithKeypadWindow(var real,var real,var real,var real,var real,var real,var real);
+external inner procedure SplitButton(LongInt,LongInt,LongInt,LongInt,LongInt,string,string,string,string,LongInt);
+external inner procedure POSKeyPad(LongInt,LongInt,LongInt,LongInt,LongInt,string,LongInt);
+external inner function string 255 F_Label(string);
 
 
 event startup
@@ -2000,5 +2004,37 @@ begin
   MatCol(1,24,"Window",0,WindowClass,false,StrSetSClass);
   MatCol(1,-100,"Show",0,ShowFlag,false,SetSClass);
   EndMatrix;
+  EndWindow;
+end;
+
+window CashSimpleInDClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,h3,hm,l,v,v3,vm,vs;
+  real fieldh,fieldh2,keypadh,keypadh2,keypadv,fntsize;
+  
+  WindowBegin("Cash In",CashSimpleInDClass,CGview,-);
+  AutoSizeWindow(false);
+  Modality(kModalityGlobal);
+  SetWRect(64,80,610,425);
+  UseView(CashVc);
+  SetupColumWithKeypadWindow(fieldh,fieldh2,keypadh,keypadh2,keypadv,vs,fntsize);
+  vs = 20; h = fieldh-60; h2 = 260; h3 = 350;
+  EditField(h,v=6,170,"Comment",Normal,Comment,false,0);
+  EditField(h,v=v+vs,70,"Drawer",Normal,Drawer,false,DrawerSClass);
+  MatrixBegin(h,vm=(v+=40),h+150,v+5*20+1,-,99);
+  MatCol(1,24,"Mode",0,PMCode,false,PMSClass);
+  MatColTL(1,-75,"Amount",0,M4Str,Normal,20,AmountStr,false,0);
+  InsertRowTest;
+  DeleteRowTest;
+  EndMatrix;
+  EditField(h+95,v+=110,70,"Total",Normal,Total,true,0);
+  CheckBox(20,-20,0,"OK",OKFlag);
+
+  v = keypadv;
+  POSKeyPad(v,keypadh,v + 250,keypadh2,2,"NPTSPaymentToolKeyPad",kKeyPadEnter + kKeyPadWithNotes);
+  v = v + 255;
+  SplitButton(keypadh,v,keypadh2,v + 2*vs,2,"CancelNPTSCashPaymentTClass","Cancel" & F_Label("F2"),"ProceedCashSimpleInDClass","Procceed" & F_Label("F1"),20);
+
   EndWindow;
 end;

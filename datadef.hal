@@ -807,6 +807,11 @@ begin
     ChangeField(Printer,M4Set,14447,0);//CUST 415>>14447
     EndRecordAdd;
 
+  //CHN::to make sure you can enter values with , and .
+    RecordAddBegin(CashVc,"iDealCashVc")
+    ArrayField(AmountStr,M4Str,20,0);
+    EndRecordAdd;
+
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
   RecordField(Math,M4Matrix,0,0);
   ArrayBegin(Math,-,1);

@@ -1,0 +1,52 @@
+external inner function val ValFromString(string,string,string);
+forward inner function Boolean CashSimpleInDClassAfterEditField(Integer,string,Integer, Integer,Integer);
+
+
+function Boolean CashSimpleInDClassAmountStrEFAfter(Integer wn,Integer fn,Integer rownr,Integer changed)
+begin
+  record CashVc Cashr;
+  row CashVc Cashrw;
+  Integer pos1,pos2;
+  val tres;
+  Boolean res;
+  string 255 inwarn;
+  
+  res = true;
+  if (changed!=0) then begin
+    GetWindowRecord(wn,Cashr);
+    if (rownr>-1) then begin
+      MatRowGet(Cashr,rownr,Cashrw);
+      tres = StringToVal(Cashrw.AmountStr,M4Val);
+      pos1 = InString(Cashrw.AmountStr,",");
+      pos2 = InString(Cashrw.AmountStr,".");
+      if (pos1>0) then begin
+        tres = ValFromString(Cashrw.AmountStr,",","");
+      end;
+      if (pos2>0) then begin
+        tres = ValFromString(Cashrw.AmountStr,".","");
+      end;
+      Cashrw.Amount = tres;
+      Cashrw.AmountStr = tres;
+      MatRowPut(Cashr,rownr,Cashrw);
+      PutWindowRecord(wn,Cashr); 
+      res = CashSimpleInDClassAfterEditField(wn,"Amount",fn,rownr,changed); 
+    end;
+  end;
+  CashSimpleInDClassAmountStrEFAfter = res;
+  return;
+end;
+
+
+global
+function Boolean CashSimpleInDClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+begin
+  Boolean res;
+
+  switch (fieldname) begin
+    case "AmountStr": res = CashSimpleInDClassAmountStrEFAfter(wn,fn,rownr,changed);
+    otherwise
+      res = inner.CashSimpleInDClassAfterEditField(wn,fieldname,fn,rownr,changed);
+  end;
+  CashSimpleInDClassAfterEditField = res;
+  return;
+end;
