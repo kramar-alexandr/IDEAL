@@ -50,3 +50,17 @@ begin
   CashSimpleInDClassAfterEditField = res;
   return;
 end;
+
+global
+function Boolean CashSimpleOutDClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+begin
+  Boolean res;
+
+  switch (fieldname) begin
+    case "AmountStr": res = CashSimpleInDClassAmountStrEFAfter(wn,fn,rownr,changed);
+    otherwise
+      res = inner.CashSimpleInDClassAfterEditField(wn,fieldname,fn,rownr,changed);
+  end;
+  CashSimpleOutDClassAfterEditField = res;
+  return;
+end;

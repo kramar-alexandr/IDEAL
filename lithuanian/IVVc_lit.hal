@@ -1992,7 +1992,7 @@ begin
 end;
 
 window ItemPasteSpecTClass:1
-  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
   real h,v,vs;
   WindowBegin("Check Key Actions",ItemPasteSpecTClass,CGHbl,HBlRecType);
@@ -2008,33 +2008,66 @@ begin
 end;
 
 window CashSimpleInDClass:1
-  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
   real h,h2,h3,hm,l,v,v3,vm,vs;
   real fieldh,fieldh2,keypadh,keypadh2,keypadv,fntsize;
   
-  WindowBegin("Cash In",CashSimpleInDClass,CGview,-);
+  WindowBegin("Pajamos",CashSimpleInDClass,CGview,-);
   AutoSizeWindow(false);
   Modality(kModalityGlobal);
   SetWRect(64,80,610,425);
   UseView(CashVc);
   SetupColumWithKeypadWindow(fieldh,fieldh2,keypadh,keypadh2,keypadv,vs,fntsize);
   vs = 20; h = fieldh-60; h2 = 260; h3 = 350;
-  EditField(h,v=6,170,"Comment",Normal,Comment,false,0);
-  EditField(h,v=v+vs,70,"Drawer",Normal,Drawer,false,DrawerSClass);
+  EditField(h,v=6,170,"Komentaras",Normal,Comment,false,0);
+  EditField(h,v=v+vs,70,"Stal‹ius",Normal,Drawer,false,DrawerSClass);
   MatrixBegin(h,vm=(v+=40),h+150,v+5*20+1,-,99);
-  MatCol(1,24,"Mode",0,PMCode,false,PMSClass);
-  MatColTL(1,-75,"Amount",0,M4Str,Normal,20,AmountStr,false,0);
+  MatCol(1,24,"Mok. bðdas",0,PMCode,false,PMSClass);
+  MatColTL(1,-75,"Suma",0,M4Str,Normal,20,AmountStr,false,0);
   InsertRowTest;
   DeleteRowTest;
   EndMatrix;
-  EditField(h+95,v+=110,70,"Total",Normal,Total,true,0);
+  EditField(h+95,v+=110,70,"Viso",Normal,Total,true,0);
   CheckBox(20,-20,0,"OK",OKFlag);
 
   v = keypadv;
   POSKeyPad(v,keypadh,v + 250,keypadh2,2,"NPTSPaymentToolKeyPad",kKeyPadEnter + kKeyPadWithNotes);
   v = v + 255;
-  SplitButton(keypadh,v,keypadh2,v + 2*vs,2,"CancelNPTSCashPaymentTClass","Cancel" & F_Label("F2"),"ProceedCashSimpleInDClass","Procceed" & F_Label("F1"),20);
+  SplitButton(keypadh,v,keypadh2,v + 2*vs,2,"CancelNPTSCashPaymentTClass","Atäaukti" & F_Label("F2"),"ProceedCashSimpleInDClass","T«sti" & F_Label("F1"),20);
+
+  EndWindow;
+end;
+
+window CashSimpleOutDClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,h3,hm,l,v,v3,vm,vs;
+  real fieldh,fieldh2,keypadh,keypadh2,keypadv,fntsize;
+  
+  WindowBegin("Iälaidos",CashSimpleOutDClass,CGview,-);
+  SetWRect(64,80,610,425);
+  AutoSizeWindow(false);
+  Modality(kModalityGlobal);
+  UseView(CashVc);
+
+  SetupColumWithKeypadWindow(fieldh,fieldh2,keypadh,keypadh2,keypadv,vs,fntsize);
+  vs = 20; h = fieldh-60; h2 = 260; h3 = 350;
+  EditField(h,v=6,170,"Komentaras",Normal,Comment,false,0);
+  EditField(h,v=v+vs,70,"Stal‹ius",Normal,Drawer,false,DrawerSClass);
+  MatrixBegin(h,vm=(v+=40),h+150,v+5*20+1,-,99);
+  MatCol(1,24,"Mok. bðdas",0,PMCode,false,PMSClass);
+  MatCol(1,-75,"Suma",0,AmountStr,false,0);
+  InsertRowTest;
+  DeleteRowTest;
+  EndMatrix;
+  EditField(h+95,v+=110,70,"Viso",Normal,Total,true,0);
+  CheckBox(20,-20,0,"OK",OKFlag);
+
+  v = keypadv;
+  POSKeyPad(v,keypadh,v + 250,keypadh2,2,"NPTSPaymentToolKeyPad",kKeyPadEnter + kKeyPadWithNotes);
+  v = v + 255;
+  SplitButton(keypadh,v,keypadh2,v + 2*vs,2,"CancelNPTSCashPaymentTClass","Atäaukti" & F_Label("F2"),"ProceedCashSimpleOutDClass","T«sti" & F_Label("F1"),20);
 
   EndWindow;
 end;
