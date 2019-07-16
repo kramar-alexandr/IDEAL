@@ -1300,6 +1300,7 @@ begin
         AddPMPOSToSM(IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
 //CUST-BEGIN
         cashmode = IVCashrw.PayMode;
+LogText(0,"CASHUP DEBUG:: cash >> cashmode=" & cashmode);
 /*
         if (blank(Accb.CashBackAcc)) then begin
           if (RetValueAddedf==false) then begin
@@ -1313,6 +1314,9 @@ begin
       case kInvoiceRowTypeCreditCardPayment:
         s = MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         AddPMPOSToSM(IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
+        cashmode = IVCashrw.PayMode;
+LogText(0,"CASHUP DEBUG:: CC >> cashmode=" & cashmode);
+/*
         if (blank(Accb.CashBackAcc)) then begin
           if (RetValueAddedf==false) then begin
             s = -MulRateToBase1(IVCashr.CurncyCode,IVCashr.RetValue,IVCashr.FrRate,IVCashr.ToRateB1,IVCashr.ToRateB2,IVCashr.BaseRate1,IVCashr.BaseRate2,DefaultCurRoundOff);
@@ -1320,6 +1324,7 @@ begin
             RetValueAddedf = true;
           end;
         end;
+*/
       case kInvoiceRowTypeSwishPayment:
         s = MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         AddPMPOSToSM(IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
@@ -1424,8 +1429,10 @@ jjtmp
   s = MulRateToBase1(IVCashr.CurncyCode,s,IVCashr.FrRate,IVCashr.ToRateB1,IVCashr.ToRateB2,IVCashr.BaseRate1,IVCashr.BaseRate2,DefaultCurRoundOff);
 
 //CUST-BEGIN
+LogText(0,"CASHUP DEBUG:: Adding >> step 1 cashmode=" & cashmode & ":sum=" & s);
   if (nonblank(cashmode)) then begin
     if (GetPMRow(cashmode,PMrw)) then begin 
+LogText(0,"CASHUP DEBUG:: Adding row " & PMrw.AccNr);
       AddSMRow(SMr,SMr.TransDate,PMrw.AccNr,IVCashr.Objects,"","IVCash " & IVCashr.SerNr & IVCashrw.Spec,s,false,true,smsum);
       addedcashf = true;
     end;
