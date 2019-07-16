@@ -545,7 +545,7 @@ begin
   end else begin
     MatCol(t,150,"Qty.",0,Quant,true,0);
   end;
-  MatCol(t,140,"Price ex VAT",0,Price,true,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 06 03 2018 y. 07:47:57
+  MatCol(t,140,"Kaina be PVM",0,PriceExclVAT,true,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 06 03 2018 y 07:49:30
   MatCol(t,190,"Price",0,Price,true,0);
   MatCol(t,250,"Description",0,Spec,false,0);
   MatCol(t,-195,"Ser. No",0,SerialNr,false,SerialNrSClass);
@@ -655,7 +655,7 @@ begin
   if (UserCanAction("ShowSerialNronPOSInvoices",false)) then begin
     MatCol(t,-270,"Serial No",0,SerialNr,false,SerialNrSClass);
   end;
-  MatCol(t,140,"Price ex VAT",0,Price,true,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 06 03 2018 y. Ð¾ 07:52:28
+  MatCol(t,-250,"Kaina ne PVM",0,PriceExclVAT,true,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 06 03 2018 y.  07:53:08
   MatCol(t,-175,"Price",0,Price,true,0);
   MatCol(t,-105,"%",0,vRebate,true,0);
   MatCol(t,-70,"Sum",0,Sum,true,0);
@@ -692,6 +692,7 @@ begin
   MatCol(t=kInvoiceRowTypeNormal,184,"Description",0,Spec,false,0);
   MatCol(t,-300,"RMI Number",0,RMINumber,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 11:29:46
   MatCol(t,-100,"Salesmen",0,Salesmen,false,0);
+  MatCol(t,-24,"",0,RvrsVATCode,false,VATCodeSClass); 
   InsertRowTest;
   DeleteRowTest;
   RowMenuBegin("");
@@ -728,6 +729,7 @@ begin
     CheckBox(h3+110,v,0,"Fiscal Invoice",FiscalFlag);
     EditField(h3,v+=vs,82,"Bagger",Normal,Bagger,false,BaggerSClass);
     CheckBox(h3+110,v,0,"Post Receipt #VAT#",IPBookVAT);
+    CheckBox(h3+110,v+vs,0,"Ar grˆìintas PVM",VATRetFlag);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 4:12:20 PM
     if (HasLocalization("SWE")) then begin
       EditField(h2,v+=vs,82,"Clean Cash No.",ViewOnly,FiscalDeviceSeqNr,false,0);
     end;
@@ -755,7 +757,7 @@ begin
   EditField(h4,v,70,"Change BC2",ViewOnly,RetValueB2,true,0);
   EditField(h2,v+=vs,30,"Extra Currency",Normal,POSCurncyCode,true,CurncyCodeSClass);
   EditField(h3,v,70,"Cash Cur",Normal,CashValueCur,true,0);
-  //EditField(h4,v,70,"Base",ViewOnly,BaseSum4,true,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 13 August 2018 17:12:22
+  EditField(h4,v,70,"Base",ViewOnly,BaseSum4,true,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 13 August 2018 17:12:22
 
   SpecialMenu("Cash Up Report",' ',1,"IVCashCashupRnsm");
   SpecialMenu("Manager's Discount Override",' ',24,"MgrsDiscOverrideIVCashDsm");
