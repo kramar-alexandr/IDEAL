@@ -104,10 +104,10 @@ begin
   RepSpec.sStartTime = currenttime;
   RepSpec.f1 = machine;//LocalMachine
   RepSpec.f4 = drawer;//Drawer
-  RepSpec.flags[1] = 1;
+  RepSpec.flags[1] = 0;
   RepSpec.flags[2] = 1;
-  RepSpec.flags[3] = 1;
-  RepSpec.flags[8] = 1;
+  RepSpec.flags[3] = 0;
+  RepSpec.flags[8] = 0;
   CashupMn(RepSpec);
 
   return;

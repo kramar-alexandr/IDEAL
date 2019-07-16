@@ -1314,9 +1314,6 @@ LogText(0,"CASHUP DEBUG:: cash >> cashmode=" & cashmode);
       case kInvoiceRowTypeCreditCardPayment:
         s = MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         AddPMPOSToSM(IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
-        cashmode = IVCashrw.PayMode;
-LogText(0,"CASHUP DEBUG:: CC >> cashmode=" & cashmode);
-/*
         if (blank(Accb.CashBackAcc)) then begin
           if (RetValueAddedf==false) then begin
             s = -MulRateToBase1(IVCashr.CurncyCode,IVCashr.RetValue,IVCashr.FrRate,IVCashr.ToRateB1,IVCashr.ToRateB2,IVCashr.BaseRate1,IVCashr.BaseRate2,DefaultCurRoundOff);
@@ -1324,7 +1321,6 @@ LogText(0,"CASHUP DEBUG:: CC >> cashmode=" & cashmode);
             RetValueAddedf = true;
           end;
         end;
-*/
       case kInvoiceRowTypeSwishPayment:
         s = MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         AddPMPOSToSM(IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
