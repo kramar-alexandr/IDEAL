@@ -235,17 +235,18 @@ begin
   return;
 end;
 
-function string 255 GetCleanName(string tstr,vector string vChr)
+function string 255 GetCleanName(string tstr)
 begin
   Integer i,c;
-  string 255 res;
+  string 255 res,t;
 
   for (i=0;i<len(tstr);i=i+1) begin
-    c = asc(mid(tstr,i,1));
+    t = mid(tstr,i,1);
+    c = asc(t);
     if (c==39 or c==34) then begin
       //res = res;
     end else begin
-      res = res & mid(tstr,i,1);
+      res = res & t;
     end;
   end;
 
@@ -261,7 +262,7 @@ begin
   JSON js;
 
   path = "/json/fp550/Cmdline";
-  AddTextToArea("{""cmd"":""54"",""parameter"":""" & GetCleanName(comment,vChr) & """}",request);
+  AddTextToArea("{""cmd"":""54"",""parameter"":""" & GetCleanName(comment) & """}",request);
 
   res = ExecAPSARequest(LSPDr,path,request,js,false);
 
@@ -269,7 +270,7 @@ begin
   return;
 end;
 
-function Integer PrintCommentLine2(record LSerialPortDeviceVc LSPDr,string comment,vector string vChr)
+function Integer PrintCommentLine2(record LSerialPortDeviceVc LSPDr,string comment)
 begin
   Integer res;
   string 255 path;
@@ -277,7 +278,7 @@ begin
   JSON js;
 
   path = "/json/fp550/Cmdline";
-  AddTextToArea("{""cmd"":""42"",""parameter"":""" & GetCleanName(comment,vChr) & """}",request);
+  AddTextToArea("{""cmd"":""42"",""parameter"":""" & comment & """}",request);
 
   res = ExecAPSARequest(LSPDr,path,request,js,false);
 
@@ -313,7 +314,7 @@ begin
   if (nonblank(IVCashrw.vRebate)) then begin
     itemline = itemline & ",-" & IVCashrw.vRebate;
   end;
-  itemline = GetCleanName(itemline,vChr);
+  itemline = GetCleanName(itemline);
   path = "/json/fp550/Cmdline";
   if (retf) then begin
     retsum = retsum + (-IVCashrw.Sum);//to make the value positive
@@ -892,7 +893,7 @@ begin
   if (nonblank(IVrw.vRebate)) then begin
     itemline = itemline & ",-" & IVrw.vRebate;
   end;
-  itemline = GetCleanName(itemline,vChr);
+  itemline = GetCleanName(itemline);
   path = "/json/fp550/Cmdline";
   if (retf) then begin
     retsum = retsum + IVrw.Sum;//to make the value positive
@@ -1321,13 +1322,13 @@ begin
 
   if (nonblank(dispstr)) then begin
     SetAreaZeroSize(request);
-    AddTextToArea("{""cmd"":""47"",""parameter"":""" & GetCleanName(dispstr,vChr) & """}",request);
+    AddTextToArea("{""cmd"":""47"",""parameter"":""" & GetCleanName(dispstr) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
   if (nonblank(disp2str)) then begin
     SetAreaZeroSize(request);
-    AddTextToArea("{""cmd"":""35"",""parameter"":""" & GetCleanName(disp2str,vChr) & """}",request);
+    AddTextToArea("{""cmd"":""35"",""parameter"":""" & GetCleanName(disp2str) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
@@ -1412,16 +1413,17 @@ end;
 procedure PrintNonFiscalReceipt(record LSerialPortDeviceVc LSPDr,array string arr)
 begin
   Integer res,i,noErr;
-  vector string 255 vChr;
 
-  LoadSpecialCharacters(vChr);
+  for (i=0;i<arr.length;i=i+1) begin
+    arr[i] = GetCleanName(arr[i]);
+  end;
 
   res = BeginFiscalReceiptCopy(LSPDr);
   if (res!=noErr) then begin
     goto LPrintNonFiscalReceipt;
   end;
   for (i=0;i<arr.length;i=i+1) begin
-    res = PrintCommentLine2(LSPDr,arr[i],vChr);
+    res = PrintCommentLine2(LSPDr,arr[i]);
     if (res!=noErr) then begin
       goto LPrintNonFiscalReceipt;
     end;
