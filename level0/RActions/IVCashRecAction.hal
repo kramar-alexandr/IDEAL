@@ -1029,10 +1029,12 @@ u might want to put loyalty card or bagger 1st
     end;
 */    
   end;
-  if (POSBalanceExistsAfterThis(IVCashr.TransDate,IVCashr.TransTime,IVCashr.LocalMachineCode,IVCashr.DrawerCode)) then begin
-    RecordCheckError(2194,"",-1,"TransDate");      
-    res = -1;
-    goto LIVCashVcRecordCheck;
+  if (transf) then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 22 07 2019 y. at 11:42:46 AM
+		if (POSBalanceExistsAfterThis(IVCashr.TransDate,IVCashr.TransTime,IVCashr.LocalMachineCode,IVCashr.DrawerCode)) then begin
+			RecordCheckError(2194,"",-1,"TransDate");      
+			res = -1;
+			goto LIVCashVcRecordCheck;
+		end;
   end;
   rwcnt = MatRowCnt(IVCashr);
   if ((IVCashr.OKFlag==1) and (rwcnt==0)) then begin
