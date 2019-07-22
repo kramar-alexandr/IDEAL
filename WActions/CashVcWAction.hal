@@ -64,3 +64,74 @@ begin
   CashSimpleOutDClassAfterEditField = res;
   return;
 end;
+
+
+global
+updating procedure ProceedCashSimpleInDClass()
+begin
+  record CashVc Cashr;
+  row CashVc Cashrw;
+  Integer wn;
+  Boolean testf;
+  Integer i,rwcnt;
+  
+  wn = CurWindow;
+  DeselectWindow(wn,true);
+  GetWindowRecord(wn,Cashr);
+  testf = true;
+  
+  rwcnt = MatRowCnt(Cashr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(Cashr,i,Cashrw);
+    if (Cashrw.Amount!=0) then begin
+      if (blank(Cashrw.PMCode)) then begin
+        testf = false;
+        MessageBox(1207,"");
+        WindowFieldGoto(wn,Cashr,i,"PMCode",true);
+        goto LProceedCashSimpleInDClass;
+      end;
+    end;
+  end;
+
+  if (testf) then begin
+    inner.ProceedCashSimpleInDClass;
+  end;
+
+LProceedCashSimpleInDClass:;
+  return;
+end;
+
+global
+updating procedure ProceedCashSimpleOutDClass()
+begin
+  record CashVc Cashr;
+  row CashVc Cashrw;
+  Integer wn;
+  Boolean testf;
+  Integer i,rwcnt;
+  
+  wn = CurWindow;
+  DeselectWindow(wn,true);
+  GetWindowRecord(wn,Cashr);
+  testf = true;
+  
+  rwcnt = MatRowCnt(Cashr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(Cashr,i,Cashrw);
+    if (Cashrw.Amount!=0) then begin
+      if (blank(Cashrw.PMCode)) then begin
+        testf = false;
+        MessageBox(1207,"");
+        WindowFieldGoto(wn,Cashr,i,"PMCode",true);
+        goto LProceedCashSimpleOutDClass;
+      end;
+    end;
+  end;
+
+  if (testf) then begin
+    inner.ProceedCashSimpleOutDClass;
+  end;
+
+LProceedCashSimpleOutDClass:;
+  return;
+end;

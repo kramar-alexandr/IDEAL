@@ -216,12 +216,23 @@ begin
   Boolean testf;
   vector val vrowstpcnt;
   record RcVc RepSpec;
+//CUST-BEGIN
+  string 255 paymode;
+  record LocalMachineBlock LMb;
+
+  BlockLoad(LMb);
+//CUST-END
 
   BlockLoad(RPMb);
   rwcnt = MatRowCnt(RPMb);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(RPMb,i,RPMbw);
     vrowstpcnt[RPMbw.rowstp] = vrowstpcnt[RPMbw.rowstp] + 1;
+//CUST-BEGIN
+    if (RPMbw.MachineName==LMb.LocalMachineCode and RPMbw.rowstp==kInvoiceRowTypeCashPayment) then begin
+      paymode = RPMbw.PMCode;
+    end;
+//CUST-END
   end;
   if ((vrowstpcnt[kInvoiceRowTypeCashPayment]+vrowstpcnt[kInvoiceRowTypeGiftVoucherPayment]+vrowstpcnt[kInvoiceRowTypeChequePayment]+vrowstpcnt[kInvoiceRowTypeLoyaltyPointsPayment])==1) then begin
     testf = true;
@@ -234,7 +245,14 @@ begin
     RecordNew(Cashr);
     Cashr.Event = 1;
     ClearRow(Cashr,Cashrw,1);  
-    Cashrw.PMCode = DefCashRec.DefCashPayMode;
+
+//CUST-BEGIN
+    //Cashrw.PMCode = DefCashRec.DefCashPayMode;
+    if (blank(paymode)) then begin
+      paymode = DefCashRec.DefCashPayMode;
+    end;
+    Cashrw.PMCode = paymode;
+//CUST-END
     MatRowPut(Cashr,0,Cashrw);
     nwn = OpenWindow("CashSimpleInDClass",1,0,"","",Cashr);
     WindowFieldGoto(nwn,Cashr,0,"Amount",true);
@@ -345,12 +363,24 @@ begin
   Boolean testf;
   vector val vrowstpcnt;
   record RcVc RepSpec;
+//CUST-BEGIN
+  string 255 paymode;
+  record LocalMachineBlock LMb;
+
+  BlockLoad(LMb);
+//CUST-END
+
 
   BlockLoad(RPMb);
   rwcnt = MatRowCnt(RPMb);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(RPMb,i,RPMbw);
     vrowstpcnt[RPMbw.rowstp] = vrowstpcnt[RPMbw.rowstp] + 1;
+//CUST-BEGIN
+    if (RPMbw.MachineName==LMb.LocalMachineCode and RPMbw.rowstp==kInvoiceRowTypeCashPayment) then begin
+      paymode = RPMbw.PMCode;
+    end;
+//CUST-END
   end;
   if ((vrowstpcnt[kInvoiceRowTypeCashPayment]+vrowstpcnt[kInvoiceRowTypeGiftVoucherPayment]+vrowstpcnt[kInvoiceRowTypeChequePayment]+vrowstpcnt[kInvoiceRowTypeLoyaltyPointsPayment])==1) then begin
     testf = true;
@@ -363,7 +393,13 @@ begin
     RecordNew(Cashr);
     Cashr.Event = 0;
     ClearRow(Cashr,Cashrw,1);
-    Cashrw.PMCode = DefCashRec.DefCashPayMode;
+//CUST-BEGIN
+    //Cashrw.PMCode = DefCashRec.DefCashPayMode;
+    if (blank(paymode)) then begin
+      paymode = DefCashRec.DefCashPayMode;
+    end;
+    Cashrw.PMCode = paymode;
+//CUST-END
     MatRowPut(Cashr,0,Cashrw);
     nwn = OpenWindow("CashSimpleOutDClass",1,0,"","",Cashr);
     WindowFieldGoto(nwn,Cashr,0,"Amount",true);
