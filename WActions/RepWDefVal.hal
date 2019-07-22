@@ -5,8 +5,9 @@ procedure IDEALLitiSAFRClassReportDefaults(Integer wn)
 BEGIN
   record RcVc RepSpec;
   
-  DeselectWindow(wn,false);
+  DeselectWindow(wn,false);  
   GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"IDEALLitiSAFRClass");
   RepSpec.flags[9] = 1;
   PutWindowRecord(wn,RepSpec);
   SelectWindow(wn);
@@ -21,6 +22,7 @@ BEGIN
   
   DeselectWindow(wn,false);
   GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"IDEALLitTaxXmlEClass");
   RepSpec.flags[9] = 1;
   PutWindowRecord(wn,RepSpec);
   SelectWindow(wn);
