@@ -326,7 +326,11 @@ begin
   res = ExecAPSARequest(LSPDr,path,request,js,false);
 
   if (nonblank(IVCashrw.SerialNr)) then begin
-    PrintCommentLine(LSPDr,USetStr(1141) & IVCashrw.SerialNr,vChr);
+    if (retf) then begin
+      PrintCommentLine2(LSPDr,USetStr(1141) & IVCashrw.SerialNr);
+    end else begin
+      PrintCommentLine(LSPDr,USetStr(1141) & IVCashrw.SerialNr,vChr);
+    end;
   end;
 
   IVCash_PrintRecItem = res;
@@ -906,7 +910,11 @@ begin
   res = ExecAPSARequest(LSPDr,path,request,js,false);
 
   if (nonblank(IVrw.SerialNr)) then begin
-    PrintCommentLine(LSPDr,USetStr(1141) & IVrw.SerialNr,vChr);
+    if (retf) then begin
+      PrintCommentLine2(LSPDr,USetStr(1141) & IVrw.SerialNr);
+    end else begin
+      PrintCommentLine(LSPDr,USetStr(1141) & IVrw.SerialNr,vChr);
+    end;
   end;
 
   IVVc_PrintRecItem = res;
@@ -1184,6 +1192,7 @@ begin
         if (IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0) then begin
           res = PrintRecReturnItem(LSPDr,IVr,vatrates);
         end;
+        //SendConfirmationToTouchlesspayments
       end; 
     end;    
 LIVVc_PrintAPSAReceipt:;

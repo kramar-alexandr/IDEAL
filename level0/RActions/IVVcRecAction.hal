@@ -1034,11 +1034,13 @@ LSkipOfficialSerNrCheck:;
 //      if (IVp.InvType!=kInvoiceTypeCredit or IVp.InvType==kInvoiceTypeCreditSpecialSales) then begin//why ok to have Invoice and Credit note with same offical nr ? 
         if (locIVr.SerNr!=IVp.SerNr) then begin testf = true; end;
 //      end;
+/*CUST Commented out
       if (testf) then begin
         RecordCheckError(1115," " & IVp.OfficialSerNr,-1,"OfficialSerNr");      
         res = -1;
         goto L99;
       end;
+*/
     end;
   end;
   if (nonblank(IVp.OfficialSerNr)) and (MatRowCnt(LINrb)>0)  then begin    
