@@ -133,6 +133,8 @@ external function string 60 AddObjectToObjectList(string,string);// Edit *******
 external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string,string);
 external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
 external updating procedure PinPadVoidIVCashDsm();
+external function Boolean ConfirmLastTouchlessPayment();
+
 //CUST-END
 
 enum begin
@@ -2103,7 +2105,9 @@ begin
   prevRetValue = IVCashr.RetValue;
   if (new_recordf) then begin
 //    sleep(5);
-    
+//CUST-BEGIN
+    new_recordf = qupdating.ConfirmLastTouchlessPayment;//shouldn't be on the main thread, but we need a way to get the transactionid from db
+//CUST-END
     WindowDoNew(wn,0);
     GetWindowRecord(wn,IVCashr);
     IVCashr.RetValue = prevRetValue;

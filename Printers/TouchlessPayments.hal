@@ -212,7 +212,9 @@ begin
   Integer ProcessingWn;
   record RcVc vRepSpec;
   Longint sernr;
+  transaction Boolean gTouchlessPaymentf;
 
+  gTouchlessPaymentf = false;
   vRepSpec.UsedOnly = kLocalCCTerminalVerifoneBanksys;
   vRepSpec.ArtMode = 1;
   vRepSpec.long1 = sernr;
@@ -275,13 +277,6 @@ begin
   end;
   logrequest(request,reply,"touchless");
 
-  if (res) then begin
-    while (ConfirmTouchlessPayment(TPb,LSPDr,transactionid,paymentstat)==false and tries<300) begin//5 minutes
-      sleep(1);
-      tries = tries + 1;
-    end;
-  end;
-
 //  paymentstat = "Approved";//for debug process
 
   pmwn = MotherWindow(ProcessingWn);
@@ -305,6 +300,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
     DeselectWindow(mwn,true);
     if (paymentstat=="Approved" or paymentstat=="Patvirtinta" or paymentstat=="Autorizuota") then begin
       fres = true;
+      gTouchlessPaymentf = true;
       PrintTouchlessCardReceipt(clientreceipt,2);
       if (received>0) then begin
         qupdating.StoreLastTouchlessPayment(transactionid,received,timestamp);
@@ -331,7 +327,39 @@ LInitTouchlessPayment:;
 end;
 
 global
-function Boolean InitTouchlessPaymentReturn(string transactionid,Integer wn)
+function Boolean ConfirmLastTouchlessPayment()
+begin
+  record LSerialPortDeviceVc LSPDr;
+  record TouchlessPayBlock TPb;
+  transaction Boolean gTouchlessPaymentf;
+  string 255 paymentstat;
+  Integer tries;
+  record LocalMachineBlock LMb;  
+  Boolean res;
+
+  if (gTouchlessPaymentf) then begin
+    BlockLoad(LMb);
+    BlockLoad(TPb);
+    if (nonblank(TPb.LastRrn)) then begin
+      if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)==false) then begin  
+        while (ConfirmTouchlessPayment(TPb,LSPDr,TPb.LastRrn,paymentstat)==false and tries<300) begin//5 minutes
+          sleep(1);
+          tries = tries + 1;
+        end;
+        if (paymentstat=="Approved" or paymentstat=="Patvirtinta" or paymentstat=="Autorizuota") then begin
+          res = true;
+          qupdating.StoreLastTouchlessPayment("",-1,"");
+        end;
+      end;
+    end;
+  end;    
+  
+  ConfirmLastTouchlessPayment = res;
+  return;
+end;
+
+global
+function Boolean InitTouchlessPaymentReturn(Integer wn)
 begin
   string 255 AuthorisationCode,paymentstat,path,url,timestamp,FileName,receiptnr,clientreceipt;
   Boolean res,fres;
@@ -347,6 +375,12 @@ begin
   record RcVc vRepSpec;
   Longint sernr;
 
+  BlockLoad(TPb);
+  if (blank(TPb.LastRrn)) then begin
+    MessageBox(1000107,"");
+    goto LInitTouchlessPaymentReturn;
+  end;
+
   vRepSpec.UsedOnly = kLocalCCTerminalVerifoneBanksys;
   vRepSpec.ArtMode = 1;
   vRepSpec.long1 = sernr;
@@ -359,7 +393,7 @@ begin
     PutWindowString(ProcessingWn,"Status",USetStr(22123));        
     PutWindowString(ProcessingWn,"Result",USetStr(27429));        
     PutWindowRecord(ProcessingWn,RepSpec);
-    goto LInitTouchlessPayment;
+    goto LInitTouchlessPaymentReturn;
   end else begin
     GetWindowRecord(ProcessingWn,RepSpec);
     PutWindowString(ProcessingWn,"Status",USetStr(27370));        
@@ -367,13 +401,12 @@ begin
     PutWindowRecord(ProcessingWn,RepSpec);
   end;
 
-  BlockLoad(TPb);
   GetTouchlessPaymentURL(TPb,url,port);
   path = "/Reverse";
  
   AddTextToArea("{",request);
   AddTextToArea("""posId"": """ & LSPDr.Port & """,",request);
-  AddTextToArea("""transactionId"": """ & transactionid & """",request);
+  AddTextToArea("""transactionId"": """ & TPb.LastRrn & """",request);
   AddTextToArea("}",request);
 
   SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
@@ -390,14 +423,6 @@ begin
       clientreceipt = JSONGet(js,"clientReceipt");
     end;
   end;
-
-  if (res) then begin
-    while (ConfirmTouchlessPayment(TPb,LSPDr,transactionid,paymentstat)==false and tries<300) begin//5 minutes
-      sleep(1);
-      tries = tries + 1;
-    end;
-  end;
-
 //  paymentstat = "Approved";//for debug process
 
   pmwn = MotherWindow(ProcessingWn);
@@ -410,24 +435,19 @@ begin
     end;
   end;
 
+logtext(0,"return payment stat=" & paymentstat);
+logtext(0,"reply " & GetStringFromArea(reply,0,255));
+logtext(0,"request " & GetStringFromArea(request,0,255));
+
   FileName = GetWindowFileName(mwn);
   if (mwn>0) then begin
     CloseWindow(ProcessingWn);
     SelectWindow(mwn);
     DeselectWindow(mwn,true);
-logtext(0,"payment stat=" & paymentstat);
-logtext(0,"reply " & GetStringFromArea(reply,0,255));
-logtext(0,"request " & GetStringFromArea(request,0,255));
     if (paymentstat=="Transactions is cancelled" or paymentstat=="Patvirtinta") then begin
       fres = true;
 
-      PrintTouchlessCardReceipt(clientreceipt,2);
-      switch (FileName) begin
-        case "IVVc":
-          qupdating.UpdateIVVcWithTouchlessPayReturn(mwn,AuthorisationCode)
-        case "IVCashVc":
-          qupdating.UpdateIVCashWithTouchlessPayReturn(mwn,AuthorisationCode);
-      end;
+      qupdating.StoreLastTouchlessPayment("",-1,"");
     end else begin
       MessageBox(27386,0);
       if (nonblank(clientreceipt)) then begin
@@ -437,7 +457,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
   end;
 
 
-LInitTouchlessPayment:;
+LInitTouchlessPaymentReturn:;
   InitTouchlessPaymentReturn = fres;
   return;
 end;
@@ -576,13 +596,13 @@ begin
     switch (FileName) begin
       case "IVVc":
         GetWindowRecord(mwn,IVr);
-        if (InitTouchlessPaymentReturn(RepSpec.f1,mwn)==false) then begin
+        if (InitTouchlessPaymentReturn(mwn)==false) then begin
           MessageBox(20259,"");
         end;
 
       case "IVCashVc":
         GetWindowRecord(mwn,IVCashr);
-        if (InitTouchlessPaymentReturn(RepSpec.f1,mwn)==false) then begin
+        if (InitTouchlessPaymentReturn(mwn)==false) then begin
           MessageBox(20259,"");
         end;
 

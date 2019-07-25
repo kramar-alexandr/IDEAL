@@ -4,6 +4,7 @@ external inner function Boolean FindLocalSerialPortDevice(Integer,LongInt,string
 external inner procedure SetPOSWindowDisplay_SendToSerialPortDevices(string,string);
 external inner updating procedure OpenPOSSessionsm();
 external inner updating procedure ClosePOSSessionsm();
+external function Boolean ConfirmLastTouchlessPayment();
 
 enum begin
   kAPSACommandOpen = 0,
@@ -1192,7 +1193,8 @@ begin
         if (IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0) then begin
           res = PrintRecReturnItem(LSPDr,IVr,vatrates);
         end;
-        //SendConfirmationToTouchlesspayments
+        //Send Confirmation ToTouchlesspayments
+        ConfirmLastTouchlessPayment;
       end; 
     end;    
 LIVVc_PrintAPSAReceipt:;
