@@ -1465,7 +1465,8 @@ begin
   end;
   switch (LSPDr.Printer) begin
     case 200:
-      SplitString(tstr,arr);
+      //SplitString(tstr,arr);
+      arr[0] = tstr;
       for (i=0;i<cnt;i=i+1) begin
         PrintNonFiscalReceipt(LSPDr,arr);
       end;
