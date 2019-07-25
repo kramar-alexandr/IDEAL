@@ -444,6 +444,11 @@ begin
   Boolean opendrawerf;
   record DefCashBlock DCb;
   
+//CUST-BEGIN
+  opendrawerf = true;
+  goto LOpenCashDrawer_IVCashVc;
+//CUST-END
+
   BlockLoad(RPMb);
   rrwcnt = MatRowCnt(RPMb);
   if (IVCashr.CashValue>0) then begin
