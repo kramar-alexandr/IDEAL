@@ -73,7 +73,7 @@ begin
   row CashVc Cashrw;
   Integer wn;
   Boolean testf;
-  Integer i,rwcnt;
+  Integer i,rwcnt,mwn;
   
   wn = CurWindow;
   DeselectWindow(wn,true);
@@ -95,6 +95,10 @@ begin
 
   if (testf) then begin
     inner.ProceedCashSimpleInDClass;
+    mwn = FindWindow("NPTSIVCashDClass");
+    if (mwn>0) then begin
+      ReRunWindowDef(mwn);
+    end;
   end;
 
 LProceedCashSimpleInDClass:;
