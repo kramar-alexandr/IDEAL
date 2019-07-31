@@ -1,3 +1,6 @@
+external procedure PrintCashEventEPSON81IITCPIP(var record CashVc,record LSerialPortDeviceVc);
+external procedure PrintCUSTOMKUBEIIxFCashEvent(var record CashVc,record LSerialPortDeviceVc);
+external procedure PrintEPSON81IICashEvent(var record CashVc,record LSerialPortDeviceVc);
 remote procedure PrintPOSNETProtocolCashEvent_TCP(var record CashVc,record LSerialPortDeviceVc);
 external procedure CHDFMPOSCashEvent(record CashVc,record LSerialPortDeviceVc);
 external procedure PrintPOSNETProtocolCashEvent(var record CashVc,record LSerialPortDeviceVc);
@@ -50,6 +53,12 @@ BEGIN
         PMsg_CashEvent(LSPDr,Cashr);
       case kSerialPortDeviceModelFiscPrinterBematechMP2100:
         BematechMP2100CashEvent(Cashr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterEPSON81II:
+        PrintEPSON81IICashEvent(Cashr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterEPSON81IITCPIP:
+        PrintCashEventEPSON81IITCPIP(Cashr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterCUSTOMKUBEIIxF:
+        PrintCUSTOMKUBEIIxFCashEvent(Cashr,LSPDr);
 //CUST-BEGIN
       case 200:
         APSA_CashEvent(Cashr,LSPDr);

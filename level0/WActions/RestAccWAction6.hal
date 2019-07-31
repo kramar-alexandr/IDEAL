@@ -1,3 +1,5 @@
+external procedure SetPOSWindowDisplayModeFiscalPrinterEPSON81II(record LSerialPortDeviceVc,string,string);
+external procedure SetPOSWindowDisplayModeFiscalPrinterEPSON81IITCPIP(record LSerialPortDeviceVc,string,string);
 external procedure RestAccVc_PrintBixolonSPPR200IIReceipt(record RestAccVc,Boolean);
 external function Integer CheckFM32State(Integer);
 external function Integer PrintFisUSBMItemRow_IVCashVc(Integer,string,record IVCashVc,row IVCashVc,vector val,var Boolean,var Boolean);
@@ -97,6 +99,10 @@ begin
 //      SetPOSWindowDisplayModeFiscalPrinterPOSNETLCD(LSPDr,dispstr,disp2str);
    case kSerialPortDeviceModelFiscPrinterPOSNETwVATNr:
       SetPOSWindowDisplayModeFiscalPrinterPOSNETLCD(LSPDr,dispstr,disp2str);
+    case kSerialPortDeviceModelFiscPrinterEPSON81II:
+      SetPOSWindowDisplayModeFiscalPrinterEPSON81II(LSPDr,dispstr,disp2str);
+    case kSerialPortDeviceModelFiscPrinterEPSON81IITCPIP:
+      SetPOSWindowDisplayModeFiscalPrinterEPSON81IITCPIP(LSPDr,dispstr,disp2str);
 //CUST-BEGIN
    case 200:
       SetPOSWindowDisplayModeFiscalPrinterAPSA(LSPDr,dispstr,disp2str);
@@ -458,7 +464,7 @@ begin
           M4PadString(ValToString(IVrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0) & ":-",14," ",true,t2);
           //SetPOSWindowDisplay_SendToSerialPortDevices("                    ",tstr & t2);    // cust removed
         end;
-        if ((IVrw.stp==kInvoiceRowTypeCashPayment) or (IVrw.stp==kInvoiceRowTypeCreditCardPayment) or (IVrw.stp==kInvoiceRowTypeChequePayment) or (IVrw.stp==kInvoiceRowTypeLoyaltyPointsPayment)) then begin
+                if ((IVrw.stp==kInvoiceRowTypeCashPayment) or (IVrw.stp==kInvoiceRowTypeCreditCardPayment) or (IVrw.stp==kInvoiceRowTypeSwishPayment) or (IVrw.stp==kInvoiceRowTypeQRPayment) or (IVrw.stp==kInvoiceRowTypeCashWithdrawal) or (IVrw.stp==kInvoiceRowTypeChequePayment) or (IVrw.stp==kInvoiceRowTypeLoyaltyPointsPayment)) then begin
           //START-CUST PST 2015-October-01
           //tstr = "CASH BACK";
         	tstr = USetStr(18029);
@@ -661,17 +667,26 @@ begin
 end;
 
 global
-updating procedure RestAccReceiptPrint(record RestAccVc incomingCashR,Boolean okf,Boolean opendrawerf)
+updating procedure RestAccReceiptPrint(record RestAccVc incomingRAr,Boolean okf,Boolean opendrawerf)
 begin
-  record RestAccVc CashR;
+  record RestAccVc RAr;
   record LSerialPortDeviceVc LSPDr;
   record LocalMachineBlock LMb;
+  record SuggestedTipVc STr;
+  row SuggestedTipVc STrw;
   Integer Error;
   
   BlockLoad(LMb);  
-  ConsolidateRestAccr(incomingCashR,CashR);
+  STr.MachineCode = incomingRAr.MachineName;
+  if (ReadFirstMain(STr,1,true)) then begin
+    if (STr.ChargeType==1) then begin
+      MatRowGet(STr,0,STrw);
+      incomingRAr.TipValue = ((incomingRAr.Sum4-incomingRAr.TipValue)*STrw.ChargePrc)/100.00;
+    end;
+  end;
+  ConsolidateRestAccr(incomingRAr,RAr);
   if (okf==true) then begin
-    if (CashR.Closed==0) then begin
+    if (RAr.Closed==0) then begin
       goto LRestAccReceiptPrint;
     end;
   end;
@@ -694,9 +709,9 @@ begin
   if (SetComPortCodepage(StringSetFromString(89,LSPDr.Codepage))) then begin end;
   switch (LSPDr.Printer) begin
     case kSerialPortDeviceModelPrinterEPSONTMU210:
-      RestAccVc_PrintEpsonTMU210Receipt(CashR,okf,opendrawerf);
+      RestAccVc_PrintEpsonTMU210Receipt(RAr,okf,opendrawerf);
     case kSerialPortDeviceModelPrinterBixolonSPPR200II:
-      RestAccVc_PrintBixolonSPPR200IIReceipt(CashR,okf);
+//      RestAccVc_PrintBixolonSPPR200IIReceipt(CashR,okf);
     otherwise
       Error = CloseComPort(1);
   end;   
@@ -987,7 +1002,7 @@ end;
 global
 updating procedure RestAccDClassTouchScreenPrintPreview()
 begin
-  record RestAccVc RestAccr;
+  record RestAccVc RAr;
   Boolean testf;
 
   testf = true;
@@ -995,8 +1010,8 @@ begin
     testf = WindowDoOK(CurWindow,0);
   end;
   if (testf) then begin
-    GetWindowRecord(CurWindow,RestAccr); 
-    RecordActionRestAcc_Print(RestAccr,"1","RestAccForm",true);
+    GetWindowRecord(CurWindow,RAr); 
+    RecordActionRestAcc_Print(RAr,"1","RestAccForm",true);
   end;
   return;
 end;

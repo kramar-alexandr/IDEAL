@@ -1,3 +1,4 @@
+remote procedure IVVc_PastePayDeal(var record IVVc,string,string);
 external function Boolean ValidEmailAddress(string);
 external function LongInt ExternalTaxVoidTest(string,string,LongInt,var string);
 external function Boolean IsEnterprise();
@@ -1261,10 +1262,12 @@ BEGIN
     MessageBox(34500,"");
     goto LIVVcRecordInvalidateTest;
   end;
+  if (HasLocalization("HUN")==false) then begin
   if (nonblank(IVr.CAE)) then begin
     res = 0;
     MessageBox(2911,"");
     goto LIVVcRecordInvalidateTest;
+  end;
   end;
   if (HasLocalization("ARG")) then begin
     if (ArgEInvoiceBeingSentRemote(IVr.SerNr,IVr.OfficialSerNr,false)) then begin
@@ -1521,7 +1524,8 @@ BEGIN
     rwcnt = MatRowCnt(IVr);
     for (i=0;i<rwcnt;I=I+1) begin
       MatRowGet(IVr,i,IVrw);
-      if (IVrw.FIFO!=0) and (IVrw.Quant!=0) and ((IVrw.stp==kInvoiceRowTypeNormal) or (IVrw.stp==kInvoiceRowTypeStructuredItemComponent)) then begin
+//      if (IVrw.FIFO!=0) and (IVrw.Quant!=0) and ((IVrw.stp==kInvoiceRowTypeNormal) or (IVrw.stp==kInvoiceRowTypeStructuredItemComponent)) then begin
+      if (IVrw.FIFO>=0) and (IVrw.Quant!=0) and ((IVrw.stp==kInvoiceRowTypeNormal) or (IVrw.stp==kInvoiceRowTypeStructuredItemComponent)) then begin
         if (ReadFirstItem(IVrw.ArtCode,INr,true,true)) then begin
           if (INr.ItemType==1) then begin
             ClearRow(PUr,PUrw,1);
@@ -1632,10 +1636,12 @@ begin
   Date blankd,td,td1;
   record IVVc lIVr;
   record CYBlock CYb;
+  record IVTBlock IVTb;
   record LocationVc Locr;// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 11:22:19
  
   BlockLoad(ARAccRec);      
   BlockLoad(IIRec);
+  BlockLoad(IVTb);
   BlockLoad(CYb);
   IVr.SerNr = -1;
   IVr.InvType = kInvoiceTypeNormal;
@@ -1657,6 +1663,9 @@ begin
   IVr.ExportFlag = 0;
   IVr.OKFlag = 0;
   IVr.InstallmentInv = 0;
+  if (HasLocalization("RUS")) then begin
+    IVr.OperationCode = "01";
+  end;
   IVr.IntCode = IIRec.IntRate;
   IVr.InclVAT = ARAccRec.BasePriceInclVAT;
   IVr.NoTAXonVAT = ARAccRec.NoTAXonVAT;
@@ -1664,7 +1673,8 @@ begin
   IVr.ThirdPartyBillMark = CYb.OutsourcedtoAccBureaux;
 //  IVr.ARAcc = ARAccRec.ARAcc; this should be taken either from customer category or settings
   IVr.PriceList = "";
-  IVr.PayDeal = "";
+  IVr.PayDeal = IVTb.PayDeal;
+  IVVc_PastePayDeal(IVr,"","");
   IVr.Objects = "";
   GetCurUser(USr);
   IVr.Objects = USr.PersObjx;
@@ -1913,6 +1923,9 @@ no way of making credit notes ?
       case kInvoiceRowTypeSwishPayment:    
         MatRowDelete(IVr,i);
         i = i-1;
+      case kInvoiceRowTypeQRPayment:    
+        MatRowDelete(IVr,i);
+        i = i-1;
       otherwise
         testf = false;
         fifo = IVrw.FIFO;
@@ -1972,7 +1985,6 @@ no way of making credit notes ?
   CUr.Code = IVr.CustCode;
   if (ReadFirstMain(CUr,1,true)) then begin
   end;
-  if (HasLocalization("POL")) then begin
     switch (CUr.IPBookVAT) begin
       case 1:
         IVr.IPBookVAT = CUr.IPBookVAT;
@@ -1981,9 +1993,6 @@ no way of making credit notes ?
       otherwise
         IVr.IPBookVAT = ARAccRec.IPBookVAT;
     end;
-  end else begin
-    IVr.IPBookVAT = ARAccRec.IPBookVAT;  
-  end;
   if (warningf) then begin
     BlockLoad(CLb);
     if (nonblank(CUr.WarnText1)) then begin

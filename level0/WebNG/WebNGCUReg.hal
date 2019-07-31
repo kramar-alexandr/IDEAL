@@ -49,8 +49,9 @@ external function Boolean IsPostcodeFormatCorrect(string);
 external function Boolean CheckEmailStr(string);
 external updating procedure SendWebshopMail(Integer,Longint);
 external function Boolean AnyClassInSet(string,string);
-external updating procedure DoUpdateSubscriptionFromSubINPackages(Longint,string,record CUVc);
+external updating procedure DoUpdateSubscriptionFromSubINPackages(LongInt,string,LongInt,record CUVc);
 external function Boolean HansaMailCustomMandatoryField(record CURegFieldVc);
+external function string 255 ToolWebNGTranslateText2(longint);
 
 global
 procedure FillArrayWithBillingType(var array string texts,var array string codes,var integer arrlen,integer value)
@@ -501,12 +502,15 @@ begin
     WebOutStringFormatNL("}}</script>");
   end else begin
     switch (tval) begin
-      case kBillPaymentPrefNotDecided: WebOutString(TooLWebNGTranslateText(32402));
-      case kBillPaymentPrefInvoice: WebOutString(TooLWebNGTranslateText(32401));
-      case kBillPaymentPrefCC: WebOutString(TooLWebNGTranslateText(32400));
-      case kBillPaymentPrefPaypal: WebOutString(TooLWebNGTranslateText(32406));
-      case kBillPaymentPrefDotpay: WebOutString(TooLWebNGTranslateText(32407));
-      case kBillPaymentPrefPaytrail: WebOutString(TooLWebNGTranslateText(32408));
+      case kBillPaymentPrefNotDecided: WebOutString(ToolWebNGTranslateText2(32402));
+      case kBillPaymentPrefInvoice: WebOutString(ToolWebNGTranslateText2(32401));
+      case kBillPaymentPrefCC: WebOutString(ToolWebNGTranslateText2(32400));
+      case kBillPaymentPrefPaypal: WebOutString(ToolWebNGTranslateText2(32406));
+      case kBillPaymentPrefDotpay: WebOutString(ToolWebNGTranslateText2(32407));
+      case kBillPaymentPrefSwish: WebOutString(ToolWebNGTranslateText2(32407));
+      case kBillPaymentPrefPaytrail: WebOutString(ToolWebNGTranslateText2(32408));
+      case kBillPaymentPrefPaysera: WebOutString(ToolWebNGTranslateText2(34050));
+      case kBillPaymentPrefRoyalty: WebOutString(ToolWebNGTranslateText2(34050));
     end;
     WebOutString("<input type='hidden' name='" & fieldname & "' value='" & value & "'>");
   end;
@@ -581,6 +585,8 @@ begin
   
   fieldname = "WebPaymentMethod";
   switch (BillingTypePreference) begin
+    case kBillPaymentPrefRoyalty:
+      PutSessionString("cureg_" & fieldname,kWebPaymentMethodRoyalty);
     case kBillPaymentPrefInvoice:
       PutSessionString("cureg_" & fieldname,kWebPaymentMethodInvoice);
     case kBillPaymentPrefCC:
@@ -592,10 +598,14 @@ begin
       PutSessionString("cureg_" & fieldname,kWebPaymentMethodPaypal);
     case kBillPaymentPrefDotpay:
       PutSessionString("cureg_" & fieldname,kWebPaymentMethodDotpay);
+    case kBillPaymentPrefSwish:
+      PutSessionString("cureg_" & fieldname,kWebPaymentMethodSwish);
     case kBillPaymentPrefPaytrail:
       PutSessionString("cureg_" & fieldname,kWebPaymentMethodPaytrail);
     case kBillPaymentPrefOrder:
       PutSessionString("cureg_" & fieldname,kWebPaymentMethodOrder);
+    case kBillPaymentPrefPaysera:
+      PutSessionString("cureg_" & fieldname,5);
   end;
   value = GetSessionString("cureg_" & fieldname);
 
@@ -651,7 +661,7 @@ function Boolean ShouldFillInPaypalField(record CURegFieldVc CURegFieldr,record 
 begin
   Boolean res;
 
-  if (CUr.BillingTypePreference==kBillPaymentPrefPaypal or CUr.BillingTypePreference==kBillPaymentPrefDotpay or CUr.BillingTypePreference==kBillPaymentPrefPaytrail) then begin
+  if (CUr.BillingTypePreference==kBillPaymentPrefPaypal or CUr.BillingTypePreference==kBillPaymentPrefDotpay or CUr.BillingTypePreference==kBillPaymentPrefSwish or CUr.BillingTypePreference==kBillPaymentPrefPaytrail or CUr.BillingTypePreference==kBillPaymentPrefPaysera or CUr.BillingTypePreference==kBillPaymentPrefRoyalty) then begin
     if (CURegFieldr.FieldType==kCURegFieldTypeInvAddr0 or
         CURegFieldr.FieldType==kCURegFieldTypeInvAddr1 or
         CURegFieldr.FieldType==kCURegFieldTypeInvAddr2 or
@@ -1138,8 +1148,11 @@ begin
     case kBillPaymentPrefCC: wpm = kWebPaymentMethodCC;
     case kBillPaymentPrefPaypal: wpm = kWebPaymentMethodPaypal;
     case kBillPaymentPrefDotpay: wpm = kWebPaymentMethodDotpay;
+    case kBillPaymentPrefSwish: wpm = kWebPaymentMethodSwish;
     case kBillPaymentPrefPaytrail: wpm = kWebPaymentMethodPaytrail;
     case kBillPaymentPrefOrder: wpm = kWebPaymentMethodOrder;
+    case kBillPaymentPrefPaysera: wpm = kWebPaymentMethodPaysera;
+    case kBillPaymentPrefRoyalty: wpm = kWebPaymentMethodRoyalty;
   end;
   
   found = true;
@@ -1179,6 +1192,34 @@ begin
  
   BlockLoad(MyAccountRec);
   CustCode = CurrentCust;
+  CUr.Code = CustCode;
+  if (ReadFirstMain(CUr,1,true)) then begin
+    RecordCopy(OldCUr,CUr);
+    value = WebGetArg("WebPaymentMethod");
+    if (nonblank(value)) then begin
+      switch (StringToInt(value)) begin
+        case kWebPaymentMethodCC:
+          CUr.BillingTypePreference = kBillPaymentPrefCC;
+        case kWebPaymentMethodInvoice:
+          CUr.BillingTypePreference = kBillPaymentPrefInvoice;
+        case kWebPaymentMethodPaypal:
+          CUr.BillingTypePreference = kBillPaymentPrefPaypal;
+        case kWebPaymentMethodDotpay:
+          CUr.BillingTypePreference = kBillPaymentPrefDotpay;
+        case kWebPaymentMethodSwish:
+          CUr.BillingTypePreference = kBillPaymentPrefSwish;
+        case kWebPaymentMethodPaytrail:
+          CUr.BillingTypePreference = kBillPaymentPrefPaytrail;
+        case kWebPaymentMethodOrder:
+          CUr.BillingTypePreference = kBillPaymentPrefOrder;
+        case kWebPaymentMethodPaysera:
+          CUr.BillingTypePreference = kBillPaymentPrefPaysera;
+        case kWebPaymentMethodRoyalty:
+          CUr.BillingTypePreference = kBillPaymentPrefRoyalty;
+      end;
+    end;
+    RecordUpdate(OldCUr,CUr,true);
+  end;
   if (ValidateCURegForm(fields,errors)) then begin
     CUr.Code = CustCode;
     if (ReadFirstMain(CUr,1,true)) then begin
@@ -1191,6 +1232,9 @@ begin
       CUr.CustCat = MyAccountRec.RegDefCustCat;
       CUr.AllowLogin = MyAccountRec.RegDefAllowLogin;
       CUr.CustType = MyAccountRec.RegDefCustType;
+      if (MyAccountRec.ConfirmEmailFlag) then begin
+        CUr.Classification = MyAccountRec.ConfirmStartClass;
+      end;
     end;
     while (LoopKey("Sorting",CURegFieldr,1,true)) begin
       fieldname = GetCURegFieldName(CURegFieldr.FieldType,class_cnt);
@@ -1252,16 +1296,47 @@ begin
           case kCURegFieldTypeUserDate3: CUr.UserDate3 = StringToDate(value);
           case kCURegFieldTypeNoLetterPosting: CUr.NoLetterPosting = StringToInt(value);
           case kCURegFieldTypeNoMailPosting: CUr.NoMailPosting = StringToInt(value);
-          case 60: CUr.BillingTypePreference = StringToInt(value);//ksz Billing type field
-          case 61: CUr.PayDeal = value;//ksz Payment terms
+          //case kCURegFieldTypeCustCode://do nothing for customer code
+          case kCURegFieldTypeBillingType: CUr.BillingTypePreference = StringToInt(value);//ksz Billing type field
+          case kCURegFieldTypePaymentTerms: CUr.PayDeal = value;//ksz Payment terms
         end;
       end;
     end;
+    value = WebGetArg("WebPaymentMethod");
+    if (nonblank(value)) then begin
+      switch (StringToInt(value)) begin
+        case kWebPaymentMethodCC:
+          CUr.BillingTypePreference = kBillPaymentPrefCC;
+        case kWebPaymentMethodInvoice:
+          CUr.BillingTypePreference = kBillPaymentPrefInvoice;
+        case kWebPaymentMethodPaypal:
+          CUr.BillingTypePreference = kBillPaymentPrefPaypal;
+        case kWebPaymentMethodDotpay:
+          CUr.BillingTypePreference = kBillPaymentPrefDotpay;
+        case kWebPaymentMethodSwish:
+          CUr.BillingTypePreference = kBillPaymentPrefSwish;
+        case kWebPaymentMethodPaytrail:
+          CUr.BillingTypePreference = kBillPaymentPrefPaytrail;
+        case kWebPaymentMethodOrder:
+          CUr.BillingTypePreference = kBillPaymentPrefOrder;
+        case kWebPaymentMethodPaysera:
+          CUr.BillingTypePreference = kBillPaymentPrefPaysera;
+        case kWebPaymentMethodRoyalty:
+          CUr.BillingTypePreference = kBillPaymentPrefRoyalty;
+      end;
+      CUr.PayDeal = SetCustomerWebPaymentMethod(CUr);
+    end;
     if (RecordExists) then begin
       err = RecordUpdate(OldCUr,CUr,true);
+      if (nonblank(GetSessionString("mp_tmp_basket_item"))) then begin
+        DoUpdateSubscriptionFromSubINPackages(StringToLongint(GetSessionstring("mp_tmp_basket_item_qty")),-1,GetSessionstring("mp_tmp_basket_item"),CUr);
+        PutSessionString("mp_tmp_basket_item","");
+        PutSessionString("mp_tmp_basket_item_qty","");
+      end;
     end else begin
       WebStoreCust(CUr,passwd);
-      SendEmailConfirmationMail(CUr);
+      SendWebshopMail(kWebshopMailRegister,CUr.Code);
+      queued.SendEmailConfirmationMail(CUr);
     end;
 
     WebOutString("{");

@@ -163,7 +163,7 @@ BEGIN
   rwcnt = MatRowCnt(IVr);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(IVr,i,IVrw);
-    if ((IVrw.stp==kInvoiceRowTypeGiftVoucherPayment) or (IVrw.stp==kInvoiceRowTypeCreditCardPayment) or (IVrw.stp==kInvoiceRowTypeSwishPayment) or (IVrw.stp==kInvoiceRowTypeChequePayment)) then begin
+    if ((IVrw.stp==kInvoiceRowTypeGiftVoucherPayment) or (IVrw.stp==kInvoiceRowTypeCreditCardPayment) or (IVrw.stp==kInvoiceRowTypeSwishPayment) or (IVrw.stp==kInvoiceRowTypeQRPayment) or (IVrw.stp==kInvoiceRowTypeCashWithdrawal) or (IVrw.stp==kInvoiceRowTypeChequePayment)) then begin
       cash = cash + IVrw.Sum;
     end;
     if ((IVrw.stp==kInvoiceRowTypeCashPayment) or (IVrw.stp==kInvoiceRowTypeLoyaltyPointsPayment)) then begin 
@@ -215,6 +215,8 @@ BEGIN
       case kInvoiceRowTypeLoyaltyPointsPayment: chsum = true;
       case kInvoiceRowTypeCreditCardPayment: chsum = true;
       case kInvoiceRowTypeSwishPayment: chsum = true;
+      case kInvoiceRowTypeQRPayment: chsum = true;
+      case kInvoiceRowTypeCashWithdrawal: chsum = true;
       case kInvoiceRowTypeChequePayment: chsum = true;
     end;
   end;
@@ -243,6 +245,20 @@ BEGIN
           res = true;
         end; 
       case kInvoiceRowTypeSwishPayment:
+        if (IVrw.Sum==0) then begin 
+          IVrw.Sum = IVp.Sum4 - CalculateIVCashAmount(IVp); 
+          MatRowPut(IVp,rownr,IVrw);
+          chsum = true;
+          res = true;
+        end; 
+      case kInvoiceRowTypeQRPayment:
+        if (IVrw.Sum==0) then begin 
+          IVrw.Sum = IVp.Sum4 - CalculateIVCashAmount(IVp); 
+          MatRowPut(IVp,rownr,IVrw);
+          chsum = true;
+          res = true;
+        end; 
+      case kInvoiceRowTypeCashWithdrawal:
         if (IVrw.Sum==0) then begin 
           IVrw.Sum = IVp.Sum4 - CalculateIVCashAmount(IVp); 
           MatRowPut(IVp,rownr,IVrw);

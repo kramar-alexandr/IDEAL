@@ -1,3 +1,4 @@
+external updating function Boolean FormLinkDocumentFilenames(record MailVc,string);
 external function Boolean GetFirstItem(var string,var record INVc);
 external procedure ORPasteRvrsVATCode(var record ORVc,Boolean);
 forward procedure ORVc_PasteCurncyCode(var record ORVc,string);
@@ -392,6 +393,8 @@ BEGIN
   string 10 custemail;
   row MailTextVc MTrw;
   Integer IgnoreRecordDetails;
+  transaction Boolean gPDFEmailf;
+  transaction string 255 gaPDFEmailFiles;
   
   res = 0;
   if (ReadFirstMain(ORr,0,true)) then begin end;  
@@ -540,15 +543,12 @@ LORHIDDENLine:;
   if (blank(docname)) then begin
     docname = "OrdForm";
   end;
-  fname = "tmp/" & USetStr(1816) & " " & ORr.SerNr & ".pdf";
-  SetDocumentFilename(fname);
+  gPDFEmailf = true;
   SetMedia(mtPdf);
   PrintDocument(ORr,docname,false);
-  if (FileExists(fname)) then begin
-    RecordLinkFile(fname,0,Mailr,CurrentCompany);
-  end;
-  SetDocumentFilename("");
-  Delete_File(fname);
+  FormLinkDocumentFilenames(Mailr,gaPDFEmailFiles);
+  SetDocumentFilename("");  
+  gPDFEmailf = false;
 
 LCreateMailFromORD:;  
   CreateMailFromORD = res;

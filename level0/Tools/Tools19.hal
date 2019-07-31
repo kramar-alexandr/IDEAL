@@ -130,9 +130,11 @@ begin
   end;
   RecordCopy(oldIVCashr,IVCashp);
   if (RecidAction_rlIVCashLPrint(IVCashp,docname,arg1)) then begin
+//CUST-BEGIN
     if (nonblank(IVCashp.OfficialSerNr2) or nonblank(IVCashp.OfficialSerNr)) then begin
       if (RecordUpdate(oldIVCashr,IVCashp,false)==0) then begin
         //UpdateOffSerNr(IVCashp.SerNr,"IVCashVc2",0,IVCashp.OfficialSerNr2,false);
+//CUST-END
       end;
     end;
   end;

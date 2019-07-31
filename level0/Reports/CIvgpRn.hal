@@ -1,8 +1,10 @@
+external procedure HTCustClassType(string,var string);
+external function Boolean SetInSet2(string,string);
 external function Boolean HasContactClassification();
 external function Boolean HasCategories();
 external procedure HTCustCat(string,var string);
 external procedure HTCustClass(string,var string);
-external function Boolean ContactInGroupClass(string,string,string,string,string,string);
+external function Boolean ContactInGroupClass2(string,string,string,string,string,string,string);
 external procedure HTNr(Integer,Integer,LongInt,LongInt,var string);
 external function string 255 CreateInvoiceNumber(LongInt,string);
 external function val MulRateToBase1(var string,val,val,val,val,val,val,roundmode);
@@ -54,7 +56,7 @@ begin
 				end;
 			end;
       if (nonblank(RepSpec.f3)) then begin
-        if (SetInSet(RepSpec.f3,IVCashrw.Objects)==false) then begin
+        if (SetInSet2(RepSpec.f3,IVCashrw.Objects)==false) then begin
           skipitem = true;
         end;
       end; 
@@ -210,7 +212,7 @@ begin
         end;
       end;
       if (nonblank(RepSpec.ObjStr)) then begin
-        if (SetInSet(RepSpec.ObjStr,IVCashr.Objects)==false) then begin
+        if (SetInSet2(RepSpec.ObjStr,IVCashr.Objects)==false) then begin
           testf = false;
         end;
       end;  
@@ -222,7 +224,7 @@ begin
         if (RepSpec.f2<>IVCashr.CustCode) then begin testf = false; end;
       end;  
       if (testf) then begin
-        testf = ContactInGroupClass(IVCashr.CustCode,RepSpec.f9,RepSpec.f8,"CUST","","");
+        testf = ContactInGroupClass2(IVCashr.CustCode,RepSpec.f9,RepSpec.f8,RepSpec.f10,"CUST","","");
       end;
       if (nonblank(RepSpec.AccStr)) then begin
         if (RepSpec.AccStr<>IVCashr.SalesMan) then begin testf = false; end;
@@ -239,7 +241,7 @@ begin
         end;
       end; 
       if (nonblank(RepSpec.ObjStr)) then begin
-        if (SetInSet(RepSpec.ObjStr,IVCashr.Objects)==false) then begin
+        if (SetInSet2(RepSpec.ObjStr,IVCashr.Objects)==false) then begin
           testf = false;
         end;
       end;    
@@ -268,7 +270,7 @@ begin
               end;
               
               if (nonblank(RepSpec.f3)) then begin
-                if (SetInSet(RepSpec.f3,IVCashrw.Objects)==false) then begin
+                if (SetInSet2(RepSpec.f3,IVCashrw.Objects)==false) then begin
                   skipitem = true; 
                   wholeinv = false;
                 end;
@@ -328,7 +330,7 @@ begin
 					end;
 				end;
         if (nonblank(RepSpec.f3)) then begin
-          if (SetInSet(RepSpec.f3,IVCashrw.Objects)==false) then begin
+          if (SetInSet2(RepSpec.f3,IVCashrw.Objects)==false) then begin
             skipfr = true; 
             wholeinv = false;
           end;
@@ -471,6 +473,13 @@ begin
     if (nonblank(tstr)) then begin
       Header(rw,tstr,1);
       rw = rw + 1;
+    end;
+    if (nonblank(RepSpec.f10)) then begin
+      HTCustClassType(RepSpec.f10,tstr);
+      if (nonblank(tstr)) then begin
+        Header(rw,tstr,1);
+        rw = rw + 1;
+      end; 
     end;
   end;  
   rw = rw + 1;

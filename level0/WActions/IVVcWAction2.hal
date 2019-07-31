@@ -226,6 +226,31 @@ BEGIN
     case "InvAddr3": res = HasLocalization("PRT")==false;
     case "InvAddr4": res = HasLocalization("PRT")==false;
     case "InvCountry": res = HasLocalization("PRT")==false;
+    case "GlobalTransportNr": 
+      if (wnst!=Rs_insert) then begin
+        res = HasLocalization("PRT")==false;
+        if (res==false) then begin
+          MessageBox(40884,"");
+        end;
+      end;
+    case "GlobalTransportDate": 
+      if (wnst!=Rs_insert) then begin
+        if (nonblank(IVr.GlobalTransportNr)) then begin
+          res = HasLocalization("PRT")==false;
+          if (res==false) then begin
+            MessageBox(40885,"");
+          end;
+        end;
+      end;
+    case "Location": 
+      if (wnst!=Rs_insert) then begin
+        if (nonblank(IVr.GlobalTransportNr)) then begin
+          res = HasLocalization("PRT")==false;
+          if (res==false) then begin
+            MessageBox(40886,"");
+          end;
+        end;
+      end;    
     case "CuAccCode":
       if (rownr>=0) then begin
         MatRowGet(IVr,rownr,IVrw);
@@ -421,7 +446,7 @@ BEGIN
     case "AuthorizationCode":
       if (rownr>=0) then begin
         MatRowGet(IVr,rownr,IVrw);
-        if (IVrw.stp==kInvoiceRowTypeCreditCardPayment or IVrw.stp==kInvoiceRowTypeSwishPayment) then begin
+        if (IVrw.stp==kInvoiceRowTypeCreditCardPayment or IVrw.stp==kInvoiceRowTypeSwishPayment or IVrw.stp==kInvoiceRowTypeQRPayment) then begin
           //BlockLoad(Rahaxib);
           //res = (Rahaxib.TerminalType==kLocalCCTerminalNone);
           res = blank(IVrw.AuthorizationCode);
@@ -435,7 +460,7 @@ BEGIN
       if (IVrw.stp<kInvoiceRowTypeGiftVoucherSold) then begin
         if (UserCanAction("ChangeUnitPrices",true)==false) then begin res = false; end;
       end;
-      if (IVrw.stp==kInvoiceRowTypeCreditCardPayment or IVrw.stp==kInvoiceRowTypeSwishPayment) then begin
+      if (IVrw.stp==kInvoiceRowTypeCreditCardPayment or IVrw.stp==kInvoiceRowTypeSwishPayment or IVrw.stp==kInvoiceRowTypeQRPayment) then begin
         //BlockLoad(Rahaxib);
         //res = (Rahaxib.TerminalType==kLocalCCTerminalNone);
         if (rownr>=0) then begin
@@ -609,6 +634,7 @@ BEGIN
         case "LastRemDate": res = true;
         case "InvComment": res = true;
         case "ReceiptInfo": res = true;
+        case "ExpectedClearingDate": res = true;
         case "ShipAddr0": res = HasLocalization("PRT")==false;
         case "ShipAddr1": res = HasLocalization("PRT")==false;
         case "ShipAddr2": res = HasLocalization("PRT")==false;
@@ -632,6 +658,17 @@ BEGIN
         case "IntCode": res = true;
         case "BankCode": res = true;
         case "Status": res = true;
+        case "GlobalTransportNr" : res = HasLocalization("PRT")==false;  if (res==false) then begin MessageBox(40883,""); end;
+        case "GlobalTransportDate" : 
+          if (nonblank(IVr.GlobalTransportNr)) then begin
+            res = HasLocalization("PRT")==false; 
+            if (res==false) then begin MessageBox(40885,""); end;
+          end;
+        case "Location" : 
+          if (nonblank(IVr.GlobalTransportNr)) then begin
+            res = HasLocalization("PRT")==false; 
+            if (res==false) then begin MessageBox(40886,""); end;
+          end;
       end;
     end else begin
       GetWindowRecord(wn,IVr);
@@ -660,7 +697,7 @@ begin
     IVVc_PastePrice(IVr,IV2r,rownr,warning);
     //START-CUST PST 2015-September-30
     MatRowGet(IVr,rownr,IVrw);
-    if IVr.InclVAT == 0 then begin
+    if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
       IVrw.PriceExclVAT = IVrw.Price;
     end else begin
       IVrw.PriceExclVAT = IVrw.Price - FindVAT(IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT);

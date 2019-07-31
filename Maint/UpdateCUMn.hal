@@ -1,0 +1,48 @@
+event startup
+begin
+
+  SetLangMode(LangLithuanian,"LIT",0);
+  
+  Maintenance("Update Contacts",UpdateCUVClass,UpdateCUMn,modSY);
+
+  return;
+end;
+
+window UpdateCUVClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs;
+  WindowBegin("Update Contacts",UpdateCUVClass,CGMnt,RcType);
+  SetWRect(20,80,450,200);
+  v = 30; vs = 25; h=120;
+  StaticText(h,v,"Click Run to begin check",false);
+  EndWindow;
+end;
+
+global
+updating function Boolean UpdateiDealCustomer(var record RcVc RepSpec)
+begin
+  Boolean res;
+  record CUVc CUr,oldCUr;
+  
+  SetLoopPosition(CUr,RepSpec.long1);
+  if (LoopMain(CUr,1,true)) then begin
+    RecordCopy(oldCUr,CUr);
+    RecordUpdate(oldCUr,CUr,true);
+    RepSpec.long1 = GetLoopPosition(CUr);
+    res = true;
+  end;
+
+  UpdateiDealCustomer = res;
+  return;
+end;
+
+global
+procedure UpdateCUMn(record RcVc RepSpec)
+begin
+  
+  while (qupdating.UpdateiDealCustomer(RepSpec)) begin
+  end;
+
+  return;
+end;

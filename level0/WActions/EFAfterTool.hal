@@ -52,7 +52,9 @@ begin
   Integer i,rwcnt;
   record CUVc VEr;
   Integer OPBookVAT,PostVIVATonVATCorr;
+  record APAccBlock APAb;
 
+  BlockLoad(APAb);
   BlockLoad(VATRec);
   VEr.Code = vecode;
   ReadFirstMain(VEr,1,true);
@@ -89,15 +91,21 @@ LkInvoiceTypeCredit:;
           if (blank(pvatacc)) then begin pvatacc = vatrw.PurchVATAcc; end;
           if (PostVIVATonVATCorr!=0) then begin
             svatacc = vatrw.CorSalesVATAcc;
+            pvatacc = APAb.CorPurchVATAcc;  
+            if (blank(pvatacc)) then begin
             pvatacc = vatrw.CorPurchVATAcc;
+          end;
           end;
         otherwise
           svatacc = vatrw.SalesVATAcc;
           pvatacc = vatrw.PurchVATAcc;
           if (PostVIVATonVATCorr!=0) then begin
             svatacc = vatrw.CorSalesVATAcc;
+            pvatacc = APAb.CorPurchVATAcc;  
+            if (blank(pvatacc)) then begin
             pvatacc = vatrw.CorPurchVATAcc;
           end;
+      end;
       end;
       if (blank(pvatacc)) then begin
         if (OPBookVAT!=0) then begin

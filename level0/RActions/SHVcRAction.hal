@@ -1591,14 +1591,17 @@ updating function LongInt SHVcRecordImportAfter(var record SHVc SHr,record SHVc 
 begin
   LongInt res;
   Integer err;
+  transaction Boolean gSHVcRecordImport_RecordExists;
 
   if (SHr.OKFlag!=0) then begin
+    if (gSHVcRecordImport_RecordExists==false) then begin
     SHUpdateSerialNr(SHr,false,true);
     UpdateProjFromShip(SHr);
     if (ImportingTextBackup==false and CanOKStockRecord(err)==true) then begin
       SHUpdateItemHist(SHr);
       SHUpdateStock(SHr,false,false);
     end;
+  end;
   end;
   SHVcRecordImportAfter = res; 
   return;

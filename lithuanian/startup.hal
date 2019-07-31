@@ -22,6 +22,16 @@ begin
   Setting("IDEAL - Banking Statement Import settings",BankImportSetTClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 9 October 2018 15:59:21
   
   Setting("iDeal - Paste Special",ItemPasteSpecTClass,modSY);
+  Setting("iDeal - Reversed VAT Payment Modes",RvrsVATPDTClass,modSL);
+
+  Setting("Preki÷ eksportas ° web",ItemExportTClass,modSL);
+  Setting("Superkam÷ preki÷ parametras",RetItmTClass,modSL);
+  Setting("Pin Pad Counter",PinPadCntLClass,modSL);
+  Setting("Rezervacijos",ResListLClass,modSL);
+  Setting("Rezervacijos - BROKAI",ResListBrokLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:34:09
+  Setting("Rezervacijos - DEMO",ResListDemoLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:34:09
+  Setting("Touchless Payments",TouchlessPaymentTClass,modPOS);
+
 
   
   SetBegin(14444);

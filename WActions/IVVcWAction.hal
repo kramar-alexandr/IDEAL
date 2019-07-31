@@ -13,7 +13,7 @@ external inner procedure DisplayIVItem2(record IVVc,Integer,var Boolean,var reco
 external inner procedure IVVc_PasteItem(record IVVc,Integer,Integer);
 //END-CUST November 18, 2014 by PST
 remote inner procedure IVVc_PastePayDeal(var record IVVc,string,string); //JP: HAL-194;
-
+remote procedure UpdateiDealRvrsVATCodes(var record IVVc);
 
 
 
@@ -152,7 +152,7 @@ begin
   boolean res;
   record UserVc Userr;
 
-	res = inner.IVDClassCustCodeEFAfter(wn,rownr,changed);
+	//res = inner.IVDClassCustCodeEFAfter(wn,rownr,changed);this should not be needed as we are performing the general check already. 
 	IVr.SalesMan = SalesMan;
 	Userr.Code = CurrentUser;
 	if ReadFirstMain(Userr,1,true) then begin
@@ -161,10 +161,12 @@ begin
 			if ((changed!=0) or ((blank(IVr.Addr0)) and (nonblank(IVr.CustCode)))) then begin
   			IVr.InclVAT = 2;
   			IVr.FiscalFlag = 1;
-				PutWindowRecord(wn,IVr);			
 			end;
 		end;
 	end;
+  UpdateiDealRvrsVATCodes(IVr);
+	PutWindowRecord(wn,IVr);			
+
   IVDClassCustCodeEFAfter = true;
   return;
 end;
@@ -182,7 +184,7 @@ begin
     GetPrevWindowRecord(wn,IV2r);
     DeselectWindow(wn,false);
     MatRowGet(IVr,rownr,IVrw);
-    if IVr.InclVAT == 0 then begin
+    if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
       IVrw.Price = IVrw.PriceExclVAT;
     end else begin
       IVrw.Price = IVrw.PriceExclVAT + FindVAT(IVrw.VATCode,IVrw.PriceExclVAT,0,IVr.NoTAXonVAT);
@@ -229,6 +231,8 @@ begin
     //IVVc_PasteItem(IVr,rownr,wn);
     //DisplayIVItem(IVr,rownr);
     PutExtraItem(IVr,rownr,wn);
+    UpdateiDealRvrsVATCodes(IVr);
+    PutWindowRecord(wn,IVr);
   end;
   IVDClassArtCodeEFAfter = true;
   return;
@@ -257,6 +261,48 @@ begin
   return;
 end;
 
+function Boolean IVDClassPayDealEFAfter(Integer wn,Integer rownr,Integer changed)
+begin  
+  record IVVc IVr;
+  record LocationVc Locr;
+  
+  if (changed!=0) then begin
+    GetWindowRecord(wn,IVr);
+    UpdateiDealRvrsVATCodes(IVr);
+    PutWindowRecord(wn,IVr);
+  end;
+  IVDClassPayDealEFAfter = true;
+  return;
+end;
+
+function Boolean IVDClassQuantEFAfter(Integer wn,Integer rownr,Integer changed)
+begin  
+  record IVVc IVr;
+  record LocationVc Locr;
+  
+  if (changed!=0) then begin
+    GetWindowRecord(wn,IVr);
+    UpdateiDealRvrsVATCodes(IVr);
+    PutWindowRecord(wn,IVr);
+  end;
+  IVDClassQuantEFAfter = true;
+  return;
+end;
+
+function Boolean IVDClassvRebateEFAfter(Integer wn,Integer rownr,Integer changed)
+begin  
+  record IVVc IVr;
+  record LocationVc Locr;
+  
+  if (changed!=0) then begin
+    GetWindowRecord(wn,IVr);
+    UpdateiDealRvrsVATCodes(IVr);
+    PutWindowRecord(wn,IVr);
+  end;
+  IVDClassvRebateEFAfter = true;
+  return;
+end;
+
 global
 function Boolean IVDClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
 BEGIN
@@ -273,6 +319,12 @@ BEGIN
       res = IVDClassArtCodeEFAfter(wn,rownr,changed);
     case "Location":// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:41:29
       res = IVDClassLocationEFAfter(wn,rownr,changed);// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:41:32
+    case "PayDeal":
+      res = IVDClassPayDealEFAfter(wn,rownr,changed);
+    case "Quant":
+      res = IVDClassQuantEFAfter(wn,rownr,changed);
+    case "vRebate":
+      res = IVDClassvRebateEFAfter(wn,rownr,changed);
   end;
   IVDClassAfterEditField = res;
 return;

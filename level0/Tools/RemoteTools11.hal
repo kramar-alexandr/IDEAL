@@ -241,6 +241,9 @@ L20OrdDownPay:;
   IVp.BaseRate1 = ORr.BaseRate1;
   IVp.BaseRate2 = ORr.BaseRate2;
   IVp.Location = ORr.Location;
+  if (HasLocalization("RUS")) then begin
+    IVp.OperationCode = "02";
+  end;
   BlockLoad(DPb);
   if (nonblank(DPb.PayDeal)) then begin
     IVp.PayDeal = DPb.PayDeal;
@@ -313,6 +316,7 @@ L20OrdDownPay:;
       IVrw.Spec = tstr;
     end;
     IVrw.Perceptions = INr.Perceptions;
+    IVrw.UnitCode = INr.Unittext;
     IVrw.Spec = IVrw.Spec & " ";
     IVrw.Spec = IVrw.Spec & ORr.SerNr;
     t = t - ORr.DownPaySent;
@@ -401,7 +405,9 @@ L20OrdDownPay:;
           ClearRow(IVp,IVrw,kInvoiceRowTypeDownpayment);
           IVrw.Sum = t;
           IVrw.ArtCode = ORrw.ArtCode;
+          IVrw.UnitCode = INr.Unittext;
           IVrw.Perceptions = INr.Perceptions;
+
           IVrw.Quant = ORrw.Quant;
           IVrw.Spec = ORrw.Spec;
           IVrw.SalesAcc = ORrw.SalesAcc;
@@ -883,6 +889,7 @@ begin
   record LoyaltyCardVc LoyaltyCardr;
   Boolean limitdaysf;
   record PDVc PDr;
+  record IVTBlock IVTb;
 
   warning = "";
   errstr = "";
@@ -914,6 +921,7 @@ begin
 
   BlockLoad(GOb);
   BlockLoad(CLb);
+  BlockLoad(IVTb);
   if ((efstr!=IVp.CustCode) and (nonblank(efstr))) then begin
     tstr = IVp.Objects;
     RemoveOldCustObjects(efstr,tstr);
@@ -1004,6 +1012,9 @@ begin
     end;      
     if (iscred==false) then begin
       IVp.PayDeal = CUr.PayDeal;
+      if (blank(IVp.PayDeal)) then begin
+        IVp.PayDeal = IVTb.PayDeal;
+      end;
       PastePDInInv(IVp,"",true);
     end;
     IVp.PriceList = CUr.PLCode;

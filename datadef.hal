@@ -33,10 +33,12 @@ SourceFile("halcust/level0/WebNG",0);
 SourceFile("halcust/WebNG", 3);
 SourceFile("halcust/lithuanian", 3);
 SourceFile("halcust/english", 3);// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:23:00
+SourceFile("halcust/Maint", 3);
 SourceFile("halcust/Printers", 3);
 SourceFile("halcust/RActions", 3);
 SourceFile("halcust/Reports", 3);
 SourceFile("halcust/Exports", 3);
+SourceFile("halcust/Tools", 3);
 SourceFile("halcust/WActions", 3);
 SourceFile("halcust/Web", 3);
 SourceFile("halcust/WebNG", 3);
@@ -328,6 +330,10 @@ begin
   RecordField(RequireCreditNoteReason,M4Int,0,0);
   RecordField(CreditIVTotNotExceedInvCheck,M4Int,0,0);
   RecordField(CheckZeroQtysIVFlag,M4Int,0,0); // EVS: HAL-233
+  RecordField(SalesAccSeparateRows,M4Int,0,0);
+  RecordField(CashWithdrawalAcc,M4Code,10,AccVc);
+  RecordField(VATBase,M4Code,10,AccVc);
+  RecordField(VATBaseOppositeAcc,M4Code,10,AccVc);
   EndBlock;
   
   // =========== custom defs start ===============
@@ -650,6 +656,11 @@ begin
 		RecordField(RunCashupMaintenance,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 15:31:30
   	RecordField(BuyBackItemCode,M4Code,50,0);// Edit ************************** BPI Ukraine - KramarAlexandr - середа, 15 листопада 2017 р. о 21:55:18
   	RecordField(AUTOOKPU,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:38:12 PM
+    RecordField(NoZeroQty,M4Int,0,0);
+    RecordField(CheckVATNo,M4Int,0,0);
+    RecordField(NoZeroSum,M4Int,0,0);
+    RecordField(PrintZReportatCashup,M4Int,0,0);
+    RecordField(CashWithdrawalAcc,M4Code,10,AccVc);
   EndBlock;
   
   RecordAddBegin(LocationVc,"LocationVc_Custom");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 19:33:13
@@ -781,6 +792,7 @@ begin
     ArrayField(CurncyCode,M4Code,5,CurncyCodeVc);
     EndArray;
     EndBlock;
+    
 
   //CHN::just updating the set
     BlockBegin(RahaxiBlock,-,"");
@@ -811,6 +823,13 @@ begin
     RecordAddBegin(CashVc,"iDealCashVc")
     ArrayField(AmountStr,M4Str,20,0);
     EndRecordAdd;
+
+    BlockBegin(RvrsVATPDBlock,-,"");
+    RecordField(Math,M4Matrix,0,0);
+    ArrayBegin(Math,-,1);
+    ArrayField(PayDeal,M4Code,10,0);
+    EndArray;
+    EndBlock;
 
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
   RecordField(Math,M4Matrix,0,0);

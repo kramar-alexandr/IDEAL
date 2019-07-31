@@ -1425,7 +1425,6 @@ jjtmp
   s = MulRateToBase1(IVCashr.CurncyCode,s,IVCashr.FrRate,IVCashr.ToRateB1,IVCashr.ToRateB2,IVCashr.BaseRate1,IVCashr.BaseRate2,DefaultCurRoundOff);
 
 //CUST-BEGIN
-LogText(0,"CASHUP DEBUG:: Adding >> step 1 cashmode=" & cashmode & ":sum=" & s);
   if (nonblank(cashmode)) then begin
     if (GetPMRow(cashmode,PMrw)) then begin 
 LogText(0,"CASHUP DEBUG:: Adding row " & PMrw.AccNr);

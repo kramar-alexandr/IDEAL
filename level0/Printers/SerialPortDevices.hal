@@ -1,3 +1,5 @@
+external procedure FB15OpenDrawer(record LSerialPortDeviceVc,Boolean);
+external function Integer FB15OpenDrawerdll(record LSerialPortDeviceVc,Boolean);
 external procedure FM32DLLOpenDrawer(record LSerialPortDeviceVc,Boolean);
 external procedure CHDFMPOSOpenDrawer(record LSerialPortDeviceVc,Boolean);
 remote function Integer OpenDrawer_POSNETProtocol_TCP(record LSerialPortDeviceVc);
@@ -24,6 +26,7 @@ external procedure PMsg_Diagnostics(record LSerialPortDeviceVc);
 external procedure PMsg_TerminateReceipt(record LSerialPortDeviceVc); 
 external function LongInt PMsg_SyncDateAndTime(record LSerialPortDeviceVc,date,time);
 external procedure PMsg_Status(record LSerialPortDeviceVc); 
+external function string 255 CurDrawerCode(string);
 //CUST-BEGIN
 external outer procedure OpenASPACashDrawer(record LSerialPortDeviceVc);
 //CUST-END
@@ -370,6 +373,10 @@ begin
           openf = true;
         case kSerialPortDeviceModelFiscPrinterFisUSBMDLL:
           openf = true;
+        case kSerialPortDeviceModelFiscPrinterFB15:
+          openf = true;
+        case kSerialPortDeviceModelFiscPrinterFB15DLL:
+          openf = true;
 //CUST-BEGIN
         case 200:
           openf = true;
@@ -414,6 +421,10 @@ begin
             POSNETOpenDrawer(LSPDr,true);
           case kSerialPortDeviceModelVirtualFiscPrinterCHDFMPOS:
             CHDFMPOSOpenDrawer(LSPDr,true);
+          case kSerialPortDeviceModelFiscPrinterFB15:
+            FB15OpenDrawer(LSPDr,true);
+          case kSerialPortDeviceModelFiscPrinterFB15DLL:
+            FB15OpenDrawerdll(LSPDr,true);
           case kSerialPortDeviceModelFiscPrinterFM32DLL:
             FM32DLLOpenDrawer(LSPDr,true);
           case kSerialPortDeviceModelFiscPrinterFisUSBMDLL:
@@ -491,6 +502,8 @@ begin
     if ((IVCashrw.stp==kInvoiceRowTypeCashPayment) or
        (IVCashrw.stp==kInvoiceRowTypeCreditCardPayment) or
        (IVCashrw.stp==kInvoiceRowTypeSwishPayment) or
+       (IVCashrw.stp==kInvoiceRowTypeQRPayment) or
+       (IVCashrw.stp==kInvoiceRowTypeCashWithdrawal) or
        (IVCashrw.stp==kInvoiceRowTypeLoyaltyPointsPayment) or
        (IVCashrw.stp==kInvoiceRowTypeGiftVoucherPayment) or
        (IVCashrw.stp==kInvoiceRowTypeChequePayment)) then begin

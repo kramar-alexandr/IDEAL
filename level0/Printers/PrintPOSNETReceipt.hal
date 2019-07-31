@@ -1,4 +1,10 @@
 //c83170505
+external updating procedure PrintFB15Receipt_RestAccVc(var record RestAccVc,record LSerialPortDeviceVc);
+external updating procedure PrintFB15Receiptdll_RestAccVc(var record RestAccVc,record LSerialPortDeviceVc);
+external updating procedure PrintEPSON81IIReceipt_IVVc(var record IVVc,record LSerialPortDeviceVc);
+external updating procedure PrintCUSTOMKUBEIIxFReceipt_IVVc(var record IVVc,record LSerialPortDeviceVc);
+external updating procedure PrintFisUSBMReceiptdll_RestAccVc(var record RestAccVc,record LSerialPortDeviceVc,Boolean);
+external updating procedure PrintEltradeReceipt_IVVc(var record IVVc,record LSerialPortDeviceVc);
 remote function Integer OpenDrawer_POSNETProtocol_TCP(record LSerialPortDeviceVc);
 remote updating procedure PrintPOSNETReceiptRestAcc_withPOSNETProtocol_TCP(var record RestAccVc,record LSerialPortDeviceVc);
 remote updating procedure PrintPOSNETReceipt_withPOSNETProtocol_TCP(var record IVVc,record LSerialPortDeviceVc);
@@ -46,7 +52,7 @@ external updating procedure PrintEpsonTMTReceipt(var record IVVc,record LSerialP
 external procedure IVVc_PrintBematechMP2100Receipt(var record IVVc,record LSerialPortDeviceVc);
 external procedure RestAccVc_PrintBematechMP2100Receipt(var record RestAccVc,record LSerialPortDeviceVc);
 //CUST-BEGIN
-external outer updating procedure IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
+external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
 //CUST-END
 
 procedure StripOneZero(var string res)
@@ -964,6 +970,8 @@ begin
   LSPDr.EscSeqBefore = SPDr.EscSeqBefore;
   LSPDr.EscSeqAfter = SPDr.EscSeqAfter;
   LSPDr.FailureCode = SPDr.FailureCode;
+  LSPDr.LogCommunication = SPDr.LogCommunication;
+  LSPDr.DeviceID = SPDr.DeviceID;
   return;
 end;
 
@@ -1098,9 +1106,13 @@ BEGIN
         PrintFB05Receipt(IVr,LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB15:
         PrintFB15Receipt_IVVc(IVr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterEltrade:
+        PrintEltradeReceipt_IVVc(IVr,LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB15DLL:
         PrintFB15Receiptdll_IVVc(IVr,LSPDr);
       case kSerialPortDeviceModelFiscPrinterFM32DLL:
+        PrintFM32Receiptdll_IVVc(IVr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterFisUSBMDLL:
         PrintFM32Receiptdll_IVVc(IVr,LSPDr);
       case kSerialPortDeviceModelFiscPrinterST05:
         PrintST05Receipt(IVr,LSPDr);
@@ -1113,6 +1125,10 @@ BEGIN
         PrintEpsonTMTReceipt(IVr,LSPDr);
       case kSerialPortDeviceModelFiscPrinterBematechMP2100:
         IVVc_PrintBematechMP2100Receipt(IVr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterEPSON81II:
+        PrintEPSON81IIReceipt_IVVc(IVr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterCUSTOMKUBEIIxF:
+        PrintCUSTOMKUBEIIxFReceipt_IVVc(IVr,LSPDr);
 //CUST-BEGIN
       case 200:
         IVVc_PrintAPSAReceipt(IVr,LSPDr);
@@ -1298,6 +1314,12 @@ BEGIN
         RestAccVc_PrintTSLReceipt(RestAccr,LSPDr,false);
       case kSerialPortDeviceModelFiscPrinterBematechMP2100:
         RestAccVc_PrintBematechMP2100Receipt(RestAccr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterFisUSBMDLL:
+        PrintFisUSBMReceiptdll_RestAccVc(RestAccr,LSPDr,false);
+      case kSerialPortDeviceModelFiscPrinterFB15:
+        PrintFB15Receipt_RestAccVc(RestAccr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterFB15DLL:
+        PrintFB15Receiptdll_RestAccVc(RestAccr,LSPDr);
     end;
   end;
   return;

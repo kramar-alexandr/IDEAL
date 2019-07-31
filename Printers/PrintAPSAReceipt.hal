@@ -5,6 +5,7 @@ external inner procedure SetPOSWindowDisplay_SendToSerialPortDevices(string,stri
 external inner updating procedure OpenPOSSessionsm();
 external inner updating procedure ClosePOSSessionsm();
 external function Boolean ConfirmLastTouchlessPayment();
+external function Boolean InitTouchlessPaymentReturn(Integer);
 
 enum begin
   kAPSACommandOpen = 0,
@@ -1137,6 +1138,7 @@ begin
   vector val vatrates;  
   string 255 receiptnr;
   val retval;
+  Boolean updatef;
 
   noErr = 0;
   if (res==noErr) then begin
@@ -1181,7 +1183,6 @@ begin
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
-
     end;
     if (IVr.Prntdf!=0) then begin
     	RecordCopy(oldIVr,IVr);        
@@ -1195,9 +1196,13 @@ begin
         end;
         //Send Confirmation ToTouchlesspayments
         ConfirmLastTouchlessPayment;
-      end; 
+        updatef = true;
+      end;
     end;    
 LIVVc_PrintAPSAReceipt:;
+    if (updatef==false) then begin
+      InitTouchlessPaymentReturn(CurWindow);
+    end;
     SetPOSWindowDisplay_SendToSerialPortDevices("       iDeal       ","");
     if (res!=0) then begin
       MessageBox(res,"");
@@ -1465,8 +1470,8 @@ begin
   end;
   switch (LSPDr.Printer) begin
     case 200:
-      //SplitString(tstr,arr);
-      arr[0] = tstr;
+      SplitString(tstr,arr);
+      //arr[0] = tstr;
       for (i=0;i<cnt;i=i+1) begin
         PrintNonFiscalReceipt(LSPDr,arr);
       end;

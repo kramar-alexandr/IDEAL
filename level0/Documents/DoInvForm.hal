@@ -778,7 +778,7 @@ BEGIN
   LongInt al,posa;
   record IVVc NewIVr;
   val PointsSpent;
-  record BrazilEInvTypeVc BEInvTyper;
+  record BrazilEInvTypeVc EInvTyper;
   record StandProblemVc SPr;
   record CYBlock CYb;
   boolean tstr3;
@@ -907,6 +907,7 @@ BEGIN
   if (FieldInForm("F_TAXAUTHIDCC")) then begin
     PrintTAXAuthIDControlCode(F_TAXAUTHIDCC,IVr);
   end;
+  OUTFORMFIELD("F_PRINTDATE",IVr.PrintDate);  
   //START-CUST PST 2015-October-01
   //OUTFORMFIELD("F_PRINTDATE",IVr.PrintDate);
   if IVr.RetItmPrice1 > 0 then begin
@@ -1514,10 +1515,10 @@ BEGIN
   
   OUTFORMFIELD("F_BRAZILEINVID",CreateBrazilEInvoiceId(IVr));
   if (nonblank(IVr.BrazilEInvType)) then begin
-    BEInvTyper.Code = IVr.BrazilEInvType;
-    if (ReadFirstMain(BEInvTyper,1,true)) then begin
-      OUTFORMFIELD("F_BRAZILEINVDIR",BEInvTyper.InvDir);
-      OUTFORMFIELD("F_BRAZILEINVOPNAT",BEInvTyper.Spec);
+    EInvTyper.Code = IVr.BrazilEInvType;
+    if (ReadFirstMain(EInvTyper,1,true)) then begin
+      OUTFORMFIELD("F_BRAZILEINVDIR",EInvTyper.InvDir);
+      OUTFORMFIELD("F_BRAZILEINVOPNAT",EInvTyper.Spec);
     end;
   end;
 
@@ -1890,7 +1891,8 @@ BEGIN
   PrintValue("F_AVRUNDNING",IVr.Sum0,M4Val,LangNrr,SysFormatRec,negamountf);
   PrintValue("F_SUMFREIGHT",IVr.Sum1-IVr.FrPrice,M4Val,LangNrr,SysFormatRec,negamountf);
   PrintValue("F_TAX1",IVr.TAX1Sum,M4Val,LangNrr,SysFormatRec,negamountf);
-  PrintValue("F_SUMMAMOMS",IVr.Sum4-IVr.Sum3,M4Val,LangNrr,SysFormatRec,negamountf);
+  PrintValue("F_SUMMAMOMS",IVr.Sum3,M4Val,LangNrr,SysFormatRec,negamountf);
+//  PrintValue("F_SUMMAMOMS",IVr.Sum4-IVr.Sum3,M4Val,LangNrr,SysFormatRec,negamountf);
   PrintValue("F_FRAKT",IVr.FrPrice,M4Val,LangNrr,SysFormatRec,negamountf);
 //  PrintValue("F_SUMMAEJMOMS",IVr.Sum2,M4Val,LangNrr,SysFormatRec,negamountf); // What is Sum2?? Using this field for something on row that actually prints something :)
   PrintValue("F_TOPAYEXCLFREIGHT",IVr.Sum1-IVr.FrPrice+IVr.Sum3,M4Val,LangNrr,SysFormatRec,negamountf);

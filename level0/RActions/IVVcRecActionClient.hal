@@ -334,16 +334,6 @@ begin
 end;
 
 global
-updating function LongInt ProdOperationVcRecordUpdateClient(LongInt wn,var record ProdOperationVc ProdOperationr,record ProdOperationVc ProdOperation2r,LongInt long3,LongInt long4)
-begin
-  LongInt res;
-  
-  UpdateNamedWindow("ResMonWClass");
-  ProdOperationVcRecordUpdateClient = res; 
-  return;
-end;
-
-global
 function LongInt IVVcRecordCheckClient(LongInt wn,record IVVc IVr,record IVVc IV2r,LongInt stat,LongInt errorcheck)
 begin
   LongInt res;

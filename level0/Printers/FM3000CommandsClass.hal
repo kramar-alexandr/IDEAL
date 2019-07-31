@@ -1,3 +1,10 @@
+external procedure FB15XReport(record LSerialPortDeviceVc);
+external procedure EPSON81IITCPIPMonthlyReport(record LSerialPortDeviceVc);
+external procedure EPSON81IITCPIPDailyReport(record LSerialPortDeviceVc);
+external procedure EPSON81IIMonthlyReport(record LSerialPortDeviceVc);
+external procedure EPSON81IIDailyReport(record LSerialPortDeviceVc);
+external procedure CUSTOMKUBEIIxFDailyReport(record LSerialPortDeviceVc);
+external procedure CUSTOMKUBEIIxFMonthlyReport(record LSerialPortDeviceVc);
 external procedure FM32PrintDailyReportdll(record LSerialPortDeviceVc);
 remote procedure POSNETProtocol_PeriodicReport_TCP(record LSerialPortDeviceVc,Date,Date);
 remote procedure POSNETProtocol_YearlyReport_TCP(record LSerialPortDeviceVc,Date);
@@ -42,6 +49,7 @@ external procedure PMsg_PeriodicReport(record RcVc,record LSerialPortDeviceVc);
 external procedure PMsg_YearlyReport(record LSerialPortDeviceVc,date);
 external procedure BematechMP2100XReport(record LSerialPortDeviceVc);
 external procedure BematechMP2100ZReport(record LSerialPortDeviceVc);
+external procedure FB15XReportdll(record LSerialPortDeviceVc);
 //CUST-BEGIN
 external outer procedure APSA_PrintZReport(record LSerialPortDeviceVc);
 external outer procedure APSA_PrintXReport(record LSerialPortDeviceVc);
@@ -176,6 +184,8 @@ begin
       FB15DailyReportdll(LSPDr);
     case kSerialPortDeviceModelFiscPrinterFM32DLL:
       FM32DailyReportdll(LSPDr);
+    case kSerialPortDeviceModelFiscPrinterFisUSBMDLL:
+      FM32DailyReportdll(LSPDr);
     case kSerialPortDeviceModelFiscPrinterST05:
       ST05DailyReport(LSPDr);
     case kSerialPortDeviceModelVirtualFiscPrinterCHDFMPOS:
@@ -190,6 +200,12 @@ begin
       POSNETProtocol_DailyReport_TCP(LSPDr,RepSpec.d1);
     case kSerialPortDeviceModelFiscPrinterPOSNETwVATNr:
       POSNETProtocol_DailyReport(LSPDr,RepSpec.d1);
+    case kSerialPortDeviceModelFiscPrinterEPSON81II:
+      EPSON81IIDailyReport(LSPDr);
+    case kSerialPortDeviceModelFiscPrinterEPSON81IITCPIP:
+      EPSON81IITCPIPDailyReport(LSPDr);
+    case kSerialPortDeviceModelFiscPrinterCUSTOMKUBEIIxF:
+      CUSTOMKUBEIIxFDailyReport(LSPDr);
 //CUST-BEGIN
       case 200:
         threadasync.APSA_PrintZReport(LSPDr);
@@ -266,6 +282,8 @@ begin
       FB15MonthlyReportdll(LSPDr);
     case kSerialPortDeviceModelFiscPrinterFM32DLL:
       FM32MonthlyReportdll(LSPDr);
+    case kSerialPortDeviceModelFiscPrinterFisUSBMDLL:
+      FM32MonthlyReportdll(LSPDr);
     case kSerialPortDeviceModelFiscPrinterST05:
       ST05MonthlyReport(LSPDr);
     case kSerialPortDeviceModelVirtualFiscPrinterCHDFMPOS:
@@ -278,6 +296,12 @@ begin
       POSNETProtocol_MonthlyReport_TCP(LSPDr,RepSpec.d1);
     case kSerialPortDeviceModelFiscPrinterPOSNETwVATNr:
       POSNETProtocol_MonthlyReport(LSPDr,RepSpec.d1);
+    case kSerialPortDeviceModelFiscPrinterEPSON81II:
+      EPSON81IIMonthlyReport(LSPDr);
+    case kSerialPortDeviceModelFiscPrinterEPSON81IITCPIP:
+      EPSON81IITCPIPMonthlyReport(LSPDr);
+    case kSerialPortDeviceModelFiscPrinterCUSTOMKUBEIIxF:
+      CUSTOMKUBEIIxFMonthlyReport(LSPDr);
 //CUST-BEGIN
       case 200:
         threadasync.APSA_PrintXReport(LSPDr);
@@ -454,6 +478,8 @@ begin
       FB15PeriodicReportdll(RepSpec,LSPDr);
     case kSerialPortDeviceModelFiscPrinterFM32DLL:      
       FM32PeriodicReportdll(RepSpec,LSPDr);
+    case kSerialPortDeviceModelFiscPrinterFisUSBMDLL:      
+      FM32PeriodicReportdll(RepSpec,LSPDr);
     case kSerialPortDeviceModelFiscPrinterST05:      
       ST05PeriodicReport(RepSpec,LSPDr);
     case kSerialPortDeviceModelFiscPrinterFPRINT02K:
@@ -508,10 +534,12 @@ begin
       case kSerialPortDeviceModelVirtualFiscPrinterCHDFMPOS:
         CHDFMPOSMonthlyReport(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB15:      
-        FB15PeriodicReport(RepSpec,LSPDr);
+        FB15XReport(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB15DLL:      
-        FB15PeriodicReportdll(RepSpec,LSPDr);
+        FB15XReportdll(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFM32DLL:      
+        FM32PrintDailyReportdll(LSPDr);
+      case kSerialPortDeviceModelFiscPrinterFisUSBMDLL:      
         FM32PrintDailyReportdll(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB05:// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 23 January 2018 12:19:54
       	FB05MonthlyReport(LSPDr);
@@ -581,6 +609,8 @@ begin
       case kSerialPortDeviceModelFiscPrinterFB15DLL:
         FB15DailyReportdll(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFM32DLL:
+        FM32DailyReportdll(LSPDr);
+      case kSerialPortDeviceModelFiscPrinterFisUSBMDLL:
         FM32DailyReportdll(LSPDr);
       case kSerialPortDeviceModelFiscPrinterFB05:
         FB05DailyReport(LSPDr);

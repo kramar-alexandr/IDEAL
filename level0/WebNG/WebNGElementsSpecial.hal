@@ -53,27 +53,10 @@ external function string 255 ConvertXml(string);
 external procedure ShowSearchProductsForm();
 external function string 255 GetWebHostAndPort(Boolean);
 external procedure ShowForumBreadCrumbs(record WebNGElementVc);
-external procedure ShowFilteredShopItems(string);
-external procedure HansaWorldRegisterApp();
-external procedure HansaWorldIDResetPassword();
-external outer procedure ShowWebWatchpointIssue();
-external procedure ShowWebStandardIDLink(record WebNGElementVc);
-external procedure WebInstallationForm(record WebNGElementVc);
-external procedure ShowDownloadProductElement(record WebNGElementVc);
-external procedure ShowDownloadProductElement2(record WebNGElementVc);
-external procedure ShowMyServerAdminMenu(record WebNGElementVc);
-external procedure ShowSingleMPItem(record WebNGElementVc);
-external procedure ShowIBMLoginWindow();
-external procedure ShowForumButtonWidget(record WebNGElementVc);
-external procedure ShowForumPostWidget(record WebNGElementVc);
+external outer function boolean ShowSpecialWebElementInternal(record WebNGElementVc);
 external function Boolean DisplayStdIDLoginLink();
-external procedure ShowForumSearchWidget(record WebNGElementVc);
-
-//START-CUST PST 2015-October-06
-external outer procedure ShowServiceFormElement();
-external outer procedure ShowRMAElement();
-external outer procedure ShowLoggedInElement();
-//END-CUST PST 2015-October-06
+external procedure ShowFilteredShopItems(string);
+external procedure WebNGContactUsFormElement(record WebNGElementVc);
 
 procedure ShowLanguageSelectElement()
 begin
@@ -257,8 +240,8 @@ begin
       WebOutStringFormatNL("<input type=""hidden"" id=""cooksess"" name=""cooksess"" value=""true"">");
     end;
     WebOutStringFormatNL("<input type=""text"" id=""login"" name=""login"" placeholder=""Prisijungimo vardas"">");
-    WebOutStringFormatNL("<input type=""text"" id=""passwd"" name=""passwd"" placeholder=""Slaptaìodis"">");
-    WebOutStringFormatNL("<div id=""remind-link"">Pamiräote slaptaìod°?</div>");
+    WebOutStringFormatNL("<input type=""text"" id=""passwd"" name=""passwd"" placeholder=""Slaptaï¿¬odis"">");
+    WebOutStringFormatNL("<div id=""remind-link"">Pamirï¿¤ote slaptaï¿¬odï¾°?</div>");
     WebOutTagOpen("<div class=""checkbox"">");
       WebOutStringFormatNL("<input type=""checkbox"" value=""value"" id=""remember"" name=""remember"" />");
       WebOutStringFormatNL("<label for=""remember"" class=""styled-check""></label>");
@@ -1128,30 +1111,6 @@ begin
   return;
 end;
 
-procedure FindReplace(var string tstr,string find,string replace)
-begin
-  Integer t;
-
-  t = InString(tstr,find);
-  if (t>0) then begin
-    tstr = left(tstr,t-1) & replace & right(tstr,len(tstr)-t-len(find)+1);
-  end;
-  
-  return;
-end;
-
-procedure LinkToSubscriptionPriceList(record WebNGElementVc WEr)
-begin
-  string 255 link;
-  
-  link = WEr.HALFunc;
-  FindReplace(link,"country",ToolWebNGGetCountry);
-  FindReplace(link,"language",CurrentWebLang);
-  
-  WebOutString("<iframe src='" & link & "'></iframe>");
-  return;
-end;
-
 procedure ShowWebClientLink()
 begin
   string 255 link;
@@ -1225,44 +1184,14 @@ begin
       ShowWebClientLink;
     case kElementTypeForumBreadCumbs:
       ShowForumBreadCrumbs(WEr);
-    case kElementTypeExternalPriceListLink:
-      LinkToSubscriptionPriceList(WEr);
     case kElementTypeFilteredProductList:
       ShowFilteredShopItems(WEr.HALFunc);
-    case kElementTypeHWIDForm:
-      HansaWorldRegisterApp;
-    case kElementTypeHWIDResetPasswordForm:
-      HansaWorldIDResetPassword;
-    case kElementTypeWatchpointElement:
-      ShowWebWatchpointIssue;
-    case kElementTypeStandardIDLink:
-      ShowWebStandardIDLink(WEr);
-    case kElementTypeWebInstallForm:
-      WebInstallationForm(WEr);
-    case kElementTypeDownloadProductLink:
-      ShowDownloadProductElement(WEr);
-    case kElementTypeDownloadProductLink2:
-      ShowDownloadProductElement2(WEr);
-    case kElementTypeMyServerAdminMenu:
-      ShowMyServerAdminMenu(WEr);
-    case kElementTypeSingleMPItem:
-      ShowSingleMPItem(WEr);
-    case kElementTypeIBMLogin:
-      ShowIBMLoginWindow;
-    case kElementTypeForumPostWidget:
-      ShowForumPostWidget(WEr);
-    case kElementTypeForumButtonWidget:
-      ShowForumButtonWidget(WEr);
-    case kElementTypeForumSearchWidget:
-      ShowForumSearchWidget(WEr);
-    case 1001:
-      ShowServiceFormElement;
-    case 1002:
-      ShowRMAElement;
-    case 1003:
-      ShowLoggedInElement;
+    case kElementTypeContactUsForm2:
+      WebNGContactUsFormElement(WEr);
     otherwise
+      if (ShowSpecialWebElementInternal(WEr)==false) then begin
       WebOutStringFormat("not implemented yet");
+  end;
   end;
   ShowSpecialWebElement = res;
   return;

@@ -1,4 +1,15 @@
+external procedure PrintEPSON81IICourtesyReceipt_IVCashVc(var record IVCashVc,record LSerialPortDeviceVc);
+external procedure PrintEPSON81IITCPIPCourtesyReceipt_IVCashVc(var record IVCashVc,record LSerialPortDeviceVc);
+external procedure EPSON81IISetFiscalPrinterDepartment(record FiscalDepVc,record LSerialPortDeviceVc);
+external procedure EPSON81IITCPIPSetFiscalPrinterDepartment(record FiscalDepVc,record LSerialPortDeviceVc);
+external procedure EPSON81IITCPIPSetFiscalPrinterLogo(Integer,Integer,record LSerialPortDeviceVc);
+external procedure PrintEPSON81IIFiscalInvoice_IVCashVc(var record IVCashVc,record LSerialPortDeviceVc);
+external procedure PrintEPSON81IITCPIPFiscalInvoice_IVCashVc(var record IVCashVc,record LSerialPortDeviceVc);
 external function val CalculateDiscountPercentage(val,val,val);
+
+external updating procedure PrintEPSON81IITCPIPReceipt_IVCashVc(var record IVCashVc,record LSerialPortDeviceVc);
+external updating procedure PrintEPSON81IIReceipt_IVCashVc(var record IVCashVc,record LSerialPortDeviceVc);
+external updating procedure PrintCUSTOMKUBEIIxFReceipt_IVCashVc(var record IVCashVc,record LSerialPortDeviceVc);
 remote updating procedure PrintPOSNETReceiptIVCash_withPOSNETProtocol_TCP(var record IVCashVc,record LSerialPortDeviceVc);
 external procedure CHDFMPOSIVCashReceipt(record IVCashVc,record LSerialPortDeviceVc);
 external updating procedure PrintPOSNETReceiptIVCash_withPOSNETProtocol(var record IVCashVc,record LSerialPortDeviceVc);
@@ -825,6 +836,7 @@ BEGIN
   end;
 
   if ((IVCashr.FiscalFlag!=0) and (IVCashr.OKFlag!=0) and ((IVCashr.Prntdf==0) or forceprintf)) then begin
+//  if ((IVCashr.FiscalFlag!=0) and (IVCashr.OKFlag!=0) and ((IVCashr.Prntdf==0) or forceprintf) or true) then begin
   if (IVCashr.Invalid==0) then begin
     switch (LSPDr.Printer) begin
       case kSerialPortDeviceModelFiscPrinterPOSNET:
@@ -869,6 +881,12 @@ BEGIN
         IVCashVc_PrintEpsonTMTReceipt(IVCashr,LSPDr);
       case kSerialPortDeviceModelFiscPrinterBematechMP2100:
         IVCashVc_PrintBematechMP2100Receipt(IVCashr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterEPSON81II:
+        PrintEPSON81IIReceipt_IVCashVc(IVCashr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterEPSON81IITCPIP:
+        PrintEPSON81IITCPIPReceipt_IVCashVc(IVCashr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterCUSTOMKUBEIIxF:
+        PrintCUSTOMKUBEIIxFReceipt_IVCashVc(IVCashr,LSPDr);
 /*Moved this to before OKing invoice, so that we don't ok invoice before fiscal receipt is ok
       case 200:
         IVCashVc_PrintAPSAReceipt(IVCashr,LSPDr);
@@ -878,6 +896,101 @@ BEGIN
   end;
   return;
 end;
+
+global
+procedure IVCashVc_FiscalInvoiceToToFiscalPrinter(record IVCashVc IVCr,Boolean forceprintf)
+begin
+  record LocalMachineBlock LMb;
+  record LSerialPortDeviceVc LSPDr;
+    
+  BlockLoad(LMb);  
+  if (blank(LSPDr.Port)) then begin
+    LSPDr.Port = LMb.DefPrinter;
+  end;
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalPrinter,-1,LMb.LocalMachineCode,LSPDr)) then begin  
+
+    if (IVCr.Invalid==0) then begin
+      if ((IVCr.FiscalFlag!=0) and (IVCr.OKFlag!=0) and nonblank(IVCr.VATNr)) then begin
+        switch (LSPDr.Printer) begin
+          case kSerialPortDeviceModelFiscPrinterEPSON81II:
+            PrintEPSON81IIFiscalInvoice_IVCashVc(IVCr,LSPDr);
+          case kSerialPortDeviceModelFiscPrinterEPSON81IITCPIP:
+            PrintEPSON81IITCPIPFiscalInvoice_IVCashVc(IVCr,LSPDr);
+        end;
+      end;
+    end;
+  end;
+  return;
+end;
+
+global
+procedure IVCashVc_CourtesyReceipt(record IVCashVc IVCr)
+begin
+  record LocalMachineBlock LMb;
+  record LSerialPortDeviceVc LSPDr;
+    
+  BlockLoad(LMb);  
+  if (blank(LSPDr.Port)) then begin
+    LSPDr.Port = LMb.DefPrinter;
+  end;
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalPrinter,-1,LMb.LocalMachineCode,LSPDr)) then begin  
+
+    if (IVCr.Invalid==0) then begin
+      if (IVCr.FiscalFlag!=0) then begin
+        switch (LSPDr.Printer) begin
+          case kSerialPortDeviceModelFiscPrinterEPSON81II:
+            PrintEPSON81IICourtesyReceipt_IVCashVc(IVCr,LSPDr);
+          case kSerialPortDeviceModelFiscPrinterEPSON81IITCPIP:
+            PrintEPSON81IITCPIPCourtesyReceipt_IVCashVc(IVCr,LSPDr);
+        end;
+      end;
+    end;
+  end;
+  return;
+end;
+
+global
+procedure MachineCashVc_SetFiscalPrinterLogo(Integer typ,Integer stat)
+begin
+  record LocalMachineBlock LMb;
+  record LSerialPortDeviceVc LSPDr;
+    
+  BlockLoad(LMb);  
+  if (blank(LSPDr.Port)) then begin
+    LSPDr.Port = LMb.DefPrinter;
+  end;
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalPrinter,-1,LMb.LocalMachineCode,LSPDr)) then begin  
+
+    switch (LSPDr.Printer) begin
+      case kSerialPortDeviceModelFiscPrinterEPSON81II:
+      case kSerialPortDeviceModelFiscPrinterEPSON81IITCPIP:
+        EPSON81IITCPIPSetFiscalPrinterLogo(typ,stat,LSPDr);
+    end;
+  end;  
+  return;
+end;
+
+global
+procedure FiscalDepVc_SetFiscalPrinterDepartment(record FiscalDepVc FDr)
+begin
+  record LocalMachineBlock LMb;
+  record LSerialPortDeviceVc LSPDr;
+    
+  BlockLoad(LMb);  
+  if (blank(LSPDr.Port)) then begin
+    LSPDr.Port = LMb.DefPrinter;
+  end;
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalPrinter,-1,LMb.LocalMachineCode,LSPDr)) then begin  
+    switch (LSPDr.Printer) begin
+      case kSerialPortDeviceModelFiscPrinterEPSON81II:
+        EPSON81IISetFiscalPrinterDepartment(FDr,LSPDr);
+      case kSerialPortDeviceModelFiscPrinterEPSON81IITCPIP:
+        EPSON81IITCPIPSetFiscalPrinterDepartment(FDr,LSPDr);
+    end;
+  end;
+  return;
+end;
+
 /*
 global
 updating procedure PrintPOSNETIVCashReceiptDsm()

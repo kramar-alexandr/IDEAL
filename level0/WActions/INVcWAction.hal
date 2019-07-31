@@ -1,3 +1,4 @@
+external procedure AutomatedSales(string,Integer);
 remote procedure INDCLass_remote_BIChartAsync(Integer,record ITVc);
 remote procedure FindStockValue(string,string,var record ItemStatusVc);
 remote procedure INDCLass_BIChart_Tool(record INVc,var val,var Array val,var Array Integer);
@@ -186,6 +187,26 @@ begin
   return;
 end;
 
+function Boolean INDClassFiscalDepEFAfter(Integer wn,Boolean changedf)
+begin
+  Boolean res;
+  record INVc INr;
+  record FiscalDepVc FDr;
+  
+  if (changedf) then begin
+    res = true;
+    GetWindowRecord(wn,INr);
+    FDr.Code = INr.FiscalDep;
+    if (ReadFirstMain(FDr,1,true)) then begin
+      INr.VATCode = FDr.VATCode;
+      INr.Unittext = FDr.Unittext;
+      PutWindowRecord(wn,INr);        
+    end;
+  end;
+  INDClassFiscalDepEFAfter = res;
+  return;
+end;
+
 global
 function Boolean INDClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
 begin
@@ -198,6 +219,7 @@ begin
     case "Density": res = INDClassDensityEFAfter(wn,changed);
     case "NetWeight": res = INDClassNetWeightEFAfter(wn,changed);
     case "VARMask": res = INDClassVARMaskEFAfter(wn,changed!=0);
+    case "FiscalDep": res = INDClassFiscalDepEFAfter(wn,changed!=0);
   end;
   INDClassAfterEditField = res;
   return;
@@ -680,6 +702,7 @@ LButtonActionkItemTypePlain:;
                 MessageBox(21440,"");
                 goto LINDClassItemTypeButtonAction;
               end;                          
+              AutomatedSales("HasModIN+Edit_INVc",kAutomatedSalesTagRandom);
             case kItemTypeStructured:      
               MessageBox(21441,"");
               goto LINDClassItemTypeButtonAction;
@@ -866,7 +889,12 @@ begin
   RepSpec.f5 = curRepSpec.f6;
   RepSpec.flags[10] = 1;
   RepSpec.flags[15] = 2;
+  switch (curRepSpec.AccSpec) begin
+    case kItemTypeStructured:
+      RepSpec.ArtMode = 3;
+    otherwise
   RepSpec.ArtMode = 2;
+  end;
   RepSpec.flags[4] = 0;
   RepSpec.flags[6] = 0;
   RepSpec.f7 = StringFromSet(433,kOrderTypeNormal);

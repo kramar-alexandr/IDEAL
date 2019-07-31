@@ -1,0 +1,18 @@
+
+global
+updating function LongInt CUVcRecordCheck(record CUVc CUr,record CUVc CU2r,LongInt stat,LongInt long4)
+begin
+  LongInt res;
+  
+//CHN::setting up RvrsVAT if they are from LIT Country
+  if (left(CUr.VATNr,2)=="LT") then begin
+    CUr.RvrsVAT = 1;
+  end else begin
+    CUr.RvrsVAT = 0;
+  end;
+
+  res = inner.CUVcRecordCheck(CUr,CU2r,stat,long4);
+  
+  CUVcRecordCheck = res;
+  return;
+end;

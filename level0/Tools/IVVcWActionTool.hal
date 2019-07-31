@@ -531,7 +531,7 @@ done below
 //    if ((INr.ExplodeRec==0) or (blank(IVrw.Recepy))) then begin
 //why
 			//START-CUST PST 2015-September-30
-			if IVr.InclVAT == 0 then begin
+			if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
 				IVrw.Price = price;
 				IVrw.PriceExclVAT = price;
 			end else begin
@@ -656,12 +656,14 @@ BEGIN
   record VATCodeBlock VATRec;
   row VATCodeBlock vatrw;
   Integer i,rwcnt;
+  record APAccBlock APAb;
 
+  BlockLoad(APAb);
   BlockLoad(VATRec);
   svatacc = "";  
   pvatacc = "";  
   corsvatacc = "";  
-  corpvatacc = "";  
+  corpvatacc = APAb.CorPurchVATAcc;  
   rwcnt = MatRowCnt(VATRec);  
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(VATRec,i,vatrw);
@@ -669,7 +671,9 @@ BEGIN
       svatacc = vatrw.SalesVATAcc;
       pvatacc = vatrw.PurchVATAcc;
       corsvatacc = vatrw.CorSalesVATAcc;
+      if (blank(corpvatacc)) then begin
       corpvatacc = vatrw.CorPurchVATAcc;
+      end;
       i = rwcnt;
     end;  
   end;  

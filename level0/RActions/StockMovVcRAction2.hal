@@ -488,6 +488,8 @@ BEGIN
   Boolean gBase1ToBase2,gToDualBase;
   record ConvMasterBlock cvm;
   row LegalInvNrBlock LINrbrw;
+  record StockMovVc cStockMovr;
+  transaction Boolean gStockMovVcRecordImport_RecordExists;
       
   BlockLoad(cvm);
   if (cvm.DualBaseCurrencyFlag!=0) then begin gToDualBase = true; end;
@@ -554,6 +556,8 @@ BEGIN
     GetLegalInvNrRow(StockMovr.OfficialSerNr,LINrbrw);
     StockMovr.OfficialSerNrSerie = GetLegalInvoiceNrSerie(LINrbrw,StockMovr.OfficialSerNr);
   end;
+  cStockMovr.SerNr = StockMovr.SerNr;
+  gStockMovVcRecordImport_RecordExists = ReadFirstMain(cStockMovr,1,true);
   StockMovVcRecordImport = res;
   RETURN;
 END;
@@ -563,12 +567,16 @@ updating function LongInt StockMovVcRecordImportAfter(var record StockMovVc Stoc
 BEGIN
   LongInt res;
   Integer err;
+  transaction Boolean gStockMovVcRecordImport_RecordExists;
       
+  if (gStockMovVcRecordImport_RecordExists==false) then begin
   StockMovUpdateSerialNr(StockMovr,StockMov2r,false);
   UpdateInStockMovFromStockMov(StockMovr,false);
+  end;
   if (StockMovr.OKFlag==0) then begin
     StockMovUpdateStock(StockMovr,StockMov2r,false,false,false);  
   end else begin
+    if (gStockMovVcRecordImport_RecordExists==false) then begin
     if (ImportingTextBackup==false and CanOKStockRecord(err)==true) then begin
       StockMovUpdateStock(StockMovr,StockMov2r,true,false,false);
       StockMovUpdateCostPrice(StockMovr,StockMov2r);
@@ -576,6 +584,7 @@ BEGIN
     end else begin
       StockMovUpdateStock(StockMovr,StockMov2r,false,false,false);  
     end;
+  end;
   end;
   
   StockMovVcRecordImportAfter = res;

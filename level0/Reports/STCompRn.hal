@@ -152,7 +152,7 @@ procedure PrintSTCompOneItem(record RcVc RepSpec,record INVc INr,Boolean varf,st
 begin
   string 200 dblstr;  
   record INVc locINr;
-  Boolean testf
+  Boolean testf;
 
   if (diff!=0) or (units!=0) or (instock!=0) then begin
     testf = true;
@@ -315,11 +315,18 @@ begin
 LCASE0:;          
                 for (i=0;i<arrcnt;i=i+1) begin
                   SerBalr.Item = IN2r.Code;
-                  SerBalr.Location = RepSpec.AccStr;
                   SerBalr.Serial = batcha[i];
+                  SerBalr.Location = RepSpec.AccStr;
+                  if (nonblank(RepSpec.AccStr)) then begin
                   if (ReadFirstKey("Serial",SerBalr,3,true)) then begin
                     diff = counteda[i] - instocka[i];
                     PrintSTCompOneItem(RepSpec,INr,varf,variety,batcha[i],dat1,diff,counteda[i],instocka[i],instock2,totinprice);
+                    end;                    
+                  end else begin
+                    if (ReadFirstKey("ItemSerial",SerBalr,2,true)) then begin
+                      diff = counteda[i] - instocka[i];
+                      PrintSTCompOneItem(RepSpec,INr,varf,variety,batcha[i],dat1,diff,counteda[i],instocka[i],instock2,totinprice);
+                    end;                    
                   end;
                 end;
             end;                                 
@@ -517,7 +524,7 @@ begin
 end;
 
 procedure STLoopIN(record RcVc RepSpec,var val instock,var val instock2,var val counted,var val diff,var val totinprice)
-BEGIN
+begin
   string 255 ckey;
   Integer keys;
   string 255 lastgroup;

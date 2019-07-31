@@ -204,6 +204,10 @@ begin
   tINr.DeliveryTerm = INr.DeliveryTerm;
   tINr.WebKeyLang = INr.WebKeyLang;
   tINr.WebSKU = INr.WebSKU;
+
+//Update to 8.5
+  tINr.ChemicalTaxCode = INr.ChemicalTaxCode;
+  tINr.FiscalDep = INr.FiscalDep;
   
   rwc = MatRowCnt(INr);
   for (i = 0; i < rwc; i = i + 1) begin

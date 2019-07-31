@@ -1,3 +1,11 @@
+external function Boolean HasCategories();
+external function Boolean HasContactClassification();
+external function Boolean ContactInGroupClass2(string,string,string,string,string,string,string);
+external procedure ClassTypef(string,string,var boolean);
+external procedure HTCustCat(string,var string);
+external procedure HTCustClass(string,var string);
+external procedure HTCustClassType(string,var string);
+external function Boolean SetInSet2(string,string);
 external procedure PIVGP1Rn(record RcVc,LongInt,LongInt,string,string,string,string,var val,var val);
 external function Boolean ReadFirstItem(string,var record INVc,Boolean,Boolean);
 external function val FindTAX1(string,val,Integer,Integer);
@@ -236,7 +244,7 @@ begin
               end;
             end;
             if (nonblank(RepSpec.f3)) then begin
-              if (SetInSet(RepSpec.f3,IVrw.Objects)==false) then begin
+              if (SetInSet2(RepSpec.f3,IVrw.Objects)==false) then begin
                 skipitem = true;
               end;
             end;    
@@ -431,13 +439,30 @@ begin
   HTOKF(RepSpec.flags[1],RepSpec.flags[2],tstr);
   Header(rw,tstr,1)
   rw = rw + 1;
-  // EVS: HAL-524
-  if (nonblank(RepSpec.f10)) then begin
-    tstr = USetStr(8965) & ": " & RepSpec.f10;
-    Header(rw,tstr,1)
-    rw = rw + 1;
+  if (HasCategories) then begin
+    if (nonblank(RepSpec.f9)) then begin
+      HTCustCat(RepSpec.f9,tstr);
+      Header(rw,tstr,1);
+      rw = rw + 1;
+    end;
   end;
+
+  if (HasContactClassification) then begin
+    if (nonblank(RepSpec.f8)) then begin
+      HTCustClass(RepSpec.f8,tstr);
+      if (nonblank(tstr)) then begin
+        Header(rw,tstr,1);
+        rw = rw + 1;
+      end;
+    end;
+  // EVS: HAL-524
+    if (nonblank(RepSpec.f10)) then begin
+      tstr = USetStr(8965) & ": " & RepSpec.f10;
+      Header(rw,tstr,1)
+      rw = rw + 1;
+    end;
   // :EVS
+  end;
   EndHeader;
   
   SetRepCol(2,60);
@@ -548,7 +573,7 @@ begin
         end;
       end; 
       if (nonblank(RepSpec.ObjStr)) then begin
-        if (SetInSet(RepSpec.ObjStr,IVr.Objects)==false) then begin
+        if (SetInSet2(RepSpec.ObjStr,IVr.Objects)==false) then begin
           testf = false;
         end;
       end;  
@@ -557,6 +582,9 @@ begin
       end;
       if (IVr.Invalid<>0) then begin testf = false; end;
       if (IVr.InvType==kInvoiceTypePrepayment) then begin testf = false; end;
+      if (testf and ((nonblank(RepSpec.f8)) or (nonblank(RepSpec.f9)) or (nonblank(RepSpec.f10)))) then begin
+        testf = ContactInGroupClass2(IVr.CustCode,RepSpec.f9,RepSpec.f8,RepSpec.f10,"CUST","","");
+      end;
       // Edit Start ---------------------------------------------- Edit Start
 	//Thursday, 5 April 2018 14:46:33
 	
@@ -591,7 +619,7 @@ begin
             MatRowGet(IVr,i,IVrw);
             itmcnt = itmcnt + IVrw.Quant;
             if (nonblank(RepSpec.f3)) then begin
-              if (SetInSet(RepSpec.f3,IVrw.Objects)) then begin
+              if (SetInSet2(RepSpec.f3,IVrw.Objects)) then begin
                 testfrowf["RowObject"] = true;
               end;
             end;
@@ -737,7 +765,7 @@ begin
                 end;
               end;    
               if (nonblank(RepSpec.f3)) then begin
-                if (SetInSet(RepSpec.f3,IVrw.Objects)==false) then begin
+                if (SetInSet2(RepSpec.f3,IVrw.Objects)==false) then begin
 //                  skipitem = true;
                 end;
               end;                            

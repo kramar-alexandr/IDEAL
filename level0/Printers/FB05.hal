@@ -20,73 +20,73 @@ begin
   
   switch(code) begin
 	  case "00": res = "00 - PATVIRTINTA";
-    case "01": res = "01 - KREIPKIT–S ¯ KORTEL–S LEID–J„";
-    case "02": res = "02 - KREIPKIT–S ¯ KORTEL–S LEID–J„";
+    case "01": res = "01 - KREIPKITï¾–S ï¾¯ KORTELï¾–S LEIDï¾–Jï¾„";
+    case "02": res = "02 - KREIPKITï¾–S ï¾¯ KORTELï¾–S LEIDï¾–Jï¾„";
     case "03": res = "03 - NETEISINGAS PREKYBININKO NR.";
-    case "04": res = "04 - SULAIKYKITE KORTEL¢";
+    case "04": res = "04 - SULAIKYKITE KORTELï¾¢";
 		case "05": res = "05 - NEAPTARNAUTI";
 		case "06": res = "06 - KLAIDA";
-		case "07": res = "07 - SULAIKYKITE KORTEL¢";
+		case "07": res = "07 - SULAIKYKITE KORTELï¾¢";
 		case "08": res = "08 - PATIKRINKITE DOKUMENTUS";
-		case "09": res = "09 - UëKLAUSA VYKDOMA";
+		case "09": res = "09 - Uï¿«KLAUSA VYKDOMA";
 		case "10": res = "10 - PATVIRTINTA NE VISA SUMA";
 		case "11": res = "11 - V.I.P. PATVIRTINIMAS";
 		case "12": res = "12 - NEGALIMA OPERACIJA";
 		case "13": res = "13 - NEGALIMA SUMA";
-		case "14": res = "14 - NETEISINGAS KORTEL–S NUMERIS";
-		case "15": res = "15 - N–RA TOKIO KORTEL–S LEID–JO";
-		case "16": res = "16 - REIKIA ATNAUJINTI KORTEL¢";
+		case "14": res = "14 - NETEISINGAS KORTELï¾–S NUMERIS";
+		case "15": res = "15 - Nï¾–RA TOKIO KORTELï¾–S LEIDï¾–JO";
+		case "16": res = "16 - REIKIA ATNAUJINTI KORTELï¾¢";
 		case "17": res = "17 - SISTEMOS KLAIDA";
 		case "18": res = "18 - SISTEMOS KLAIDA";
-		case "19": res = "19 - PAKARTOKITE OPERACIJ„";
+		case "19": res = "19 - PAKARTOKITE OPERACIJï¾„";
 		case "20": res = "20 - SISTEMOS KLAIDA";
-		case "21": res = "21 - JOKIö VEIKSMö NEATLIKTA";
+		case "21": res = "21 - JOKIï¿¶ VEIKSMï¿¶ NEATLIKTA";
 		case "22": res = "22 - SISTEMOS KLAIDA";
-		case "23": res = "23 - OPERACIJA NEGALI BíTI ATLIKTA";
-		case "24": res = "24 - FAILAS NEPALAIKOMAS GAV–JO";
-		case "25": res = "25 - NEPAVYKO RASTI ¯RAáO FAILE";
-		case "26": res = "26 - DUBLIUOJASI ¯RAáAS";
-		case "27": res = "27 - FAILO ¯RAáO REDAGAVIMO KLAIDA";
+		case "23": res = "23 - OPERACIJA NEGALI Bï¿­TI ATLIKTA";
+		case "24": res = "24 - FAILAS NEPALAIKOMAS GAVï¾–JO";
+		case "25": res = "25 - NEPAVYKO RASTI ï¾¯RAï¿¡O FAILE";
+		case "26": res = "26 - DUBLIUOJASI ï¾¯RAï¿¡AS";
+		case "27": res = "27 - FAILO ï¾¯RAï¿¡O REDAGAVIMO KLAIDA";
 		case "28": res = "28 - FAILAS LAIKINAI NEPRIEINAMAS";
-		case "29": res = "29 - FAILO ¯RAáYMO KLAIDA";
-		case "30": res = "30 - FAILO ¯RAáYMO KLAIDA";
-		case "31": res = "31 - KORTEL–S PRI–M–JO KLAIDA";
+		case "29": res = "29 - FAILO ï¾¯RAï¿¡YMO KLAIDA";
+		case "30": res = "30 - FAILO ï¾¯RAï¿¡YMO KLAIDA";
+		case "31": res = "31 - KORTELï¾–S PRIï¾–Mï¾–JO KLAIDA";
 		case "32": res = "32 - SISTEMOS KLAIDA";
-		case "33": res = "33 - SULAIKYKITE KORTEL¢";
-		case "34": res = "34 - SULAIKYKITE KORTEL¢";
-		case "35": res = "35 - SULAIKYKITE KORTEL¢";
-		case "36": res = "36 - SULAIKYKITE KORTEL¢";
-		case "37": res = "37 - SULAIKYKITE KORTEL¢";
-		case "38": res = "38 - SULAIKYKITE KORTEL¢";
-		case "39": res = "39 - NENURODYTAS S„SKAITOS TIPAS";
+		case "33": res = "33 - SULAIKYKITE KORTELï¾¢";
+		case "34": res = "34 - SULAIKYKITE KORTELï¾¢";
+		case "35": res = "35 - SULAIKYKITE KORTELï¾¢";
+		case "36": res = "36 - SULAIKYKITE KORTELï¾¢";
+		case "37": res = "37 - SULAIKYKITE KORTELï¾¢";
+		case "38": res = "38 - SULAIKYKITE KORTELï¾¢";
+		case "39": res = "39 - NENURODYTAS Sï¾„SKAITOS TIPAS";
 		case "40": res = "40 - FUNKCIJA NEPALAIKOMA";
-		case "41": res = "41 - SULAIKYKITE KORTEL¢";
-		case "42": res = "42 - NENURODYTAS S„SKAITOS TIPAS";
-		case "43": res = "43 - SULAIKYKITE KORTEL¢";
-		case "44": res = "44 - NENURODYTAS S„SKAITOS TIPAS";
+		case "41": res = "41 - SULAIKYKITE KORTELï¾¢";
+		case "42": res = "42 - NENURODYTAS Sï¾„SKAITOS TIPAS";
+		case "43": res = "43 - SULAIKYKITE KORTELï¾¢";
+		case "44": res = "44 - NENURODYTAS Sï¾„SKAITOS TIPAS";
 		case "45": res = "45 - SISTEMOS KLAIDA";
 		case "46": res = "46 - SISTEMOS KLAIDA";
 		case "47": res = "47 - SISTEMOS KLAIDA";
 		case "48": res = "48 - SISTEMOS KLAIDA";
 		case "49": res = "49 - SISTEMOS KLAIDA";
 		case "50": res = "50 - SISTEMOS KLAIDA";
-		case "51": res = "51 - NEPAKANKA L–áö";
-		case "52": res = "52 - NENURODYTAS S„SKAITOS TIPAS";
-		case "53": res = "53 - NENURODYTAS S„SKAITOS TIPAS";
-		case "54": res = "54 - BAIG–SI KORTEL–S GALIOJIMAS";
+		case "51": res = "51 - NEPAKANKA Lï¾–ï¿¡ï¿¶";
+		case "52": res = "52 - NENURODYTAS Sï¾„SKAITOS TIPAS";
+		case "53": res = "53 - NENURODYTAS Sï¾„SKAITOS TIPAS";
+		case "54": res = "54 - BAIGï¾–SI KORTELï¾–S GALIOJIMAS";
 		case "55": res = "55 - NETEINGAS PIN KODAS";
-		case "56": res = "56 - NEëINOMA KORTEL–";
+		case "56": res = "56 - NEï¿«INOMA KORTELï¾–";
 		case "57": res = "57 - KORTELEI OPERACIJA NELEISTINA";
 		case "58": res = "58 - TERMINALUI OPERACIJA NELEISTINA";
-		case "59": res = "59 - ¯TARIAMA KLASTOT–";
-		case "60": res = "60 - SUSISIEKITE SU PRI–M–JU";
-		case "61": res = "61 - IáNAUDOTAS ATSISKAITYMO LIMITAS";
-		case "62": res = "62 - RIBOTO NAUDOJIMO KORTEL–";
-		case "63": res = "63 - SAUGUMO PAëEIDIMAS";
+		case "59": res = "59 - ï¾¯TARIAMA KLASTOTï¾–";
+		case "60": res = "60 - SUSISIEKITE SU PRIï¾–Mï¾–JU";
+		case "61": res = "61 - Iï¿¡NAUDOTAS ATSISKAITYMO LIMITAS";
+		case "62": res = "62 - RIBOTO NAUDOJIMO KORTELï¾–";
+		case "63": res = "63 - SAUGUMO PAï¿«EIDIMAS";
 		case "64": res = "64 - NETEISINGA SUMA";
-		case "65": res = "65 - IáNAUDOTAS OPERACIJö LIMITAS";
-		case "66": res = "66 - SUSISIEKITE SU PRI–M–JU";
-		case "67": res = "67 - SULAIKYKITE KORTEL¢";
+		case "65": res = "65 - Iï¿¡NAUDOTAS OPERACIJï¿¶ LIMITAS";
+		case "66": res = "66 - SUSISIEKITE SU PRIï¾–Mï¾–JU";
+		case "67": res = "67 - SULAIKYKITE KORTELï¾¢";
 		case "68": res = "68 - SISTEMOS KLAIDA";
 		case "69": res = "69 - SISTEMOS KLAIDA";
 		case "70": res = "70 - SISTEMOS KLAIDA";
@@ -94,60 +94,60 @@ begin
 		case "72": res = "72 - SISTEMOS KLAIDA";
 		case "73": res = "73 - SISTEMOS KLAIDA";
 		case "74": res = "74 - SISTEMOS KLAIDA";
-		case "75": res = "75 - VIRáYTAS PIN ¯VEDIMO LIMITAS";
+		case "75": res = "75 - VIRï¿¡YTAS PIN ï¾¯VEDIMO LIMITAS";
 		case "76": res = "76 - NEPAVYKSTA RASTI OPERACIJOS";
-		case "77": res = "77 - KARTOJAMA AR ATáAUKIAMA OPERACIJA";
+		case "77": res = "77 - KARTOJAMA AR ATï¿¡AUKIAMA OPERACIJA";
 		case "78": res = "78 - NEAPTARNAUTI";
 		case "79": res = "79 - NETEISINGAS CVV2 KODAS";
 		case "80": res = "80 - AUTORIZACIJOS KLAIDA";
-		case "81": res = "81 - PIN KODO áIFRAVIMO KLAIDA";
+		case "81": res = "81 - PIN KODO ï¿¡IFRAVIMO KLAIDA";
 		case "82": res = "82 - AUTORIZACIJOS KLAIDA";
 		case "83": res = "83 - NEGALIMA PATIKRINTI PIN KODO";
 		case "84": res = "84 - SISTEMOS KLAIDA";
 		case "85": res = "85 - AUTORIZACIJOS KLAIDA";
 		case "86": res = "86 - PIN KODO PATIKRINTI NEGALIMA";
 		case "87": res = "87 - SISTEMOS KLAIDA";
-		case "88": res = "88 - PIN KODO áIFRAVIMO KLAIDA";
+		case "88": res = "88 - PIN KODO ï¿¡IFRAVIMO KLAIDA";
 		case "89": res = "89 - SISTEMOS KLAIDA";
 		case "90": res = "90 - SISTEMOS KLAIDA";
-		case "91": res = "91 - KORTEL–S LEID–JAS NEPASIEKIAMAS";
-		case "92": res = "92 - KORTEL–S LEID–JAS NEPASIEKIAMAS";
-		case "93": res = "93 - OPERACIJA NEGALI BíTI BAIGTA";
+		case "91": res = "91 - KORTELï¾–S LEIDï¾–JAS NEPASIEKIAMAS";
+		case "92": res = "92 - KORTELï¾–S LEIDï¾–JAS NEPASIEKIAMAS";
+		case "93": res = "93 - OPERACIJA NEGALI Bï¿­TI BAIGTA";
 		case "94": res = "94 - DUBLIUOJASI PERDAVIMAS";
 		case "95": res = "95 - SISTEMOS KLAIDA";
 		case "96": res = "96 - SISTEMOS KLAIDA";
 		case "97": res = "97 - SISTEMOS KLAIDA";
 		case "98": res = "98 - SISTEMOS KLAIDA";
-		case "99": res = "99 - TRíKSTA PIN DUOMENö";
-		case "CE": res = "CE - NEPAVYKO UëMEGZTI RYáIO";
-		case "LC": res = "LC - NEPAVYKO UëMEGZTI RYáIO";
-		case "ND": res = "ND - NEPAVYKO UëMEGZTI RYáIO";
-		case "TO": res = "TO - NEPAVYKO UëMEGZTI RYáIO";
-		case "JF": res = "JF - PAKARTOKIT BANKIN–S DIENOS UëDARYM„";
+		case "99": res = "99 - TRï¿­KSTA PIN DUOMENï¿¶";
+		case "CE": res = "CE - NEPAVYKO Uï¿«MEGZTI RYï¿¡IO";
+		case "LC": res = "LC - NEPAVYKO Uï¿«MEGZTI RYï¿¡IO";
+		case "ND": res = "ND - NEPAVYKO Uï¿«MEGZTI RYï¿¡IO";
+		case "TO": res = "TO - NEPAVYKO Uï¿«MEGZTI RYï¿¡IO";
+		case "JF": res = "JF - PAKARTOKIT BANKINï¾–S DIENOS Uï¿«DARYMï¾„";
 		case "B1": res = "B1 - AUTORIZACIJOS KLAIDA";
 		case "BH": res = "BH - SISTEMOS KLAIDA";
 		case "XX": res = "XX - SISTEMOS KLAIDA";
 		case "UN": res = "UN - SISTEMOS KLAIDA";
 		case "N0": res = "N0 - PRIVERSTINIS STIP";
-		case "N1": res = "N1 - OPERACIJA NEGALI BíTI ATLIKTA";
-		case "N2": res = "N2 - VIRáYTAS PIN ¯VEDIMO LIMITAS";
-		case "N3": res = "N3 - GRYNöJö PINIGö IáMOK–TI NEGALIMA";
-		case "N4": res = "N4 - VIRáIJAMAS GRYNöJö PINIGö LIMITAS";
+		case "N1": res = "N1 - OPERACIJA NEGALI Bï¿­TI ATLIKTA";
+		case "N2": res = "N2 - VIRï¿¡YTAS PIN ï¾¯VEDIMO LIMITAS";
+		case "N3": res = "N3 - GRYNï¿¶Jï¿¶ PINIGï¿¶ Iï¿¡MOKï¾–TI NEGALIMA";
+		case "N4": res = "N4 - VIRï¿¡IJAMAS GRYNï¿¶Jï¿¶ PINIGï¿¶ LIMITAS";
 		case "N7": res = "N7 - CVV2 KLAIDA";
 		case "N8": res = "N8 - NEPATIKRINTAS CVV KODAS";
 		case "N9": res = "N9 - NETEISINGAS CVV KODAS";
-		case "NX": res = "NX - ATSISAKYTA KORTEL–S SPRENDIMU";
-		case "P2": res = "P2 - NETEISINGA S„SK. INFORMACIJA";
+		case "NX": res = "NX - ATSISAKYTA KORTELï¾–S SPRENDIMU";
+		case "P2": res = "P2 - NETEISINGA Sï¾„SK. INFORMACIJA";
 		case "P5": res = "P5 - PIN KEISTI / ATBLOKUOTI NEGALIMA";
 		case "P6": res = "P6 - NESAUGUS PIN KODAS";
-		case "Q1": res = "Q1 - KORTEL–S PATIKRINTI NEPAVYKO";
-		case "R0": res = "R0 - SUSTABDYTI MOK–JIM„";
-		case "R1": res = "R1 - OPERACIJOS ATáAUKIMAS";
-		case "R3": res = "R3 - VISö OPERACIJö ATáAUKIMAS";
-		case "XA": res = "XA - PERSIöSTA KORTEL–S LEID–JUI";
-		case "XD": res = "XD - PERSIöSTA KORTEL–S LEID–JUI";
+		case "Q1": res = "Q1 - KORTELï¾–S PATIKRINTI NEPAVYKO";
+		case "R0": res = "R0 - SUSTABDYTI MOKï¾–JIMï¾„";
+		case "R1": res = "R1 - OPERACIJOS ATï¿¡AUKIMAS";
+		case "R3": res = "R3 - VISï¿¶ OPERACIJï¿¶ ATï¿¡AUKIMAS";
+		case "XA": res = "XA - PERSIï¿¶STA KORTELï¾–S LEIDï¾–JUI";
+		case "XD": res = "XD - PERSIï¿¶STA KORTELï¾–S LEIDï¾–JUI";
 		case "Z1": res = "Z1 - NEAPTARNAUTI";
-		case "Z3": res = "Z3 - NEPAVYKO UëMEGZTI RYáIO";
+		case "Z3": res = "Z3 - NEPAVYKO Uï¿«MEGZTI RYï¿¡IO";
 		case "BB": res = "BB - NEAPTARNAUTI";
 		case "BD": res = "BD - NEAPTARNAUTI";
 		case "DT": res = "DT - NEAPTARNAUTI";
@@ -165,7 +165,7 @@ begin
 		case "Y1": res = "Y1 - PATVIRTINTA";
 		case "Y3": res = "Y3 - PATVIRTINTA";
 		otherwise
-      res = "NEëINOMA KLAIDA";
+      res = "NEï¿«INOMA KLAIDA";
   end;
 geterror = res;
 return;
@@ -182,7 +182,7 @@ BEGIN
   for (i=0;i<n;i=i+1) begin
     char = Mid(tstr,i,1);
     switch (char) begin
-      case "Ó": new_char = """";
+      case "ï¿“": new_char = """";
       otherwise new_char = char;
     end;
     res = res & new_char;
@@ -479,7 +479,6 @@ begin
   end else begin
     res = 1;
   end;
-  //logtext(0,"write response " & response & " res " & res);
   FB05Write = res;
   return;
 end;
@@ -495,7 +494,6 @@ begin
   end else begin
     res = 1;
   end;
-  //logtext(0,"WandGet response " & response & "   res  " & res);
   FB05WriteAndGetResponse = res;
   return;
 end;
@@ -536,7 +534,7 @@ begin
   Integer res,msglen;
   string 255 CtrlSeq,msglenhex;  
 
-//<COMMAND>=<0x4F><FS><Õ9Õ><FS>
+//<COMMAND>=<0x4F><FS><ï¿•9ï¿•><FS>
 
   msglen = 5 + len(command);
   msglenhex = NumToHex(msglen);
@@ -563,7 +561,7 @@ begin
   string 255 CtrlSeq,msglenhex;  
 
   response = "";
-//<COMMAND>=<0x4F><FS><Õ9Õ><FS>
+//<COMMAND>=<0x4F><FS><ï¿•9ï¿•><FS>
 
   msglen = 5 + len(command);
   msglenhex = NumToHex(msglen);
@@ -643,7 +641,7 @@ begin
   Integer pY,pM,pD;
   longint res;
   
-//<COMMAND>=<0x4F><FS><Õ2Õ><FS>
+//<COMMAND>=<0x4F><FS><ï¿•2ï¿•><FS>
 
   td = CurrentDate;
   msglen = 6;
@@ -684,7 +682,7 @@ begin
   Date td; 
   Integer pY,pM,pD;
   
-//<COMMAND>=<0x4F><FS><Õ2Õ><FS>
+//<COMMAND>=<0x4F><FS><ï¿•2ï¿•><FS>
 
   td = CurrentDate;
   msglen = 6;
@@ -728,7 +726,7 @@ begin
   Date td; 
   Integer pY,pM,pD;
 
-//<COMMAND>=<0x4F><FS><Õ5Õ><FS>
+//<COMMAND>=<0x4F><FS><ï¿•5ï¿•><FS>
 
   td = CurrentDate;
   msglen = 6;
@@ -2638,8 +2636,8 @@ begin
   	switch(type) begin
 		  case "PARD": FB05PinPadLineBold("     PARDAVIMAS     ");
 		  	text2[12] = "     PARDAVIMAS     ";
-		  case "REF":  FB05PinPadLineBold("     GR„ëINIMAS     ");
-		    text2[12] = "     GR„ëINIMAS     ";
+		  case "REF":  FB05PinPadLineBold("     GRï¾„ï¿«INIMAS     ");
+		    text2[12] = "     GRï¾„ï¿«INIMAS     ";
 		  case "VOID": FB05PinPadLineBold("     ATSISAKYMAS    ");
 		    text2[12] = "     ATSISAKYMAS    ";
 		end;
@@ -2695,8 +2693,8 @@ begin
   	switch(type) begin
 		  case "PARD": FB05PinPadLineBold("     PARDAVIMAS     ");
 		    text2[12] = "     PARDAVIMAS     ";
-		  case "REF":  FB05PinPadLineBold("     GR„ëINIMAS     ");
-		    text2[12] = "     GR„ëINIMAS     ";
+		  case "REF":  FB05PinPadLineBold("     GRï¾„ï¿«INIMAS     ");
+		    text2[12] = "     GRï¾„ï¿«INIMAS     ";
 		  case "VOID": FB05PinPadLineBold("     ATSISAKYMAS    ");
 		    text2[12] = "     ATSISAKYMAS    ";
 		end;

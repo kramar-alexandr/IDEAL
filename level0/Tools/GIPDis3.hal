@@ -252,20 +252,22 @@ BEGIN
 END;
 
 global
-function Boolean PriceListforDateTime2(Date tdp,Time tt,string areplpricelist,var string respricelist,var record PLDefVc PLDefr)
+function Boolean PriceListforDateTime3(Date tdp,Time tt,string areplpricelist,var string respricelist,var record PLDefVc resPLDefr,string custcode,string artcode)
 begin
-  Boolean pldeffound;
+  Boolean pldeffound,plf;
   string 255 pricelist,replpricelist;
   Integer lenclass;
   Date blankd;
   Boolean found,testf;
+  record PLDefVc PLDefr;
+  record PLVc PLr;
   
-  RecordClear(PLDefr);
   replpricelist = areplpricelist;
-LPriceListforDateTime2START:;
+LPriceListforDateTime3START:;
   pricelist = replpricelist;
   lenclass = 4;
   while (lenclass>=0) begin
+    RecordClear(PLDefr);
     ResetLoop(PLDefr);
     PLDefr.PLReplCode = replpricelist;
     PLDefr.LengthClass = lenclass;
@@ -285,37 +287,94 @@ LPriceListforDateTime2START:;
       if (found) then begin
         testf = true;
         if (testf) then begin  
+
           if ((nonblanktime(PLDefr.StartTime)) and (nonblanktime(tt))) then begin
             if (DateTimeInsidePeriod(tdp,tt,PLDefr.StartDate,PLDefr.StartTime,PLDefr.EndDate,PLDefr.EndTime)) then begin
+
+              PLr.PLCode = PLDefr.Code;
+              PLr.ArtCode = artcode;
+              PLr.CustCode = custcode;
+              plf = ReadFirstMain(PLr,3,true);
+              if (plf==false) then begin
+                PLr.PLCode = PLDefr.Code;
+                PLr.ArtCode = artcode;
+                plf = ReadFirstMain(PLr,2,true);
+              end;
+              if (plf) then begin
               found = false;
               pldeffound = true;
               pricelist = PLDefr.Code;
+                resPLDefr = PLDefr;
+                replpricelist = PLDefr.Code;
+              end;
             end;
           end else begin
+
+//LogText(0," tdp " & tdp & " PLDefr.Code " & PLDefr.Code & " PLDefr.StartDate " & PLDefr.StartDate & " PLDefr.EndDate " & PLDefr.EndDate);        
+
             if (DateInRange(tdp,PLDefr.StartDate,PLDefr.EndDate))  then begin
 //cannot stop cause might be pricelist defined per period            
+//price record must exist
+              PLr.PLCode = PLDefr.Code;
+              PLr.ArtCode = artcode;
+              PLr.CustCode = custcode;
+//LogText(0,"1. tdp " & tdp & " PLr.PLCode " & PLr.PLCode & " PLr.ArtCode " & PLr.ArtCode & " plf " & plf);        
+              plf = ReadFirstMain(PLr,3,true);
+
+//LogText(0,"2. tdp " & tdp & " PLr.PLCode " & PLr.PLCode & " PLr.ArtCode " & PLr.ArtCode & " plf " & plf);        
+
+
+              if (plf==false and nonblank(custcode)) then begin
+                PLr.PLCode = PLDefr.Code;
+                PLr.ArtCode = artcode;
+                plf = ReadFirstMain(PLr,2,true);
+              end;
+              if (plf) then begin
+                found = false;
               pldeffound = true;
               pricelist = PLDefr.Code;
+                resPLDefr = PLDefr;
+                replpricelist = PLDefr.Code;
+//LogText(0,"1.THE. tdp " & tdp & " PLr.PLCode " & PLr.PLCode & " pricelist " & pricelist & " replpricelist " & replpricelist);        
+              end;
             end;
           end;
         end;
       end;
     end;
     lenclass = lenclass - 1;
+    if (pldeffound) then begin
+      lenclass = -1;
   end;
+  end;
+//LogText(0,"2.THE. tdp " & tdp & " PLr.PLCode " & PLr.PLCode & " pricelist " & pricelist & " replpricelist " & replpricelist);        
   if (pldeffound==false) then begin
     PLDefr.Code = replpricelist;
     if (ReadFirstMain(PLDefr,1,true)) then begin
       if (nonblank(PLDefr.PLReplCode)) then begin
         replpricelist = PLDefr.PLReplCode;
-        goto LPriceListforDateTime2START;
+        pricelist = PLDefr.Code;
+        resPLDefr = PLDefr;
+        goto LPriceListforDateTime3START;
       end else begin
+        if (DateInRange(tdp,PLDefr.StartDate,PLDefr.EndDate))  then begin
+          pricelist = PLDefr.Code;
+          resPLDefr = PLDefr;
         pldeffound = true;
       end;
     end;
   end;
+  end;
   respricelist = pricelist;
-  PriceListforDateTime2 = pldeffound;
+//LogText(0,"3.THE. tdp " & tdp & " PLr.PLCode " & PLr.PLCode & " pricelist " & pricelist & " replpricelist " & replpricelist);        
+  PriceListforDateTime3 = pldeffound;
+  return;
+end;
+
+global
+function Boolean PriceListforDateTime2(Date tdp,Time tt,string areplpricelist,var string respricelist,var record PLDefVc PLDefr)
+begin
+  PriceListforDateTime3(tdp,tt,areplpricelist,respricelist,PLDefr,"","");
   return;
 end;
 
@@ -554,6 +613,20 @@ begin
           PLDefr.Code = lpricelist;
           pldeffound = ReadFirstMain(PLDefr,1,true);        
         end;
+        if (pldeffound) then begin
+          if (nonblank(PLDefr.StartDate)) then begin
+            if (tdp<PLDefr.StartDate) then begin
+              pldeffound = false;
+              plf = false;
+            end;
+          end;
+          if (nonblank(PLDefr.EndDate)) then begin
+            if (tdp>PLDefr.EndDate) then begin
+              pldeffound = false;
+              plf = false;
+            end;
+          end;
+        end;
         if (plf) then begin
           tprice = PLr.ExVatPrice;
           if (nonblank(PLr.SalesAcc)) then begin
@@ -577,7 +650,7 @@ begin
 //MOved to GetPriceList
     if (nonblank(lpricelist)) then begin
       if (GetYear(tdp)>0) then begin
-        pldeffound = PriceListforDateTime2(tdp,tt,lpricelist,lpricelist,PLDefr);
+        pldeffound = PriceListforDateTime3(tdp,tt,lpricelist,lpricelist,PLDefr,custcode,item);
 /*            
         PLDefr.PLReplCode = lpricelist;
         PLDefr.StartDate = tdp;
@@ -615,11 +688,13 @@ begin
           PLr.PLCode = lpricelist;
           PLr.ArtCode = theitemcode;        
           plf = ReadFirstMain(PLr,2,true);
+/*          
           if (plf==false) and (pricelist!=lpricelist) then begin
             PLr.PLCode = pricelist;
             PLr.ArtCode = theitemcode;        
             plf = ReadFirstMain(PLr,2,true);
           end;
+*/          
           if ((plf==false) and varf) then begin
             PLr.PLCode = lpricelist;
             PLr.ArtCode = maskvar[0];        
@@ -679,11 +754,13 @@ begin
           PLr.PLCode = lpricelist;
           PLr.ArtCode = theitemcode;        
           plf = ReadFirstMain(PLr,2,true);
+/*          
           if (plf==false) and (pricelist!=lpricelist) then begin
             PLr.PLCode = pricelist;
             PLr.ArtCode = theitemcode;        
             plf = ReadFirstMain(PLr,2,true);
           end;
+*/          
           if ((plf==false) and varf) then begin
             PLr.PLCode = lpricelist;
             PLr.ArtCode = maskvar[0];        

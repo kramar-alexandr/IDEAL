@@ -904,6 +904,8 @@ begin
   record MailSettingsBlock MailSb;
   record ConfVc Confr;
 
+  if (ClientMode) then begin goto LCloudServicesStoppedAlert; end;
+
   BlockLoad(BASysIntb);
   if (BASysIntb.ActStopCloudServices!=0) then begin
     BlockLoad(MailSb);
@@ -914,6 +916,8 @@ begin
       end;
     end;
   end;
+
+LCloudServicesStoppedAlert:;
   return;
 end;
 
@@ -1087,6 +1091,8 @@ begin
         RepSpec.flags[1] = 1;
         RepSpec.flags[2] = 1;
         RepSpec.flags[3] = 1;
+//        RepSpec.flags[8] = 1;
+//        RepSpec.flags[9] = CDb.PrintZReportatCashup;
 
         RepSpec.repname = "CashupMn";
         RepSpec.critname = "CashupVClass";

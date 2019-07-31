@@ -1,3 +1,4 @@
+external function LongInt ReadLocation(string,var record LocationVc);
 external procedure B1ToB2StrValRM(string,val,val,var string,roundmode);
 external procedure B1ToB2ValRM(val,val,val,var val,roundmode);
 external function roundmode GetCostRoundModeRB();
@@ -312,7 +313,7 @@ begin
     MatRowPut(StockMovr,smrwcnt,StockMovrw);
     SetPositionStatus(toposcode,2);    
     PUrw.BarCode = StockMovr.SerNr;    
-    //BS, if next PUrw doesn«t contain pallet item and the item has a pallet item
+    //BS, if next PUrw doesnï¾«t contain pallet item and the item has a pallet item
     // we should create a new StockMovVc.
     // or else labels will not be printed for 2nd/4th/6th item.
     MatRowGet(PUr,i+1,PUrw);
@@ -646,12 +647,27 @@ begin
   return;
 end;
 
+updating procedure UpdateVEIV(record PUVc PUr)
+begin
+  record VEIVVc VEIVr;
+  record VEIVVc oldVEIVr;
+  
+  VEIVr.PUSerNr = PUr.SerNr;
+  if (ReadFirstKey("PUSerNr",VEIVr,1,true)) then begin
+    RecordCopy(oldVEIVr,VEIVr);
+    VEIVr.PUSerNr = -1;
+    RecordUpdate(oldVEIVr,VEIVr,false);
+  end;
+  return;
+end;
+
 global
 updating function LongInt PUVcRecordRemoveAfter(var record PUVc PUr,record PUVc PU2r,LongInt stat,LongInt long4)
 begin
   LongInt res;
 
   RemovePU(PUr);
+  UpdateVEIV(PUr);
   PUVcRecordRemoveAfter = res;
   return;
 end;
@@ -721,7 +737,7 @@ end;
 global
 updating function LongInt PUVcRecordCheck(var record PUVc PUr,record PUVc PU2r,LongInt stat,LongInt check)
 begin
-  LongInt res;
+  LongInt res,err;
   record POVc POr;
   row POVc POrw;
   record PUVc localPUr;
@@ -864,8 +880,8 @@ begin
     loc = MSb.MainStock;
   end;  
   if (nonblank(loc)) then begin
-    LocRec.Code = loc;
-    if (ReadFirstMain(LocRec,1,true)==false) then begin
+    err = ReadLocation(loc,LocRec);
+    if (err!=0) then begin
       RecordCheckError(1120,PUr.Location,-1,"Location");      
       res = -1;
       goto L99PUVcRecordCheck;
@@ -961,8 +977,8 @@ begin
       location = loc;
     end;
     if (nonblank(location)) then begin
-      LocRec.Code = location;
-      if (ReadFirstMain(LocRec,1,true)==false) then begin
+      err = ReadLocation(location,LocRec);
+      if (err!=0) then begin
         RecordCheckError(1120,PUrw.Location,i,"Location");
         res = -1;
         goto L99PUVcRecordCheck;
@@ -1555,6 +1571,8 @@ begin
   Boolean gToDualBase,gBase1ToBase2;
   val fr,to1,to2,br1,br2,t;
   string 10 curncy;
+  record PUVc cPUr;
+  transaction Boolean gPUVcRecordImport_RecordExists;
 
   BlockLoad(cvm);
   if (cvm.DualBaseCurrencyFlag!=0) then begin gToDualBase = true; end;
@@ -1589,6 +1607,8 @@ begin
   if (PUr.NoTAXonVAT==-1) then begin
     PUr.NoTAXonVAT = 0;
   end;
+  cPUr.SerNr = PUr.SerNr;
+  gPUVcRecordImport_RecordExists = ReadFirstMain(cPUr,1,true);
   PUVcRecordImport = res;
   return;
 end;
@@ -1598,14 +1618,17 @@ updating function LongInt PUVcRecordImportAfter(var record PUVc PUr,record PUVc 
 begin
   LongInt res;
   Integer err;
+  transaction Boolean gPUVcRecordImport_RecordExists;
     
   if (PUr.OKFlag!=0) then begin
+    if (gPUVcRecordImport_RecordExists==false) then begin
     PurUpdateSerialNr(PUr,true,false);
     if (ImportingTextBackup==false and CanOKStockRecord(err)==true) then begin
       PurUpdateStock(PUr,false);
       PurUpdateCostPrice(PUr,false);  // this should be called during import since records are from other systems
       PurUpdateItemHist(PUr);
     end;
+  end;
   end;
   PUVcRecordImportAfter = res; 
   return;

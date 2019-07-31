@@ -1,3 +1,8 @@
+external updating procedure IngenicoiCT220CreditCard_Purchase(LongInt,Integer,val,string,string,Integer);
+external procedure SmartPayCreditCard_Purchase(string,LongInt,LongInt,Integer,val,val,string,string,string,string,Integer);
+external updating procedure WorldPayCreditCard_Purchase(LongInt,Integer,val,string,string,Integer);
+remote procedure ProceedSwishPayTouchScreenRemote(record RcVc,record CCAccountIDVc,record IVCashVc,Integer,string);
+external procedure FindPaymentGateway(string,string,Integer,var record CCAccountIDVc,Integer,Integer);
 external procedure OpenGiftVoucherTouchScreenDClass(Integer,Integer,LongInt,val,val,string,string,string);
 external function Boolean TestNextOfficialSerialNr_IVCashVc(row LegalInvNrBlock,string,record IVCashVc,Boolean);
 external procedure PrepareOfficialSerialNrBlock(Integer,var record LegalInvNrBlock);
@@ -124,6 +129,33 @@ begin
   return;
 end;
 
+updating procedure OpenNewIVCash(Integer mwn)
+begin
+  record IVCashVc IVCr;
+  val prevRetValue;
+  string 255 tstr;
+
+  GetWindowRecord(mwn,IVCr);
+  IVCashDClass_RefreshStringList(mwn,IVCr);
+  prevRetValue = IVCr.RetValue;
+  WindowDoNew(mwn,0);
+  GetWindowRecord(mwn,IVCr);
+  IVCr.RetValue = prevRetValue;
+  PutWindowString(mwn,"touchscreenwindowpage",1);
+  PutWindowString(mwn,"touchscreenwindowpagestack","1");
+  PutWindowString(mwn,"touchscreenwindowprinterstack","*");
+  PutWindowString(mwn,"CustomerDisplayData_Line1","");
+  PutWindowString(mwn,"CustomerDisplayData_Line2","");    
+  PutWindowString(mwn,"touchscreenitemlastrownr",-1);
+  PutWindowString(mwn,"ReturnMode","false");
+  tstr = USetStr(24172) & "  ";
+  tstr = tstr & ValToString(prevRetValue,M4Val,ThousandSeparator,DecimalSeparator,0);
+  SetPOSWindowDisplay("",tstr);
+  PutWindowRecord(mwn,IVCr);
+  IVCashDClass_RefreshStringList(mwn,IVCr);
+  return;
+end;
+
 /*
 procedure 
 begin
@@ -186,11 +218,13 @@ begin
   record CCMerchantIDVc CCMerchantIDr;  
   Date blankd;
   integer i,rwcnt,cardholdertype;
+  record DefCashBlock DCb;
 
   wn = CurWindow;
   DeselectWindow(wn,true);
   mwn = MotherWindow(wn);
   if (mwn!=0) then begin
+    BlockLoad(DCb);
     GetWindowRecord(wn,RepSpec);
     switch (GetWindowFileName(mwn)) begin
       case "IVVc":
@@ -424,6 +458,11 @@ begin
         IVCashrw.stp = kInvoiceRowTypeCreditCardPayment;
         IVCashrw.Sum = RepSpec.vals0;
         IVCashrw.PayMode = RepSpec.AccStr;
+        if (GetWindowString(mwn,"ReturnMode")=="true" or IVCashrw.Sum<0) then begin
+          if (nonblank(DCb.DefRtrnPayMode)) then begin
+            IVCashrw.PayMode = DCb.DefRtrnPayMode;
+          end;
+        end;
         IVCashrw.Spec = RepSpec.f6;
         IVCashrw.AuthorizationCode = RepSpec.f1;
         crncy = RepSpec.CurncyCode;
@@ -437,6 +476,11 @@ begin
         MatRowPut(IVCashr,MatRowCnt(IVCashr),IVCashrw);
         POSAudit_LogIVCashVcRow(IVCashr,IVCashrw,kPOSEventTypeAddRow);
         IVCashSumup(IVCashr,true);
+        if (HasLocalization("HRV")==false) then begin  //DoXMLExport_IVCashVc
+          if (IVCashr.RetValue>=0) then begin
+            IVCashr.OKFlag = 1;            
+          end;
+        end;
         PutWindowRecord(mwn,IVCashr);
         WindowFieldGoto(mwn,IVCashr,-1,"touchscreenitem",true);
         IVCashDClass_RefreshStringList(mwn,IVCashr);
@@ -481,7 +525,7 @@ begin
         MatRowPut(RestAccr,MatRowCnt(RestAccr),RestAccrw);
         RestAccSumup(RestAccr,"");
         PutWindowRecord(mwn,RestAccr);
-        RestAccDClass_RefreshStringList(mwn,IVCashr);
+        RestAccDClass_RefreshStringList(mwn,RestAccr);
     end;
     if (WindowDoOK(mwn,0)) then begin
       DeselectWindow(wn,false);
@@ -498,6 +542,9 @@ begin
           IVCashDClass_RefreshStringList(mwn,IVCashr);
           SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
           OpenCashDrawer_IVCashVc(IVCashr);
+          if (IVCashr.OKFlag!=0) then begin
+            OpenNewIVCash(mwn);
+          end;
         case "RestAccVc":
           GetWindowRecord(mwn,RestAccr);
           RestAccDClass_RefreshStringList(mwn,RestAccr);
@@ -505,6 +552,13 @@ begin
           OpenCashDrawer;
       end;
     end else begin
+      switch (GetWindowFileName(mwn)) begin
+        case "IVCashVc":
+          if (IVCashr.OKFlag!=0) then begin
+            IVCashr.OKFlag = 0;
+            PutWindowRecord(mwn,IVCashr);
+          end;
+      end;
       CloseWindow(wn);
       SelectHWStoreWClass;
     end;
@@ -774,12 +828,13 @@ begin
               goto LProceedGiftVoucherTouchScreenDClass;
             end;
         end;
+//CUST-BEGIN
         if (RepSpec.vals0>IVCashr.Sum4) then begin 
           MessageBox(300000,"");
           WindowFieldGoto(wn,RepSpec,-1,"f1",true);
           goto LProceedGiftVoucherTouchScreenDClass;
         end;
-
+//CUST-END
         ClearRow(IVCashr,IVCashrw,kInvoiceRowTypeGiftVoucherPayment);
         IVCashrw.stp = kInvoiceRowTypeGiftVoucherPayment;
         IVCashrw.Sum = RepSpec.vals0;
@@ -824,7 +879,7 @@ begin
         MatRowPut(RestAccr,MatRowCnt(RestAccr),RestAccrw);
         RestAccSumup(RestAccr,"");
         PutWindowRecord(mwn,RestAccr);
-        RestAccDClass_RefreshStringList(mwn,IVCashr);
+        RestAccDClass_RefreshStringList(mwn,RestAccr);
     end;
     if (WindowDoOK(mwn,0)) then begin
       DeselectWindow(wn,false);
@@ -1122,6 +1177,386 @@ end;
 
 
 global
+updating procedure ConfirmedSwishPayTouchScreenOClass()
+begin
+  Integer wn,mwn;
+  record RcVc RepSpec;
+  record IVCashVc prevIVCashr;
+  record IVCashVc IVCashr;
+  row IVCashVc IVCashrw;
+  Array string 255 acrncy;
+  Array Boolean achangecrncyf;
+  Integer i,acrncnt;
+  string 255 crncy;
+  val fr,to1,to2,br1,br2,sum4;
+  record RestAccVc prevRestAccr;
+  record RestAccVc RestAccr;
+  row RestAccVc RestAccrw;
+  record IVVc prevIVr;
+  record IVVc IVr;
+  row IVVc IVrw;
+  
+  wn = CurWindow;
+  DeselectWindow(wn,true);
+  mwn = MotherWindow(wn);
+  if (mwn!=0) then begin
+    GetWindowRecord(wn,RepSpec);
+    switch (GetWindowFileName(mwn)) begin
+      case "IVCashVc":
+        sum4 = IVCashr.Sum4;
+        DeselectWindow(mwn,false);
+        GetWindowRecord(mwn,IVCashr);
+        switch (WindowState(mwn)) begin
+          case Rs_update:
+            GetPrevWindowRecord(mwn,prevIVCashr);
+            if (prevIVCashr.OKFlag!=0) then begin
+              CloseWindow(wn);
+              goto LConfirmedSwishPayTouchScreenOClass;
+            end;
+            if (prevIVCashr.Invalid!=0) then begin
+              CloseWindow(wn);
+              goto LConfirmedSwishPayTouchScreenOClass;
+            end;
+          case Rs_normal:
+            GetWindowRecord(mwn,prevIVCashr);
+            if (prevIVCashr.OKFlag!=0) then begin
+              CloseWindow(wn);
+              goto LConfirmedSwishPayTouchScreenOClass;
+            end;
+            if (prevIVCashr.Invalid!=0) then begin
+              CloseWindow(wn);
+              goto LConfirmedSwishPayTouchScreenOClass;
+            end;
+        end;
+        if (IVCashr.OKFlag!=0) then begin
+          IVCashr.OKFlag = 0;
+        end;
+        CntPOSCurrencies(acrncy,achangecrncyf,acrncnt);
+        for (i=0;i<acrncnt;i=i+1) begin
+        
+          ClearRow(IVCashr,IVCashrw,kInvoiceRowTypeSwishPayment);
+          IVCashrw.Sum = RepSpec.vals0;
+          if (IVCashrw.Sum!=0) then begin
+            crncy = "";
+            if (HasMultiCurrency) then begin
+              crncy = RepSpec.CurncyCode;
+            end;
+            IVCashrw.PayMode = RepSpec.AccStr;
+            IVCashrw.Spec = RepSpec.f6;
+            if (HasMultiCurrency) then begin
+              if (GetFullCurncyPurchaseRate(crncy,CurrentDate,fr,to1,to2,br1,br2)==false) then begin
+                GetFullCurncyRate(crncy,CurrentDate,fr,to1,to2,br1,br2);
+              end;
+            end;
+            IVCashrw.CurncyCode = crncy;
+            IVCashrw.FrRate = fr;
+            IVCashrw.ToRateB1 = to1;
+            IVCashrw.ToRateB2 = to2;
+            IVCashrw.BaseRate1 = br1;
+            IVCashrw.BaseRate2 = br2;  
+            MatRowPut(IVCashr,MatRowCnt(IVCashr),IVCashrw);
+            POSAudit_LogIVCashVcRow(IVCashr,IVCashrw,kPOSEventTypeAddRow);
+          end;
+        end;
+        IVCashSumup(IVCashr,true);
+/*        
+        if (IVCashr.InvType==kPOSInvoiceTypeCredit) then begin
+          if (IVCashr.RetValue!=0) then begin
+            MessageBox(20878,"");
+            goto LConfirmedSwishPayTouchScreenOClass;
+          end;
+        end;
+*/        
+        PutWindowRecord(mwn,IVCashr);
+        WindowFieldGotoForTouchScreen(mwn,-1,"ivcashcommand",true);
+      case "RestAccVc":
+/*      
+        DeselectWindow(mwn,false);
+        GetWindowRecord(mwn,RestAccr);
+        switch (WindowState(mwn)) begin
+          case Rs_update:
+            GetPrevWindowRecord(mwn,prevRestAccr);
+            if (prevRestAccr.Closed!=0) then begin
+              CloseWindow(wn);
+              goto LConfirmedSwishPayTouchScreenOClass;
+            end;
+          case Rs_normal:
+            GetWindowRecord(mwn,prevRestAccr);
+            if (prevRestAccr.Closed!=0) then begin
+              CloseWindow(wn);
+              goto LConfirmedSwishPayTouchScreenOClass;
+            end;
+        end;
+
+        CntPOSCurrencies(acrncy,achangecrncyf,acrncnt);
+        for (i=0;i<acrncnt;i=i+1) begin
+        
+          ClearRow(RestAccr,RestAccrw,kInvoiceRowTypeCreditCardPayment);
+          RestAccrw.stp = kInvoiceRowTypeCashPayment;
+          RestAccrw.Sum = StringToVal(GetWindowString(wn,"NPTSCashPaymentCashReceived" & i),M4Val);
+          if (RestAccrw.Sum>0) then begin
+            RestAccrw.PayMode = RepSpec.AccStr;
+            RestAccrw.Spec = RepSpec.f6;
+            crncy = GetWindowString(wn,"NPTSCashPaymentCurrency" & i);
+            if (GetFullCurncyPurchaseRate(crncy,CurrentDate,fr,to1,to2,br1,br2)==false) then begin
+              GetFullCurncyRate(crncy,CurrentDate,fr,to1,to2,br1,br2);
+            end;
+            RestAccrw.CurncyCode = crncy;
+            RestAccrw.FrRate = fr;
+            RestAccrw.ToRateB1 = to1;
+            RestAccrw.ToRateB2 = to2;
+            RestAccrw.BaseRate1 = br1;
+            RestAccrw.BaseRate2 = br2;  
+            MatRowPut(RestAccr,MatRowCnt(RestAccr),RestAccrw);
+          end;
+        end;        
+        RestAccSumup(RestAccr,"");
+        PutWindowRecord(mwn,RestAccr);
+        RestAccDClass_RefreshStringList(mwn,RestAccr);
+*/        
+    end;
+    if (WindowDoOK(mwn,0)) then begin
+      DeselectWindow(wn,false);
+      GetWindowRecord(wn,RepSpec);
+      CloseWindow(wn);
+      switch (GetWindowFileName(mwn)) begin
+        case "IVCashVc":
+          GetWindowRecord(mwn,IVCashr);
+          IVCashDClass_RefreshStringList(mwn,IVCashr);
+          SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
+          OpenCashDrawer_IVCashVc(IVCashr);
+        case "RestAccVc":
+/*        
+          GetWindowRecord(mwn,RestAccr);
+          RestAccDClass_RefreshStringList(mwn,RestAccr);
+          SetPOSWindowDisplayAmount(USetStr(27350),RestAccr.Sum4-RestAccr.TendValue);
+          OpenCashDrawer;
+*/          
+      end;
+    end else begin
+      CloseWindow(wn);
+      SelectHWStoreWClass;
+    end;
+  end;
+LConfirmedSwishPayTouchScreenOClass:;  
+  //WindowFieldGoto(mwn,RepSpec,-1,"ivcashcommand",true);
+  WindowFieldGotoForTouchScreen(mwn,-1,"ivcashcommand",true); 
+  return;
+end;
+
+global
+updating procedure ProceedSwishPayTouchScreenOClass()
+begin
+  Integer wn,mwn,nwn;
+  record RcVc RepSpec;
+  record IVCashVc orgIVCr;
+  record IVCashVc prevIVCr;
+  record IVCashVc IVCr;
+  row IVCashVc IVCrw;
+  val from,to1,to2,base1,base2;
+  string 255 crncy,transid,cardnumber;
+  record RestAccVc prevRestAccr;
+  record RestAccVc RestAccr;
+  row RestAccVc RestAccrw;
+  record LocalMachineBlock LMb;
+  Integer wnst,txtype;
+  record CCAccountIDVc CCAccountIDr;  
+  record CCMerchantIDVc CCMerchantIDr;  
+  Date blankd;
+  integer i,rwcnt,cardholdertype;
+
+  wn = CurWindow;
+  DeselectWindow(wn,true);
+  mwn = MotherWindow(wn);
+  if (mwn!=0) then begin
+    GetWindowRecord(wn,RepSpec);
+    switch (GetWindowFileName(mwn)) begin
+      case "IVCashVc":
+        DeselectWindow(mwn,false);
+        GetWindowRecord(mwn,IVCr);
+        switch (WindowState(mwn)) begin
+          case Rs_update:
+            GetPrevWindowRecord(mwn,prevIVCr);
+            if (prevIVCr.OKFlag!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSwishPayTouchScreenOClass;
+            end;
+            if (prevIVCr.Invalid!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSwishPayTouchScreenOClass;
+            end;
+          case Rs_normal:
+            GetWindowRecord(mwn,prevIVCr);
+            if (prevIVCr.OKFlag!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSwishPayTouchScreenOClass;
+            end;
+            if (IVCr.Invalid!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSwishPayTouchScreenOClass;
+            end;
+        end;
+        BlockLoad(LMb);
+        if (AbsoluteVal(IVCr.Sum4)<AbsoluteVal(RepSpec.vals0)) then begin
+          CloseWindow(wn);
+          MessageBox(20878,"");
+          WindowFieldGoto(wn,IVCr,-1,"vals0",true);
+          goto LProceedSwishPayTouchScreenOClass;
+        end;
+        if (blank(RepSpec.f1)) then begin
+          MessageBox(1058,"");
+          WindowFieldGoto(wn,RepSpec,-1,"f1",true);
+          goto LProceedSwishPayTouchScreenOClass;
+        end;
+//        if (IVCr.OKFlag!=0) then begin
+//          IVCr.OKFlag = 0;
+//        end;
+        txtype = kCardTransactionPay;
+//        FindPaymentGateway("","",kCCAccountTypePOS,CCAccountIDr,kCardHolderAny,kCCPartnerSwish);
+        FindPaymentGateway(RepSpec.CurncyCode,LMb.LocalMachineCode,kCCAccountTypePOS,CCAccountIDr,kCardHolderAny,kCCPartnerSwish);
+        CCMerchantIDr.Code = CCAccountIDr.MerchantID;
+        ReadFirstMain(CCMerchantIDr,1,true);
+        if (CCMerchantIDr.Partner==kCCPartnerSwish) then begin
+          if (blank(CCAccountIDr.URL)) then begin
+            MessageBox(41800,"");
+            WindowFieldGoto(wn,RepSpec,-1,"f1",true);
+            goto LProceedSwishPayTouchScreenOClass;
+          end;
+          if (blank(CCAccountIDr.Certificate)) then begin
+            MessageBox(41801,"");
+            WindowFieldGoto(wn,RepSpec,-1,"f1",true);
+            goto LProceedSwishPayTouchScreenOClass;
+          end;
+          if (blank(CCAccountIDr.PrivateKey)) then begin
+            MessageBox(41802,"");
+            WindowFieldGoto(wn,RepSpec,-1,"f1",true);
+            goto LProceedSwishPayTouchScreenOClass;
+          end;
+          if (blank(CCAccountIDr.PrivateKeyPsswd)) then begin
+            MessageBox(41803,"");
+            WindowFieldGoto(wn,RepSpec,-1,"f1",true);
+            goto LProceedSwishPayTouchScreenOClass;
+          end;
+          if (RepSpec.vals0<0) then begin
+            txtype = kCardTransactionRefund;
+            rwcnt = MatRowCnt(IVCr);
+            for (i=0;i<rwcnt;i=i+1) begin
+              MatRowGet(IVCr,i,IVCrw);
+              if (IVCrw.stp==kInvoiceRowTypeReturnIVNr) then begin
+                i = rwcnt;
+              end;
+            end;
+            orgIVCr.SerNr = IVCrw.OrgIVNr;
+            if (ReadFirstMain(orgIVCr,1,true)) then begin
+              rwcnt = MatRowCnt(orgIVCr);
+              for (i=0;i<rwcnt;i=i+1) begin
+                MatRowGet(orgIVCr,i,IVCrw);
+                if (IVCrw.stp==kInvoiceRowTypeCreditCardPayment) then begin
+                  transid = IVCrw.CCTransID;
+                  i = rwcnt;
+                end;
+              end;
+            end;
+          end;            
+          ProceedSwishPayTouchScreenRemote(RepSpec,CCAccountIDr,IVCr,txtype,transid);
+          
+          goto LProceedSwishPayTouchScreenOClass;
+        end;              
+    /*
+        ClearRow(IVCr,IVCrw,kInvoiceRowTypeCreditCardPayment);
+        IVCrw.stp = kInvoiceRowTypeCreditCardPayment;
+        IVCrw.Sum = RepSpec.vals0;
+        IVCrw.PayMode = RepSpec.AccStr;
+        IVCrw.Spec = RepSpec.f6;
+        IVCrw.AuthorizationCode = RepSpec.f1;
+        crncy = RepSpec.CurncyCode;
+        GetFullCurncyRate(crncy,IVCr.TransDate,from,to1,to2,base1,base2);
+        IVCrw.CurncyCode = crncy;
+        IVCrw.FrRate = from;
+        IVCrw.ToRateB1 = to1;
+        IVCrw.ToRateB2 = to2;
+        IVCrw.BaseRate1 = base1;
+        IVCrw.BaseRate2 = base2;  
+        MatRowPut(IVCr,MatRowCnt(IVCr),IVCrw);
+        POSAudit_LogIVCashVcRow(IVCr,IVCrw,kPOSEventTypeAddRow);
+        IVCashSumup(IVCr,true);
+        PutWindowRecord(mwn,IVCr);
+        WindowFieldGoto(mwn,IVCr,-1,"touchscreenitem",true);
+        IVCashDClass_RefreshStringList(mwn,IVCr);
+*/        
+      case "RestAccVc":
+        DeselectWindow(mwn,false);
+        GetWindowRecord(mwn,RestAccr);
+        switch (WindowState(mwn)) begin
+          case Rs_update:
+            GetPrevWindowRecord(mwn,prevRestAccr);
+            if (prevRestAccr.Closed!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSwishPayTouchScreenOClass;
+            end;
+          case Rs_normal:
+            GetWindowRecord(mwn,prevRestAccr);
+            if (prevRestAccr.Closed!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSwishPayTouchScreenOClass;
+            end;
+        end;
+        if (RestAccr.Sum4<RepSpec.vals0) then begin
+          CloseWindow(wn);
+          MessageBox(20878,"");
+          WindowFieldGoto(wn,RestAccr,-1,"vals0",true);
+          goto LProceedSwishPayTouchScreenOClass;
+        end;
+/*        
+        ClearRow(RestAccr,RestAccrw,kInvoiceRowTypeCreditCardPayment);
+        RestAccrw.stp = kInvoiceRowTypeCreditCardPayment;
+        RestAccrw.Sum = RepSpec.vals0;
+        RestAccrw.PayMode = RepSpec.AccStr;
+        RestAccrw.Spec = RepSpec.f6;
+        RestAccrw.AuthorizationCode = RepSpec.f1;
+        crncy = RepSpec.CurncyCode;
+        GetFullCurncyRate(crncy,RestAccr.TransDate,from,to1,to2,base1,base2);
+        RestAccrw.CurncyCode = crncy;
+        RestAccrw.FrRate = from;
+        RestAccrw.ToRateB1 = to1;
+        RestAccrw.ToRateB2 = to2;
+        RestAccrw.BaseRate1 = base1;
+        RestAccrw.BaseRate2 = base2;  
+        MatRowPut(RestAccr,MatRowCnt(RestAccr),RestAccrw);
+        RestAccSumup(RestAccr,"");
+        PutWindowRecord(mwn,RestAccr);
+        RestAccDClass_RefreshStringList(mwn,RestAccr);
+*/        
+    end;
+/*    
+    if (WindowDoOK(mwn,0)) then begin
+      DeselectWindow(wn,false);
+      GetWindowRecord(wn,RepSpec);
+      CloseWindow(wn);
+      switch (GetWindowFileName(mwn)) begin
+        case "IVCashVc":
+          GetWindowRecord(mwn,IVCr);
+          IVCashDClass_RefreshStringList(mwn,IVCr);
+          SetPOSWindowDisplay_PaymentRow(IVCrw.Spec,IVCr.RetValue);
+          OpenCashDrawer_IVCashVc(IVCr);
+        case "RestAccVc":
+          GetWindowRecord(mwn,RestAccr);
+          RestAccDClass_RefreshStringList(mwn,RestAccr);
+          SetPOSWindowDisplayAmount(USetStr(27350),RestAccr.Sum4-RestAccr.TendValue);
+          OpenCashDrawer;
+      end;
+    end else begin
+      CloseWindow(wn);
+      SelectHWStoreWClass;
+    end;
+*/    
+  end;
+LProceedSwishPayTouchScreenOClass:;  
+  return;
+end;
+
+
+global
 updating function Boolean GiftVoucherSalesTouchScreenDClassOnOKWindow(Integer wn)
 begin
   boolean res;
@@ -1316,12 +1751,18 @@ begin
         res = DCb.DefCCPayMode;
       case kInvoiceRowTypeSwishPayment:
         res = DCb.DefCCPayMode;
+      case kInvoiceRowTypeQRPayment:
+        res = DCb.DefCCPayMode;
+      case kInvoiceRowTypeCashWithdrawal:
+        res = DCb.DefCWPayMode;
     end;
   end;
 
+//CUST-BEGIN
   if (nonblank(res)) then begin
     goto LLocalMachinePaymentMode2;    
   end;
+//CUST-END
   BlockLoad(RestPMb);
   rwcnt = MatRowCnt(RestPMb);
   for (i=0;i<rwcnt;i=i+1) begin
@@ -1456,6 +1897,11 @@ begin
             goto LProceedCashPayTouchScreenDClass;
           end;
         end;
+        if (HasLocalization("HRV")==false) then begin  //DoXMLExport_IVCashVc
+          if (IVCashr.RetValue>=0) then begin
+            IVCashr.OKFlag = 1;            
+          end;
+        end;
         PutWindowRecord(mwn,IVCashr);
         WindowFieldGotoForTouchScreen(mwn,-1,"ivcashcommand",true);
       case "IVVc":
@@ -1555,7 +2001,7 @@ begin
         end;        
         RestAccSumup(RestAccr,"");
         PutWindowRecord(mwn,RestAccr);
-        RestAccDClass_RefreshStringList(mwn,IVCashr);
+        RestAccDClass_RefreshStringList(mwn,RestAccr);
     end;
     if (WindowDoOK(mwn,0)) then begin
       DeselectWindow(wn,false);
@@ -1572,6 +2018,9 @@ begin
           IVCashDClass_RefreshStringList(mwn,IVCashr);
           SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
           OpenCashDrawer_IVCashVc(IVCashr);
+          if (IVCashr.OKFlag!=0) then begin
+            OpenNewIVCash(mwn);
+          end;
         case "RestAccVc":
           GetWindowRecord(mwn,RestAccr);
           RestAccDClass_RefreshStringList(mwn,RestAccr);
@@ -1579,6 +2028,13 @@ begin
           OpenCashDrawer;
       end;
     end else begin
+      switch (GetWindowFileName(mwn)) begin
+        case "IVCashVc":
+          if (IVCashr.OKFlag!=0) then begin
+            IVCashr.OKFlag = 0;
+            PutWindowRecord(mwn,IVCashr);
+          end;
+      end;
       CloseWindow(wn);
       SelectHWStoreWClass;
     end;
@@ -1711,6 +2167,10 @@ begin
               vpaymodeamounts[IVCashrw.PayMode] = vpaymodeamounts[IVCashrw.PayMode] + IVCashrw.Sum; 
             case kInvoiceRowTypeSwishPayment:
               vpaymodeamounts[IVCashrw.PayMode] = vpaymodeamounts[IVCashrw.PayMode] + IVCashrw.Sum; 
+            case kInvoiceRowTypeQRPayment:
+              vpaymodeamounts[IVCashrw.PayMode] = vpaymodeamounts[IVCashrw.PayMode] + IVCashrw.Sum; 
+            case kInvoiceRowTypeCashWithdrawal:
+              vpaymodeamounts[IVCashrw.PayMode] = vpaymodeamounts[IVCashrw.PayMode] + IVCashrw.Sum; 
           end;
         end;
         CntNPTSPaymentCurrenciesRemote(LMb.LocalMachineCode,alabel,acrncy,apaymenttype,apaymentmode,acrncnt);
@@ -1739,6 +2199,26 @@ begin
                   goto LProceedCashPayTouchScreenDClass;
                 end;
               end;
+            case kInvoiceRowTypeQRPayment:
+              apaymentv[i] = StringToVal(GetWindowString(wn,"NPTSPaymentTClassAmount" & apaymentmode[i]),M4Val) - vpaymodeamounts[apaymentmode[i]];
+              apaymentauthcode[i] = GetWindowString(wn,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i]);
+              if (LMb.CCRequireAuthCode!=0) then begin
+                if (blank(apaymentauthcode[i])) and (apaymentv[i]>0) then begin
+                  MessageBox(1058,"");
+                  WindowFieldGoto(wn,RepSpec,-1,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i],true);
+                  goto LProceedCashPayTouchScreenDClass;
+                end;
+              end;
+            case kInvoiceRowTypeCashWithdrawal:
+              apaymentv[i] = StringToVal(GetWindowString(wn,"NPTSPaymentTClassAmount" & apaymentmode[i]),M4Val) - vpaymodeamounts[apaymentmode[i]];
+              apaymentauthcode[i] = GetWindowString(wn,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i]);
+              if (LMb.CCRequireAuthCode!=0) then begin
+                if (blank(apaymentauthcode[i])) and (apaymentv[i]>0) then begin
+                  MessageBox(1058,"");
+                  WindowFieldGoto(wn,RepSpec,-1,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i],true);
+                  goto LProceedCashPayTouchScreenDClass;
+                end;
+              end;
             case kInvoiceRowTypeGiftVoucherPayment:
               apaymentv[i] = StringToVal(GetWindowString(wn,"NPTSPaymentTClassGVPAmount" & apaymentmode[i]),M4Val);
             otherwise
@@ -1751,6 +2231,10 @@ begin
               totcashv = totcashv + apaymentv[i];
             case kInvoiceRowTypeSwishPayment:
               totcashv = totcashv + apaymentv[i];
+            case kInvoiceRowTypeQRPayment:
+              totcashv = totcashv + apaymentv[i];
+            case kInvoiceRowTypeCashWithdrawal:
+              totcashv = totcashv + apaymentv[i];
           end;
           totpaymentv = totpaymentv + apaymentv[i];
         end;
@@ -1762,7 +2246,11 @@ begin
           end;
         end;
         NPTSPaymentPasteAmounts(IVCashr,alabel,acrncy,apaymenttype,apaymentmode,apaymentv,apaymentchecknr,apaymentauthcode,acrncnt);
-//        IVCashr.OKFlag = 1;
+        if (HasLocalization("HRV")==false) then begin  //DoXMLExport_IVCashVc
+          if (IVCashr.RetValue>=0) then begin
+            IVCashr.OKFlag = 1;            
+          end;
+        end;
         PutWindowRecord(mwn,IVCashr);
         WindowFieldGotoForTouchScreen(mwn,-1,"ivcashcommand",true);
         IVCashDClass_RefreshStringList(mwn,IVCashr);
@@ -1832,6 +2320,10 @@ begin
               vpaymodeamounts[IVrw.PayMode] = vpaymodeamounts[IVrw.PayMode] + IVrw.Sum; 
             case kInvoiceRowTypeSwishPayment:
               vpaymodeamounts[IVrw.PayMode] = vpaymodeamounts[IVrw.PayMode] + IVrw.Sum; 
+            case kInvoiceRowTypeQRPayment:
+              vpaymodeamounts[IVrw.PayMode] = vpaymodeamounts[IVrw.PayMode] + IVrw.Sum; 
+            case kInvoiceRowTypeCashWithdrawal:
+              vpaymodeamounts[IVrw.PayMode] = vpaymodeamounts[IVrw.PayMode] + IVrw.Sum; 
           end;
         end;
 
@@ -1861,6 +2353,26 @@ begin
                   goto LProceedCashPayTouchScreenDClass;
                 end;
               end;
+            case kInvoiceRowTypeQRPayment:
+              apaymentv[i] = StringToVal(GetWindowString(wn,"NPTSPaymentTClassAmount" & apaymentmode[i]),M4Val) - vpaymodeamounts[apaymentmode[i]];
+              apaymentauthcode[i] = GetWindowString(wn,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i]);
+              if (LMb.CCRequireAuthCode!=0) then begin
+                if (blank(apaymentauthcode[i])) and (apaymentv[i]>0) then begin
+                  MessageBox(1058,"");
+                  WindowFieldGoto(wn,RepSpec,-1,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i],true);
+                  goto LProceedCashPayTouchScreenDClass;
+                end;
+              end;
+            case kInvoiceRowTypeCashWithdrawal:
+              apaymentv[i] = StringToVal(GetWindowString(wn,"NPTSPaymentTClassAmount" & apaymentmode[i]),M4Val) - vpaymodeamounts[apaymentmode[i]];
+              apaymentauthcode[i] = GetWindowString(wn,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i]);
+              if (LMb.CCRequireAuthCode!=0) then begin
+                if (blank(apaymentauthcode[i])) and (apaymentv[i]>0) then begin
+                  MessageBox(1058,"");
+                  WindowFieldGoto(wn,RepSpec,-1,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i],true);
+                  goto LProceedCashPayTouchScreenDClass;
+                end;
+              end;
             case kInvoiceRowTypeGiftVoucherPayment:
               apaymentv[i] = StringToVal(GetWindowString(wn,"NPTSPaymentTClassGVPAmount" & apaymentmode[i]),M4Val);
             otherwise
@@ -1872,6 +2384,10 @@ begin
             case kInvoiceRowTypeCreditCardPayment:
               totcashv = totcashv + apaymentv[i];
             case kInvoiceRowTypeSwishPayment:
+              totcashv = totcashv + apaymentv[i];
+            case kInvoiceRowTypeQRPayment:
+              totcashv = totcashv + apaymentv[i];
+            case kInvoiceRowTypeCashWithdrawal:
               totcashv = totcashv + apaymentv[i];
           end;
           totpaymentv = totpaymentv + apaymentv[i];
@@ -1943,6 +2459,10 @@ begin
               vpaymodeamounts[RestAccrw.PayMode] = vpaymodeamounts[RestAccrw.PayMode] + RestAccrw.Sum; 
             case kInvoiceRowTypeSwishPayment:
               vpaymodeamounts[RestAccrw.PayMode] = vpaymodeamounts[RestAccrw.PayMode] + RestAccrw.Sum; 
+            case kInvoiceRowTypeQRPayment:
+              vpaymodeamounts[RestAccrw.PayMode] = vpaymodeamounts[RestAccrw.PayMode] + RestAccrw.Sum; 
+            case kInvoiceRowTypeCashWithdrawal:
+              vpaymodeamounts[RestAccrw.PayMode] = vpaymodeamounts[RestAccrw.PayMode] + RestAccrw.Sum; 
           end;
         end;
 
@@ -1972,6 +2492,26 @@ begin
                   goto LProceedCashPayTouchScreenDClass;
                 end;
               end;
+            case kInvoiceRowTypeQRPayment:
+              apaymentv[i] = StringToVal(GetWindowString(wn,"NPTSPaymentTClassAmount" & apaymentmode[i]),M4Val) - vpaymodeamounts[apaymentmode[i]];
+              apaymentauthcode[i] = GetWindowString(wn,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i]);
+              if (LMb.CCRequireAuthCode!=0) then begin
+                if (blank(apaymentauthcode[i])) and (apaymentv[i]>0) then begin
+                  MessageBox(1058,"");
+                  WindowFieldGoto(wn,RepSpec,-1,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i],true);
+                  goto LProceedCashPayTouchScreenDClass;
+                end;
+              end;
+            case kInvoiceRowTypeCashWithdrawal:
+              apaymentv[i] = StringToVal(GetWindowString(wn,"NPTSPaymentTClassAmount" & apaymentmode[i]),M4Val) - vpaymodeamounts[apaymentmode[i]];
+              apaymentauthcode[i] = GetWindowString(wn,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i]);
+              if (LMb.CCRequireAuthCode!=0) then begin
+                if (blank(apaymentauthcode[i])) and (apaymentv[i]>0) then begin
+                  MessageBox(1058,"");
+                  WindowFieldGoto(wn,RepSpec,-1,"NPTSPaymentTClassAuthorizationCode" & apaymentmode[i],true);
+                  goto LProceedCashPayTouchScreenDClass;
+                end;
+              end;
             case kInvoiceRowTypeGiftVoucherPayment:
               apaymentv[i] = StringToVal(GetWindowString(wn,"NPTSPaymentTClassGVPAmount" & apaymentmode[i]),M4Val);
             otherwise
@@ -1983,6 +2523,10 @@ begin
             case kInvoiceRowTypeCreditCardPayment:
               totcashv = totcashv + apaymentv[i];
             case kInvoiceRowTypeSwishPayment:
+              totcashv = totcashv + apaymentv[i];
+            case kInvoiceRowTypeQRPayment:
+              totcashv = totcashv + apaymentv[i];
+            case kInvoiceRowTypeCashWithdrawal:
               totcashv = totcashv + apaymentv[i];
           end;
           totpaymentv = totpaymentv + apaymentv[i];
@@ -2014,7 +2558,7 @@ begin
         end;
         NPTSPaymentPasteAmounts_RestAccVc(RestAccr,alabel,acrncy,apaymenttype,apaymentmode,apaymentv,apaymentchecknr,apaymentauthcode,acrncnt);
         PutWindowRecord(mwn,RestAccr);
-        RestAccDClass_RefreshStringList(mwn,IVCashr);
+        RestAccDClass_RefreshStringList(mwn,RestAccr);
     end;
     if (WindowDoOK(mwn,0)) then begin
       DeselectWindow(wn,false);
@@ -2031,6 +2575,9 @@ begin
           SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
           IVCashDClass_RefreshStringList(mwn,IVCashr);
           OpenCashDrawer_IVCashVc(IVCashr);
+          if (IVCashr.OKFlag!=0) then begin
+            OpenNewIVCash(mwn);
+          end;
         case "RestAccVc":
           GetWindowRecord(mwn,RestAccr);
           RestAccDClass_RefreshStringList(mwn,RestAccr);
@@ -2183,6 +2730,12 @@ begin
   mwn = MotherWindow(wn);
   if (mwn!=0) then begin
     GetWindowRecord(wn,RepSpec);
+    if (RepSpec.vals2<0) then begin
+      MessageBox(1567,"");
+      WindowFieldGoto(wn,RepSpec,-1,"vals2",true);
+      ivcashcommandf = false;
+      goto LProceedAmendLineNPTSSClass;
+    end;
     switch (GetWindowFileName(mwn)) begin
       case "IVCashVc":
         DeselectWindow(mwn,false);
@@ -2220,7 +2773,7 @@ begin
 //        IVCashrw.Quant = RepSpec.vals0;
         IVCashrw.Price = RepSpec.vals1;
         
-				if (IVCashr.InclVAT == 0) then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 06 03 2018 y. 08:54:25
+				if (IVCashr.InclVAT == 0  or nonblank(IVCashrw.RvrsVATCode)) then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 02, 06 03 2018 y. 08:54:25
 					IVCashrw.PriceExclVAT = IVCashrw.Price;
 				end else begin
 					IVCashrw.PriceExclVAT = IVCashrw.Price - FindVAT(IVCashrw.VATCode,IVCashrw.Price,IVCashr.InclVAT,IVCashr.NoTAXonVAT);
@@ -2976,7 +3529,7 @@ updating procedure ProceedReturnInvNoNPTSSClassExecute(Integer wn)
 begin
   Integer mwn,rownr;
   record RcVc RepSpec;
-  record IVCashVc IVCashr,newIVCashr,oldIVCashr;
+  record IVCashVc IVCashr,newIVCashr,oldIVCashr;//CUST-ADDED
   record IVCashVc prevIVCashr;
   row IVCashVc IVCashrw;
   string 255 tstr,t2;
@@ -3504,9 +4057,25 @@ begin
 end;
 
 global
+procedure CancelEnterSalesmanNPTSOClass()
+begin
+  Integer mwn,nwn;
+  record RcVc RepSpec;
+  record RestBlock Rb;
+  
+  BlockLoad(Rb);
+  mwn =  MotherWIndow(CurWindow);
+  CloseWindow(CurWindow);
+  if (Rb.StepsSequence) then begin
+    nwn = OpenWindow("SetTableTouchScreenOClass",0,mwn,"","",RepSpec);
+  end;
+  return;
+end;
+
+global
 updating procedure ProceedEnterSalesmanNPTSOClass()
 begin
-  Integer wn,mwn,rownr;
+  Integer wn,mwn,nwn,rownr;
   record RcVc RepSpec;
   record IVCashVc IVCashr;
   record IVCashVc prevIVCashr;
@@ -3516,7 +4085,8 @@ begin
   record IVVc prevIVr;
   record UserVc Userr;
   string 255 tstr;
-
+  record RestBlock Rb;
+  
   wn = CurWindow;
   DeselectWindow(wn,true);
   mwn = MotherWindow(wn);
@@ -3590,6 +4160,7 @@ begin
         IVVc_PasteSalesMan(IVr,tstr);
         PutWindowRecord(mwn,IVr);
       case "RestAccVc":
+        BlockLoad(Rb);
         GetWindowRecord(mwn,RestAccr);
         switch (WindowState(mwn)) begin
           case Rs_update:
@@ -3627,6 +4198,9 @@ begin
     GetWindowRecord(wn,RepSpec);
     CloseWindow(wn);
     ReRunWindowDef(mwn);
+    if (Rb.StepsSequence) then begin
+      nwn = OpenWindow("SetTableTouchScreenOClass",0,mwn,"","",RepSpec);
+    end;
   end else begin
     CloseWindow(wn);
   end;
@@ -4067,9 +4641,9 @@ begin
   record IVCashVc prevIVCr;
   record IVCashVc IVCr;
   row IVCashVc IVCrw;
-  string 255 crncy,invcrncy;
+  string 255 crncy,invcrncy,action;
   val fr,to1,to2,br1,br2,sum4;
-  val totpaymentv,totcashv;
+  val totpaymentv,totcashv,cashwithdrawal;
   Array string 255 acrncy,alabel,apaymentmode;
   Array Integer apaymenttype;
   Array val apaymentv;
@@ -4077,10 +4651,10 @@ begin
   Array string 255 apaymentauthcode;
   Integer i,acrncnt,rwcnt;
   record LocalMachineBlock LMb;
-  record RahaxiBlock Rahaxib;
+  record RahaxiBlock Rb;
   vector val vpaymodeamounts;
   Boolean testf,closef,cashf;
-  string 255 paymode,tstr,tag,transactionid;
+  string 255 paymode,tstr,tag,transactionid,authorisation;
   Integer stp,selpmrow;
   LongInt pos;
   val received,rowsum;
@@ -4193,7 +4767,14 @@ begin
             case kInvoiceRowTypeCreditCardPayment:
               vpaymodeamounts[IVCrw.PayMode] = vpaymodeamounts[IVCrw.PayMode] + rowsum; 
               totpaymentv = totpaymentv + rowsum;
+            case kInvoiceRowTypeCashWithdrawal:
+              vpaymodeamounts[IVCrw.PayMode] = vpaymodeamounts[IVCrw.PayMode] + rowsum; 
+              totpaymentv = totpaymentv + rowsum;
+              cashwithdrawal = cashwithdrawal + rowsum;
             case kInvoiceRowTypeSwishPayment:
+              vpaymodeamounts[IVCrw.PayMode] = vpaymodeamounts[IVCrw.PayMode] + rowsum; 
+              totpaymentv = totpaymentv + rowsum;
+            case kInvoiceRowTypeQRPayment:
               vpaymodeamounts[IVCrw.PayMode] = vpaymodeamounts[IVCrw.PayMode] + rowsum; 
               totpaymentv = totpaymentv + rowsum;
             case kInvoiceRowTypeChequePayment:
@@ -4212,11 +4793,17 @@ begin
 
         if ((totpaymentv-totcashv)>IVCr.Sum4) then begin
           if (totpaymentv>totcashv) then begin
+            if (UserCanAction("AllowCashWithdrawal",true)==false) then begin
             MessageBox(20878,"");
             WindowFieldGoto(wn,RepSpec,-1,"NPTSPaymentBLayoutReceived",true);
             goto LProceedNPTSPaymentOneModeTClass;
           end;
         end;
+        end;
+        if (IVCr.Sum4>0) then begin
+          cashwithdrawal = totpaymentv - totcashv - IVCr.Sum4;
+        end;
+              
         if (received==0) then begin
           received = RepSpec.vals1 - totpaymentv;
           totpaymentv = totpaymentv + received;
@@ -4235,8 +4822,9 @@ begin
             rwcnt = MatRowCnt(orgIVCr);
             for (i=0;i<rwcnt;i=i+1) begin
               MatRowGet(orgIVCr,i,orgIVCrw);
-              if (orgIVCrw.stp==kInvoiceRowTypeCreditCardPayment or orgIVCrw.stp==kInvoiceRowTypeSwishPayment) then begin 
+              if (orgIVCrw.stp==kInvoiceRowTypeCreditCardPayment or orgIVCrw.stp==kInvoiceRowTypeSwishPayment or orgIVCrw.stp==kInvoiceRowTypeQRPayment) then begin 
                 transactionid = orgIVCrw.CCTransID;
+                authorisation = orgIVCrw.AuthorizationCode;
                 i = rwcnt;
               end;
               if (orgIVCrw.stp==kInvoiceRowTypeCashPayment) then begin 
@@ -4263,9 +4851,24 @@ begin
           CloseWindow(wn);
           goto LProceedNPTSPaymentOneModeTClass;
         end;
-        if (stp==kInvoiceRowTypeCreditCardPayment) then begin
-          BlockLoad(Rahaxib);
-          switch (Rahaxib.TerminalType) begin
+        if (stp==kInvoiceRowTypeCreditCardPayment or stp==kInvoiceRowTypeQRPayment) then begin
+          BlockLoad(Rb);
+          switch (Rb.TerminalType) begin
+            case kLocalCCTerminalIngenicoiCT220:
+              vRepSpec.UsedOnly = kLocalCCTerminalIngenicoiCT220;
+              vRepSpec.ArtMode = 1;
+              vRepSpec.long1 = IVCr.SerNr;
+              vRepSpec.AccStr = paymode;
+              vRepSpec.f5 = alabel[selpmrow];
+              vRepSpec.CurncyCode = crncy;
+              vwn = OpenWindow("CCPayVerifoneProcessingWClass",0,wn,"","",vRepSpec);
+              DeselectWindow(vwn,false);
+              if (received<0) then begin
+                IngenicoiCT220CreditCard_Purchase(IVCr.SerNr,IVCr.InvType,received,vRepSpec.AccStr,vRepSpec.f5,vwn);
+              end else begin
+                IngenicoiCT220CreditCard_Purchase(IVCr.SerNr,IVCr.InvType,received,vRepSpec.AccStr,vRepSpec.f5,vwn);
+              end;
+              goto LProceedNPTSPaymentOneModeTClass;
             case kLocalCCTerminalVerifoneBanksys:
               vRepSpec.UsedOnly = kLocalCCTerminalVerifoneBanksys;
               vRepSpec.ArtMode = 1;
@@ -4279,6 +4882,50 @@ begin
                 VerifoneBanksys_Void(received,paymode,alabel[selpmrow],transactionid,"",vwn);
               end else begin
                 VerifoneBanksys_Purchase(received,paymode,alabel[selpmrow],vwn);
+              end;
+              goto LProceedNPTSPaymentOneModeTClass;
+            case kLocalCCTerminalWorldPay:
+              vRepSpec.UsedOnly = kLocalCCTerminalWorldPay;
+              vRepSpec.ArtMode = 1;
+              vRepSpec.long1 = IVCr.SerNr;
+              vRepSpec.AccStr = paymode;
+              vRepSpec.f5 = alabel[selpmrow];
+              vRepSpec.CurncyCode = crncy;
+              vwn = OpenWindow("CCPayVerifoneProcessingWClass",0,wn,"","",vRepSpec);
+              DeselectWindow(vwn,false);
+              if (received<0) then begin
+                WorldPayCreditCard_Purchase(IVCr.SerNr,IVCr.InvType,received,vRepSpec.AccStr,vRepSpec.f5,vwn);
+              end else begin
+                WorldPayCreditCard_Purchase(IVCr.SerNr,IVCr.InvType,received,vRepSpec.AccStr,vRepSpec.f5,vwn);
+              end;
+              goto LProceedNPTSPaymentOneModeTClass;
+            case kLocalCCTerminalSmartPay:
+              vRepSpec.UsedOnly = kLocalCCTerminalSmartPay;
+              vRepSpec.ArtMode = 1;
+              vRepSpec.long1 = IVCr.SerNr;
+              vRepSpec.AccStr = paymode;
+              vRepSpec.f5 = alabel[selpmrow];
+              vRepSpec.CurncyCode = crncy;
+              vRepSpec.OKmode = 0;
+              if (received<0) then begin
+                vRepSpec.OKmode = -1;
+              end;
+              vRepSpec.FirstVer = stp;
+              vwn = OpenWindow("CCPayVerifoneProcessingWClass",0,wn,"","",vRepSpec);
+              DeselectWindow(vwn,false);
+              switch (stp) begin
+                case kInvoiceRowTypeQRPayment:
+                  action = "QRPayment";
+                case kInvoiceRowTypeCreditCardPayment:
+                  action = "CCPayment";
+                otherwise
+                  action = "CCPayment";
+              end;
+
+              if (received<0) then begin
+                SmartPayCreditCard_Purchase(Rb.RahaxiServerIP,Rb.RahaxiServerPort,IVCr.SerNr,IVCr.InvType,received,0,vRepSpec.AccStr,vRepSpec.f5,action,authorisation,vwn);
+              end else begin
+                SmartPayCreditCard_Purchase(Rb.RahaxiServerIP,Rb.RahaxiServerPort,IVCr.SerNr,IVCr.InvType,received,cashwithdrawal,vRepSpec.AccStr,vRepSpec.f5,action,"",vwn);
               end;
               goto LProceedNPTSPaymentOneModeTClass;
 //CUST-BEGIN
@@ -5277,6 +5924,19 @@ begin
 end;
 
 global
+procedure IVCashDClassTouchScreenCreateInvoice()
+begin
+  Integer wn;
+  record IVCashVc IVCr;
+
+  wn = CurWindow;
+  CloseWindow(wn);
+  RecordNew(IVCr);  
+  wn = OpenWindow("NPTSIVCashDClass",0,0,"","",IVCr);
+  return;
+end;
+
+global
 updating procedure IVCashDClassTouchScreenPauseSales()
 begin
   Integer wn;
@@ -5491,6 +6151,8 @@ begin
             case kInvoiceRowTypeCreditCardPayment:
               totpaymentv = totpaymentv + IVCashrw.Sum; 
             case kInvoiceRowTypeSwishPayment:
+              totpaymentv = totpaymentv + IVCashrw.Sum; 
+            case kInvoiceRowTypeQRPayment:
               totpaymentv = totpaymentv + IVCashrw.Sum; 
           end;
         end;

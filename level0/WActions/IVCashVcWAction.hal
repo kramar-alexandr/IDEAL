@@ -1,3 +1,7 @@
+external procedure IVCashDClassTouchScreenAmendLine();
+remote function LongInt ChangeAddressNPTSSClass_PasteVATNr(var record RcVc);
+remote procedure IVCashVc_PasteSalesMan(var record IVCashVc,string);
+remote function LongInt IVCashVc_PasteVATNr(var record IVCashVc);
 external procedure RestAccDClass_RefreshStringList(Integer,record RestAccVc);
 external function string 255 FormulaDiscountString(string);
 external function Integer PrintFisUSBMReceiptdll_IVCashVc_Header(record IVCashVc,record LSerialPortDeviceVc);
@@ -881,6 +885,27 @@ begin
   return;
 end;
 
+function Boolean IVCashDClassVATNrEFAfter(Integer wn,Boolean changedf)
+begin
+  record IVCashVc IVCr;
+  Integer err;
+  string 255 warning;
+  record LocalMachineBlock LMb;
+  
+  if (changedf) then begin
+    GetWindowRecord(wn,IVCr);
+    BlockLoad(LMb);
+    err = IVCashVc_PasteVATNr(IVCr);
+    if (err==0) then begin
+      PutWindowRecord(wn,IVCr);
+    end else begin
+      MessageBox(err,"");
+    end;
+  end;
+  IVCashDClassVATNrEFAfter = true;
+  return;
+end;
+
 function Boolean IVCashDClassvRebateEFAfter(Integer wn,Integer rownr,Integer changed)
 begin
   record IVCashVc IVCashr;
@@ -895,6 +920,11 @@ begin
       IVCrw.vRebate = "";
       MatRowPut(IVCashr,rownr,IVCrw);
       MessageBox(1019,"");
+    end;
+    if (EvalToVal(FormulaDiscountString(IVCrw.vRebate))<0.00) then begin
+      IVCrw.vRebate = "";
+      MatRowPut(IVCashr,rownr,IVCrw);
+      MessageBox(40331,"");
     end;
     if (IVCashDchrsum(IVCashr,rownr,GenOptRec.UseDiscount)) then begin
       IVCashDchsum(IVCashr,rownr);
@@ -995,7 +1025,7 @@ begin
 	//02, 06 03 2018 y. 07:58:16
 	
     MatRowGet(IVCashr,rownr,IVCashrw);
-    if IVCashr.InclVAT == 0 then begin
+    if (IVCashr.InclVAT == 0  or nonblank(IVCashrw.RvrsVATCode)) then begin
       IVCashrw.PriceExclVAT = IVCashrw.Price;
     end else begin
       IVCashrw.PriceExclVAT = IVCashrw.Price - FindVAT(IVCashrw.VATCode,IVCashrw.Price,IVCashr.InclVAT,IVCashr.NoTAXonVAT);
@@ -1074,6 +1104,10 @@ begin
         IVCashSumup(IVCashr,true);
       case kInvoiceRowTypeSwishPayment:
         IVCashSumup(IVCashr,true);
+      case kInvoiceRowTypeQRPayment:
+        IVCashSumup(IVCashr,true);
+      case kInvoiceRowTypeCashWithdrawal:
+        IVCashSumup(IVCashr,true);
       otherwise
         if ((IVCashrw.Quant!=0) and (IVCashrw.Price!=0)) then begin
           INr.Code = IVCashrw.ArtCode;
@@ -1149,6 +1183,19 @@ begin
   return;
 end;
 
+function Boolean IVCashDClassSalesManEFAfter(Integer wn,Boolean changedf)
+begin  
+  record IVCashVc IVCr;
+
+  if (changedf) then begin  
+    GetWindowRecord(wn,IVCr);
+    IVCashVc_PasteSalesMan(IVCr,WindEFstr(wn));    
+    PutWindowRecord(wn,IVCr);
+  end;
+  IVCashDClassSalesManEFAfter = true;
+  return;
+end;
+
 global
 function Boolean IVCashDClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
 begin
@@ -1162,6 +1209,7 @@ begin
     case "PriceFactor": res = IVCashDClassPriceFactorEFAfter(wn,rownr,changed);
     case "vRebate": res = IVCashDClassvRebateEFAfter(wn,rownr,changed);
     case "CustCode": res = IVCashDClassCustCodeEFAfter(wn,rownr,changed);
+    case "VATNr": res = IVCashDClassVATNrEFAfter(wn,changed!=0);
     case "PriceList": res = IVCashDClassPriceListEFAfter(wn,changed!=0);
     case "RebCode": res = IVCashDClassRebCodeEFAfter(wn,changed!=0);
     case "PayDeal2": res = IVCashDClassPayDeal2EFAfter(wn,rownr,changed);
@@ -1181,6 +1229,7 @@ begin
     case "SerialNr": res = IVCashDClassSerialNrEFAfter(wn,rownr,changed);
     case "LoyaltyCardNr": res = IVCashDClassLoyaltyCardNrEFAfter(wn,changed);
     case "GCNr": res = IVCashDClassGCNrEFAfter(wn,rownr,changed);
+    case "SalesMan": res = IVCashDClassSalesManEFAfter(wn,changed!=0);
 //touchscreen
     case "touchscreenitem": res = IVCashDClasstouchscreenitemEFAfter(wn,0,changed!=0);
     case "touchscreenitemqty": res = IVCashDClasstouchscreenitemqtyEFAfter(wn,changed!=0);
@@ -2210,6 +2259,7 @@ begin
   
   POSAudit_WindowOpen(wn);
 //  WindowFieldGoto(wn,IVCashr,-1,"ivcashcommand",false);
+//    PutWindowString(wn,"NPTSIVCashEditMode","true");//tmp
   NPTSIVCashDClassOnOpenWindow = res;
   return;
 end;
@@ -2497,10 +2547,11 @@ begin
         goto LkInvoiceRowTypeNormal2;
       case kInvoiceRowTypeNormal:
 LkInvoiceRowTypeNormal2:;
-        INr.Code = IVCashrw.ArtCode;
-        if (ReadFirstMain(INr,1,true)) then begin
-          nwn = OpenWindow("NPTSIVCashItemInfoOClass",0,wn,"","",INr);
-        end;
+        IVCashDClassTouchScreenAmendLine;
+//        INr.Code = IVCashrw.ArtCode;
+//        if (ReadFirstMain(INr,1,true)) then begin
+//          nwn = OpenWindow("NPTSIVCashItemInfoOClass",0,wn,"","",INr);
+//        end;
       case kInvoiceRowTypeCashPayment:
       otherwise
     end;
@@ -2588,6 +2639,13 @@ begin
     end;
   end;
   RestAccDClassListDoubleClick = false;
+  return;
+end;
+
+global
+function Boolean RestAccDClassListDblClick(Integer wn)
+begin
+  RestAccDClassListDblClick = RestAccDClassListDoubleClick(wn,-1);
   return;
 end;
 
@@ -3102,5 +3160,48 @@ begin
       res = IVCashDClassAfterEditField(wn,fieldname,fn,rownr,changed);
   end;
   NPTSIVCashDClassAfterEditField = res;
+  return;
+end;
+
+function Boolean ChangeAddressNPTSSClassVATNrEFAfter(Integer wn,Boolean changedf)
+begin
+  record RcVc RepSpec;
+  Integer err;
+  
+  if (changedf) then begin
+    GetWindowRecord(wn,RepSpec);
+    err = ChangeAddressNPTSSClass_PasteVATNr(RepSpec);
+    if (err==0) then begin
+      PutWindowRecord(wn,RepSpec);
+    end else begin
+      MessageBox(err,"");
+    end;
+  end;
+  ChangeAddressNPTSSClassVATNrEFAfter = true;
+  return;
+end;
+
+global
+function Boolean ChangeAddressNPTSSClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+begin
+  Boolean res;
+  
+  switch (fieldname) begin
+    case "f12": ChangeAddressNPTSSClassVATNrEFAfter(wn,changed!=0)
+  end;
+  ChangeAddressNPTSSClassAfterEditField = res;
+  return;
+end;
+
+
+global
+function Boolean ChangeAddressNPTSIVCashSClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+begin
+  Boolean res;
+  
+  switch (fieldname) begin
+    case "f12": ChangeAddressNPTSSClassVATNrEFAfter(wn,changed!=0)
+  end;
+  ChangeAddressNPTSIVCashSClassAfterEditField = res;
   return;
 end;

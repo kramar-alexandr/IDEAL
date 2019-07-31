@@ -916,9 +916,9 @@ begin
   wn = CurWindow;
   KeyPadEnter(wn);
   GetWindowRecord(wn,IVr);
+  rownr = WindowActiveRow(wn);
   DeselectWindow(wn,false);
   if (IVr.OKFlag==0) then begin
-    rownr = WindowActiveRow(wn);
     if (rownr<0) then begin rownr = 0; end;
     ClearRow(IVr,IVrw,kInvoiceRowTypePrepayment);
     IVrw.Spec = USetStr(1288);
@@ -1044,6 +1044,10 @@ begin
       DeselectWindow(wn,false);
     case kInvoiceRowTypeSwishPayment:
       DeselectWindow(wn,false);
+    case kInvoiceRowTypeQRPayment:
+      DeselectWindow(wn,false);
+    case kInvoiceRowTypeCashWithdrawal:
+      DeselectWindow(wn,false);
   end;
   GetWindowRecord(wn,IVr);
   if (IVr.OKFlag==0) then begin
@@ -1068,6 +1072,10 @@ begin
         IVrw.PayMode = LocalMachinePaymentMode2("",kInvoiceRowTypeCreditCardPayment,IVrw.CurncyCode,IVr.MachineName,IVr.DrawerCode,IVrw.Spec);
       case kInvoiceRowTypeSwishPayment:
         IVrw.PayMode = LocalMachinePaymentMode2("",kInvoiceRowTypeSwishPayment,IVrw.CurncyCode,IVr.MachineName,IVr.DrawerCode,IVrw.Spec);
+      case kInvoiceRowTypeQRPayment:
+        IVrw.PayMode = LocalMachinePaymentMode2("",kInvoiceRowTypeQRPayment,IVrw.CurncyCode,IVr.MachineName,IVr.DrawerCode,IVrw.Spec);
+      case kInvoiceRowTypeCashWithdrawal:
+        IVrw.PayMode = LocalMachinePaymentMode2("",kInvoiceRowTypeQRPayment,IVrw.CurncyCode,IVr.MachineName,IVr.DrawerCode,IVrw.Spec);
     end;
 
     MatRowInsert(IVr,rownr,IVrw);
@@ -1082,6 +1090,12 @@ begin
         WindowFieldGoto(wn,IVr,rownr,"Sum",true);
         WindowFieldGoto(wn,IVr,rownr,"Spec",true);
       case kInvoiceRowTypeSwishPayment:
+        WindowFieldGoto(wn,IVr,rownr,"Sum",true);
+        WindowFieldGoto(wn,IVr,rownr,"Spec",true);
+      case kInvoiceRowTypeQRPayment:
+        WindowFieldGoto(wn,IVr,rownr,"Sum",true);
+        WindowFieldGoto(wn,IVr,rownr,"Spec",true);
+      case kInvoiceRowTypeCashWithdrawal:
         WindowFieldGoto(wn,IVr,rownr,"Sum",true);
         WindowFieldGoto(wn,IVr,rownr,"Spec",true);
     end;
@@ -1122,6 +1136,13 @@ global
 procedure SwishLineIVDsm()
 begin
   AddInvoiceLineType(-1,kInvoiceRowTypeSwishPayment,false);
+  return;
+end;
+
+global
+procedure QRLineIVDsm()
+begin
+  AddInvoiceLineType(-1,kInvoiceRowTypeQRPayment,false);
   return;
 end;
 
@@ -1469,6 +1490,25 @@ begin
   return;
 end;
 
+function Boolean IVHasRvrsVATCode(record IVVc IVr)
+begin
+  Integer i,rwcnt;
+  Boolean res;
+  row IVVc IVrw;
+  
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    if (nonblank(IVrw.RvrsVATCode)) then begin
+      res = true;
+      i = rwcnt;
+    end;
+  end;
+
+  IVHasRvrsVATCode = res;
+  return;
+end;
+
 procedure CashIVsmExecute(integer btnNr)
 begin
   record IVVc IVr;
@@ -1505,6 +1545,12 @@ begin
       if (prevIVr.OKFlag!=0) then begin goto LCashIVsm; end;
   end;
   //START-CUST PST 2015-September-29
+  //CUST-BEGIN
+  if (IVHasRvrsVATCode(IVr)) then begin
+    MessageBox(1000108,"");
+    goto LCashIVsm;
+  end;
+  //END-CUST
   credinv = false;
   if IVr.InvType == kInvoiceTypeCredit then begin
     credinv = true;
@@ -1800,6 +1846,12 @@ begin
       if (prevIVr.OKFlag!=0) then begin goto LCredCardIVsmDo; end;
   end;
   //START-CUST PST 2015-September-29
+  //CUST-BEGIN
+  if (IVHasRvrsVATCode(IVr)) then begin
+    MessageBox(1000108,"");
+    goto LCashIVsm;
+  end;
+  //CUST-END
   credinv = false;
   if IVr.InvType == kInvoiceTypeCredit then begin
     credinv = true;
@@ -2720,6 +2772,8 @@ begin
                 case kInvoiceRowTypeCreditCardPayment:
                   donef = CCPayIVDWithCardDataAndPM(mwn,"",rowstp,pmcode);
                 case kInvoiceRowTypeSwishPayment:
+                  donef = CCPayIVDWithCardDataAndPM(mwn,"",rowstp,pmcode);
+                case kInvoiceRowTypeQRPayment:
                   donef = CCPayIVDWithCardDataAndPM(mwn,"",rowstp,pmcode);
               end;
               if (donef==false) then begin

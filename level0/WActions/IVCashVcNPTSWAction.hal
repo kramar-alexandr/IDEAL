@@ -186,6 +186,20 @@ begin
   return;
 end;
 
+procedure AddStringListRow6(Integer wn,string spec,string tag,string s)
+begin
+  string 255 tstr;
+
+  M4PadString(spec,54," ",false,tstr);
+/*
+  SetListStringAndTag(wn,0,tstr,tag);
+*/
+  AddListRow(wn,"receipt",2,tag,0);
+  AddListData(wn,"receipt","spec",spec);
+  AddListData(wn,"receipt","rowsum",s);
+  return;
+end;
+
 procedure AddStringListRowType4(Integer wn,Integer width,Integer POSFontSize,string qtys,string s1,string v1,string s2,string v2,string s3,string v3,string tag)
 begin
   string 255 tstr,tstr2;
@@ -443,6 +457,8 @@ LkInvoiceRowTypeNormal4:;
         AddStringListRow4(wn,width,LMb.POSFontSize,"",USetStr(24172),"","",ValToString(0.00,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(24172));
       otherwise
         AddStringListRow(wn,width,LMb.POSFontSize,"",USetStr(24172),"","",ValToString(0.00,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(24172),"","");
+//        AddStringListRow6(wn,USetStr(24172),"totalrebate",ValToString(0.00,M4Val,ThousandSeparator,DecimalSeparator,0));
+
     end;
     PutWindowString(wn,"POSfoot_CHANGE",USetStr(24172) & ": " & ValToString(0.00,M4Val,ThousandSeparator,DecimalSeparator,0));
   end;
@@ -459,6 +475,10 @@ LkInvoiceRowTypeNormal4:;
       case kInvoiceRowTypeCreditCardPayment:
         AddStringListRow(wn,width,LMb.POSFontSize,IVCashrw.PayMode,IVCashrw.Spec,"",IVCashrw.CurncyCode,ValToString(IVCashrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
       case kInvoiceRowTypeSwishPayment:
+        AddStringListRow(wn,width,LMb.POSFontSize,IVCashrw.PayMode,IVCashrw.Spec,"",IVCashrw.CurncyCode,ValToString(IVCashrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
+      case kInvoiceRowTypeQRPayment:
+        AddStringListRow(wn,width,LMb.POSFontSize,IVCashrw.PayMode,IVCashrw.Spec,"",IVCashrw.CurncyCode,ValToString(IVCashrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
+      case kInvoiceRowTypeCashWithdrawal:
         AddStringListRow(wn,width,LMb.POSFontSize,IVCashrw.PayMode,IVCashrw.Spec,"",IVCashrw.CurncyCode,ValToString(IVCashrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
       case kInvoiceRowTypeChequePayment:
         AddStringListRow(wn,width,LMb.POSFontSize,IVCashrw.PayMode,IVCashrw.Spec,"",IVCashrw.CurncyCode,ValToString(IVCashrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
@@ -704,6 +724,10 @@ LkIVRowTypeNormal4:;
         AddStringListRow(wn,width,LMb.POSFontSize,IVrw.PayMode,IVrw.Spec,"",IVrw.CurncyCode,ValToString(IVrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
       case kInvoiceRowTypeSwishPayment:
         AddStringListRow(wn,width,LMb.POSFontSize,IVrw.PayMode,IVrw.Spec,"",IVrw.CurncyCode,ValToString(IVrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
+      case kInvoiceRowTypeQRPayment:
+        AddStringListRow(wn,width,LMb.POSFontSize,IVrw.PayMode,IVrw.Spec,"",IVrw.CurncyCode,ValToString(IVrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
+      case kInvoiceRowTypeCashWithdrawal:
+        AddStringListRow(wn,width,LMb.POSFontSize,IVrw.PayMode,IVrw.Spec,"",IVrw.CurncyCode,ValToString(IVrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
       case kInvoiceRowTypeChequePayment:
         AddStringListRow(wn,width,LMb.POSFontSize,IVrw.PayMode,IVrw.Spec,"",IVrw.CurncyCode,ValToString(IVrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),"",i,"","");
       case kInvoiceRowTypeGiftVoucherPayment:
@@ -744,8 +768,11 @@ begin
   vector Boolean vartcodef;
   Integer line;
   Integer width;
+  val sum4;
   transaction Boolean gNPTSIVCashCUDisplayDClassf;
     
+  sum4 = RestAccr.Sum4;
+
   ClearStringList(wn);
   width = StringListWidth(wn);
   BlockLoad(SFb);
@@ -809,14 +836,17 @@ begin
   if (RestAccr.ServCharge>0) then begin
     AddStringListRow(wn,width,LMb.POSFontSize,"",USetStr(24196),"","",ValToString(RestAccr.ServCharge,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(24196),"","");
   end;
+  if (RestAccr.TipValue>0) then begin
+    AddStringListRow(wn,width,LMb.POSFontSize,"",USetStr(10488),"","",ValToString(RestAccr.TipValue,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(10488),"","");
+  end;
   if (LMb.HideQty==0) then begin
     if (WindowIsMirrored(wn)==false) then begin
-      AddStringListRow(wn,width,LMb.POSFontSize,ValToString(totq,M4UVal,ThousandSeparator,DecimalSeparator,0) & " " & USetStr(24176),USetStr(24171),"","",ValToString(RestAccr.Sum4,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(24171),"","");
+      AddStringListRow(wn,width,LMb.POSFontSize,ValToString(totq,M4UVal,ThousandSeparator,DecimalSeparator,0) & " " & USetStr(24176),USetStr(24171),"","",ValToString(sum4,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(24171),"","");
     end else begin
-      AddStringListRow(wn,width,LMb.POSFontSize,USetStr(24176) & " " & ValToString(totq,M4UVal,ThousandSeparator,DecimalSeparator,0),USetStr(24171),"","",ValToString(RestAccr.Sum4,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(24171),"","");
+      AddStringListRow(wn,width,LMb.POSFontSize,USetStr(24176) & " " & ValToString(totq,M4UVal,ThousandSeparator,DecimalSeparator,0),USetStr(24171),"","",ValToString(sum4,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(24171),"","");
     end;
   end else begin
-    AddStringListRow(wn,width,LMb.POSFontSize,ValToString(blankval,M4UVal,ThousandSeparator,DecimalSeparator,0),USetStr(24171),"","",ValToString(RestAccr.Sum4,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(24171),"","");
+    AddStringListRow(wn,width,LMb.POSFontSize,ValToString(blankval,M4UVal,ThousandSeparator,DecimalSeparator,0),USetStr(24171),"","",ValToString(sum4,M4Val,ThousandSeparator,DecimalSeparator,0),"totalrebate",USetStr(24171),"","");
   end;
 //  AddStringListRow(wn,width,LMb.POSFontSize,"",USetStr(24173),"","",ValToString(RestAccr.Sum3,M4Val,ThousandSeparator,DecimalSeparator,0),USetStr(24173),"","");
   if (RestAccr.TipValue>0) then begin
@@ -840,6 +870,10 @@ begin
       case kInvoiceRowTypeCreditCardPayment:
         AddStringListRow(wn,width,LMb.POSFontSize,RestAccrw.PayMode,RestAccrw.Spec,"",RestAccrw.CurncyCode,ValToString(RestAccrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),ValToString(RestAccrw.vRebate,M41Val,ThousandSeparator,DecimalSeparator,0),i,"","");
       case kInvoiceRowTypeSwishPayment:
+        AddStringListRow(wn,width,LMb.POSFontSize,RestAccrw.PayMode,RestAccrw.Spec,"",RestAccrw.CurncyCode,ValToString(RestAccrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),ValToString(RestAccrw.vRebate,M41Val,ThousandSeparator,DecimalSeparator,0),i,"","");
+      case kInvoiceRowTypeQRPayment:
+        AddStringListRow(wn,width,LMb.POSFontSize,RestAccrw.PayMode,RestAccrw.Spec,"",RestAccrw.CurncyCode,ValToString(RestAccrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),ValToString(RestAccrw.vRebate,M41Val,ThousandSeparator,DecimalSeparator,0),i,"","");
+      case kInvoiceRowTypeCashWithdrawal:
         AddStringListRow(wn,width,LMb.POSFontSize,RestAccrw.PayMode,RestAccrw.Spec,"",RestAccrw.CurncyCode,ValToString(RestAccrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),ValToString(RestAccrw.vRebate,M41Val,ThousandSeparator,DecimalSeparator,0),i,"","");
       case kInvoiceRowTypeChequePayment:
         AddStringListRow(wn,width,LMb.POSFontSize,RestAccrw.PayMode,RestAccrw.Spec,"",RestAccrw.CurncyCode,ValToString(RestAccrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),ValToString(RestAccrw.vRebate,M41Val,ThousandSeparator,DecimalSeparator,0),i,"","");

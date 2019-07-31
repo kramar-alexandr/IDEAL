@@ -1,0 +1,172 @@
+external inner procedure IVPasteRvrsVATCode(var record IVVc,Boolean);
+external inner function Boolean GetFirstItem(var string,var record INVc);
+external inner procedure GetVATRowFromBlock(string,record VATCodeBlock,var row VATCodeBlock);
+external inner procedure IV2Sumup3(record IVVc,record SMVc,Integer,record SMVc,record SMVc,Boolean,Boolean,Integer,var val,var val,var val,var val,var val,var val,var string);
+external inner procedure SetupVATBase(var record SMVc,var Integer);
+external inner function Boolean ReadFirstItem(string,var record INVc,Boolean,Boolean);
+external inner function val FindVAT(string, val, integer,integer);
+
+procedure AddToRvrsVATCodes(string rvrsvatcode,array string arvrsvatcodes)
+begin
+  Integer i;
+  
+  for (i=0;i<arvrsvatcodes.length;i=i+1) begin
+    if (arvrsvatcodes[i]==rvrsvatcode) then begin
+      goto LAddToRvrsVATCodes;
+    end;
+  end;
+  arvrsvatcodes[arvrsvatcodes.length] = rvrsvatcode;
+LAddToRvrsVATCodes:;  
+  return;
+end;
+
+procedure UpdateInvoicePrice(record IVVc IVr,var row IVVc IVrw)
+begin
+  
+  if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
+    IVrw.Price = IVrw.PriceExclVAT;
+  end else begin
+    IVrw.Price = IVrw.PriceExclVAT + FindVAT(IVrw.VATCode,IVrw.PriceExclVAT,0,IVr.NoTAXonVAT);
+  end;
+
+  return;
+end;
+
+procedure IVPasteRvrsVATCode2(var record IVVc aIVr,Boolean clearf)
+begin
+  record IVVc IVr;
+  row IVVc IVrw;
+  Integer i,j,rwcnt;
+  record INVc INr;
+  record VATCodeBlock VATCb;
+  row VATCodeBlock VATCbrw;
+  array string 255 arvrsvatcodes;
+  vector Boolean vrvrsvatcodesf;
+  vector val vrvrsvatcodesv;
+  record SMVc VATr;
+  record SMVc SMTax2r;
+  record SMVc RvrsVATr;
+  row SMVc RvrsVATrw;
+  Integer vatcnt;
+  Boolean testf;
+  val s0,s1,s2,s3,s4,rvrsvat,TotGP,t;
+  string 255 cashpaymode;
+  record CUVc CUr;
+  record ITVc ITr;
+  
+  CUr.Code = aIVr.CustCode;
+  ReadFirstMain(CUr,1,true);
+  //if (CUr.RvrsVAT==0 or CUr.CustType==1 or forcef) and (aIVr.InclVAT==0) then begin
+    RecordCopy(IVr,aIVr);
+    rwcnt = MatRowCnt(IVr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(IVr,i,IVrw);
+      if (IVrw.stp==kInvoiceRowTypeNormal or IVrw.stp==kInvoiceRowTypeCorrection) then begin
+        if (nonblank(IVrw.ArtCode)) then begin
+          if (CUr.CustType==1 or CUr.RvrsVAT==0 or clearf) then begin
+            IVrw.RvrsVATCode = "";
+            UpdateInvoicePrice(IVr,IVrw);
+            MatRowPut(IVr,i,IVrw);
+          end else begin          
+            testf = GetFirstItem(IVrw.ArtCode,INr);
+            if (testf==false) then begin
+              testf = ReadFirstItem(IVrw.ArtCode,INr,true,false);
+            end;
+            if (nonblank(INr.RvrsVATCode)) then begin
+              IVrw.RvrsVATCode = INr.RvrsVATCode;
+              UpdateInvoicePrice(IVr,IVrw);
+              MatRowPut(IVr,i,IVrw);
+              AddToRvrsVATCodes(IVrw.RvrsVATCode,arvrsvatcodes);
+            end else begin
+              ITr.Code = INr.Group;
+              if (ReadFirstMain(ITr,1,true)) then begin
+                if (nonblank(ITr.RvrsVATCode)) then begin
+                  IVrw.RvrsVATCode = ITr.RvrsVATCode;
+                  UpdateInvoicePrice(IVr,IVrw);
+                  MatRowPut(IVr,i,IVrw);
+                  AddToRvrsVATCodes(IVrw.RvrsVATCode,arvrsvatcodes);
+                end;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+    if (arvrsvatcodes.length>0) then begin
+      if (CUr.RvrsVAT!=0) then begin
+        RecordCopy(aIVr,IVr);
+      end else begin
+        BlockLoad(VATCb);
+        SetupVATBase(VATr,vatcnt);
+        SetupVATBase(RvrsVATr,vatcnt);
+        IV2Sumup3(IVr,VATr,vatcnt,SMTax2r,RvrsVATr,true,testf,0,s0,s1,s2,s3,s4,TotGP,cashpaymode);
+        for (i=0;i<arvrsvatcodes.length;i=i+1) begin
+          for (j=0;j<vatcnt;j=j+1) begin
+            MatRowGet(RvrsVATr,j,RvrsVATrw);
+            if (arvrsvatcodes[i]==RvrsVATrw.VATCode) then begin
+              vrvrsvatcodesv[arvrsvatcodes[i]] = RvrsVATrw.DebVal;
+            end;
+          end;
+        end;
+        for (i=0;i<arvrsvatcodes.length;i=i+1) begin
+          testf = true;
+          GetVATRowFromBlock(arvrsvatcodes[i],VATCb,VATCbrw);
+          if (VATCbrw.MinBaseAmount>0) then begin
+            if (vrvrsvatcodesv[arvrsvatcodes[i]]<=VATCbrw.MinBaseAmount) then begin testf = false; end;
+          end;
+          if (VATCbrw.MaxBaseAmount>0) then begin
+            if (vrvrsvatcodesv[arvrsvatcodes[i]]>VATCbrw.MaxBaseAmount) then begin testf = false; end;
+          end;
+          vrvrsvatcodesf[arvrsvatcodes[i]] = testf;
+        end;
+        for (i=0;i<rwcnt;i=i+1) begin
+          MatRowGet(IVr,i,IVrw);
+          if (vrvrsvatcodesf[IVrw.RvrsVATCode]==false) then begin
+            IVrw.RvrsVATCode = "";
+            MatRowPut(IVr,i,IVrw);
+          end;
+        end;
+        RecordCopy(aIVr,IVr);        
+      end;
+    end else begin
+      RecordCopy(aIVr,IVr);
+    end;
+  //end;
+  
+  return;
+end;
+
+global
+function Boolean IsRvrsVATPayDeal(string paydeal)
+begin
+  Boolean res;
+  record RvrsVATPDBlock RVb;
+  row RvrsVATPDBlock RVbrw;
+  Integer i,rwcnt;
+
+  BlockLoad(RVb);
+  rwcnt = MatRowCnt(RVb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(RVb,i,RVbrw);
+    if (RVbrw.PayDeal==paydeal) then begin
+      res = true;
+      i = rwcnt;
+    end;
+  end;
+
+  IsRvrsVATPayDeal = res;
+  return;
+end;
+
+global
+procedure UpdateiDealRvrsVATCodes(var record IVVc IVr)
+begin
+  
+  if (IsRvrsVATPayDeal(IVr.PayDeal)) then begin
+    IVPasteRvrsVATCode2(IVr,false);
+  end else begin
+    IVPasteRvrsVATCode2(IVr,true);
+  end;
+
+  return;
+end;

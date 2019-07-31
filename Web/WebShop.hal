@@ -720,7 +720,7 @@ begin
           IVrw.Price = stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Price"),M423val);
           // EVS: DESK-1585
           //IVrw.PriceExclVAT = IVrw.Price;
-          if IVr.InclVAT == 0 then begin // this should never take place
+          if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin // this should never take place
             IVrw.PriceExclVAT = IVrw.Price;
           end else begin
             IVrw.PriceExclVAT = IVrw.Price - FindVAT(IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT);

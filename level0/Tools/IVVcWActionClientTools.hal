@@ -38,7 +38,7 @@ begin
   //END-CUST PST 2015-October-01
   if (HasLocalization("HRV")) then begin
     IVr.FiscalFlag = LMb.SendFiscalInvoice;
-    if (LMb.SendFiscalInvoice==0) then begin
+    if (LMb.SendFiscalInvoice==0 and IVr.FiscalFlag!=0) then begin
       IVr.NoEInvoice = 1; //??
     end;
   end;

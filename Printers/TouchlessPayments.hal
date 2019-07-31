@@ -270,6 +270,7 @@ begin
       receiptnr = JSONGet(js,"Stan");//this is return number
       timestamp = JSONGet(js,"time");//this is return number
       clientreceipt = JSONGet(js,"clientReceipt");
+      paymentstat = JSONGet(js,"text");
       res = true;
     end else begin
       clientreceipt = JSONGet(js,"clientReceipt");
@@ -307,13 +308,13 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
       end;
       switch (FileName) begin
         case "IVVc":
-           qupdating.UpdateIVVcWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr)
+          qupdating.UpdateIVVcWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr)
         case "IVCashVc":
           qupdating.UpdateIVCashWithTouchlessPay(mwn,received,AuthorisationCode,paymode,label,timestamp,transactionid,receiptnr);
       end;
 
     end else begin
-      MessageBox(27386,0);
+      MessageBox(27386,"");
       if (nonblank(clientreceipt)) then begin
         PrintTouchlessCardReceipt(clientreceipt,1);
       end;
@@ -337,22 +338,20 @@ begin
   record LocalMachineBlock LMb;  
   Boolean res;
 
-  if (gTouchlessPaymentf) then begin
-    BlockLoad(LMb);
-    BlockLoad(TPb);
-    if (nonblank(TPb.LastRrn)) then begin
-      if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)==false) then begin  
-        while (ConfirmTouchlessPayment(TPb,LSPDr,TPb.LastRrn,paymentstat)==false and tries<300) begin//5 minutes
-          sleep(1);
-          tries = tries + 1;
-        end;
-        if (paymentstat=="Approved" or paymentstat=="Patvirtinta" or paymentstat=="Autorizuota") then begin
-          res = true;
-          qupdating.StoreLastTouchlessPayment("",-1,"");
-        end;
+  BlockLoad(LMb);
+  BlockLoad(TPb);
+  if (nonblank(TPb.LastRrn)) then begin
+    if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)) then begin  
+      while (ConfirmTouchlessPayment(TPb,LSPDr,TPb.LastRrn,paymentstat)==false and tries<300) begin//5 minutes
+        sleep(1);
+        tries = tries + 1;
+      end;
+      if (paymentstat=="Approved" or paymentstat=="Patvirtinta" or paymentstat=="Autorizuota") then begin
+        res = true;
+        qupdating.StoreLastTouchlessPayment("",-1,"");
       end;
     end;
-  end;    
+  end;
   
   ConfirmLastTouchlessPayment = res;
   return;
@@ -449,7 +448,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
 
       qupdating.StoreLastTouchlessPayment("",-1,"");
     end else begin
-      MessageBox(27386,0);
+      MessageBox(27386,"");
       if (nonblank(clientreceipt)) then begin
         PrintTouchlessCardReceipt(clientreceipt,1);
       end;

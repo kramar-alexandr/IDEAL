@@ -73,11 +73,13 @@ external procedure IVUpdateFIFO(record IVVc,Boolean);
 external function Integer GetCreditedInvoiceType(record IVVc);
 external function Boolean IsSessionOpen(string,string,Date,Time);
 external function boolean ShouldSendArgEinvoice(record IVVc);
+external function boolean ShouldSendMexEinvoice();
 external function boolean ArgEInvoiceBeingSentRemote(longint,string,Boolean);
 external function boolean RoyaltyRecordExistsForCN(record IVVc);
 external function Boolean HasSLIntegratedWithNL();
 external function Boolean HasIntegratedNL();
 external updating function Boolean DoXMLExport_IVVc(var record IVVc);
+external function Boolean OperationCodeExists(string,Boolean);
 
 function Boolean CheckIfNextLegalSerNr(LongInt curivnr,string OfficialSerNr,Date invdate,record CUVc CUr)
 begin
@@ -306,7 +308,7 @@ begin
   record CashierDefBlock CDb;
   record INVc INr;
   transaction Boolean gDoNotTestIfRecordExists;
-  record BrazilEInvTypeVc BEInvTyper;
+  record BrazilEInvTypeVc EInvTyper;
   record CYBlock CYb;
   Boolean TouchScreenFinishButtonf;
 
@@ -682,9 +684,11 @@ begin
             goto L99;
           end else begin
             if (OfficialSerialNrCanBeBlank("IVVc",CUr.Classification,IVp.OKFlag,IVp.OfficialSerNr,IVp.BranchID,IVp.MachineName,IVp.InvDate,IVp.InvType,IVp.Status)==false) then begin
+//CUST-BEGIN
               //RecordCheckError(2210,"",-1,"OfficialSerNr");
               //res = -1;
               //goto L99;
+//CUST-END
             end;
           end;
         end;
@@ -711,7 +715,7 @@ begin
         end;
       end;
     end;
-    if (HasLocalization("ARG")) then begin
+    if (HasLocalization("ARG,MEX")) then begin
       if (AssignOfficialSerNr==false) then begin
         FindNextIVVcOfficialSerialNr(IVp);
       end;
@@ -721,7 +725,20 @@ begin
     RecordCheckError(26201," " & td,-1,"InvDate");  
     res = -1;
     goto L99;
-  end;  
+  end;
+  if (HasLocalization("RUS")) then begin
+    if (blank(IVp.OperationCode)) then begin //DDC
+      RecordCheckError(1058,"",-1,"OperationCode");
+      res = -1;
+      goto L99;
+    end else begin
+      if (OperationCodeExists(IVp.OperationCode,false)) then begin
+        RecordCheckError(1120,IVp.OperationCode,-1,"OperationCode");
+        res = -1;
+        goto L99;
+      end;
+    end;
+  end;
   if (nonblank(IVp.OfficialSerNr)) then begin    
     BlockLoad(IOSTr);
     if (nonblank(IOSTr.From)) then begin
@@ -1159,11 +1176,11 @@ L12:;
       i = GetPayDealType(IVp.PayDeal,dummyl);
       if ((i!=kInvoiceTypeInterest) and (i!=kInvoiceTypeNormal) and (i!=kInvoiceTypeDebit) and (i!=kInvoiceTypeDownpayment)) then begin
         if (IVp.InvType!=i) then begin
-          // CUSTOM REMOVED:
+          //CUST REMOVED:
           //RecordCheckError(1214,"",-1,"PayDeal");      
           //res = -1; 
           //goto L99;
-          // :CUSTOM REMOVED
+          //CUST REMOVED
         end;
       end;  
     end;
@@ -1232,15 +1249,15 @@ L12:;
     res = -1; 
     goto L99;
   end;
-  if (HasLocalization("BRA")) then begin
+  if (HasLocalization("BRA,MEX")) then begin
     if (blank(IVp.BrazilEInvType)) then begin
-      RecordCheckError(1058,"",-1,"BrazilEInvType");      
+      RecordCheckError(1058,"",-1,"EInvType");      
       res = -1; 
       goto L99;
     end else begin
-      BEInvTyper.Code = IVp.BrazilEInvType;
-      if (ReadFirstMain(BEInvTyper,1,true)==false) then begin
-        RecordCheckError(1008,"",-1,"BrazilEInvType");      
+      EInvTyper.Code = IVp.BrazilEInvType;
+      if (ReadFirstMain(EInvTyper,1,true)==false) then begin
+        RecordCheckError(1008,"",-1,"EInvType");      
         res = -1; 
         goto L99;
       end;
@@ -1453,6 +1470,17 @@ L12:;
     res = -1; 
     goto L99;
   end;
+  
+  if (HasLocalization("MEX")) then begin
+    if (IVp.OKFlag!=0 and IV2p.OKFlag==0) then begin
+      if (ShouldSendMexEinvoice) then begin
+        RecordCheckError(33635,"",-1,"OfficialSerNr");
+        res = -1;
+        goto L99;
+      end;
+    end;
+  end;
+  
   if (HasLocalization("ARG")) then begin
     if (IVp.OKFlag!=0 and IV2p.OKFlag==0) then begin
       if (ShouldSendArgEinvoice(IVp)) then begin

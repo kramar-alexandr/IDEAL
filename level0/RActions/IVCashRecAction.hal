@@ -359,7 +359,6 @@ begin
   IVCashr.OrderNr = -1;
   IVCashr.AuthorizationCode = "";
   IVCashr.AuthorizationCode2 = "";
-  IVCashr.FiscalFlag = 0;
   IVCashr.Invalid = 0;
   IVCashr.InvalidDate = "";
   IVCashr.InvalidTime = "";
@@ -368,6 +367,7 @@ begin
   CUr.Code = IVCashr.CustCode;
   if (ReadFirstMain(CUr,1,true)) then begin
   end;
+  IVCashr.FiscalFlag = CUr.FiscalFlag;
   if (HasLocalization("POL")) then begin
     switch (CUr.IPBookVAT) begin
       case 1:
@@ -405,6 +405,12 @@ begin
         MatRowDelete(IVCashr,i);
         i = i-1;
       case kInvoiceRowTypeSwishPayment:    
+        MatRowDelete(IVCashr,i);
+        i = i-1;
+      case kInvoiceRowTypeQRPayment:    
+        MatRowDelete(IVCashr,i);
+        i = i-1;
+      case kInvoiceRowTypeCashWithdrawal:    
         MatRowDelete(IVCashr,i);
         i = i-1;
       otherwise
@@ -660,7 +666,6 @@ BEGIN
   string 10 location;
   Boolean isstruct;  
   Boolean check,infound;
-  Integer insertmode,updatemode;
   Integer errcode;
   LongInt sernr;
   record LocalOffLineNrBlock LastRecNr;
@@ -690,12 +695,10 @@ BEGIN
     check = false;
   end;
   res = 0;
-  insertmode = 1;//Rs_insert
-  updatemode = 2;//Rs_update
   oldnr = IVCashr.SerNr;
   oldOfficialSerNr = IVCashr.OfficialSerNr;
   if (IVCashr.OKFlag==0) then begin
-    if (stat==updatemode) then begin
+    if (stat==Rs_update) then begin
       if (IVCash2r.OKFlag==1) then begin unokf = true; end;
     end;
   end;
@@ -707,14 +710,17 @@ BEGIN
     end;
     goto LIVCashVcRecordCheck;
   end;
+
+  if ((IVCash2r.OKFlag!=0) and (stat==Rs_update)) then begin goto LIVCashVcRecordCheck; end;//?  
+
   transf = false;
   if (IVCashr.OKFlag==1) then begin
-    if (stat==insertmode) then begin transf = true; end;
-    if (stat==updatemode) then begin
+    if (stat==Rs_insert) then begin transf = true; end;
+    if (stat==Rs_update) then begin
       if (IVCash2r.OKFlag==0) then begin transf = true; end;
     end;
   end;
-  if (stat==updatemode) then begin
+  if (stat==Rs_update) then begin
     if (IVCashr.SerNr<=0) and (IVCash2r.OKFlag==0) then begin
       IVCashr.SerNr = IVCash2r.SerNr;
     end;
@@ -770,7 +776,7 @@ u might want to put loyalty card or bagger 1st
     IVCashr.TransTime = CurrentTime;
   end;
   
-  if (stat==updatemode) then begin
+  if (stat==Rs_update) then begin
     if (IVCash2r.OKFlag==0) then begin
       if (IsDoingManagerOverride) then begin
 //        IVCashr.SalesMan = OriginalLogin; //why would u want to store Manger overriding as salesman ? 
@@ -885,7 +891,7 @@ u might want to put loyalty card or bagger 1st
   if (IVCashr.UpdStockFlag==1) then begin
     if (MSb.requireLocation!=0) then begin
       if (blank(IVCashr.Location)) then begin
-        RecordCheckError(1058,IVCashr.Location,-1,"Location");      
+        RecordCheckError(26213,"",-1,"Location");      
         goto LIVCashVcRecordCheck;
       end;
     end;
@@ -1091,17 +1097,17 @@ u might want to put loyalty card or bagger 1st
       end;
     end;
   end;
-  if (transf) then begin
+  if (transf) then begin  
     if (HasLocalization("ARG,BRA,HRV,PHL,PRT,SVN")) then begin
       if (blank(IVCashr.OfficialSerNr)) then begin
-        RecordCheckError(1058,"",-1,"OfficialSerNr");  
+        RecordCheckError(25716,"",-1,"OfficialSerNr");  
         res = -1;
         goto LIVCashVcRecordCheck;
       end;
     end;
     if (HasLocalization("PHL")) then begin
       if (blank(IVCashr.TerminalID)) then begin
-        RecordCheckError(1058,"",-1,"TerminalID");  
+        RecordCheckError(41901,"",-1,"TerminalID");  
         res = -1;
         goto LIVCashVcRecordCheck;
       end;
@@ -1369,6 +1375,20 @@ u might want to put loyalty card or bagger 1st
           goto LIVCashVcRecordCheck;
         end;
         cash = cash + IVCashrw.Sum;      
+      case kInvoiceRowTypeQRPayment:
+        res = CheckRowPayMode("Sum",i,IVCashrw.PayMode,IVCashrw.Sum);
+        if (res!=0) then begin
+          res = -1;
+          goto LIVCashVcRecordCheck;
+        end;
+        cash = cash + IVCashrw.Sum;      
+      case kInvoiceRowTypeCashWithdrawal:
+        res = CheckRowPayMode("Sum",i,IVCashrw.PayMode,IVCashrw.Sum);
+        if (res!=0) then begin
+          res = -1;
+          goto LIVCashVcRecordCheck;
+        end;
+        cash = cash + IVCashrw.Sum;      
       case kInvoiceRowTypeGiftVoucherSold:
         if ((nonblank(IVCashrw.VATCode)) and (VATAccIsClosed(IVCashrw.VATCode,tstr,1))) then begin
           RecordCheckError(1258,tstr,i,"VATCode");      
@@ -1432,7 +1452,7 @@ u might want to put loyalty card or bagger 1st
         end;
       end;
       if (nonblank(IVCashrw.ArtCode)) then begin
-        if (HasLocalization("PRT") /*or CDb.NoZeroQty==1*/) then begin
+        if (HasLocalization("PRT") /*or CDb.NoZeroQty==1*/) then begin  //UNDOCUMENTED CUSTOMIZATION?
           if (IVCashrw.Quant==0) then begin
             RecordCheckError(2210,"",i,"Quant");      
             res = -1; 
@@ -1696,6 +1716,14 @@ u might want to put loyalty card or bagger 1st
     end;
     end;
   end;    
+  if (CDb.NoZeroSum!=0) then begin
+    if (IVCashr.Sum4==0) then begin
+      RecordCheckError(20427,"",i,"SerNr");      
+      res = -1; 
+      goto LIVCashVcRecordCheck;
+    end;
+  end;
+  
   if (infound==false) then begin
     RecordCheckError(1030,"",0,"ArtCode");      
     res = -1; 
@@ -1735,12 +1763,14 @@ u might want to put loyalty card or bagger 1st
           goto LIVCashVcRecordCheck;   
         end;
       end else begin
+//CUST-CHANGED
         if (IVCashr.RetValue!=0 and (IVCashr.RetValue!=-IVCashr.Sum4)) then begin           // No reason to have this check in the first place.
           RecordCheckError(24197,"",-1,"CashValue");  // As when doing a return, invoice is aways negative and change is always positive.    
           res = -1;                                   // the reason is to make sure not to return more than total amount is
           goto LIVCashVcRecordCheck;   
         end;
       end;
+//CUST-CHANGED
       if ((IVCashr.CashValue==0) and (IVCashr.RecValue==0) and (IVCashr.RecValue2==0) and (IVCashr.TendValue==0) and (IVCashr.Sum4!=0) and IVCashr.RetValue!=-IVCashr.Sum4) then begin
         RecordCheckError(24177,"",-1,"CashValue");      
         res = -1; 
@@ -1767,7 +1797,7 @@ u might want to put loyalty card or bagger 1st
     end;
   end;
   if (transf and IVCashr.UpdStockFlag!=0) then begin
-    if (stat==updatemode) then begin sernr = IVCash2r.SerNr; end;
+    if (stat==Rs_update) then begin sernr = IVCash2r.SerNr; end;
 
     if (check) then begin
     if (MSb.Chronology!=0) then begin
@@ -2146,6 +2176,12 @@ begin
     case kInvoiceRowTypeSwishPayment:
 //      IVCashr.TendValue = IVCashr.TendValue + IVCashrw.Sum;
 //      IVCashr.RemValue = IVCashr.RemValue - IVCashrw.Sum;
+    case kInvoiceRowTypeQRPayment:
+//      IVCashr.TendValue = IVCashr.TendValue + IVCashrw.Sum;
+//      IVCashr.RemValue = IVCashr.RemValue - IVCashrw.Sum;
+    case kInvoiceRowTypeCashWithdrawal:
+//      IVCashr.TendValue = IVCashr.TendValue + IVCashrw.Sum;
+//      IVCashr.RemValue = IVCashr.RemValue - IVCashrw.Sum;
     case kInvoiceRowTypeChequePayment:
 //      IVCashr.TendValue = IVCashr.TendValue + IVCashrw.Sum;
 //      IVCashr.RemValue = IVCashr.RemValue - IVCashrw.Sum;
@@ -2376,7 +2412,7 @@ BEGIN
     UpdateLastSerNrBlock(IVCashp.LocalMachineCode,IVCashp.SerNr);
   end;  
   if (nonblank(IVCashp.OfficialSerNr)) then begin
-    UpdateOffSerNr(IVCashp.SerNr,"IVCashVc",0,IVCashp.OfficialSerNr,false);
+    UpdateOffSerNr(IVCashp.SerNr,"IVCashVc",IVCashp.InvType,IVCashp.OfficialSerNr,false);
   end;
   if (nonblank(IVCashp.OfficialSerNr2)) then begin
     UpdateOffSerNr(IVCashp.SerNr,"IVCashVc2",0,IVCashp.OfficialSerNr2,false);
@@ -2516,7 +2552,7 @@ begin
   end;
   if (nonblank(IVCashp.OfficialSerNr)) then begin
     if (IVCashp.OfficialSerNr!=IVCash2p.OfficialSerNr) then begin
-      UpdateOffSerNr(IVCashp.SerNr,"IVCashVc",0,IVCashp.OfficialSerNr,true);
+      UpdateOffSerNr(IVCashp.SerNr,"IVCashVc",IVCashp.InvType,IVCashp.OfficialSerNr,true);
     end;
   end else begin
     if (nonblank(IVCash2p.OfficialSerNr)) then begin

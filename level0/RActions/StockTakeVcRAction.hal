@@ -1,3 +1,4 @@
+external function LongInt ReadLocation(string,var record LocationVc);
 external procedure B1ToB2ValRM(val,val,val,var val,roundmode);
 external function roundmode GetCostRoundModeRB();
 external function Boolean IsDigit(string);
@@ -109,7 +110,8 @@ BEGIN
   record PISVc PISr;
   Date dat;
   record PosVc Posr;
-  Integer errcode,errorrow;
+  Integer errorrow;
+  LongInt errcode;
   string 255 errorfield;
   record SerNrTrackBlock SNrb;
   
@@ -166,9 +168,9 @@ BEGIN
     location = MSb.MainStock;
   end;
   if (nonblank(location)) then begin
-    LocRec.Code = location;
-    if (ReadFirstMain(LocRec,1,true)==false) then begin
-      RecordCheckError(1120,location,-1,"Location");      
+    errcode = ReadLocation(location,LocRec);
+    if (errcode!=0) then begin
+      RecordCheckError(errcode,location,-1,"Location");      
       res = -1; 
       goto LStockTakeVcRecordCheck;
     end;
@@ -209,8 +211,9 @@ BEGIN
     end;
     if (nonblank(loc2)) then begin
       LocRec.Code = loc2;
-      if (ReadFirstMain(LocRec,1,true)==false) then begin
-        RecordCheckError(1120,loc2,i,"Location");      
+      errcode = ReadLocation(loc2,LocRec);
+      if (errcode!=0) then begin
+        RecordCheckError(errcode,loc2,i,"Location");      
         res = -1; 
         goto LStockTakeVcRecordCheck;
       end;

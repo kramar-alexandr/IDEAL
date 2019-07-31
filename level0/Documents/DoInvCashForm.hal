@@ -290,7 +290,7 @@ BEGIN
 				case kInvoiceRowTypeStructuredItemComponent:
 					goto LkInvoiceRowTypeNormal;
 				case kInvoiceRowTypeNormal:
-	LkInvoiceRowTypeNormal:;      
+LkInvoiceRowTypeNormal:;      
 					totsubtotwdisc = totsubtotwdisc + IVCashrw.Quant*IVCashrw.Price;
 					totdisc = totdisc + (IVCashrw.Quant*IVCashrw.Price - IVCashrw.Sum);
 					INr.Code = IVCashrw.ArtCode;
@@ -522,6 +522,12 @@ begin
       case kInvoiceRowTypeSwishPayment:
         vpaymodes[kInvoiceRowTypeSwishPayment] = vpaymodes[kInvoiceRowTypeSwishPayment] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         ivpaymode[kInvoiceRowTypeSwishPayment] = IVCashrw.PayMode;
+      case kInvoiceRowTypeQRPayment:
+        vpaymodes[kInvoiceRowTypeQRPayment] = vpaymodes[kInvoiceRowTypeQRPayment] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
+        ivpaymode[kInvoiceRowTypeQRPayment] = IVCashrw.PayMode;
+      case kInvoiceRowTypeCashWithdrawal:
+        vpaymodes[kInvoiceRowTypeCashWithdrawal] = vpaymodes[kInvoiceRowTypeCashWithdrawal] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
+        ivpaymode[kInvoiceRowTypeCashWithdrawal] = IVCashrw.PayMode;
       case kInvoiceRowTypeChequePayment:
         vpaymodes[kInvoiceRowTypeChequePayment] = vpaymodes[kInvoiceRowTypeChequePayment] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         ivpaymode[kInvoiceRowTypeChequePayment] = IVCashrw.PayMode;
@@ -557,7 +563,13 @@ begin
   if (nonblank(vpaymodes[kInvoiceRowTypeSwishPayment])) then begin
     GetPM(ivpaymode[kInvoiceRowTypeSwishPayment],accstr,tstr);  
     OUTFORMFIELD("F_PAYMODESUMTEXT",tstr);
-    tstr = ValToString(vpaymodes[kInvoiceRowTypeCreditCardPayment],M4Val,SFb.thousSep,SFb.decimalPt,LangNrr.CutDecimals);
+    tstr = ValToString(vpaymodes[kInvoiceRowTypeSwishPayment],M4Val,SFb.thousSep,SFb.decimalPt,LangNrr.CutDecimals);
+    OUTFORMFIELD("F_PAYMODESUMAMOUNT",tstr);
+  end;
+  if (nonblank(vpaymodes[kInvoiceRowTypeQRPayment])) then begin
+    GetPM(ivpaymode[kInvoiceRowTypeQRPayment],accstr,tstr);  
+    OUTFORMFIELD("F_PAYMODESUMTEXT",tstr);
+    tstr = ValToString(vpaymodes[kInvoiceRowTypeQRPayment],M4Val,SFb.thousSep,SFb.decimalPt,LangNrr.CutDecimals);
     OUTFORMFIELD("F_PAYMODESUMAMOUNT",tstr);
   end;
   if (nonblank(vpaymodes[kInvoiceRowTypeChequePayment])) then begin
@@ -652,7 +664,6 @@ begin
   CUr.Code = IVCashr.CustCode;
   if (ReadFirstMain(CUr,1,true)) then begin
   end;
-    
   BlockLoad(RoundRec);  
   BlockLoad(SFb);  
   BlockLoad(CYb);  
@@ -1087,13 +1098,17 @@ BEGIN
       end;
     end;
 LBREAK:;
-		
     if (nonblank(formcode)) then begin
       if (OpenForm(formcode)) then begin  
           PrintInvoiceWatermarks(IVCashr,false,-1);
           CommonDocumentFields(RepSpec);
           NumberofDocumentPages(FDrw.FPCode,MatRowCnt(IVCashr));
+          switch IVCashr.InvType begin
+            case kPOSInvoiceTypeCredit:
+              OUTFORMFIELD("F_DOCTYPE",USetStr(23474));
+            otherwise
           OUTFORMFIELD("F_DOCTYPE",USetStr(23455));
+          end;
           Docr.Code = formcode;
           if (ReadFirstMain(Docr,1,true)) then begin
           end;
@@ -1188,7 +1203,13 @@ LBREAK:;
           end;
           CommonDocumentFields(RepSpec);
           NumberofDocumentPages(FDrw.FPCode,MatRowCnt(IVCashr));
+          
+          switch IVCashr.InvType begin
+            case kPOSInvoiceTypeCredit:
+              OUTFORMFIELD("F_DOCTYPE",USetStr(23474));
+            otherwise
           OUTFORMFIELD("F_DOCTYPE",USetStr(23455));
+          end;
           Docr.Code = formcode;
           if (ReadFirstMain(Docr,1,true)) then begin
           end;

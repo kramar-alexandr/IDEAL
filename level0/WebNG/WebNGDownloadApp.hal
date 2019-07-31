@@ -43,6 +43,7 @@ begin
   return;
 end;
 
+global
 procedure SetContentTypeForExtension(string ext)
 begin
   switch (ext) begin
@@ -126,7 +127,7 @@ begin
   record NotepadVc Noter;
   integer i;
   
-  RollbackOneRequestURL;
+//  RollbackOneRequestURL;
   
   foundf = false;
   filename = WebGetArg("file");

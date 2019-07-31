@@ -1,3 +1,6 @@
+external function string 60 AddObjectToObjectList(string,string);
+external procedure RemoveOldUserObjects(string,var string);
+external function Boolean HasSalesmanChanged(string,string);
 external function Boolean IsEnterprise();
 external procedure RecalcDiscountIVCashD(var record IVCashVc);
 external function val CalculateDiscountPercentage(val,val,val);
@@ -65,6 +68,7 @@ external function Boolean GetItemPriceDiscount3(string,val,var record INVc,strin
 external procedure IVCashPasteRvrsVATCode(var record IVCashVc,Boolean);
 external procedure CalcVATBaseVAT2(record SMVc,Integer,Integer,Integer,Boolean,var val,var val);
 external procedure POSAudit_LogIVCashVcRow(record IVCashVc,row IVCashVc,Integer);
+external updating procedure StorePOSJournalItemEntry2(string,string,string,string,string,LongInt,LongInt,string,string,LongInt,string,val,val,Integer,Integer);
 
 global
 procedure CalculateIVCashVcPoints(var record IVCashVc IVCashr)
@@ -310,7 +314,7 @@ begin
   rwcnt = MatRowCnt(IVCashr);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(IVCashr,i,IVCashrw);
-    if ((IVCashrw.stp==kInvoiceRowTypeGiftVoucherPayment) or (IVCashrw.stp==kInvoiceRowTypeCreditCardPayment) or (IVCashrw.stp==kInvoiceRowTypeSwishPayment) or (IVCashrw.stp==kInvoiceRowTypeChequePayment)) then begin
+    if ((IVCashrw.stp==kInvoiceRowTypeGiftVoucherPayment) or (IVCashrw.stp==kInvoiceRowTypeCreditCardPayment) or (IVCashrw.stp==kInvoiceRowTypeSwishPayment) or (IVCashrw.stp==kInvoiceRowTypeQRPayment) or (IVCashrw.stp==kInvoiceRowTypeCashWithdrawal) or (IVCashrw.stp==kInvoiceRowTypeChequePayment)) then begin
       cash = cash + IVCashrw.Sum;
     end;
     if ((IVCashrw.stp==kInvoiceRowTypeCashPayment) or (IVCashrw.stp==kInvoiceRowTypeLoyaltyPointsPayment)) then begin 
@@ -338,7 +342,7 @@ end;
 
 global
 procedure IVCash2Sumup(record IVCashVc IVCashp,record SMVc SMr,record SMVc RvrsVATr,Integer vatcnt,var val s0,var val s1,var val s2,var val s3,var val s4,var val TotGP,var string roundofpaymode)
-BEGIN
+begin
   Integer i,rwcnt;
   record INVc INr;
   row IVCashVc IVCashrw;
@@ -367,6 +371,10 @@ BEGIN
       case kInvoiceRowTypeCreditCardPayment:
         ccpaymode = IVCashrw.PayMode;
       case kInvoiceRowTypeSwishPayment:
+        ccpaymode = IVCashrw.PayMode;
+      case kInvoiceRowTypeQRPayment:
+        ccpaymode = IVCashrw.PayMode;
+      case kInvoiceRowTypeCashWithdrawal:
         ccpaymode = IVCashrw.PayMode;
     end;
     if ((IVCashrw.stp==kInvoiceRowTypeGiftVoucherSold)) then begin
@@ -485,6 +493,10 @@ BEGIN
           goto LInvoiceRowTypeCashPayment;
         case kInvoiceRowTypeSwishPayment:
           goto LInvoiceRowTypeCashPayment;
+        case kInvoiceRowTypeQRPayment:
+          goto LInvoiceRowTypeCashPayment;
+        case kInvoiceRowTypeCashWithdrawal:
+          goto LInvoiceRowTypeCashPayment;
         case kInvoiceRowTypeCashPayment:
 LInvoiceRowTypeCashPayment:;
           if (IVCashr.CurncyCode==IVCashrw.CurncyCode) and (IVCashr.CurncyCode!=BCb.BaseCur1) and (nonblank(IVCashr.CurncyCode)) then begin
@@ -524,8 +536,8 @@ LInvoiceRowTypeCashPayment:;
     IVCashr.CashValueB2 = t;
   end;
 */  
-  RETURN;
-END;
+  return;
+end;
 
 procedure IVCashSumup_TaxTemplate(var record IVCashVc IVCashp)
 begin
@@ -559,25 +571,29 @@ begin
       case kInvoiceRowTypeOnAccountPayment:
         goto LkInvoiceRowTypeNormal;
       case kInvoiceRowTypeNormal:
-LkInvoiceRowTypeNormal:;      
+LkInvoiceRowTypeNormal:;
         UnpackRowFieldMatrix(IVCashrw,"TaxMatrix",TMr);
         AddRowTaxMatrixToSumTaxMatrix(TMr,sumTMr,IVCashp.InclVAT);
+        if(IVCashrw.ovst==0) then begin
         IVCashp.Sum1 = IVCashp.Sum1 + IVCashrw.Sum;
+        end;
         IVCashp.TotGP = IVCashp.TotGP + IVCashrw.rowGP;
       case kInvoiceRowTypeGiftVoucherSold:
         UnpackRowFieldMatrix(IVCashrw,"TaxMatrix",TMr);
         AddRowTaxMatrixToSumTaxMatrix(TMr,sumTMr,IVCashp.InclVAT);
+        if(IVCashrw.ovst==0) then begin
+          IVCashp.Sum1 = IVCashp.Sum1 + IVCashrw.Sum;
+        end;
         switch (IVCashp.InclVAT) begin
           case kBasePriceNotInclVAT:
-            IVCashp.Sum1 = IVCashp.Sum1 + IVCashrw.Sum;
             IVCashp.Sum1 = IVCashp.Sum1 - CalculateTotalVATFromTaxMatrix(TMr,IVCashp.InclVAT);
-          case kBasePriceInclVAT:
-            IVCashp.Sum1 = IVCashp.Sum1 + IVCashrw.Sum;
         end;
       case kInvoiceRowTypeDownpayment:
         UnpackRowFieldMatrix(IVCashrw,"TaxMatrix",TMr);
         AddRowTaxMatrixToSumTaxMatrix(TMr,sumTMr,IVCashp.InclVAT);
-        IVCashp.Sum1 = IVCashp.Sum1 + IVCashrw.Sum;      
+        if(IVCashrw.ovst==0) then begin
+          IVCashp.Sum1 = IVCashp.Sum1 + IVCashrw.Sum;
+        end;
       
 //  kInvoiceRowTypePrepayment = 6,
 //  kInvoiceRowTypeLoan = 7,
@@ -599,7 +615,6 @@ LkInvoiceRowTypeNormal:;
   GetCurncyRoundoff(IVCashp.CurncyCode,IVCashp.PayDeal,"IVCashVc",rndtotal,roundlines,rndvat);
 
 /*Rounding should be tested carefully*/
-
   IVCashp.Sum3 = Round(IVCashp.Sum3,rndvat);
   IVCashp.Sum1 = Round(IVCashp.Sum1,rndtotal);
   switch (IVCashp.InclVAT) begin
@@ -609,7 +624,7 @@ LkInvoiceRowTypeNormal:;
       IVCashp.Sum4 = IVCashp.Sum1;
     case kBasePriceInclVAT:
       IVCashp.Sum4 = IVCashp.Sum1;
-  end;  
+  end;
   IVCashp.Sum3 = Round(IVCashp.Sum3,rndvat);
   IVCashp.Sum4 = Round(IVCashp.Sum4,rndtotal);
   IVCashp.BaseSum4 = MulRateToBase1(IVCashp.CurncyCode,IVCashp.Sum4,IVCashp.FrRate,IVCashp.ToRateB1,IVCashp.ToRateB2,IVCashp.BaseRate1,IVCashp.BaseRate2,DefaultCurRoundOff);
@@ -619,7 +634,7 @@ end;
 
 global
 procedure IVCashSumup(var record IVCashVc IVCashp,Boolean roundof)
-BEGIN
+begin
   record SMVc SMr;/*VATBaseRowType*/
   record SMVc RvrsVATr;
   Integer vatcnt;
@@ -630,7 +645,7 @@ BEGIN
   record DefCashBlock DCr;
   string 255 roundofpaymode;
   record CUVc CUr;
-  
+
   if (UseTaxTemplatesforTaxCalc) then begin
     IVCashSumup_TaxTemplate(IVCashp);
     goto LIVCashSumup;
@@ -654,7 +669,7 @@ BEGIN
   IVCashp.Sum2 = s2;
   IVCashp.Sum3 = s3;
   IVCashp.Sum4 = s4;
-  IVCashp.TotGP = TotGP;  
+  IVCashp.TotGP = TotGP;
   CalcVATBaseVAT(SMr,IVCashp.InclVAT,IVCashp.NoTAXonVAT,vatcnt,s3,tax1sum);
   CalcVATBaseVAT2(RvrsVATr,IVCashp.InclVAT,IVCashp.NoTAXonVAT,vatcnt,CUr.RvrsVAT!=0,IVCashp.RvrsVAT,t);
   if (blank(roundofpaymode)) then begin
@@ -706,15 +721,15 @@ BEGIN
   if ((HasLocalization("FIN")) and (blank(IVCashp.PayDeal)) and (blank(IVCashp.PayDeal2))) then begin//vatFinnish
     IVCashp.Sum4 = Round(IVCashp.Sum4,SetRoundModeD(10));
   end;
-LIVCashSumup:;  
+LIVCashSumup:;
   CalculatePOSCashBack(IVCashp);  
   CalculateIVCashVcPoints(IVCashp);
-  RETURN;
-END;
+  return;
+end;
 
 global
 function Boolean IVCashVc_PasteArtCode(var record IVCashVc IVCashr,Integer rownr,Boolean ReturnModef,var string warning,var Integer sernrf)
-BEGIN
+begin
   Boolean res;
   row IVCashVc IVCashrw;
   record INVc INr;
@@ -754,7 +769,7 @@ BEGIN
     // Edit Start ---------------------------------------------- Edit Start
 	//02, 06 03 2018 y. 08:23:15
 	
-    if (IVCashr.InclVAT == 0) then begin
+    if (IVCashr.InclVAT == 0 or nonblank(IVCashrw.RvrsVATCode)) then begin
 			IVCashrw.Price = price;
 			IVCashrw.PriceExclVAT = price;
 		end else begin
@@ -831,12 +846,12 @@ BEGIN
 
   AddMultiBuyDiscountItems_IVCashVc(IVCashr);
   IVCashVc_PasteArtCode = res;  
-  RETURN;
-END;
+  return;
+end;
 
 global
 function Boolean IVCashVc_PasteQuant(var record IVCashVc IVCashr,Integer rownr)
-BEGIN
+begin
   Boolean res;
   record INVc INr;
   string 255 salesacc,vatcode,curitemname,tax2code,taxtemplatecode;
@@ -914,12 +929,12 @@ BEGIN
   end;       
   AddMultiBuyDiscountItems_IVCashVc(IVCashr);
   IVCashVc_PasteQuant = res;  
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating function Boolean CreateLateDeliveryORFromIVCash(var record IVCashVc IVCashr,var record ORVc ORr)
-BEGIN
+begin
   Boolean res;
   row ORVc ORrw;
   record IVCashVc oldIVCashr;
@@ -1001,8 +1016,8 @@ BEGIN
     end;
   end;
   CreateLateDeliveryORFromIVCash = res;
-  RETURN;
-END;
+  return;
+end;
 
 function Boolean CheckBaseCurcy(string crncycode)
 begin
@@ -1039,6 +1054,56 @@ begin
     IVCashr.SalesMan = CurrentUser;
   end;
   IVCashVc_PasteCustCode = res;
+  return;
+end;
+
+global
+function LongInt IVCashVc_PasteVATNr(var record IVCashVc IVCr)
+begin
+  LongInt res;
+  record CUVc CUr;
+  
+  res = 0;
+  CUr.VATNr = IVCr.VATNr;
+  if (ReadFirstKey("VATNr",CUr,1,true)) then begin
+    if (UserCanAction("ChangeCustCodeonPOSInvoice",false)) then begin
+      IVCr.CustCode = CUr.Code;
+    end;
+    IVCr.Addr0 = CUr.Name;
+    IVCr.Addr1 = CUr.InvAddr0;
+    IVCr.Addr2 = CUr.InvAddr1;
+    IVCr.Addr3 = CUr.InvAddr2;
+    IVCr.InvAddr3 = CUr.InvAddr3;
+    IVCr.InvAddr4 = CUr.InvAddr4;
+  end else begin
+    res = 20859;
+  end;
+  IVCashVc_PasteVATNr = res;
+  return;
+end;
+
+global
+function LongInt ChangeAddressNPTSSClass_PasteVATNr(var record RcVc RepSpec)
+begin
+  LongInt res;
+  record CUVc CUr;
+  
+  res = 0;
+  CUr.VATNr = RepSpec.f12;
+  if (ReadFirstKey("VATNr",CUr,1,true)) then begin
+    if (UserCanAction("ChangeCustCodeonPOSInvoice",false)) then begin
+      RepSpec.f13 = CUr.Code;
+    end;
+    RepSpec.f6 = CUr.Name;
+    RepSpec.f1 = CUr.InvAddr0;
+    RepSpec.f2 = CUr.InvAddr1;
+    RepSpec.f3 = CUr.InvAddr2;
+    RepSpec.f4 = CUr.InvAddr3;
+    RepSpec.f5 = CUr.InvAddr4;
+  end else begin
+    res = 20859;
+  end;
+  ChangeAddressNPTSSClass_PasteVATNr = res;
   return;
 end;
 
@@ -1276,6 +1341,8 @@ begin
       end;
     end;    
   end;
+  if (res) then begin      qupdating.StorePOSJournalItemEntry2(CurrentUser,IVCashr.LocalMachineCode,IVCashr.DrawerCode,IVCashr.TerminalID,"IVCashVc",IVCashr.SerNr,IVCashr.FiscalDeviceSeqNr,IVCashr.OfficialSerNr,"",-1,RepSpec.f1,1,RepSpec.vals0,0,kPOSActionPriceLookup);
+  end;
   PriceLookupVClassIVCashVc_PasteArtCode = res;
   return;
 end;  
@@ -1316,6 +1383,9 @@ begin
         end;
       end;
     end;    
+  end;
+  if (res) then begin
+    qupdating.StorePOSJournalItemEntry2(CurrentUser,RestAccr.MachineName,RestAccr.DrawerCode,RestAccr.TerminalID,"RestAccVc",RestAccr.SerNr,RestAccr.FiscalDeviceSeqNr,RestAccr.OfficialSerNr,"",-1,RepSpec.f1,1,RepSpec.vals0,0,kPOSActionPriceLookup);
   end;
   PriceLookupVClassRestAccVc_PasteArtCode = res;
   return;
@@ -1731,9 +1801,14 @@ begin
   row IVCashVc newIVCashrw;
   vector val valreadyreturned;
   record GeneralOptionBlock GOb;
+  record DefCashBlock DCb;
   val retv;
 
+  BlockLoad(DCb);
   BlockLoad(GOb);
+  if (nonblank(DCb.DefRtrnPayMode)) then begin
+    newIVCashr.PayDeal = DCb.DefRtrnPayMode;
+  end;
   FindAlreadyReturnedItems_IVCashVc(IVCashr.SerNr,valreadyreturned);
   rwcnt = MatRowCnt(IVCashr);
   for (i=0;i<rwcnt;i=i+1) begin
@@ -1753,6 +1828,14 @@ begin
           newIVCashrw.CreditCard = "";
           MatRowPut(newIVCashr,MatRowCnt(newIVCashr),newIVCashrw);
         end;
+      case kInvoiceRowTypeQRPayment:
+        if (blank(newIVCashrw.AuthorizationCode)) then begin
+          newIVCashrw.Sum = -(newIVCashrw.Sum-retv);
+          newIVCashrw.AuthorizationCode = "";
+          newIVCashrw.CreditCard = "";
+          MatRowPut(newIVCashr,MatRowCnt(newIVCashr),newIVCashrw);
+        end;
+      case kInvoiceRowTypeCashWithdrawal:
       case kInvoiceRowTypeCashPayment:
 //          newIVCashrw.Sum = -newIVCashrw.Sum;
 //          MatRowPut(newIVCashr,MatRowCnt(newIVCashr),newIVCashrw);
@@ -1818,6 +1901,20 @@ begin
           MatRowPut(newIVCashr,MatRowCnt(newIVCashr),newIVCashrw);
         end;
       case kInvoiceRowTypeSwishPayment:
+        if (blank(newIVCashrw.AuthorizationCode)) then begin
+          newIVCashrw.Sum = (newIVCashrw.Sum-retv);
+          newIVCashrw.AuthorizationCode = "";
+          newIVCashrw.CreditCard = "";
+          MatRowPut(newIVCashr,MatRowCnt(newIVCashr),newIVCashrw);
+        end;
+      case kInvoiceRowTypeQRPayment:
+        if (blank(newIVCashrw.AuthorizationCode)) then begin
+          newIVCashrw.Sum = (newIVCashrw.Sum-retv);
+          newIVCashrw.AuthorizationCode = "";
+          newIVCashrw.CreditCard = "";
+          MatRowPut(newIVCashr,MatRowCnt(newIVCashr),newIVCashrw);
+        end;
+      case kInvoiceRowTypeCashWithdrawal:
         if (blank(newIVCashrw.AuthorizationCode)) then begin
           newIVCashrw.Sum = (newIVCashrw.Sum-retv);
           newIVCashrw.AuthorizationCode = "";
@@ -2070,9 +2167,9 @@ begin
     end;
   end;
   if (AddEMailRecipients(Mailr,CUr.Code,custemail,kMailPOSInvoice)==false) then begin 
-    res = 2289;
-    warning = CUr.Code;
-    goto LCreateMailFromIVCashD;
+//    res = 2289;
+//    warning = CUr.Code;
+//    goto LCreateMailFromIVCashD;
   end;
   if (nonblank(IVMailr.Header)) then begin
     Mailr.Header = IVMailr.Header & " ";
@@ -2497,6 +2594,40 @@ begin
   return;
 end;
 
+global
+procedure IVCashVc_PasteSalesMan(var record IVCashVc IVCr,string oldsalesmen)
+begin
+  record UserVc Userr;
+  string 255 tstr,salesman;
+  LongInt pos;
+
+  if (HasSalesmanChanged(IVCr.SalesMan,oldsalesmen)) then begin
+    if (IVCr.OKFlag==0) then begin
+      pos = 0;
+      GetNextSubstring(oldsalesmen,pos,",",salesman);
+      while (nonblank(salesman)) begin
+        RemoveOldUserObjects(salesman,IVCr.Objects);
+        GetNextSubstring(oldsalesmen,pos,",",salesman);
+      end;
+    end;
+//    IVCr.SalesGroup = "";    
+
+    pos = 0;
+    GetNextSubstring(IVCr.SalesMan,pos,",",salesman);
+    while (nonblank(salesman)) begin
+      Userr.Code = salesman;
+      if (ReadFirstMain(Userr,1,true)) then begin
+        IVCr.POSOperatorID = Userr.POSOperatorID;
+//        IVCr.SalesGroup = AddStringToStringList(IVCr.SalesGroup,Userr.SalesGroup);                
+        if (IVCr.OKFlag==0) then begin
+          IVCr.Objects = AddObjectToObjectList(IVCr.Objects,Userr.PersObjx);        
+        end;
+      end;
+      GetNextSubstring(IVCr.SalesMan,pos,",",salesman);
+    end;
+  end;
+  return;
+end;
 
 global
 procedure IVCashDClassTouchScreenCreditNoteRemote_iDeal(Longint ivcashno,var record IVCashVc newIVCashr)
