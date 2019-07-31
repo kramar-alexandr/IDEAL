@@ -20,13 +20,16 @@ LAddToRvrsVATCodes:;
   return;
 end;
 
-procedure UpdateInvoicePrice(record IVVc IVr,var row IVVc IVrw)
+procedure UpdateInvoicePrice(var record IVVc IVr,var row IVVc IVrw)
 begin
   
   if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
     IVrw.Price = IVrw.PriceExclVAT;
   end else begin
     IVrw.Price = IVrw.PriceExclVAT + FindVAT(IVrw.VATCode,IVrw.PriceExclVAT,0,IVr.NoTAXonVAT);
+  end;
+  if (IVrw.RvrsVATCode=="PVM25") then begin
+    IVr.ShipDeal = "PVM25";
   end;
 
   return;
