@@ -328,7 +328,7 @@ BEGIN
   if (FIELDINFORM("F_APRISEXCLVAT")) then begin
     FindSalesExVat(TMr,IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT,t);
     if (IVr.InclVAT==1 and nonblank(IVrw.RvrsVATCode)) then begin
-      t = t - FindVAT(IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT);
+      t = t - FindVAT(IVrw.VATCode,IVrw.Price,0,IVr.NoTAXonVAT);
     end;
     GetFieldArgument(Docr,F_APRISEXCLVAT,tstr);
     if (nonblank(tstr)) then begin
