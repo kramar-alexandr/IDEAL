@@ -1,6 +1,5 @@
 external inner function Boolean GetFirstItem(var string,var record INVc);
 external inner procedure GetVATRowFromBlock(string,record VATCodeBlock,var row VATCodeBlock);
-external inner procedure IV2Sumup3(record ORVc,record SMVc,Integer,record SMVc,record SMVc,Boolean,Boolean,Integer,var val,var val,var val,var val,var val,var val,var string);
 external inner procedure SetupVATBase(var record SMVc,var Integer);
 external inner function Boolean ReadFirstItem(string,var record INVc,Boolean,Boolean);
 external inner function val FindVAT(string, val, integer,integer);
@@ -25,12 +24,13 @@ end;
 procedure UpdateOrderPrice(var record ORVc ORr,var row ORVc ORrw)
 begin
   record AccBlock Accb;
-
+/*
   if (ORr.InclVAT == 0 or nonblank(ORrw.RvrsVATCode)) then begin
     ORrw.Price = ORrw.PriceExclVAT;
   end else begin
     ORrw.Price = ORrw.PriceExclVAT + FindVAT(ORrw.VATCode,ORrw.PriceExclVAT,0,ORr.NoTAXonVAT);
   end;
+*/
   if (ORrw.RvrsVATCode=="PVM25") then begin
     ORr.ShipDeal = "PVM25";
   end;
@@ -90,7 +90,7 @@ begin
               ORrw.RvrsVATCode = INr.RvrsVATCode;
               UpdateOrderPrice(ORr,ORrw);
               MatRowPut(ORr,i,ORrw);
-              IVDchsum(ORr,i);
+              ORDchsum(ORr,i);
               AddToRvrsVATCodes(ORrw.RvrsVATCode,arvrsvatcodes);
             end else begin
               ITr.Code = INr.Group;
@@ -99,7 +99,7 @@ begin
                   ORrw.RvrsVATCode = ITr.RvrsVATCode;
                   UpdateOrderPrice(ORr,ORrw);
                   MatRowPut(ORr,i,ORrw);
-                  IVDchsum(ORr,i);
+                  ORDchsum(ORr,i);
                   AddToRvrsVATCodes(ORrw.RvrsVATCode,arvrsvatcodes);
                 end;
               end;

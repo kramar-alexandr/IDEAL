@@ -145,6 +145,7 @@ begin
     if (!INVc_AllowSales(INr,ErrorCode)) then begin
       warning = USetStr(ErrorCode);
     end;
+logtext(0,"ORVc_PasteArtCode1 " & price);
     ORrw.OrderType = kOrderTypeDefault;
     ORrw.Price = price;
     ORrw.Spec = curitemname;

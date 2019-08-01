@@ -1,0 +1,38 @@
+external procedure UpdateiDealRvrsVATCodesOrder(var record ORVc);
+
+function Boolean UpdateReverseVAT(Integer wn,Integer rownr,Integer changed)
+begin  
+  record ORVc ORr;
+  
+  if (changed!=0) then begin
+    GetWindowRecord(wn,ORr);
+    UpdateiDealRvrsVATCodesOrder(ORr);
+    PutWindowRecord(wn,ORr);
+  end;
+  UpdateReverseVAT = true;
+  return;
+end;
+/*
+global
+function Boolean ORDClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+BEGIN
+  Boolean res;
+  record IVVc IVr;
+  
+  res = inner.ORDClassAfterEditField(wn,fieldname,fn,rownr,changed);
+  switch(fieldname) begin
+    case "CustCode":
+  	  res = UpdateReverseVAT(wn,rownr,changed);
+    case "ArtCode":
+      res = UpdateReverseVAT(wn,rownr,changed);
+    case "PayDeal":
+      res = UpdateReverseVAT(wn,rownr,changed);
+    case "Quant":
+      res = UpdateReverseVAT(wn,rownr,changed);
+    case "vRebate":
+      res = UpdateReverseVAT(wn,rownr,changed);
+  end;
+  ORDClassAfterEditField = res;
+return;
+end;
+*/
