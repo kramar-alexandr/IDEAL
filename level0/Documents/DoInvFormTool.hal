@@ -327,9 +327,11 @@ BEGIN
   UnpackRowFieldMatrix(IVrw,"TaxMatrix",TMr);
   if (FIELDINFORM("F_APRISEXCLVAT")) then begin
     FindSalesExVat(TMr,IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT,t);
-    if (IVr.InclVAT==1 and nonblank(IVrw.RvrsVATCode)) then begin
-      t = t - FindVAT(IVrw.VATCode,IVrw.Price,0,IVr.NoTAXonVAT);
+    //CUST-BEGIN
+    if (IVr.InclVAT==2 and nonblank(IVrw.RvrsVATCode)) then begin
+      t = t + FindVAT(IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT);
     end;
+    //CUST-END
     GetFieldArgument(Docr,F_APRISEXCLVAT,tstr);
     if (nonblank(tstr)) then begin
       t = Round(t,SetRoundModeD(StringToInt(tstr)));
@@ -665,7 +667,7 @@ BEGIN
         if (vatval!=0) then begin
           PrintValue("F_ROWSUMWITHVAT",vatval,M4Val,LangNrr,SFb,negamountf);
         end;
-        if (IVr.InclVAT>0 and blank(IVrw.RvrsVATCode)) then begin
+        if (IVr.InclVAT>0 and blank(IVrw.RvrsVATCode)) then begin//CUST-ADDED check for RvrsVATCode
           PrintValue("F_ROWSUMWITHOUTVAT",IVrw.Sum-vatval,M4Val,LangNrr,SFb,negamountf);
         end else begin
           PrintValue("F_ROWSUMWITHOUTVAT",IVrw.Sum,M4Val,LangNrr,SFb,negamountf);

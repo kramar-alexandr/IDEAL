@@ -1849,7 +1849,7 @@ begin
   //CUST-BEGIN
   if (IVHasRvrsVATCode(IVr)) then begin
     MessageBox(1000108,"");
-    goto LCashIVsm;
+    goto LCredCardIVsmDo;
   end;
   //CUST-END
   credinv = false;
@@ -2062,6 +2062,12 @@ begin
       if (prevIVr.OKFlag!=0) then begin goto LCredCardIVsmDo; end;
   end;
   //START-CUST   October 16, 2014 by PST
+  //CUST-BEGIN
+  if (IVHasRvrsVATCode(IVr)) then begin
+    MessageBox(1000108,"");
+    goto LCredCardIVsmDo;
+  end;
+  //END-CUST
   credinv = false;
   if IVr.InvType == kInvoiceTypeCredit then begin
     credinv = true;
