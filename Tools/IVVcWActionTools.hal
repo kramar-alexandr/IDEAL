@@ -22,7 +22,8 @@ end;
 
 procedure UpdateInvoicePrice(var record IVVc IVr,var row IVVc IVrw)
 begin
-  
+  record AccBlock Accb;
+
   if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
     IVrw.Price = IVrw.PriceExclVAT;
   end else begin
@@ -30,6 +31,13 @@ begin
   end;
   if (IVrw.RvrsVATCode=="PVM25") then begin
     IVr.ShipDeal = "PVM25";
+  end;
+
+  if (nonblank(IVrw.RvrsVATCode)) then begin
+    IVrw.VATCode = IVrw.RvrsVATCode;
+  end else begin
+    BlockLoad(Accb);
+    IVrw.VATCode = Accb.VATCodeDom;
   end;
 
   return;
