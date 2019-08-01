@@ -4,8 +4,12 @@ external inner procedure SetupVATBase(var record SMVc,var Integer);
 external inner function Boolean ReadFirstItem(string,var record INVc,Boolean,Boolean);
 external inner function val FindVAT(string, val, integer,integer);
 external inner procedure ORDchsum(var record ORVc,Integer);
-external inner procedure ORSumup(var record ORVc,Boolean);
+external inner procedure ORSumup(var record ORVc);
 external function Boolean IsRvrsVATPayDeal(string);
+external inner function Boolean GetItemPriceDiscount3(string,val,var record INVc,string,val,val,val,val,val,string,string,string,string,
+                                                var val,var string,var val,var string,var val,var string,Integer,var Boolean,Date,Time,
+                                                string,Boolean,var Boolean,string,var string,var val,string,string,var string);
+external inner function Boolean ORDchrsum(var record ORVc,Integer);
 
 procedure AddToRvrsVATCodes(string rvrsvatcode,array string arvrsvatcodes)
 begin
@@ -21,16 +25,30 @@ LAddToRvrsVATCodes:;
   return;
 end;
 
-procedure UpdateOrderPrice(var record ORVc ORr,var row ORVc ORrw)
+procedure UpdateOrderPrice(var record ORVc ORr,var row ORVc ORrw,Boolean wasrevf)
 begin
   record AccBlock Accb;
-/*
-  if (ORr.InclVAT == 0 or nonblank(ORrw.RvrsVATCode)) then begin
-    ORrw.Price = ORrw.PriceExclVAT;
-  end else begin
-    ORrw.Price = ORrw.PriceExclVAT + FindVAT(ORrw.VATCode,ORrw.PriceExclVAT,0,ORr.NoTAXonVAT);
-  end;
-*/
+  val t,s,price,vreb,baseprice,temp,tax2prc,tax2reb;
+  string 255 curitemname,salesacc,vatcode,tstr,tax2code,location,taxtemplatecode;
+  Boolean calcprice;
+  record INVc INr;
+  Date orddate;
+  Boolean dummyf;
+  Time blankt;
+
+  if (GetItemPriceDiscount3(ORrw.ArtCode,ORrw.Quant,INr,ORr.CurncyCode,
+                            ORr.FrRate,ORr.ToRateB1,ORr.ToRateB2,ORr.BaseRate1,ORr.BaseRate2,
+                            ORr.LangCode,ORr.CustCat,ORr.PriceList,ORr.RebCode,
+                            price,curitemname,vreb,vatcode,baseprice,salesacc,
+                            ORr.ExportFlag,calcprice,orddate,blankt,ORr.CustCode,true,dummyf,ORr.PayDeal,tax2code,tax2prc,ORr.Region,location,taxtemplatecode)) then begin
+
+    ORrw.Price = price;
+
+    if (ORr.InclVAT == 2 and wasrevf and nonblank(ORrw.RvrsVATCode)) then begin
+      ORrw.Price = ORrw.Price - FindVAT(ORrw.VATCode,ORrw.Price,1,ORr.NoTAXonVAT);
+    end;
+  end;  
+
   if (ORrw.RvrsVATCode=="PVM25") then begin
     ORr.ShipDeal = "PVM25";
   end;
@@ -48,7 +66,7 @@ end;
 procedure IVPasteRvrsVATCode2(var record ORVc aORr,Boolean clearf)
 begin
   record ORVc ORr;
-  row ORVc ORrw;
+  row ORVc ORrw,OR2rw;
   Integer i,j,rwcnt;
   record INVc INr;
   record VATCodeBlock VATCb;
@@ -76,30 +94,36 @@ begin
       MatRowGet(ORr,i,ORrw);
       if (ORrw.stp==kInvoiceRowTypeNormal or ORrw.stp==kInvoiceRowTypeCorrection) then begin
         if (nonblank(ORrw.ArtCode)) then begin
+          testf = GetFirstItem(ORrw.ArtCode,INr);
+          if (testf==false) then begin
+            testf = ReadFirstItem(ORrw.ArtCode,INr,true,false);
+          end;
           if (CUr.CustType==1 or CUr.RvrsVAT==0 or clearf) then begin
             ORrw.RvrsVATCode = "";
-            UpdateOrderPrice(ORr,ORrw);
+            UpdateOrderPrice(ORr,ORrw,(CUr.RvrsVAT==1) and nonblank(INr.RvrsVATCode));
             MatRowPut(ORr,i,ORrw);
-            ORDchsum(ORr,i);
-          end else begin          
-            testf = GetFirstItem(ORrw.ArtCode,INr);
-            if (testf==false) then begin
-              testf = ReadFirstItem(ORrw.ArtCode,INr,true,false);
+            if (ORDchrsum(ORr,i)) then begin
+              ORDchsum(ORr,i);
             end;
+          end else begin          
             if (nonblank(INr.RvrsVATCode)) then begin
               ORrw.RvrsVATCode = INr.RvrsVATCode;
-              UpdateOrderPrice(ORr,ORrw);
+              UpdateOrderPrice(ORr,ORrw,CUr.RvrsVAT==1);
               MatRowPut(ORr,i,ORrw);
-              ORDchsum(ORr,i);
+              if (ORDchrsum(ORr,i)) then begin
+                ORDchsum(ORr,i);
+              end;
               AddToRvrsVATCodes(ORrw.RvrsVATCode,arvrsvatcodes);
             end else begin
               ITr.Code = INr.Group;
               if (ReadFirstMain(ITr,1,true)) then begin
                 if (nonblank(ITr.RvrsVATCode)) then begin
                   ORrw.RvrsVATCode = ITr.RvrsVATCode;
-                  UpdateOrderPrice(ORr,ORrw);
+                  UpdateOrderPrice(ORr,ORrw,CUr.RvrsVAT==1);
                   MatRowPut(ORr,i,ORrw);
-                  ORDchsum(ORr,i);
+                  if (ORDchrsum(ORr,i)) then begin
+                    ORDchsum(ORr,i);
+                  end;
                   AddToRvrsVATCodes(ORrw.RvrsVATCode,arvrsvatcodes);
                 end;
               end;
@@ -108,7 +132,7 @@ begin
         end;
       end;
     end;
-    ORSumup(ORr,true);
+    ORSumup(ORr);
     if (arvrsvatcodes.length>0) then begin
       if (CUr.RvrsVAT!=0) then begin
         RecordCopy(aORr,ORr);

@@ -7,6 +7,10 @@ external inner function Boolean ReadFirstItem(string,var record INVc,Boolean,Boo
 external inner function val FindVAT(string, val, integer,integer);
 external inner procedure IVDchsum(var record IVVc,Integer);
 external inner procedure IVSumup(var record IVVc,Boolean);
+external inner function Boolean IVDchrsum(var record ORVc,Integer);
+external inner function Boolean GetItemPriceDiscount3(string,val,var record INVc,string,val,val,val,val,val,string,string,string,string,
+                                                var val,var string,var val,var string,var val,var string,Integer,var Boolean,Date,Time,
+                                                string,Boolean,var Boolean,string,var string,var val,string,string,var string);
 
 procedure AddToRvrsVATCodes(string rvrsvatcode,array string arvrsvatcodes)
 begin
@@ -25,11 +29,31 @@ end;
 procedure UpdateInvoicePrice(var record IVVc IVr,var row IVVc IVrw)
 begin
   record AccBlock Accb;
+  val t,s,price,vreb,baseprice,temp,tax2prc,tax2reb;
+  string 255 curitemname,salesacc,vatcode,tstr,tax2code,location,taxtemplatecode;
+  Boolean calcprice;
+  record INVc INr;
+  Date orddate;
+  Boolean dummyf;
+  Time blankt;
 
-  if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
+  if (IVr.InclVAT == 0) then begin
     IVrw.Price = IVrw.PriceExclVAT;
   end else begin
-    IVrw.Price = IVrw.PriceExclVAT + FindVAT(IVrw.VATCode,IVrw.PriceExclVAT,0,IVr.NoTAXonVAT);
+    if (blank(IVrw.RvrsVATCode)) then begin
+
+      if (GetItemPriceDiscount3(IVrw.ArtCode,IVrw.Quant,INr,IVr.CurncyCode,
+                            IVr.FrRate,IVr.ToRateB1,IVr.ToRateB2,IVr.BaseRate1,IVr.BaseRate2,
+                            IVr.LangCode,IVr.CustCat,IVr.PriceList,IVr.RebCode,
+                            price,curitemname,vreb,vatcode,baseprice,salesacc,
+                            IVr.ExportFlag,calcprice,orddate,blankt,IVr.CustCode,true,dummyf,IVr.PayDeal,tax2code,tax2prc,IVr.Region,location,taxtemplatecode)) then begin
+
+
+        IVrw.Price = price;
+      end;
+    end else begin
+      IVrw.Price = IVrw.PriceExclVAT;
+    end;
   end;
   if (IVrw.RvrsVATCode=="PVM25") then begin
     IVr.ShipDeal = "PVM25";
@@ -80,7 +104,9 @@ begin
             IVrw.RvrsVATCode = "";
             UpdateInvoicePrice(IVr,IVrw);
             MatRowPut(IVr,i,IVrw);
-            IVDchsum(IVr,i);
+            if (IVDchrsum(IVr,i)) then begin
+              IVDchsum(IVr,i);
+            end;
           end else begin          
             testf = GetFirstItem(IVrw.ArtCode,INr);
             if (testf==false) then begin
@@ -90,7 +116,9 @@ begin
               IVrw.RvrsVATCode = INr.RvrsVATCode;
               UpdateInvoicePrice(IVr,IVrw);
               MatRowPut(IVr,i,IVrw);
-              IVDchsum(IVr,i);
+              if (IVDchrsum(IVr,i)) then begin
+                IVDchsum(IVr,i);
+              end;
               AddToRvrsVATCodes(IVrw.RvrsVATCode,arvrsvatcodes);
             end else begin
               ITr.Code = INr.Group;
@@ -99,7 +127,9 @@ begin
                   IVrw.RvrsVATCode = ITr.RvrsVATCode;
                   UpdateInvoicePrice(IVr,IVrw);
                   MatRowPut(IVr,i,IVrw);
-                  IVDchsum(IVr,i);
+                  if (IVDchrsum(IVr,i)) then begin
+                    IVDchsum(IVr,i);
+                  end;
                   AddToRvrsVATCodes(IVrw.RvrsVATCode,arvrsvatcodes);
                 end;
               end;

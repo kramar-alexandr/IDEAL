@@ -1,4 +1,4 @@
-external procedure UpdateiDealRvrsVATCodesOrder(var record ORVc);
+remote procedure UpdateiDealRvrsVATCodesOrder(var record ORVc);
 
 function Boolean UpdateReverseVAT(Integer wn,Integer rownr,Integer changed)
 begin  
@@ -12,7 +12,7 @@ begin
   UpdateReverseVAT = true;
   return;
 end;
-/*
+
 global
 function Boolean ORDClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
 BEGIN
@@ -35,4 +35,3 @@ BEGIN
   ORDClassAfterEditField = res;
 return;
 end;
-*/

@@ -62,6 +62,9 @@ external function string 20 FindCustRoute(string,string,string);
 external function Boolean FindItemVAR(string,var string,var string,var string,var string);
 external procedure GetDatePriceBasedOn(string,Date,Date,string,var Date);
 external procedure GetPriceList2(string,string,Date,Time,var string,var Integer);
+//CUST-BEGIN
+external function val FindVAT(string,val,Integer,Integer);
+//CUST-END
 
 forward procedure ORVc_PasteQuant(var record ORVc,Integer,Boolean,var Boolean);
 forward procedure ORVc_GetPriceList(var record ORVc);
@@ -187,6 +190,11 @@ begin
         ORrw.Price = price;
       end;
     end;
+//CUST-BEGIN
+    if (ORr.InclVAT != 0 and nonblank(ORrw.RvrsVATCode)) then begin
+      ORrw.Price = ORrw.Price - FindVAT(ORrw.VATCode,ORrw.Price,ORr.InclVAT,ORr.NoTAXonVAT);
+    end;
+//CUST-END
     if (nonblank(INr.DefLocation)) then begin
       ORrw.Location = INr.DefLocation;
     end;
