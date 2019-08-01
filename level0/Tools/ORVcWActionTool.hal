@@ -145,7 +145,6 @@ begin
     if (!INVc_AllowSales(INr,ErrorCode)) then begin
       warning = USetStr(ErrorCode);
     end;
-logtext(0,"ORVc_PasteArtCode1 " & price);
     ORrw.OrderType = kOrderTypeDefault;
     ORrw.Price = price;
     ORrw.Spec = curitemname;
@@ -153,7 +152,6 @@ logtext(0,"ORVc_PasteArtCode1 " & price);
     if (CUr.RvrsVAT!=0) then begin
       ORrw.RvrsVATCode = INr.RvrsVATCode;
     end;
-logtext(0,"ORVc_PasteArtCode2 " & ORrw.Price);
     ORrw.VATCode = vatcode;
     ORrw.BasePrice = baseprice;
     ORrw.SalesAcc = salesacc;
@@ -192,7 +190,6 @@ logtext(0,"ORVc_PasteArtCode2 " & ORrw.Price);
     if (nonblank(INr.DefLocation)) then begin
       ORrw.Location = INr.DefLocation;
     end;
- logtext(0,"ORVc_PasteArtCode3 " & ORrw.Price);
    if ((INr.ItemType==2) and (nonblank(INr.Recepy))) then begin
       ORrw.Recepy = INr.Recepy;
     end else begin 
