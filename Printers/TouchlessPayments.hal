@@ -443,7 +443,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
     CloseWindow(ProcessingWn);
     SelectWindow(mwn);
     DeselectWindow(mwn,true);
-    if (paymentstat=="Transactions is cancelled" or paymentstat=="Patvirtinta") then begin
+    if (paymentstat=="Transactions is cancelled" or paymentstat=="Patvirtinta" or paymentstat==UsetStr(300001)) then begin
       fres = true;
 
       qupdating.StoreLastTouchlessPayment("",-1,"");

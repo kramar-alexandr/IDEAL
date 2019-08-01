@@ -1426,7 +1426,7 @@ begin
   return;
 end;
 
-procedure PrintNonFiscalReceipt(record LSerialPortDeviceVc LSPDr,array string arr)
+function Integer PrintNonFiscalReceipt(record LSerialPortDeviceVc LSPDr,array string arr)
 begin
   Integer res,i,noErr;
 
@@ -1453,6 +1453,8 @@ LPrintNonFiscalReceipt:;
   if (res!=noErr) then begin
     MessageBox(res,"");
   end;
+  
+  PrintNonFiscalReceipt = res;
   return;
 end;
 
@@ -1472,8 +1474,9 @@ begin
     case 200:
       SplitString(tstr,arr);
       //arr[0] = tstr;
-      for (i=0;i<cnt;i=i+1) begin
-        PrintNonFiscalReceipt(LSPDr,arr);
+      while (i<cnt and res==0) begin
+        res = PrintNonFiscalReceipt(LSPDr,arr);
+        i = i + 1;
       end;
   end;
 
