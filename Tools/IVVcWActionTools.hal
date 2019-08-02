@@ -36,25 +36,13 @@ begin
   Date orddate;
   Boolean dummyf;
   Time blankt;
-
-  if (IVr.InclVAT == 0) then begin
+  
+  if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
     IVrw.Price = IVrw.PriceExclVAT;
   end else begin
-    if (blank(IVrw.RvrsVATCode)) then begin
-
-      if (GetItemPriceDiscount3(IVrw.ArtCode,IVrw.Quant,INr,IVr.CurncyCode,
-                            IVr.FrRate,IVr.ToRateB1,IVr.ToRateB2,IVr.BaseRate1,IVr.BaseRate2,
-                            IVr.LangCode,IVr.CustCat,IVr.PriceList,IVr.RebCode,
-                            price,curitemname,vreb,vatcode,baseprice,salesacc,
-                            IVr.ExportFlag,calcprice,orddate,blankt,IVr.CustCode,true,dummyf,IVr.PayDeal,tax2code,tax2prc,IVr.Region,location,taxtemplatecode)) then begin
-
-
-        IVrw.Price = price;
-      end;
-    end else begin
-      IVrw.Price = IVrw.PriceExclVAT;
-    end;
+    IVrw.Price = IVrw.PriceExclVAT + FindVAT(IVrw.VATCode,IVrw.PriceExclVAT,0,IVr.NoTAXonVAT);
   end;
+
   if (IVrw.RvrsVATCode=="PVM25") then begin
     IVr.ShipDeal = "PVM25";
   end;

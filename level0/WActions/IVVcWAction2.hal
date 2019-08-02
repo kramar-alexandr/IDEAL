@@ -1262,7 +1262,11 @@ retention change
         end;
         t1 = MulRateToBase1(IVp.CurncyCode,IVrw.Sum,IVp.FrRate,IVp.ToRateB1,IVp.ToRateB2,IVp.BaseRate1,IVp.BaseRate2,DefaultCurRoundOff);
         UnpackRowFieldMatrix(IVrw,"TaxMatrix",TMr);
-        FindSalesExVat(TMr,IVrw.VATCode,t1,IVp.InclVAT,IVp.NoTAXonVAT,rowsum);      
+        if (nonblank(IVrw.RvrsVATCode)) then begin
+          FindSalesExVat(TMr,IVrw.VATCode,t1,0,IVp.NoTAXonVAT,rowsum);
+        end else begin
+          FindSalesExVat(TMr,IVrw.VATCode,t1,IVp.InclVAT,IVp.NoTAXonVAT,rowsum);
+        end;      
         switch (IVrw.stp) begin
           case kInvoiceRowTypeCorrection:
             IVrw.rowGP = rowsum + t;

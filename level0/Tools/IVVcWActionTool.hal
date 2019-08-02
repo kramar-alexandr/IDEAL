@@ -531,17 +531,12 @@ done below
 //    if ((INr.ExplodeRec==0) or (blank(IVrw.Recepy))) then begin
 //why
 			//START-CUST PST 2015-September-30
-			if (IVr.InclVAT == 0) then begin
+			if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
 				IVrw.Price = price;
 				IVrw.PriceExclVAT = price;
 			end else begin
-        if (nonblank(IVrw.RvrsVATCode)) then begin
-  				IVrw.Price = price - FindVAT(IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT);
-				  IVrw.PriceExclVAT = IVrw.Price; 
-        end else begin
-          IVrw.Price = price; 
-				  IVrw.PriceExclVAT = price - FindVAT(IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT); 
-        end;
+        IVrw.PriceExclVAT = price; 
+        IVrw.Price = price + FindVAT(IVrw.VATCode,price,0,IVr.NoTAXonVAT); 
     	end;
 			//END-CUST PST 2015-September-30
       MatRowPut(IVr,rownr,IVrw);
