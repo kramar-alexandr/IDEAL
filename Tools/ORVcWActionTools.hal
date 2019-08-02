@@ -44,8 +44,8 @@ begin
 
     ORrw.Price = price;
 
-    if (ORr.InclVAT == 2 and wasrevf and nonblank(ORrw.RvrsVATCode)) then begin
-      ORrw.Price = ORrw.Price - FindVAT(ORrw.VATCode,ORrw.Price,1,ORr.NoTAXonVAT);
+    if (ORr.InclVAT == 2 and blank(ORrw.RvrsVATCode)) then begin
+      ORrw.Price = ORrw.Price + FindVAT(ORrw.VATCode,ORrw.Price,0,ORr.NoTAXonVAT);
     end;
   end;  
 

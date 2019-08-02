@@ -222,8 +222,10 @@ BEGIN
       totreb = totreb + (IVrw.Quant*IVrw.Price - IVrw.Sum);
       if (VATCalcRule(IVrw.VATCode)!=kVATCalcRuleSkip) then begin
         if (nonblank(IVrw.RvrsVATCode)) then begin
+          IVrw.Sum = IVrw.Sum + FindVAT(IVrw.VATCode,IVrw.Sum,0,IVr.NoTAXonVAT);//CUST - changing amount
           AddVATBase(VATr,IVrw.RvrsVATCode,IVrw.Sum,blankval,vatcnt,IVr.InclVAT,IVr.NoTAXonVAT);      
           AddVATBase(VATWDr,IVrw.RvrsVATCode,IVrw.Sum,blankval,vatcnt,IVr.InclVAT,IVr.NoTAXonVAT);
+          IVrw.Sum = IVrw.Sum - FindVAT(IVrw.VATCode,IVrw.Sum,2,IVr.NoTAXonVAT);//CUST
         end else begin
           AddVATBase(VATr,IVrw.VATCode,IVrw.Sum,blankval,vatcnt,IVr.InclVAT,IVr.NoTAXonVAT);      
           AddVATBase(VATWDr,IVrw.VATCode,IVrw.Sum,blankval,vatcnt,IVr.InclVAT,IVr.NoTAXonVAT);
