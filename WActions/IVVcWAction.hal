@@ -325,6 +325,8 @@ BEGIN
       res = IVDClassQuantEFAfter(wn,rownr,changed);
     case "vRebate":
       res = IVDClassvRebateEFAfter(wn,rownr,changed);
+    case "SerialNr":
+      res = IVDClassvRebateEFAfter(wn,rownr,changed);
   end;
   IVDClassAfterEditField = res;
 return;

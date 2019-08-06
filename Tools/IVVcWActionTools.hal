@@ -26,7 +26,7 @@ LAddToRvrsVATCodes:;
   return;
 end;
 
-procedure UpdateInvoicePrice(var record IVVc IVr,var row IVVc IVrw)
+procedure UpdateInvoicePrice(var record IVVc IVr,var row IVVc IVrw,Boolean hadrevf)
 begin
   record AccBlock Accb;
   val t,s,price,vreb,baseprice,temp,tax2prc,tax2reb;
@@ -50,10 +50,35 @@ begin
   if (nonblank(IVrw.RvrsVATCode)) then begin
     IVrw.VATCode = IVrw.RvrsVATCode;
   end else begin
-    BlockLoad(Accb);
-    IVrw.VATCode = Accb.VATCodeDom;
+    if (hadrevf) then begin
+      BlockLoad(Accb);
+      IVrw.VATCode = Accb.VATCodeDom;
+    end;
   end;
 
+  return;
+end;
+
+function string 255 GetReverseVATCode(string item)
+begin
+  Boolean testf;
+  string 255 res;
+  record INVc INr;
+  record ITVc ITr;
+  
+  testf = GetFirstItem(item,INr);
+  if (testf==false) then begin
+    testf = ReadFirstItem(item,INr,true,false);
+  end;
+  res = INr.RvrsVATCode;
+  if (blank(res)) then begin
+    ITr.Code = INr.Group;
+    if (ReadFirstMain(ITr,1,true)) then begin
+      res = ITr.RvrsVATCode;
+    end;
+  end;
+
+  GetReverseVATCode = res;
   return;
 end;
 
@@ -62,7 +87,6 @@ begin
   record IVVc IVr;
   row IVVc IVrw;
   Integer i,j,rwcnt;
-  record INVc INr;
   record VATCodeBlock VATCb;
   row VATCodeBlock VATCbrw;
   array string 255 arvrsvatcodes;
@@ -77,7 +101,7 @@ begin
   val s0,s1,s2,s3,s4,rvrsvat,TotGP,t;
   string 255 cashpaymode;
   record CUVc CUr;
-  record ITVc ITr;
+  string 255 vatcode;
   
   CUr.Code = aIVr.CustCode;
   ReadFirstMain(CUr,1,true);
@@ -90,37 +114,21 @@ begin
         if (nonblank(IVrw.ArtCode)) then begin
           if (CUr.CustType==1 or CUr.RvrsVAT==0 or clearf) then begin
             IVrw.RvrsVATCode = "";
-            UpdateInvoicePrice(IVr,IVrw);
+            UpdateInvoicePrice(IVr,IVrw,nonblank(GetReverseVATCode(IVrw.ArtCode)));
             MatRowPut(IVr,i,IVrw);
             if (IVDchrsum(IVr,i)) then begin
               IVDchsum(IVr,i);
             end;
           end else begin          
-            testf = GetFirstItem(IVrw.ArtCode,INr);
-            if (testf==false) then begin
-              testf = ReadFirstItem(IVrw.ArtCode,INr,true,false);
-            end;
-            if (nonblank(INr.RvrsVATCode)) then begin
-              IVrw.RvrsVATCode = INr.RvrsVATCode;
-              UpdateInvoicePrice(IVr,IVrw);
+            vatcode = GetReverseVATCode(IVrw.ArtCode);
+            if (nonblank(vatcode)) then begin
+              IVrw.RvrsVATCode = vatcode;
+              UpdateInvoicePrice(IVr,IVrw,true);
               MatRowPut(IVr,i,IVrw);
               if (IVDchrsum(IVr,i)) then begin
                 IVDchsum(IVr,i);
               end;
               AddToRvrsVATCodes(IVrw.RvrsVATCode,arvrsvatcodes);
-            end else begin
-              ITr.Code = INr.Group;
-              if (ReadFirstMain(ITr,1,true)) then begin
-                if (nonblank(ITr.RvrsVATCode)) then begin
-                  IVrw.RvrsVATCode = ITr.RvrsVATCode;
-                  UpdateInvoicePrice(IVr,IVrw);
-                  MatRowPut(IVr,i,IVrw);
-                  if (IVDchrsum(IVr,i)) then begin
-                    IVDchsum(IVr,i);
-                  end;
-                  AddToRvrsVATCodes(IVrw.RvrsVATCode,arvrsvatcodes);
-                end;
-              end;
             end;
           end;
         end;
