@@ -384,7 +384,7 @@ begin
         if (VirtVatrw.VATCode==IVrw.VATCode) then begin
           found = true;
           GetVATRow(IVrw.VATCode,VATCbrw);
-          if (IVr.InclVAT == 0) then begin
+          if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
             VirtVatrw.Sum = VirtVatrw.Sum + (coef*IVrw.Sum); // EVS: HAL-258 coef
             ivsum = IVrw.Sum;
           end else begin
@@ -401,7 +401,7 @@ begin
         MatRowGet(VirtVatr,rwcnt1,VirtVatrw);
         GetVATRow(IVrw.VATCode,VATCbrw);
         VirtVatrw.Price = VATCbrw.ExVatpr;
-        if (IVr.InclVAT == 0) then begin
+        if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
           VirtVatrw.Sum = coef*IVrw.Sum; // EVS: HAL-258 coef
         end else begin
           VirtVatrw.Sum = (coef*IVrw.Sum) * (100/(100+VirtVatrw.Price)); // EVS: HAL-178
@@ -448,7 +448,7 @@ begin
         if (VirtVatrw.VATCode==IVrw.VATCode) then begin
           found = true;
           GetVATRow(IVrw.VATCode,VATCbrw);
-          if (IVr.InclVAT == 0) then begin
+          if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
             VirtVatrw.Sum = VirtVatrw.Sum + (coef*IVrw.Sum); // EVS: HAL-258 coef
             ivsum = IVrw.Sum;
           end else begin
@@ -465,7 +465,7 @@ begin
         MatRowGet(VirtVatr,rwcnt1,VirtVatrw);
         GetVATRow(IVrw.VATCode,VATCbrw);
         VirtVatrw.Price = VATCbrw.ExVatpr;
-        if (IVr.InclVAT == 0) then begin
+        if (IVr.InclVAT == 0 or nonblank(IVrw.RvrsVATCode)) then begin
           VirtVatrw.Sum = coef*IVrw.Sum; // EVS: HAL-258 coef
         end else begin
           VirtVatrw.Sum = (coef*IVrw.Sum) * (100/(100+VirtVatrw.Price)); // EVS: HAL-178
