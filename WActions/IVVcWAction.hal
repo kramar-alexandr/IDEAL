@@ -310,23 +310,25 @@ BEGIN
   record IVVc IVr;
   
   res = inner.IVDClassAfterEditField(wn,fieldname,fn,rownr,changed);
-  switch(fieldname) begin
-    case "CustCode":
-  	  res = IVDClassCustCodeEFAfter(wn,rownr,changed);
-  	case "PriceExclVAT":
-  	  res = IVDClassPriceExclVATEFAfter(wn,fn,rownr,changed);
-    case "ArtCode":
-      res = IVDClassArtCodeEFAfter(wn,rownr,changed);
-    case "Location":// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:41:29
-      res = IVDClassLocationEFAfter(wn,rownr,changed);// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:41:32
-    case "PayDeal":
-      res = IVDClassPayDealEFAfter(wn,rownr,changed);
-    case "Quant":
-      res = IVDClassQuantEFAfter(wn,rownr,changed);
-    case "vRebate":
-      res = IVDClassvRebateEFAfter(wn,rownr,changed);
-    case "SerialNr":
-      res = IVDClassvRebateEFAfter(wn,rownr,changed);
+  if (changed!=0) then begin
+    switch(fieldname) begin
+      case "CustCode":
+        res = IVDClassCustCodeEFAfter(wn,rownr,changed);
+      case "PriceExclVAT":
+        res = IVDClassPriceExclVATEFAfter(wn,fn,rownr,changed);
+      case "ArtCode":
+        res = IVDClassArtCodeEFAfter(wn,rownr,changed);
+      case "Location":// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:41:29
+        res = IVDClassLocationEFAfter(wn,rownr,changed);// Edit ************************** BPI Ukraine - KramarAlexandr - четвер, 16 листопада 2017 р. о 09:41:32
+      case "PayDeal":
+        res = IVDClassPayDealEFAfter(wn,rownr,changed);
+      case "Quant":
+        res = IVDClassQuantEFAfter(wn,rownr,changed);
+      case "vRebate":
+        res = IVDClassvRebateEFAfter(wn,rownr,changed);
+      case "SerialNr":
+        res = IVDClassvRebateEFAfter(wn,rownr,changed);
+    end;
   end;
   IVDClassAfterEditField = res;
 return;

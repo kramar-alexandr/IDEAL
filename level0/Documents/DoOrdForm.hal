@@ -653,7 +653,7 @@ BEGIN
       totcost = totcost + ORrw.Quant*ORrw.BasePrice;
       totreb = totreb + (ORrw.Quant*ORrw.Price - ORrw.Sum);
       //CUST-BEGIN
-      if (nonblank(ORrw.RvrsVATCode)) then begin
+      if (ORr.InclVAT==2 and nonblank(ORrw.RvrsVATCode)) then begin
         ORrw.Sum = ORrw.Sum + FindVAT(ORrw.VATCode,ORrw.Sum,0,ORr.NoTAXonVAT);
         AddVATBase(VATr,ORrw.VATCode,ORrw.Sum,blankval,vatcnt,ORr.InclVAT,ORr.NoTAXonVAT);      
         ORrw.Sum = ORrw.Sum - FindVAT(ORrw.VATCode,ORrw.Sum,2,ORr.NoTAXonVAT);
