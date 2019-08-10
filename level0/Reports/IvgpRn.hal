@@ -708,6 +708,11 @@ begin
           itmcnt = itmcnt + IVrw.Quant;
           if (IVrw.stp==kInvoiceRowTypeNormal) or (IVrw.stp==kInvoiceRowTypeStructuredItemComponent) or (IVrw.stp==kInvoiceRowTypeCorrection) or (IVrw.stp==kInvoiceRowTypeMultiBuyDiscount) or ((IVrw.stp==kInvoiceRowTypeDownPayment) and (IVr.InvType==kInvoiceTypeDownpayment)) then begin
               UnpackRowFieldMatrix(IVrw,"TaxMatrix",TMr);
+              //CUST-BEGIN This is easiest to just ignore vat here
+              if (IVr.InclVAT==2 and nonblank(IVrw.RvrsVATCode)) then begin
+                IVr.InclVAT = 0;
+              end;
+              //CUST-END
               switch (RepSpec.flags[11]) begin
                 case 2: 
                   t = MULRATETOBASE2(IVr.CurncyCode,IVrw.Sum,fr,tb1,tb2,br1,br2,DefaultCurRoundOff);

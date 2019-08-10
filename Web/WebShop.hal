@@ -14,6 +14,7 @@ external inner function Boolean TouchScreenLook();
 remote procedure idealwriteLines(var record INVc);
 external inner function val FindVAT(string,val,Integer,Integer);
 external inner function string 60 AddObjectToObjectList(string,string); //MDS HAL-393
+external procedure UpdateiDealRvrsVATCodes(var record IVVc);
 
 procedure RemoveCharacterFromString(var string res,string tstr)
 BEGIN
@@ -736,7 +737,8 @@ begin
         k = k + 1;
       end;
     end;
-    IVSumup(IVr,true);
+    UpdateiDealRvrsVATCodes(IVr);
+    //IVSumup(IVr,true);
     if testf == true then begin
       if RecordInsert(IVr,true) == true then begin
         WebSetContentType("text/xml");

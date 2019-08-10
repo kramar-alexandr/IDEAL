@@ -1582,7 +1582,7 @@ LkInvoiceTypeCredit:;
             goto L99;
           end;
         end;
-        if (ARAccb.NoOverPayIV!=0 or blank(IVp.RvrsVAT)==false) then begin
+        if (ARAccb.NoOverPayIV!=0) then begin//CUST-REMOVED  or blank(IVp.RvrsVAT)==false
         if (locIVr.InvType!=kInvoiceTypeCash and locIVr.InvType!=kInvoiceTypeCashInvoiceReceiptPRT) then begin
           ARr.InvoiceNr = IVp.CredInv;
           if (ReadFirstMain(ARr,1,true)==true) then begin
