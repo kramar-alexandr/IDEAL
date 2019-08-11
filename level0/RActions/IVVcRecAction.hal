@@ -1575,6 +1575,8 @@ LkInvoiceTypeCredit:;
           res = -1;
           goto L99;
         end;
+//CUST-BEGIN
+/* why was this needed?
         if (blank(locIVr.RvrsVAT)==false) then begin
           if (locIVr.Sum4!=IVp.Sum4) then begin
             RecordCheckError(24191,"",0,"OrdRow");
@@ -1582,6 +1584,8 @@ LkInvoiceTypeCredit:;
             goto L99;
           end;
         end;
+*/
+//CUST-END
         if (ARAccb.NoOverPayIV!=0) then begin//CUST-REMOVED  or blank(IVp.RvrsVAT)==false
         if (locIVr.InvType!=kInvoiceTypeCash and locIVr.InvType!=kInvoiceTypeCashInvoiceReceiptPRT) then begin
           ARr.InvoiceNr = IVp.CredInv;
