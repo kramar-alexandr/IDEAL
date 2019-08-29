@@ -724,7 +724,7 @@ begin
   return;
 end;
 
-procedure ExportInvoices(record RcVc RepSpec,var Integer level)
+procedure ExportInvoices(record RcVc RepSpec,var Integer level,var Boolean foundsalesf)
 begin
   record IVVc IVr,CDIVr;
   row IVVc IVrw;
@@ -768,10 +768,11 @@ begin
       results = 0; // EVS fixing std logic
     end;
     if (results>0) then begin
-      if (firstf) then begin
+      if (foundsalesf==false) then begin
         ExportPlainXml("<isaf:SalesInvoices>",level);
         RepSpec.flags[10] = 1;// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 9:57:55 AM
         firstf = false;
+        foundsalesf = true;
         level = level + 1;
       end;
       ExportPlainXml("<isaf:Invoice>",level);
@@ -892,16 +893,18 @@ begin
       ExportPlainXml("</isaf:Invoice>",level);
     end;
   end;
+/*
   if (firstf==false) then begin
     level = level - 1;
     if(RepSpec.flags[9]==0)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 03, 03 07 2019 y. at 9:55:50 AM
 			ExportPlainXml("</isaf:SalesInvoices>",level);
     end;
   end;
+*/
   return;
 end;
 
-procedure ExportPOSInvoices(record RcVc RepSpec,var Integer level)
+procedure ExportPOSInvoices(record RcVc RepSpec,var Integer level,var Boolean foundsalesf)
 begin
   record IVCashVc IVCashr,CDIVCashr;
   row IVCashVc IVCashrw;
@@ -948,10 +951,11 @@ begin
       results = 0; // EVS fixing std logic
     end;
     if (results>0) then begin
-      if (firstf) then begin
+      if (foundsalesf==false) then begin
       	if(RepSpec.flags[10]==0)then begin
 					ExportPlainXml("<isaf:SalesInvoices>",level);
         end;
+        foundsalesf = true;
         firstf = false;
         level = level + 1;
       end;
@@ -1074,10 +1078,12 @@ begin
       ExportPlainXml("</isaf:Invoice>",level);
     end;
   end;
+/*
   if (firstf==false) then begin
     level = level - 1;
     ExportPlainXml("</isaf:SalesInvoices>",level);
   end;
+*/
   return;
 end;
 
@@ -1317,7 +1323,7 @@ Integer level;
   string 255 filname,tstr;
   record CUVc BranchIDr;
   record CUVc AccBr;
-  Boolean results;
+  Boolean results,foundsalesf;
   
   BlockLoad(CYb);
   
@@ -1358,16 +1364,20 @@ Integer level;
   ExportPlainXml("<isaf:SourceDocuments>",level);
   level = level + 1;
   ExportPurchaseInvoices(RepSpec,level);
-  ExportInvoices(RepSpec,level);
-  
+  ExportInvoices(RepSpec,level,foundsalesf);
+    
+  if (RepSpec.flags[9]==1) then begin
+  	ExportPosInvoices(RepSpec,level,foundsalesf);
+  end;
+  if (foundsalesf) then begin
+    level = level - 1;
+		ExportPlainXml("</isaf:SalesInvoices>",level);
+  end;
   if (RepSpec.flags[0]==1) then begin
     ExportPayments(RepSpec,level,results);
     ExportReceipts(RepSpec,level,results)
   end;
-  
-  if (RepSpec.flags[9]==1) then begin
-  	ExportPosInvoices(RepSpec,level);
-  end;
+
   
   level = level - 1;  
   ExportPlainXml("</isaf:SourceDocuments>",level);
