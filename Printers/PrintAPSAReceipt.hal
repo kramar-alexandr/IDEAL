@@ -416,12 +416,6 @@ begin
   end;
 
   SetAreaZeroSize(request);
-  if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js,false);
-  end;
-
-  SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeGiftVoucherPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tD" & ValToString(vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false);
@@ -432,6 +426,13 @@ begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tL" & ValToString(vpaymodesums["Lease"],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
+
+  SetAreaZeroSize(request);
+  if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
+  end;
+
 
   IVCash_SendAPSAPayments = res;
   return;
@@ -977,12 +978,6 @@ begin
   end;
 
   SetAreaZeroSize(request);
-  if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
-    res = ExecAPSARequest(LSPDr,path,request,js,false);
-  end;
-
-  SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeGiftVoucherPayment]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tD" & ValToString(vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false);
@@ -991,6 +986,12 @@ begin
   SetAreaZeroSize(request);
   if (vpaymodesums["Lease"]!=0) then begin
     AddTextToArea("{""cmd"":""53"",""parameter"":""\\tL" & ValToString(vpaymodesums["Lease"],M4Val,"",".",0) & """}",request);
+    res = ExecAPSARequest(LSPDr,path,request,js,false);
+  end;
+
+  SetAreaZeroSize(request);
+  if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false);
   end;
 
