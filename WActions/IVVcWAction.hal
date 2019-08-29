@@ -324,8 +324,8 @@ BEGIN
         res = IVDClassPayDealEFAfter(wn,rownr,changed);
       case "Quant":
         res = IVDClassQuantEFAfter(wn,rownr,changed);
-      case "vRebate":
-        res = IVDClassvRebateEFAfter(wn,rownr,changed);
+      case "vRebate"://no need to refresh the pricing here
+        //res = IVDClassvRebateEFAfter(wn,rownr,changed);
       case "SerialNr":
         res = IVDClassvRebateEFAfter(wn,rownr,changed);
     end;
