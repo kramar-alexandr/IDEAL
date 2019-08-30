@@ -68,6 +68,9 @@ begin
     end;
   end;
     logrequest(request,reply,"touchless");
+logtext(0,"confirm stat=" & paymentstat);
+logtext(0,"reply " & GetStringFromArea(reply,0,255));
+logtext(0,"request " & GetStringFromArea(request,0,255));
 
   ConfirmTouchlessPayment = res;
   return;
