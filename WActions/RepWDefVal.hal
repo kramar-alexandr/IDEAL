@@ -126,3 +126,18 @@ BEGIN
   SelectWindow(wn);
   RETURN;
 END;
+
+global
+procedure ARRClassReportDefaults(Integer wn)
+BEGIN
+  record RcVc RepSpec;
+  
+  inner.ARRClassReportDefaults(wn);
+
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  RepSpec.Period2Str = "";
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  RETURN;
+END;
