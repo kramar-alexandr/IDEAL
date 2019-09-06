@@ -90,6 +90,9 @@ begin
         end;
         if (stat=="ER") then begin
           res = 19381;//problem with reply. possibly get more info and return to user
+          tick = GetCurTick;
+          WriteAreaToFile(request,"_aspa.error.request." & tick & ".txt",0);
+          WriteAreaToFile(reply,"_aspa.error.reply." & tick & ".txt",0);
         end;
         if (stat=="NO") then begin
           res = 12400;//no connection to printer
@@ -308,7 +311,7 @@ begin
 
   vatcode = GetVATCode(IVCashr.InclVAT,IVCashrw.VATCode,vatrates);
 
-  itemline = spec & "\\t" & vatcode & IVCashrw.Price;
+  itemline = spec & "\\t" & vatcode & ValToString(IVCashrw.Price,M4Val,"",".",0);
   //if (IVCashrw.Quant!=1) then begin
     itemline = itemline & "*" & ValToString(IVCashrw.Quant,M40Val,"",".",0);
   //end;
@@ -758,37 +761,45 @@ begin
   if (res==noErr) then begin
     res = LoadVATRates(LSPDr,vatrates);  
     if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=LoadVATRates");
       goto LIVCashVc_PrintAPSAReceipt;
     end;
     if (IVCashHasNegativeAmounts(IVCashr,retval)) then begin
       res = CheckForBalance(LSPDr,retval);
       if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCashHasNegativeAmounts");
         goto LIVCashVc_PrintAPSAReceipt;
       end;      
       res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates);
       if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCash_PrintItemRows1");
         goto LIVCashVc_PrintAPSAReceipt;
       end;
     end else begin
       res = BeginFiscalReceipt(LSPDr);
       if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=BeginFiscalReceipt");
         goto LIVCashVc_PrintAPSAReceipt;
       end;
       res = GetReceiptNumber(LSPDr,receiptnr);
       if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=GetReceiptNumber");
         goto LIVCashVc_PrintAPSAReceipt;
       end;
       res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates);
       if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCash_PrintItemRows2");
         goto LIVCashVc_PrintAPSAReceipt;
       end;
       res = IVCash_SendAPSAPayments(LSPDr,IVCashr);
       if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCash_SendAPSAPayments");
         goto LIVCashVc_PrintAPSAReceipt;
       end;
     
       res = EndFiscalReceipt(LSPDr,IVCashr.SerNr);
       if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=EndFiscalReceipt");
         goto LIVCashVc_PrintAPSAReceipt;
       end;
     end;
@@ -892,10 +903,10 @@ begin
 
   vatcode = GetVATCode(IVr.InclVAT,IVrw.VATCode,vatrates);
 
-  itemline = spec & "\\t" & vatcode & IVrw.Price;
-  if (IVrw.Quant!=1) then begin
+  itemline = spec & "\\t" & vatcode & ValToString(IVrw.Price,M4Val,"",".",0);
+  //if (IVrw.Quant!=1) then begin
     itemline = itemline & "*" & ValToString(IVrw.Quant,M40Val,"",".",0);
-  end;
+  //end;
   
   if (nonblank(IVrw.vRebate)) then begin
     itemline = itemline & ",-" & IVrw.vRebate;

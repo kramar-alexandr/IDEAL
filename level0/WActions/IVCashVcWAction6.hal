@@ -98,6 +98,7 @@ external function val FindVAT(string,val,Integer,Integer);// Edit **************
 //CUST-BEGIN
 external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string,string);
 external procedure IVCashDClassTouchScreenCreditNoteRemote_iDeal(Longint,var record IVCashVc);
+external updating procedure IVCashDClassTouchScreenFinishButtonRun2(Boolean,Integer,Boolean);
 //CUST-END
 
 global 
@@ -2019,7 +2020,12 @@ begin
           SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
           OpenCashDrawer_IVCashVc(IVCashr);
           if (IVCashr.OKFlag!=0) then begin
-            OpenNewIVCash(mwn);
+//CUST-BEGIN
+            IVCashr.OKFlag = 0;
+            PutWindowRecord(mwn,IVCashr);
+            IVCashDClassTouchScreenFinishButtonRun2(true,-1,true);
+            //OpenNewIVCash(mwn);
+//CUST-END
           end;
         case "RestAccVc":
           GetWindowRecord(mwn,RestAccr);

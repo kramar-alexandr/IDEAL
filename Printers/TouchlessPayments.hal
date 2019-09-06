@@ -343,12 +343,15 @@ begin
 
   BlockLoad(LMb);
   BlockLoad(TPb);
+Logtext(0,"ConfirmLastTouchlessPayment1 " & TPb.LastRrn);
   if (nonblank(TPb.LastRrn)) then begin
     if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)) then begin  
+Logtext(0,"ConfirmLastTouchlessPayment2 ");
       while (ConfirmTouchlessPayment(TPb,LSPDr,TPb.LastRrn,paymentstat)==false and tries<300) begin//5 minutes
         sleep(1);
         tries = tries + 1;
       end;
+Logtext(0,"ConfirmLastTouchlessPayment3 " & paymentstat);
       if (paymentstat=="Approved" or paymentstat=="Patvirtinta" or paymentstat=="Autorizuota") then begin
         res = true;
         qupdating.StoreLastTouchlessPayment("",-1,"");
