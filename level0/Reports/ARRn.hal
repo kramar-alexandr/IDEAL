@@ -378,6 +378,13 @@ L22:;
               ClassTypef(RepSpec.f5,CUr.Classification,testf);
             end;
           end;
+//CUST-BEGIN
+          if (testf and nonblank(RepSpec.Period2Str)) then begin
+            if (DateInRange(IVr.InvDate,RepSpec.sStartDate,RepSpec.sEndDate)==false) then begin
+              testf = false;
+            end;
+          end;
+//CUST-END
           if (testf) then begin
             rvalb1 = blankval;
             if ((IVr.InvType<>kInvoiceTypeCredit and IVr.InvType!=kInvoiceTypeCreditSpecialSales) and (IVr.InvType<>kInvoiceTypeCash and IVr.InvType<>kInvoiceTypeCashInvoiceReceiptPRT)) then begin
