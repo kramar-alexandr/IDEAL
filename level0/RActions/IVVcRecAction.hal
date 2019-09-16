@@ -1644,7 +1644,7 @@ LkInvoiceTypeCredit:;
         if (GetCustAndBal(CUr,limit,bal,CLb.Base,CLb.OwnCheques,CLb.ThirdCheques,CLb.IOUCheques,CLb.ThirdIOUCheques,CLb.ORSaveWarn,limitdaysf)) then begin
           if (limitdaysf) then begin
             if (CLb.IVSave==1) then begin    
-              RecordCheckError(22260,"",-1,"CustCode");      
+              RecordCheckError(22260,"",-1,"CustCode");     
               res = -1;
               goto L99;
             end;

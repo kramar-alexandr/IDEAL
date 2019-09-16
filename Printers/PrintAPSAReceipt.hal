@@ -595,7 +595,11 @@ LkInvoiceRowTypeNormal2:;
             goto LPrintItemRows;
           end;
         end else begin
-          res = PrintCommentLine(LSPDr,IVCashrw.Spec,vChr);
+          if (retf) then begin
+            res = PrintCommentLine2(LSPDr,IVCashrw.Spec);
+          end else begin
+            res = PrintCommentLine(LSPDr,IVCashrw.Spec,vChr);            
+          end;
           if (res!=noErr) then begin
             goto LPrintItemRows;
           end;
@@ -615,7 +619,11 @@ LkInvoiceRowTypeNormal2:;
           goto LPrintItemRows;
         end;
       end else begin
-        res = PrintCommentLine(LSPDr,IVCashrw.Spec,vChr);
+        if (retf) then begin
+          res = PrintCommentLine2(LSPDr,IVCashrw.Spec);
+        end else begin
+          res = PrintCommentLine(LSPDr,IVCashrw.Spec,vChr);
+        end;
         if (res!=noErr) then begin
           goto LPrintItemRows;
         end;
@@ -1038,7 +1046,11 @@ LkInvoiceRowTypeNormal2:;
             goto LPrintItemRows;
           end;
         end else begin
-          res = PrintCommentLine(LSPDr,IVrw.Spec,vChr);
+          if (retf) then begin
+            res = PrintCommentLine2(LSPDr,IVrw.Spec);
+          end else begin
+            res = PrintCommentLine(LSPDr,IVrw.Spec,vChr);
+          end;
           if (res!=noErr) then begin
             goto LPrintItemRows;
           end;
@@ -1058,7 +1070,11 @@ LkInvoiceRowTypeNormal2:;
           goto LPrintItemRows;
         end;
       end else begin
-        res = PrintCommentLine(LSPDr,IVrw.Spec,vChr);
+        if (retf) then begin
+          res = PrintCommentLine2(LSPDr,IVrw.Spec);
+        end else begin
+          res = PrintCommentLine(LSPDr,IVrw.Spec,vChr);
+        end;
         if (res!=noErr) then begin
           goto LPrintItemRows;
         end;

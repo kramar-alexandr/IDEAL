@@ -1921,7 +1921,11 @@ retval is calculted in sumup
             CredCardPOSPIVCashsmExecute(POSBrw.Code,POSBrw.Label);
 //CUST-BEGIN
           case 201:
-            InitTouchlessPayment(IVCashr.Sum4-IVCashr.TendValue,POSBrw.Code,POSBrw.Label,tstr,IVCashr.SerNr,IVCashr.CurncyCode,wn,"","");
+            if (InitTouchlessPayment(IVCashr.Sum4-IVCashr.TendValue,POSBrw.Code,POSBrw.Label,tstr,IVCashr.SerNr,IVCashr.CurncyCode,wn,"","")) then begin
+              IVCashr.OKFlag = 0;
+              PutWindowRecord(wn,IVCashr);
+              qupdating.IVCashDClassTouchScreenFinishButtonRun2(true,-1,true);
+            end;
 //CUST-END
           otherwise
             CredCardPOSPIVCashsm;
