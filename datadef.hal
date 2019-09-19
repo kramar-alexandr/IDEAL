@@ -148,8 +148,9 @@ begin
   RecordAddBegin(CUVc,"CUVc_Custom");
   RecordField(WebName,M4Str,60,0);
   RecordField(WebSurname,M4Str,60,0);
-  recordfield(WebShopImport,M4Int,0,0);
-  recordfield(AdvancedPrice,M4Int,0,0);
+  RecordField(WebShopImport,M4Int,0,0);
+  RecordField(AdvancedPrice,M4Int,0,0);
+  RecordField(NoRvrsVAT,M4Int,0,0);
   EndRecordAdd;
   
   RecordAddBegin(SHVc,"SHVc_Custom");

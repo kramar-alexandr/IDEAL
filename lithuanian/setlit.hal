@@ -103,7 +103,8 @@ begin
   SString(18153, ", kuriˆ iDeal iäraäo Klientui Sutarties sudarymo dienˆ uì Kliento iä iDeal perkamas prekes.");
   SString(18154, "Vardas, Pavard˜: ");
   SString(18155, "Iätrinkite visus pasirinkutus mok˜jimus, °statykite superkamas prekes, ir pasirinkite mok˜jimo tipˆ likusiai sumai.");
-  
+  SString(18156,"Transakcija atmesta, pinigai nuo kliento nebuvo nuskai‹iuoti (galimas laikinas °äaldymas)");
+
   SString(1000100,"¯veskite kiekius visoms prek˜ms"); // EVS: HAL-233
   SString(1000101,"Netinkama data");//MDS HAL-295
   //SString(1000102,"NEKREDITUOKITE áIOS S„SKAITOS!!!"); //IGE HAL-385

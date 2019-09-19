@@ -191,6 +191,8 @@ begin
     if (PUVc_PasteVECode(PUr)) then begin end;
     PUr.TransDate = IVr.InvDate;
     PUr.Location = IVr.Location;
+    PUr.VEVATCode = "PVM5";
+
     
     AddRows(PUr,IVr.RetItmSerNo1,IVr.RetItmName1,IVr.RetItmPrice1,RetItmb.RetItm,account,0);
     if IVr.RetItmSerNo2 != "" and IVr.RetItmPrice2 > 0 then begin

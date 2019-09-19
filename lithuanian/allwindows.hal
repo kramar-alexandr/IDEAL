@@ -1279,6 +1279,9 @@ begin
   if (HasExtTax) then begin
   CheckBox(h4,v+=16,0,"N˜ra regiono mok.",NoTax2);
   end;
+//CUST-BEGIN
+  CheckBox(h4,v+=16,0,"Biudìetin˜ °staiga (netaikomas PVM25)",NoRvrsVAT);
+//CUST-END
   Tile(tilenr,110,false,tilenr,PLCode); tilenr = tilenr + 1;
   EditField(h,v=6,  80,"Pardavimo valiuta",Normal,CurncyCode,false,CurncyCodeSClass);
   EditField(h,v+=vs ,80,"Kainoraätis",Normal,PLCode,false,PLDefSClass);

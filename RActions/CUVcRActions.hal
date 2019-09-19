@@ -12,6 +12,10 @@ begin
   end;
 
   res = inner.CUVcRecordCheck(CUr,CU2r,stat,long4);
+
+  if (CUr.NoRvrsVAT==1) then begin
+    CUr.RvrsVAT = 0;
+  end;
   
   CUVcRecordCheck = res;
   return;
