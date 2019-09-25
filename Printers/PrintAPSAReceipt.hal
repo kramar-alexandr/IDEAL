@@ -98,7 +98,7 @@ begin
           //if (tmp=="NO PAPER") then begin
           //  res = 18156;
           //end else begin
-            res = 18156;//19381;//problem with reply. possibly get more info and return to user
+            res = 19381;//;//problem with reply. possibly get more info and return to user
           //end;
           tick = GetCurTick;
           WriteAreaToFile(request,"_aspa.error.request." & tick & ".txt",0);

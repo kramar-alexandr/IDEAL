@@ -451,8 +451,8 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
     DeselectWindow(mwn,true);
     if (paymentstat=="Transactions is cancelled" or paymentstat=="Patvirtinta" or paymentstat==UsetStr(300001)) then begin
       fres = true;
-
       qupdating.StoreLastTouchlessPayment("",-1,"");
+      MessageBox(18156,0);
     end else begin
       MessageBox(27386,"");
       if (nonblank(clientreceipt)) then begin
@@ -622,6 +622,19 @@ procedure VoidBankPaymentWClassCancel()
 begin
   
   CloseWindow(CurWindow);
+
+  return;
+end;
+
+global
+procedure ShowTouchlessCancelMessage()
+begin
+  record TouchlessPayBlock TPb;
+  
+  BlockLoad(TPb);
+  if (nonblank(TPb.LastRrn)) then begin
+    MessageBox(18156,0);
+  end;
 
   return;
 end;

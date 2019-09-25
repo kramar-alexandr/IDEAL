@@ -139,7 +139,7 @@ external outer function Boolean InitTouchlessPayment(val,string,string,var strin
 external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
 external updating procedure PinPadVoidIVCashDsm();
 external outer function Boolean ConfirmLastTouchlessPayment();
-
+external outer procedure ShowTouchlessCancelMessage();
 //CUST-END
 
 enum begin
@@ -2237,6 +2237,7 @@ begin
     if (err==0) then begin
       if (IVCashPrintReceipt(wn,IVCashr,prevIVCashr,-1,true,true,LMb.IncrementalReceiptPrinting,wnst)==false) then begin
 //      MessageBox(22165,"");
+        qupdating.ShowTouchlessCancelMessage;//CUST-ADDED
         err = 1;
         new_recordf = false;
       end;
