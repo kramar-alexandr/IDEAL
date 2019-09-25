@@ -4,14 +4,15 @@ updating function LongInt CUVcRecordCheck(record CUVc CUr,record CUVc CU2r,LongI
 begin
   LongInt res;
   
+
+  res = inner.CUVcRecordCheck(CUr,CU2r,stat,long4);
+
 //CHN::setting up RvrsVAT if they are from LIT Country
   if (left(CUr.VATNr,2)=="LT") then begin
     CUr.RvrsVAT = 1;
   end else begin
     CUr.RvrsVAT = 0;
   end;
-
-  res = inner.CUVcRecordCheck(CUr,CU2r,stat,long4);
 
   if (CUr.NoRvrsVAT==1) then begin
     CUr.RvrsVAT = 0;
