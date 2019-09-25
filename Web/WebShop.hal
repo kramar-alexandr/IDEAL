@@ -529,6 +529,7 @@ lTryWithCode:;// Edit ************************** BPI Ukraine - KramarAlexandr - 
 			CUr.WebSurname = XmlGet(cust,"Customer/WebSurname");
 			CUr.WebShopImport = stringtoint(XmlGet(cust,"Customer/WebShopImport"));
 			CUr.AdvancedPrice = stringtoint(XmlGet(cust,"Customer/AdvancedPricelist"));
+			CUr.RvrsVAT = StringToInt(XmlGet(cust,"Customer/RvrsVAT"));
 		
 	
 			if recordstore(CUr,false) then begin 
@@ -569,6 +570,7 @@ lTryWithCode:;// Edit ************************** BPI Ukraine - KramarAlexandr - 
 				CUr.WebSurname = XmlGet(cust,"Customer/WebSurname");
 				CUr.WebShopImport = stringtoint(XmlGet(cust,"Customer/WebShopImport"));
 				CUr.AdvancedPrice = stringtoint(XmlGet(cust,"Customer/AdvancedPricelist"));
+  			CUr.RvrsVAT = StringToInt(XmlGet(cust,"Customer/RvrsVAT"));
 	
 				if RecordUpdate(oldCUr,CUr,false) == 0 then begin 
 					WebSetContentType("text/xml");
