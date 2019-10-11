@@ -1,4 +1,4 @@
-remote procedure UpdateiDealRvrsVATCodesOrder(var record ORVc);
+remote procedure UpdateiDealRvrsVATCodesOrder(var record ORVc,Integer);
 
 function Boolean UpdateReverseVAT(Integer wn,Integer rownr,Integer changed)
 begin  
@@ -6,7 +6,7 @@ begin
   
   if (changed!=0) then begin
     GetWindowRecord(wn,ORr);
-    UpdateiDealRvrsVATCodesOrder(ORr);
+    UpdateiDealRvrsVATCodesOrder(ORr,rownr);
     PutWindowRecord(wn,ORr);
   end;
   UpdateReverseVAT = true;

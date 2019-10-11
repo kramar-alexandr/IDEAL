@@ -88,7 +88,41 @@ begin
   return;
 end;
 
-procedure IVPasteRvrsVATCode2(var record ORVc aORr,Boolean clearf)
+procedure UpdateSingleOrderRow(var record ORVc ORr,record CUVc CUr,Integer i,Boolean clearf,var array string arvrsvatcodes)
+begin
+  row ORVc ORrw;
+  string 255 vatcode;
+  
+  MatRowGet(ORr,i,ORrw);
+  if (ORrw.stp==kInvoiceRowTypeNormal or ORrw.stp==kInvoiceRowTypeCorrection) then begin
+    if (nonblank(ORrw.ArtCode)) then begin
+      if (CUr.CustType==1 or CUr.RvrsVAT==0 or clearf) then begin
+        ORrw.RvrsVATCode = "";
+        UpdateOrderPrice(ORr,ORrw,nonblank(GetReverseVATCode(ORrw.ArtCode)));
+        MatRowPut(ORr,i,ORrw);
+        if (ORDchrsum(ORr,i)) then begin
+          ORDchsum(ORr,i);
+        end;
+      end else begin          
+        vatcode = GetReverseVATCode(ORrw.ArtCode);
+        if (nonblank(vatcode)) then begin
+          ORrw.RvrsVATCode = vatcode;
+          UpdateOrderPrice(ORr,ORrw,true);
+          MatRowPut(ORr,i,ORrw);
+          if (ORDchrsum(ORr,i)) then begin
+            ORDchsum(ORr,i);
+          end;
+          AddToRvrsVATCodes(ORrw.RvrsVATCode,arvrsvatcodes);
+        end;
+      end;
+    end;
+  end;
+
+
+  return;
+end;
+
+procedure IVPasteRvrsVATCode2(var record ORVc aORr,Boolean clearf,Integer rw)
 begin
   record ORVc ORr;
   row ORVc ORrw,OR2rw;
@@ -116,30 +150,11 @@ begin
   //if (CUr.RvrsVAT==0 or CUr.CustType==1 or forcef) and (aORr.InclVAT==0) then begin
     RecordCopy(ORr,aORr);
     rwcnt = MatRowCnt(ORr);
-    for (i=0;i<rwcnt;i=i+1) begin
-      MatRowGet(ORr,i,ORrw);
-      if (ORrw.stp==kInvoiceRowTypeNormal or ORrw.stp==kInvoiceRowTypeCorrection) then begin
-        if (nonblank(ORrw.ArtCode)) then begin
-          if (CUr.CustType==1 or CUr.RvrsVAT==0 or clearf) then begin
-            ORrw.RvrsVATCode = "";
-            UpdateOrderPrice(ORr,ORrw,nonblank(GetReverseVATCode(ORrw.ArtCode)));
-            MatRowPut(ORr,i,ORrw);
-            if (ORDchrsum(ORr,i)) then begin
-              ORDchsum(ORr,i);
-            end;
-          end else begin          
-            vatcode = GetReverseVATCode(ORrw.ArtCode);
-            if (nonblank(vatcode)) then begin
-              ORrw.RvrsVATCode = vatcode;
-              UpdateOrderPrice(ORr,ORrw,true);
-              MatRowPut(ORr,i,ORrw);
-              if (ORDchrsum(ORr,i)) then begin
-                ORDchsum(ORr,i);
-              end;
-              AddToRvrsVATCodes(ORrw.RvrsVATCode,arvrsvatcodes);
-            end;
-          end;
-        end;
+    if (rw>0) then begin
+      UpdateSingleOrderRow(ORr,CUr,rw,clearf,arvrsvatcodes);
+    end else begin
+      for (i=0;i<rwcnt;i=i+1) begin
+        UpdateSingleOrderRow(ORr,CUr,i,clearf,arvrsvatcodes);
       end;
     end;
     ORSumup(ORr);
@@ -187,13 +202,13 @@ begin
 end;
 
 global
-procedure UpdateiDealRvrsVATCodesOrder(var record ORVc ORr)
+procedure UpdateiDealRvrsVATCodesOrder(var record ORVc ORr,Integer rw)
 begin
   
   if (IsRvrsVATPayDeal(ORr.PayDeal)) then begin
-    IVPasteRvrsVATCode2(ORr,false);
+    IVPasteRvrsVATCode2(ORr,false,rw);
   end else begin
-    IVPasteRvrsVATCode2(ORr,true);
+    IVPasteRvrsVATCode2(ORr,true,rw);
   end;
 
   return;
