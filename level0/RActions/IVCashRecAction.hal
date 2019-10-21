@@ -684,6 +684,9 @@ BEGIN
   record JobVc Jobr;
   Boolean AllowAddingINtoRetPOSIV;
   Boolean AllowPOSIVNegQty;
+  //CUST-BEGIN
+  transaction Boolean gDoNotTestIfRecordExists;
+  //CUST-END
 
   AllowAddingINtoRetPOSIV = UserCanAction("AllowAddingINtoRetPOSIV",true);
   AllowPOSIVNegQty = UserCanAction("AllowPOSIVNegQty",true);
@@ -836,6 +839,8 @@ u might want to put loyalty card or bagger 1st
     end;    
     IVCashr.SerNr = NextSerNr("IVCashVc",IVCashr.TransDate,newnr,false,IVCashr.LangCode);
   end;
+//CUST-BEGIN
+  if (gDoNotTestIfRecordExists==false) then begin
   switch (stat) begin
     case Rs_insert:
       locIVCashr.SerNr = IVCashr.SerNr;    
@@ -854,6 +859,8 @@ u might want to put loyalty card or bagger 1st
         end;
       end;
   end;
+  end;
+//CUST-END
   if (stat==Rs_insert) then begin
     if (ServingClient==false) then begin//offline only
       BlockLoad(LastRecNr);//from client DB

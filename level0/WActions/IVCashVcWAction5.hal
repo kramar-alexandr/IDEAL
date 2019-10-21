@@ -2201,9 +2201,10 @@ begin
   
   IVCashSumup(IVCashr,true);              
   IVCashr.OKFlag = 1;
-
+  gDoNotTestIfRecordExists = true;//CUST
   SetRecordCheckVc("IVCashVc");
   err = IVCashVcRecordCheck(IVCashr,prevIVCashr,wnst,1);
+  gDoNotTestIfRecordExists = false;//CUST
   if (err==0) then begin
     if (CDb.RequireReturnCustomer!=0) then begin
       if (IVCashr.OKFlag!=0) and (IVCashr.Sum4<0) then begin
