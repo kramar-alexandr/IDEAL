@@ -832,7 +832,7 @@ LogText(0,"IVCashVc_PrintAPSAReceipt err=EndFiscalReceipt");
     end;    
 LIVCashVc_PrintAPSAReceipt:;
     if (res!=0) then begin
-      MessageBox(res,"");
+      queued.MessageBoxMain(res);
     end;
   end;
 
@@ -1245,7 +1245,7 @@ LIVVc_PrintAPSAReceipt:;
     end;
     SetPOSWindowDisplay_SendToSerialPortDevices("       iDeal       ","");
     if (res!=0) then begin
-      MessageBox(res,"");
+      queued.MessageBoxMain(res);
     end;
   end;
 
@@ -1351,7 +1351,7 @@ begin
 LPrintFB05CashEvent:;
 //    FB05Close;
     if (res!=0) then begin
-      MessageBox(res,"");
+      queued.MessageBoxMain(res);
     end;
 //  end;
 
@@ -1491,7 +1491,7 @@ begin
 
 LPrintNonFiscalReceipt:;
   if (res!=noErr) then begin
-    MessageBox(res,"");
+    queued.MessageBoxMain(res);
   end;
   
   PrintNonFiscalReceipt = res;
