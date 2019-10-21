@@ -86,6 +86,7 @@ begin
   GetWindowRecord(mwn,IVCashr);
   IVCashr.RecValue = blankval;
   IVCashr.RecValue2 = blankval;
+  IVCashr.TransTime = CurrentTime;//EBS silly issue with timing
   ClearRow(IVCashr,IVCashrw,kInvoiceRowTypeCreditCardPayment);  
   IVCashrw.Sum = received;
   IVCashrw.AuthorizationCode = AuthorisationCode;
