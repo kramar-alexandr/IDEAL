@@ -2167,6 +2167,7 @@ begin
   record RcVc RepSpec;
 //CUST-BEGIN
   record LSerialPortDeviceVc LSPDr;
+  transaction Boolean gDoNotTestIfRecordExists;
 //CUST-END
 
   wn = CurWindow;
