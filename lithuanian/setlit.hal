@@ -105,6 +105,9 @@ begin
   SString(18155, "I‰trinkite visus pasirinkutus mokòjimus, ∞statykite superkamas prekes, ir pasirinkite mokòjimo tipà likusiai sumai.");
   SString(18156,"Transakcija atmesta, pinigai nuo kliento nebuvo nuskaiãiuoti (galimas laikinas ∞‰aldymas)");
 
+
+  SString(300001,"Operacija at‰aukta"); // EVS: HAL-233
+
   SString(1000100,"Øveskite kiekius visoms prekòms"); // EVS: HAL-233
   SString(1000101,"Netinkama data");//MDS HAL-295
   //SString(1000102,"NEKREDITUOKITE ·IOS SÑSKAITOS!!!"); //IGE HAL-385

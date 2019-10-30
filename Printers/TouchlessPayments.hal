@@ -5,6 +5,7 @@ external inner updating procedure IVCashDClassTouchScreenFinishButton();
 external inner procedure IVSumup(var record IVVc,Boolean);
 external inner updating procedure IVFinishAndPrint();
 external procedure PrintTouchlessCardReceipt(string,Integer);
+external updating procedure MessageBoxMain(Longint);
 
 procedure GetTouchlessPaymentURL(record TouchlessPayBlock TPb,var string url,var Longint port)
 begin
@@ -226,8 +227,7 @@ begin
   vRepSpec.f5 = label;
   vRepSpec.CurncyCode = crncy;
   ProcessingWn = OpenWindow("CCPayVerifoneProcessingWClass",0,wn,"","",vRepSpec);
-  DeselectWindow(ProcessingWn,false);
-
+  
   BlockLoad(LMb);
   if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)==false) then begin  
     GetWindowRecord(ProcessingWn,RepSpec);
@@ -318,7 +318,7 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
       end;
 
     end else begin
-      MessageBox(27386,"");
+      queued.MessageBoxMain(27386);
       if (nonblank(clientreceipt)) then begin
         PrintTouchlessCardReceipt(clientreceipt,1);
       end;
@@ -423,6 +423,7 @@ begin
       AuthorisationCode = JSONGet(js,"AuthorizationCode");
       receiptnr = JSONGet(js,"Stan");//this is return number
       timestamp = JSONGet(js,"time");//this is return number
+      paymentstat = JSONGet(js,"text");
       clientreceipt = JSONGet(js,"clientReceipt");
       res = true;
     end else begin
@@ -453,9 +454,17 @@ logtext(0,"request " & GetStringFromArea(request,0,255));
     if (paymentstat=="Transactions is cancelled" or paymentstat=="Patvirtinta" or paymentstat==UsetStr(300001)) then begin
       fres = true;
       qupdating.StoreLastTouchlessPayment("",-1,"");
-      MessageBox(18156,0);
+      switch (FileName) begin
+        case "IVCashVc":
+          qupdating.UpdateIVCashWithTouchlessPayReturn(mwn,AuthorisationCode);
+      end;
+
+      queued.MessageBoxMain(18156);
+      if (nonblank(clientreceipt)) then begin
+        //PrintTouchlessCardReceipt(clientreceipt,1);//should we print it??
+      end;
     end else begin
-      MessageBox(27386,"");
+      queued.MessageBoxMain(27386);
       if (nonblank(clientreceipt)) then begin
         PrintTouchlessCardReceipt(clientreceipt,1);
       end;
@@ -634,7 +643,7 @@ begin
   
   BlockLoad(TPb);
   if (nonblank(TPb.LastRrn)) then begin
-    MessageBox(18156,0);
+    MessageBox(18156,"");
   end;
 
   return;

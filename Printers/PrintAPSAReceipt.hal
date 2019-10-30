@@ -67,7 +67,7 @@ begin
 
   url = GetAPSAUrl(LSPDr);
   res = 12400;//problem with connection
-  timeout = 60;
+  timeout = 40;
   if (overridetimeout>0) then begin
     timeout = overridetimeout;
   end;

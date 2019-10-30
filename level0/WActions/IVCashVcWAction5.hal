@@ -140,6 +140,8 @@ external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
 external updating procedure PinPadVoidIVCashDsm();
 external outer function Boolean ConfirmLastTouchlessPayment();
 external outer procedure ShowTouchlessCancelMessage();
+external outer function Boolean InitTouchlessPaymentReturn(Integer);
+
 //CUST-END
 
 enum begin
@@ -1922,9 +1924,9 @@ retval is calculted in sumup
 //CUST-BEGIN
           case 201:
             if (InitTouchlessPayment(IVCashr.Sum4-IVCashr.TendValue,POSBrw.Code,POSBrw.Label,tstr,IVCashr.SerNr,IVCashr.CurncyCode,wn,"","")) then begin
-              IVCashr.OKFlag = 0;
-              PutWindowRecord(wn,IVCashr);
-              qupdating.IVCashDClassTouchScreenFinishButtonRun2(true,-1,true);
+              //IVCashr.OKFlag = 0;
+              //PutWindowRecord(wn,IVCashr);
+              //qupdating.IVCashDClassTouchScreenFinishButtonRun2(true,-1,true);
             end;
 //CUST-END
           otherwise
@@ -2239,6 +2241,7 @@ begin
     if (err==0) then begin
       if (IVCashPrintReceipt(wn,IVCashr,prevIVCashr,-1,true,true,LMb.IncrementalReceiptPrinting,wnst)==false) then begin
 //      MessageBox(22165,"");
+        InitTouchlessPaymentReturn(wn);//CUST-ADDED
         qupdating.ShowTouchlessCancelMessage;//CUST-ADDED
         err = 1;
         new_recordf = false;
