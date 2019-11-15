@@ -696,7 +696,7 @@ begin
       // :EVS
       IVr.Objects = AddObjectToObjectList(IVr.Objects,ItmExportBl.ItmObject);     //MDS HAL-393
       if (nonblank(XmlGet(inv,"Invoice/Objects"))) then begin
-        IVr.Objects = AddObjectToObjectList(IVr.Objects,XmlGet(inv,"Invoice/Objects"));
+        IVr.Objects = XmlGet(inv,"Invoice/Objects");
       end;
 
       while (xmlNodeExists(inv, "Invoice/Items/Item[" & k & "]")) begin
