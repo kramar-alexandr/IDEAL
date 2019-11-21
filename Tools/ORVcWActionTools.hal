@@ -150,7 +150,7 @@ begin
   //if (CUr.RvrsVAT==0 or CUr.CustType==1 or forcef) and (aORr.InclVAT==0) then begin
     RecordCopy(ORr,aORr);
     rwcnt = MatRowCnt(ORr);
-    if (rw>0) then begin
+    if (rw>-1) then begin
       UpdateSingleOrderRow(ORr,CUr,rw,clearf,arvrsvatcodes);
     end else begin
       for (i=0;i<rwcnt;i=i+1) begin
