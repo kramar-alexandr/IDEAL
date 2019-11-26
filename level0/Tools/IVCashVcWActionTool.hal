@@ -232,6 +232,25 @@ LCalculateIVCashVcPoints:;
   return;
 end;  
 
+//CUST-BEGIN
+//They have a strange logic where they specify PVM25 in item for both domectic and reverse vat code for some items. 
+//So we need to fix those cases. who knows why that was done like that...
+procedure UpdateIVCashVATCode(record IVCashVc IVCashr,var row IVCashVc IVCashrw)
+begin
+  record AccBlock Accb;
+  record INVc INr;
+
+  if (ReadFirstItem(IVCashrw.ArtCode,INr,true,true)) then begin
+    if (INr.VATCode==INr.RvrsVATCode and nonblank(INr.RvrsVATCode)) then begin
+      BlockLoad(Accb);
+      IVCashrw.VATCode = Accb.VATCodeDom;
+    end;
+  end;
+
+  return;
+end;
+//CUST-END
+
 global
 procedure IVCashDUpdatePrices(record IVCashVc IVCashp)
 BEGIN
@@ -264,6 +283,9 @@ BEGIN
       IVCashrw.BasePrice = baseprice;
       IVCashrw.ArtCode = INr.Code;
       IVCashrw.VATCode = vatcode;
+//CUST-BEGIN
+      UpdateIVCashVATCode(IVCashp,IVCashrw);
+//CUST-END
       if (nonblank(IVCashp.CustVATCode)) then begin
         IVCashrw.VATCode = IVCashp.CustVATCode;
       end;
@@ -766,6 +788,9 @@ begin
     IVCashrw.VATCode = vatcode;
     IVCashrw.SalesAcc = salesacc;
     IVCashrw.Spec = curitemname;
+//CUST-BEGIN
+    UpdateIVCashVATCode(IVCashr,IVCashrw);
+//CUST-END
     // Edit Start ---------------------------------------------- Edit Start
 	//02, 06 03 2018 y. 08:23:15
 	
@@ -879,6 +904,9 @@ begin
     IVCashrw.vRebate = ValToString(vreb,M41Val,"",DecimalSeparator,0);
     IVCashrw.ArtCode = INr.Code;
     IVCashrw.VATCode = vatcode;
+//CUST-BEGIN
+    UpdateIVCashVATCode(IVCashr,IVCashrw);
+//CUST-END
     IVCashrw.SalesAcc = salesacc;
     IVCashrw.Spec = curitemname;
     IVCashrw.ArtCode = INr.Code;

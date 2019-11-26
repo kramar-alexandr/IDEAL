@@ -25,7 +25,7 @@ LAddToRvrsVATCodes:;
   return;
 end;
 
-procedure UpdateOrderPrice(var record ORVc ORr,var row ORVc ORrw,Boolean hadrevf)
+procedure UpdateOrderPrice(var record ORVc ORr,var row ORVc ORrw,Boolean hadrevf,Boolean updatepricef)
 begin
   record AccBlock Accb;
   val t,s,price,vreb,baseprice,temp,tax2prc,tax2reb;
@@ -36,18 +36,21 @@ begin
   Boolean dummyf;
   Time blankt;
 
-  if (GetItemPriceDiscount3(ORrw.ArtCode,ORrw.Quant,INr,ORr.CurncyCode,
-                            ORr.FrRate,ORr.ToRateB1,ORr.ToRateB2,ORr.BaseRate1,ORr.BaseRate2,
-                            ORr.LangCode,ORr.CustCat,ORr.PriceList,ORr.RebCode,
-                            price,curitemname,vreb,vatcode,baseprice,salesacc,
-                            ORr.ExportFlag,calcprice,orddate,blankt,ORr.CustCode,true,dummyf,ORr.PayDeal,tax2code,tax2prc,ORr.Region,location,taxtemplatecode)) then begin
+logtext(0,"UpdateOrderPrice " & updatepricef);
+  if (updatepricef) then begin
+    if (GetItemPriceDiscount3(ORrw.ArtCode,ORrw.Quant,INr,ORr.CurncyCode,
+                              ORr.FrRate,ORr.ToRateB1,ORr.ToRateB2,ORr.BaseRate1,ORr.BaseRate2,
+                              ORr.LangCode,ORr.CustCat,ORr.PriceList,ORr.RebCode,
+                              price,curitemname,vreb,vatcode,baseprice,salesacc,
+                              ORr.ExportFlag,calcprice,orddate,blankt,ORr.CustCode,true,dummyf,ORr.PayDeal,tax2code,tax2prc,ORr.Region,location,taxtemplatecode)) then begin
 
-    ORrw.Price = price;
+      ORrw.Price = price;
 
-    if (ORr.InclVAT == 2 and blank(ORrw.RvrsVATCode)) then begin
-      ORrw.Price = ORrw.Price + FindVAT(ORrw.VATCode,ORrw.Price,0,ORr.NoTAXonVAT);
-    end;
-  end;  
+      if (ORr.InclVAT == 2 and blank(ORrw.RvrsVATCode)) then begin
+        ORrw.Price = ORrw.Price + FindVAT(ORrw.VATCode,ORrw.Price,0,ORr.NoTAXonVAT);
+      end;
+    end;  
+  end;
 
   if (ORrw.RvrsVATCode=="PVM25") then begin
     ORr.ShipDeal = "PVM25";
@@ -88,7 +91,7 @@ begin
   return;
 end;
 
-procedure UpdateSingleOrderRow(var record ORVc ORr,record CUVc CUr,Integer i,Boolean clearf,var array string arvrsvatcodes)
+procedure UpdateSingleOrderRow(var record ORVc ORr,record CUVc CUr,Integer i,Boolean clearf,var array string arvrsvatcodes,Boolean updatepricef)
 begin
   row ORVc ORrw;
   string 255 vatcode;
@@ -98,7 +101,7 @@ begin
     if (nonblank(ORrw.ArtCode)) then begin
       if (CUr.CustType==1 or CUr.RvrsVAT==0 or clearf) then begin
         ORrw.RvrsVATCode = "";
-        UpdateOrderPrice(ORr,ORrw,nonblank(GetReverseVATCode(ORrw.ArtCode)));
+        UpdateOrderPrice(ORr,ORrw,nonblank(GetReverseVATCode(ORrw.ArtCode)),updatepricef);
         MatRowPut(ORr,i,ORrw);
         if (ORDchrsum(ORr,i)) then begin
           ORDchsum(ORr,i);
@@ -107,7 +110,7 @@ begin
         vatcode = GetReverseVATCode(ORrw.ArtCode);
         if (nonblank(vatcode)) then begin
           ORrw.RvrsVATCode = vatcode;
-          UpdateOrderPrice(ORr,ORrw,true);
+          UpdateOrderPrice(ORr,ORrw,true,updatepricef);
           MatRowPut(ORr,i,ORrw);
           if (ORDchrsum(ORr,i)) then begin
             ORDchsum(ORr,i);
@@ -122,7 +125,7 @@ begin
   return;
 end;
 
-procedure IVPasteRvrsVATCode2(var record ORVc aORr,Boolean clearf,Integer rw)
+procedure IVPasteRvrsVATCode2(var record ORVc aORr,Boolean clearf,Integer rw,Boolean updatepricef)
 begin
   record ORVc ORr;
   row ORVc ORrw,OR2rw;
@@ -151,10 +154,10 @@ begin
     RecordCopy(ORr,aORr);
     rwcnt = MatRowCnt(ORr);
     if (rw>-1) then begin
-      UpdateSingleOrderRow(ORr,CUr,rw,clearf,arvrsvatcodes);
+      UpdateSingleOrderRow(ORr,CUr,rw,clearf,arvrsvatcodes,updatepricef);
     end else begin
       for (i=0;i<rwcnt;i=i+1) begin
-        UpdateSingleOrderRow(ORr,CUr,i,clearf,arvrsvatcodes);
+        UpdateSingleOrderRow(ORr,CUr,i,clearf,arvrsvatcodes,updatepricef);
       end;
     end;
     ORSumup(ORr);
@@ -202,13 +205,13 @@ begin
 end;
 
 global
-procedure UpdateiDealRvrsVATCodesOrder(var record ORVc ORr,Integer rw)
+procedure UpdateiDealRvrsVATCodesOrder(var record ORVc ORr,Integer rw,Boolean updatepricef)
 begin
   
   if (IsRvrsVATPayDeal(ORr.PayDeal)) then begin
-    IVPasteRvrsVATCode2(ORr,false,rw);
+    IVPasteRvrsVATCode2(ORr,false,rw,updatepricef);
   end else begin
-    IVPasteRvrsVATCode2(ORr,true,rw);
+    IVPasteRvrsVATCode2(ORr,true,rw,updatepricef);
   end;
 
   return;
