@@ -1997,6 +1997,9 @@ begin
     if (HasLocalization("GBR,LTU,POL,LVA")) then begin
       EditField(h2,v,45,"Reversinis PVM kodas",Normal,RvrsVATCode,false,VATCodeSClass); v = v + vs;
     end;
+//CUST-BEGIN
+    EditField(h2,v,45,"Gavimo PVM kodas",Normal,PUVATCode,false,VATCodeSClass); v = v + vs;
+//CUST-END
     if (HasLocalization("SWE")) then begin
       EditField(h2,v,45,"Cheminis mokes‹i÷ kodas",Normal,ChemicalTaxCode,false,ChemicalTaxCodeSClass); v = v + vs;
     end;
@@ -7298,5 +7301,252 @@ end;
     RadioButton(h,v+=16,1,0,"Pavadinimas",flags[1]);
     
   end;
+  EndWindow;
+end;
+
+window ITDClass:2
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vm,vs,tilenr;
+  boolean taxtempf;
+  WindowBegin("Prek˜s grup˜",ITDClass,CGview,-);
+  if (IsEnterprise) then begin
+    SetWRect(64,80,680,470);
+//  Sizeable(-1,-1,0,0);
+  UseView(ITVc);
+  Tile(0,90,false,"",Code);
+  v = 6; vs = 20; h = 120;
+  EditField(h=120,v, 70,"Nr.",St_i,Code,false,0);
+  EditField(h,v+=20 ,200,"Pavadinimas",Normal,Comment,false,0);
+  EditField(h,v+=vs ,200,"Klasi÷ tipai",Normal,ClassType,false,CTypeSClass);
+    tilenr = 1;
+    TileButton(tilenr,"Sˆsk.");  tilenr = tilenr + 1; 
+    TileButton(tilenr,"Kredito sˆsk.");  tilenr = tilenr + 1; 
+    if (StandardHansa==false) then begin
+      TileButton(tilenr,"Paslug÷ sˆsk.");  tilenr = tilenr + 1; 
+    end;
+    TileButton(tilenr,"Savikainos modelis");  tilenr = tilenr + 1; 
+    TileButton(tilenr,"Frachtas");  tilenr = tilenr + 1; 
+    if (HasLocalization("LVA")) then begin
+      TileButton(tilenr,"POS"); tilenr = tilenr + 1;  
+    end;
+    TileButton(tilenr,"Tekstas");  tilenr = tilenr + 1; 
+    if (HasCharts) then begin
+      TileButton(tilenr,"BI");  tilenr = tilenr + 1;  
+    end;
+    tilenr = 1;
+    Tile(tilenr,260,false,tilenr,SalesAcc);  tilenr = tilenr + 1;
+    h2 = 530;
+  EditField(h=120,vm=(v=6),55,"Viet. pard. sˆsk.",Normal,SalesAcc,false,AccSClass);
+  EditField(h,v+=vs,55,VATZoneNameLIT & "Pardavim÷ sˆsk.",Normal,EUSalesAcc,false,AccSClass);
+  EditField(h,v+=vs,55,"Ne ES pard. sˆsk.",Normal,ExpSalesAcc,false,AccSClass);
+  EditField(h,v+=vs ,55,"Viet. savik. sˆsk.",Normal,CostAcc,false,AccSClass);
+  EditField(h,v+=vs ,55,VATZoneNameLIT & "Savikainos sˆsk.",Normal,EUCostAcc,false,AccSClass);
+  EditField(h,v+=vs ,55,"Ne ES savik. sˆsk.",Normal,ExpCostAcc,false,AccSClass);
+    if (StandardHansa==false) then begin
+  EditField(h,v+=vs ,55,"Neb. gamini÷ sˆsk.",Normal,WIPAcc,false,AccSClass);
+    end;
+  EditField(h,v+=vs,55,"Komponent÷ pan.",Normal,CompUsage,false,AccSClass);
+    if (StandardHansa==false) then begin
+  EditField(h,v+=vs,55,"Gamybos kontrol˜",Normal,ProdControl,false,AccSClass);
+  EditField(h,v+=vs,55,"Gamybos pap. kaätai",Normal,ProdWCostAcc,false,AccSClass);
+    EditField(h,v+=vs,55,"Vieäbu‹io WIP sˆsk.",Normal,HotelWIPAcc,false,AccSClass);
+    end;
+    EditField(h=350,v=vm,45,"Vietinis PVM kodas",Normal,VATCodeDom,false,VATCodeSClass);
+    EditField(h,v+=vs,45,VATZoneEditFieldLabel_LIT(1) & "PVM kodas",Normal,VATCodeEU,false,VATCodeSClass);
+    EditField(h,v+=vs,45,"Ne ES PVM kodas",Normal,VATCodeExp,false,VATCodeSClass);
+  EditField(h,v+=vs ,55,"Viet. pirk. kontrol. sˆsk.",Normal,PurchAcc,false,AccSClass);
+  EditField(h,v+=vs ,55,VATZoneNameLIT & "Pirkim÷ kontr. sˆsk.",Normal,EUPurchAcc,false,AccSClass);
+  EditField(h,v+=vs ,55,"Ne ES pirk. kontrol. sˆsk.",Normal,ExpPurchAcc,false,AccSClass);
+  EditField(h,v+=vs ,55,"Atsarg÷ sˆsk.",Normal,InvAcc,false,AccSClass);
+    if (StandardHansa==false) then begin
+  EditField(h,v+=vs ,55,"Pirk. kain÷ kaitos sˆsk.",Normal,PriceVarianceAcc,false,AccSClass);
+  EditField(h,v+=vs ,55,"Panaud. kaitos sˆsk.",Normal,UsageVarianceAcc,false,AccSClass);
+    end;
+  EditField(h,v+=vs ,55,"Nuolaidos sˆsk.",Normal,DiscountAcc,false,AccSClass);
+    EditField(h,v+=vs,55,"Proj. medì. pan. sˆsk.",Normal,ProjMaterialsUsageAcc,false,AccSClass); 
+    if (HasObjects) then begin
+      EditField(h=120,v+=vs,405-120,"Objektas",Normal,Objects,false,ObjSClass);
+    end;
+    if (HasTaxMatrix) then begin
+      EditField(h2=530,v=vm,70,"Viet. mok. äabl.",Normal,TaxTemplateCode,false,TaxTemplateSClass);
+      EditField(h2,v+=vs,70,VATZoneEditFieldLabel_LIT(1) & "PVM kodas",Normal,TaxTemplateCodeEU,false,TaxTemplateSClass);
+      EditField(h2,v+=vs,70,"Eksp. mok. äabl.",Normal,TaxTemplateCodeExp,false,TaxTemplateSClass);
+    end;
+    v = vm; h2=530;
+    if (HasTaxMatrix) then begin
+      EditField(h2,v,70,"Vietin. mok. äablonas",Normal,TaxTemplateCode,false,TaxTemplateSClass); v = v + vs; 
+      EditField(h2,v,70,VATZoneEditFieldLabel_LIT(1) & "PVM kodas",Normal,TaxTemplateCodeEU,false,TaxTemplateSClass); v = v + vs;
+      EditField(h2,v,70,"Eksporuoti mok. äablonˆ",Normal,TaxTemplateCodeExp,false,TaxTemplateSClass); v = v + vs; 
+    end;
+    if (HasLocalization("ITA,LVA")) then begin
+      EditField(h2,v,55,"Fiskalinis Departamentas",Normal,FiscalDep,false,FiscalDepSClass);
+    end;
+    Tile(tilenr,100,false,tilenr,CredSalesAcc); tilenr = tilenr + 1;
+    StaticText(h=120,v=7,"Kredito faktðros",false);
+    EditField(h,vm=(v+=20),55,"Pradìios data",Normal,CredSalesAcc,false,AccSClass);
+  EditField(h,v+=vs,55,VATZoneNameLIT & "Pardavim÷ sˆsk.",Normal,CredEUSalesAcc,false,AccSClass);
+  EditField(h,v+=vs,55,"Ne ES pard. sˆsk.",Normal,CredExpSalesAcc,false,AccSClass);
+//CUST-BEGIN
+    EditField(h,v+=vs,45,"Gavimo PVM kodas",Normal,PUVATCode,false,VATCodeSClass); v = v + vs;
+//CUST-END
+    EditField(h=350,v=vm,45,"Viet. PVM kodas",Normal,CredVATCodeDom,false,VATCodeSClass);
+    EditField(h,v+=vs,45,VATZoneEditFieldLabel_LIT(1) & "PVM kodas",Normal,CredVATCodeEU,false,VATCodeSClass);
+    EditField(h,v+=vs,45,"Ne ES PVM kodas",Normal,CredVATCodeExp,false,VATCodeSClass);
+    if (HasLocalization("GBR,LTU,POL,LVA")) then begin
+      EditField(h,v+=vs,45,"Atvirkätinio PVM kodas",Normal,RvrsVATCode,false,VATCodeSClass);
+    end;
+    if (StandardHansa==false) then begin
+      Tile(tilenr,100,false,tilenr,SVOInvbleSalesAcc); tilenr = tilenr + 1;
+  EditField(h=170,v=6,55,"Pasl. Fakt. pard. sˆsk.",Normal,SVOInvbleSalesAcc,false,AccSClass); 
+//       EditField(h,v+=vs,55,"Serv. Warranty Sales A/C",Normal,SVOWarrantySalesAcc,false,AccSClass); // Not being used in code atm
+//       EditField(h,v+=vs,55,"Serv. Contract Sales A/C",Normal,SVOContractSalesAcc,false,AccSClass); // Not being used in code atm
+//       EditField(h,v+=vs,55,"Serv. Goodwill Sales A/C",Normal,SVOGoodwillSalesAcc,false,AccSClass); // Not being used in code atm
+  EditField(h=400,v=6,55,"Pasl. Fakt. sav. sˆsk.",Normal,SVOInvbleCostAcc,false,AccSClass);
+  EditField(h,v+=vs,55,"Pasl. garant. sav. sˆsk.",Normal,SVOWarrantyCostAcc,false,AccSClass);
+  EditField(h,v+=vs,55,"Pasl. sut. sav. sˆsk.",Normal,SVOContractCostAcc,false,AccSClass);
+  EditField(h,v+=vs,55,"Pasl. Goodwill sav. sˆsk.",Normal,SVOGoodwillCostAcc,false,AccSClass);
+    end;
+    Tile(tilenr,250,false,tilenr,CostPerc); tilenr = tilenr + 1;
+  ButtonFrame(h=30,vm=(v=20),230,6,"Pirminis savikainos mod.");
+  RadioButton(h,v,0,0,"Pagal nutyl˜jimˆ",PrimaryCostModel);
+  RadioButton(h,v+=16,1,0,"¯sigijimo kaina",PrimaryCostModel);
+  RadioButton(h,v+=16,2,0,"% _nuo bazin˜s kainos",PrimaryCostModel);
+  EditField(h+150,v,55,"%",Normal,CostPerc,true,0);
+  RadioButton(h,v+=16,3,0,"Svertinis vidurkis",PrimaryCostModel);
+  RadioButton(h,v+=16,4,0,"Eil˜",PrimaryCostModel);
+  RadioButton(h,v+=16,9,0,"Jokio",PrimaryCostModel);
+  ButtonFrame(h,v+=40,230,3,"Eil˜s savikainos modelis");
+  RadioButton(h,v,0,0,"Pagal nutyl˜jimˆ",QueuedCostModel);
+  RadioButton(h,v+=16,1,0,"F_IFO",QueuedCostModel);
+  RadioButton(h,v+=16,2,0,"LIFO",QueuedCostModel);
+
+  ButtonFrame(h2=280,v=vm,200,3,"Savikaina serijiniams nr.");
+  RadioButton(h2,v,0,0,"Pagal nutyl˜jimˆ",FIFOPerSerialNr);
+  RadioButton(h2,v+=16,1,0,"Savikaina ne serijiniams nr.",FIFOPerSerialNr);
+  RadioButton(h2,v+=16,2,0,"Savikaina serijiniams nr.",FIFOPerSerialNr);
+  ButtonFrame(h2,v+=40,200,3,"Eil˜s modelis pagal patalpˆ");
+  RadioButton(h2,v,0,0,"Pagal nutyl˜jimˆ",FIFOPerLocation);
+  RadioButton(h2,v+=16,1,0,"Eil˜s modelis pagal patalpˆ",FIFOPerLocation);
+  RadioButton(h2,v+=16,2,0,"Eil˜ pagal patalpˆ",FIFOPerLocation);
+  ButtonFrame(h2,v+=40,200,3,"Svertinis vid. pagal patalpˆ");
+  RadioButton(h2,v,0,0,"Pagal nutyl˜jimˆ",WAPerLocation);
+  RadioButton(h2,v+=16,1,0,"Svert. vid. ne pagal patalpˆ",WAPerLocation);
+  RadioButton(h2,v+=16,2,0,"Svert. vid. pagal patalpˆ",WAPerLocation);
+/*  5.3
+  ButtonFrame(h2,v+=40,200,3,"Savikaina patalpai");
+  RadioButton(h2,v,0,0,"Pagal nutyl˜jimˆ",CostPricePerLocation);
+  RadioButton(h2,v+=16,1,0,"Savikaina ne pagal patalpˆ",CostPricePerLocation);
+  RadioButton(h2,v+=16,2,0,"Savikaina patalpai",CostPricePerLocation);
+*/
+    Tile(tilenr,80,false,tilenr,EUCodex); tilenr = tilenr + 1;
+  //  CheckBox(h=90,v+=30,0,"Internal (Not Showing in WebShop)",Internal);
+    if (StandardHansa==false) then begin
+    CheckBox(h=90,vm=(v=16),0,"áiai grupei nespausdinti frachto etike‹i÷",ExclFrLabPr);
+  CheckBox(h,v+=16,0,"¯traukti fiksuotˆ prek˜s kainˆ",InclItemFreight);
+  EditField(h+195,v+2 ,55,"",Normal,FixedFreight,true,0);
+    EditField(h=140,v+=22,200,"Reikmen÷/EAN kodas",Normal,EUCodex,false,CommoditySClass);
+    end else begin
+      EditField(h=120,vm=(v=16),200,"Reikmen÷/EAN",Normal,EUCodex,false,CommoditySClass); 
+    end;
+    EditField(h=220,v+=vs,120,"Produkto/paslaug÷ klas˜",Normal,CPSCode,false,0); 
+    ButtonFrame(h=400,v=vm,80,3,"Tipas");
+  RadioButton(h,v,0,0,"Pagrindinis",Type);
+  RadioButton(h,v+=16,1,0,"Transportas",Type);
+  RadioButton(h,v+=16,2,0,"¯pakavimas",Type);
+    if (HasLocalization("LVA")) then begin
+      Tile(tilenr,120,true,tilenr,FiscalDep); tilenr = tilenr + 1;
+      EditField(h=120,v=20,55,"Fiskalinis Departamentas",Normal,FiscalDep,false,FiscalDepSClass);
+    end;
+    Tile(tilenr,120,true,tilenr,Math); tilenr = tilenr + 1;
+  v = 24;
+  MatrixBegin(4,v,-32,-20,INTextRowType,99);
+  MatCol(1,24,"Kalba",0,LangCode,false,LangSClass);
+  MatCol(1,84,"Tekstas",0,Text,false,0);
+  EndMatrix;
+    if (HasCharts) then begin
+      Tile(tilenr,400,false,tilenr,-);  tilenr = tilenr + 1;
+    ChartArea(10,6,-10,390,"$ITDCLass_BIChart"); 
+    end;
+  end else begin
+  SetWRect(64,80,470,230);
+  UseView(ITVc);
+    v = 6; vs = 20; h = 120; h2 = 300;
+  EditField(h,v,70,"Kodas",Normal,Code,false,0);
+    EditField(h,v+=vs,-20,"Pavadinimas",Normal,Comment,false,0);
+    if (HasLocalization("LVA") and HasModPOS) then begin
+      EditField(h=120,v+=vs,55,"Fiskalinis Departamentas",Normal,FiscalDep,false,FiscalDepSClass);
+    end;
+    if (HasVATZone) then begin
+      EditField(h,vm=(v+=vs),45,"Vietinis PVM kodas",Normal,VATCodeDom,false,VATCodeSClass);
+      EditField(h,v+=vs,45,VATZoneEditFieldLabel_LIT(1) & "PVM kodas",Normal,VATCodeEU,false,VATCodeSClass);
+      EditField(h,v+=vs,45,"Ne ES PVM kodas",Normal,VATCodeExp,false,VATCodeSClass);
+      if (HasLocalization("GBR,LTU,POL,LVA")) then begin
+        EditField(h,v+=vs,45,"Atvirkätinio PVM kodas",Normal,RvrsVATCode,false,VATCodeSClass);
+      end;
+    end else begin
+      if (HasTaxMatrix) then begin
+        EditField(h,v+=vs,55,"Mok.äabl.",Normal,TaxTemplateCode,false,TaxTemplateSClass); taxtempf = true; 
+      end else begin
+        EditField(h,v+=vs,45,"PVM kodas",Normal,VATCodeDom,false,VATCodeSClass);
+      end;    
+    end;
+  if (HasModNL) then begin
+      if (HasVATZone) then begin
+        EditField(h2,v=vm,55,"Viet. pard. sˆsk.",Normal,SalesAcc,false,AccSClass);
+        EditField(h2,v+=vs,55,VATZoneNameLIT & "Pard. sˆsk.",Normal,EUSalesAcc,false,AccSClass);
+        EditField(h2,v+=vs,55,"Eksporto pardavim÷ A/C",Normal,ExpSalesAcc,false,AccSClass);
+      if (HasModIN) then begin
+          EditField(h2,v+=vs,55,"Atsarg÷ A/C",Normal,InvAcc,false,AccSClass);
+          EditField(h2,v+=vs ,55,"Vietini÷ pirk. padid˜j A/C",Normal,PurchAcc,false,AccSClass);
+          EditField(h2,v+=vs ,55,VATZoneNameLIT & "Pirkim÷ padid˜j. A/C",Normal,EUPurchAcc,false,AccSClass);
+          EditField(h2,v+=vs ,55,"Importuoti pirk. padid˜j. A/C",Normal,ExpPurchAcc,false,AccSClass);
+        end else begin
+//          EditField(h,v+=vs,55,"#Stock# A/C",Normal,InvAcc,false,AccSClass);
+        end;
+      end else begin
+        EditField(h,v+=vs,70,"Pard. sˆsk.",Normal,SalesAcc,false,AccSClass);
+        EditField(h,v+=vs ,55,"Savik. sˆsk.",Normal,CostAcc,false,AccSClass); 
+        if (HasModIN) then begin
+  EditField(h,v+=vs,70,"Atsarg÷ sˆsk.",Normal,InvAcc,false,AccSClass);
+  EditField(h,v+=vs,70,"Pirkim÷ kontr. sˆsk.",Normal,PurchAcc,false,AccSClass);
+        end;
+      end;
+      if (BuildProductCode=="StandardHealthcare") then begin
+        EditField(h,v+=vs ,55,"Savik. sˆsk.",Normal,CostAcc,false,AccSClass);
+      end;
+      if (BuildProductCode=="StandardRestaurant") then begin
+        EditField(h,v+=vs ,55,"Nuolaidos sˆsk.",Normal,DiscountAcc,false,AccSClass); 
+      end;
+      if (HasLocalization("PRT")) then begin 
+        StaticText(h,v+=40,"Kredito faktðra",false); 
+        EditField(h,v+=vs,55,"Pard. sˆsk.",Normal,CredSalesAcc,false,AccSClass);
+        EditField(h,v+=vs,45,"PVM kodas",Normal,CredVATCodeDom,false,VATCodeSClass);
+      end;
+      if (HasLocalization("BRA,HRV") or HasTaxMatrix) then begin
+        if (HasVATZone) then begin
+          if (taxtempf==false) then begin 
+          EditField(h,v+=vs,55,"Viet. mok. äabl.",Normal,TaxTemplateCode,false,TaxTemplateSClass); 
+          end; 
+          EditField(h,v+=vs,55,VATZoneEditFieldLabel_LIT(1) & "PVM kodas",Normal,TaxTemplateCodeEU,false,TaxTemplateSClass);
+          EditField(h,v+=vs,55,"Eksporto mok. äabl.",Normal,TaxTemplateCodeExp,false,TaxTemplateSClass); 
+        end else begin
+          if (taxtempf==false) then begin 
+          EditField(h,v+=vs,55,"Mok. äabl.",Normal,TaxTemplateCode,false,TaxTemplateSClass); 
+          end;
+      end;
+    end;
+    end;
+    if (HasLocalization("BRA,KEN,POL")) then begin
+      EditField(h+100,v+=vs,120,"Produkto/paslaug÷ klas˜",Normal,CPSCode,false,0); 
+    end;
+    if (HasLanguages) then begin
+      v = v+54;
+      MatrixBegin(4,v,-32,-20,-,99);
+      MatCol(1,24,"Kalba",0,LangCode,false,LangSClass); 
+      MatCol(1,84,"Tekstas",0,Text,false,0); 
+      EndMatrix; 
+  end;
+end;
   EndWindow;
 end;

@@ -98,6 +98,7 @@ begin
   RecordField(DeliveryTerm,M4Str,255,0);
   RecordField(WebKeyLang,M4Str,255,0);
   RecordField(WebSKU,M4Str,20,0);
+  RecordField(PUVATCode,M4Code,10,VATCodeBlock);
   KeyBegin(ItemColorKey);
   KeySegment(SameItem);
   KeySegment(Color);
@@ -831,6 +832,10 @@ begin
     ArrayField(PayDeal,M4Code,10,0);
     EndArray;
     EndBlock;
+
+    RecordAddBegin(ITVc,"iDealITVc");
+    RecordField(PUVATCode,M4Code,10,VATCodeBlock);
+    EndRecordAdd;
 
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
   RecordField(Math,M4Matrix,0,0);
