@@ -407,9 +407,7 @@ begin
 //      case kInvoiceRowTypeLoyaltyPointsPayment:
       case kInvoiceRowTypeCashPayment:
         if (PayDealIsLease(IVCashrw.PayMode)) then begin
-          if (!retf) then begin
-            vpaymodesums["Lease"] = vpaymodesums["Lease"] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
-          end;
+          vpaymodesums["Lease"] = vpaymodesums["Lease"] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         end else begin
           vpaymodesums[kInvoiceRowTypeCashPayment] = vpaymodesums[kInvoiceRowTypeCashPayment] + MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         end;
@@ -417,7 +415,7 @@ begin
     end;
   end;
   t = IVCashr.BaseSum4 - vpaymodesums[kInvoiceRowTypeCashPayment] - vpaymodesums[kInvoiceRowTypeCreditCardPayment] - vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] - vpaymodesums["Lease"];
-  if (t>0 and !retf) then begin
+  if (t>0) then begin
     vpaymodesums[kInvoiceRowTypeCashPayment] = vpaymodesums[kInvoiceRowTypeCashPayment] + t;  
   end;
   return;
@@ -982,14 +980,10 @@ begin
     MatRowGet(IVr,i,IVrw);
     switch (IVrw.stp) begin
       case kInvoiceRowTypeGiftVoucherPayment:
-        if (IVr.InvType!=kInvoiceTypeCredit) then begin
-          vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] = vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] + IVrw.Sum;
-        end;
+        vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] = vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] + IVrw.Sum;
       case kInvoiceRowTypeCreditCardPayment:
         if (PayDealIsLease(IVrw.PayMode)) then begin
-          if (IVr.InvType!=kInvoiceTypeCredit) then begin
-            vpaymodesums["Lease"] = vpaymodesums["Lease"] + MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
-          end;
+          vpaymodesums["Lease"] = vpaymodesums["Lease"] + MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
         end else begin
           vpaymodesums[kInvoiceRowTypeCreditCardPayment] = vpaymodesums[kInvoiceRowTypeCreditCardPayment] + MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
         end;
@@ -1000,7 +994,7 @@ begin
     end;
   end;
   t = IVr.BaseSum4 - vpaymodesums[kInvoiceRowTypeCashPayment] - vpaymodesums[kInvoiceRowTypeCreditCardPayment] - vpaymodesums[kInvoiceRowTypeGiftVoucherPayment] - vpaymodesums["Lease"];
-  if (t>0 and IVr.InvType!=kInvoiceTypeCredit) then begin
+  if (t>0) then begin
     vpaymodesums[kInvoiceRowTypeCashPayment] = vpaymodesums[kInvoiceRowTypeCashPayment] + t;  
   end;
   return;
@@ -1010,35 +1004,39 @@ function Integer IVVc_SendAPSAPayments(record LSerialPortDeviceVc LSPDr,record I
 begin
   Integer res;
   area request;
-  string 255 path;
+  string 255 path,com;
   vector val vpaymodesums;
   JSON js;
 
   //payments = GetPayments;
 
   IVVc_CalculatePaymentModeSums(IVr,vpaymodesums);
-  
+  com = "54";
+  if (IVr.InvType==kInvoiceTypeCredit) then begin
+    com = "1070";
+  end;
+
   path = "/json/fp550/Cmdline";
   if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tC" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tC" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeGiftVoucherPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tD" & ValToString(vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tD" & ValToString(vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums["Lease"]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tL" & ValToString(vpaymodesums["Lease"],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tL" & ValToString(vpaymodesums["Lease"],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
@@ -1109,7 +1107,7 @@ LkInvoiceRowTypeNormal2:;
       end;
     end;
   end;
-
+/*
   if (retf) then begin
     path = "/json/fp550/Cmdline";
     AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-retsum) & """}",request);
@@ -1119,6 +1117,7 @@ LkInvoiceRowTypeNormal2:;
       goto LPrintItemRows;
     end;
   end;
+*/
 LPrintItemRows:;  
   IVVc_PrintItemRows = res;
   return;
@@ -1212,6 +1211,11 @@ begin
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
+      res = IVVc_SendAPSAPayments(LSPDr,IVr);
+      if (res!=noErr) then begin
+        goto LIVVc_PrintAPSAReceipt;
+      end;
+
       res = GetReceiptNumber(LSPDr,receiptnr);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
