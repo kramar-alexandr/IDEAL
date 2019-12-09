@@ -65,6 +65,12 @@ begin
     end;
   end;
 
+  if (GetGlobalBoolean("APSACommandInProgress")) then begin
+    LogText(0,"Skipping APSA command " & GetStringFromArea(request,0,255) & " - action already in progress");
+    goto LExecAPSARequest;
+  end;
+  SetGlobalBoolean("APSACommandInProgress",true);
+
   url = GetAPSAUrl(LSPDr);
   res = 12400;//problem with connection
   timeout = 40;
@@ -111,6 +117,7 @@ begin
     end;
   end;
   tick = GetCurTick;
+  SetGlobalBoolean("APSACommandInProgress",false);
 
 //WriteAreaToFile(request,"_aspa.request." & tick & ".txt",0);
 //WriteAreaToFile(reply,"_aspa.reply." & tick & ".txt",0);
