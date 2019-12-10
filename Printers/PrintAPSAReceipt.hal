@@ -1007,36 +1007,39 @@ begin
   string 255 path,com;
   vector val vpaymodesums;
   JSON js;
+  val sign;
 
   //payments = GetPayments;
 
   IVVc_CalculatePaymentModeSums(IVr,vpaymodesums);
   com = "53";
+  sign = 1;
   if (IVr.InvType==kInvoiceTypeCredit) then begin
     com = "1070";
+    sign = -1;
   end;
 
   path = "/json/fp550/Cmdline";
   if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tC" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tC" & ValToString(sign*vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeGiftVoucherPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tD" & ValToString(vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tD" & ValToString(sign*vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums["Lease"]!=0) then begin
-    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tL" & ValToString(vpaymodesums["Lease"],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tL" & ValToString(sign*vpaymodesums["Lease"],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""\\tP" & ValToString(sign*vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
@@ -1319,8 +1322,6 @@ begin
 
   return;
 end;
-
-
 
 function Integer MoneyOutCurr(record LSerialPortDeviceVc LSPDr,record CashVc Cashr)
 begin
