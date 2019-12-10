@@ -1011,7 +1011,7 @@ begin
   //payments = GetPayments;
 
   IVVc_CalculatePaymentModeSums(IVr,vpaymodesums);
-  com = "54";
+  com = "53";
   if (IVr.InvType==kInvoiceTypeCredit) then begin
     com = "1070";
   end;
