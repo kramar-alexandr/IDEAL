@@ -944,7 +944,7 @@ begin
   itemline = GetCleanName(itemline);
   path = "/json/fp550/Cmdline";
   if (retf) then begin
-    retsum = retsum + IVrw.Price;//to make the value positive
+    retsum = retsum + IVrw.Sum;//to make the value positive
 
     AddTextToArea("{""cmd"":""1049"",""parameter"":""" & itemline & """}",request);
   end else begin    
@@ -1012,36 +1012,29 @@ begin
   //payments = GetPayments;
 
   IVVc_CalculatePaymentModeSums(IVr,vpaymodesums);
-  com = "53";
   sign = 1;
-  tstr = "\\t";
-  if (IVr.InvType==kInvoiceTypeCredit) then begin
-    com = "1070";
-    sign = -1;
-    tstr = "";
-  end;
 
   path = "/json/fp550/Cmdline";
   if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""" & tstr & "C" & ValToString(sign*vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tC" & ValToString(sign*vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeGiftVoucherPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""" & tstr & "D" & ValToString(sign*vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tD" & ValToString(sign*vpaymodesums[kInvoiceRowTypeGiftVoucherPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums["Lease"]!=0) then begin
-    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""" & tstr & "L" & ValToString(sign*vpaymodesums["Lease"],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tL" & ValToString(sign*vpaymodesums["Lease"],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
   SetAreaZeroSize(request);
   if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""" & com & """,""parameter"":""" & tstr & "P" & ValToString(sign*vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(sign*vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
@@ -1112,7 +1105,6 @@ LkInvoiceRowTypeNormal2:;
       end;
     end;
   end;
-/*
   if (retf) then begin
     path = "/json/fp550/Cmdline";
     AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-retsum) & """}",request);
@@ -1122,7 +1114,6 @@ LkInvoiceRowTypeNormal2:;
       goto LPrintItemRows;
     end;
   end;
-*/
 LPrintItemRows:;  
   IVVc_PrintItemRows = res;
   return;
