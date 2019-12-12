@@ -1004,7 +1004,7 @@ function Integer IVVc_SendAPSAPayments(record LSerialPortDeviceVc LSPDr,record I
 begin
   Integer res;
   area request;
-  string 255 path,com;
+  string 255 path,com,tstr;
   vector val vpaymodesums;
   JSON js;
   val sign;
