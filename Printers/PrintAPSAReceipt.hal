@@ -1207,10 +1207,6 @@ begin
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
-      res = IVVc_SendAPSAPayments(LSPDr,IVr);
-      if (res!=noErr) then begin
-        goto LIVVc_PrintAPSAReceipt;
-      end;
 
       res = GetReceiptNumber(LSPDr,receiptnr);
       if (res!=noErr) then begin
