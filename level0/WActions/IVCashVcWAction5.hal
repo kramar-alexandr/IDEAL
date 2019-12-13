@@ -1237,11 +1237,13 @@ begin
   end;
   GetWindowRecord(wn,IVCashr);
 //CUST-BEGIN// we want to reprint when it's already a new invoice on the screen
-  //if (IVCashr.OKFlag!=0) then begin
+/*
+  if (IVCashr.OKFlag!=0) then begin
     GetPrevWindowRecord(wn,prevIVCashr);
-//    IVCashPrintReceipt(wn,IVCashr,prevIVCashr,-1,false,false,0,WindowState(wn));
-    ReprintLastASPAReceipt;
-//  end;
+    IVCashPrintReceipt(wn,IVCashr,prevIVCashr,-1,false,false,0,WindowState(wn));
+  end;
+*/
+  ReprintLastASPAReceipt;
 //CUST-END
   OverrideLogout;
 LIVCashDClassTouchScreenReprint:;
