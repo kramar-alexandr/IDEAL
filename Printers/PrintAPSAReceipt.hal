@@ -24,8 +24,9 @@ enum begin
   kAPSACommandCheckBalance = 13,
   kAPSACommandPeriodicReport = 14,
   kAPSACommandBeginReceiptCopy = 15,
-  kAPSACommandEndReceiptCopy = 16
-  kAPSACommandOpenCashDrawer = 17
+  kAPSACommandEndReceiptCopy = 16,
+  kAPSACommandOpenCashDrawer = 17,
+  kAPSACommandReprint = 18
 end;
 
 global
@@ -174,6 +175,9 @@ begin
     case kAPSACommandOpenCashDrawer:
       path = "/json/fp550/Cmdline";
       AddTextToArea("{""cmd"":""106"",""parameter"":""""}",request);
+    case kAPSACommandReprint:
+      path = "/json/fp550/Cmdline";
+      AddTextToArea("{""cmd"":""109"",""parameter"":""1""}",request);
   end;
 
   res = ExecAPSARequest(LSPDr,path,request,js,clearf,overridetimeout);
@@ -1539,6 +1543,24 @@ procedure OpenASPACashDrawer(record LSerialPortDeviceVc LSPDr)
 begin
   
   SendAPSASimpleCommand(LSPDr,kAPSACommandOpenCashDrawer);
+
+  return;
+end;
+
+
+global
+procedure ReprintLastASPAReceipt()
+begin
+  record LSerialPortDeviceVc LSPDr;
+  record LocalMachineBlock LMb;
+
+  BlockLoad(LMb);
+  if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalPrinter,-1,LMb.LocalMachineCode,LSPDr)) then begin
+    switch(LSPDr.Printer) begin
+      case 200:
+        SendAPSASimpleCommand(LSPDr,kAPSACommandReprint);
+    end;
+  end;     
 
   return;
 end;

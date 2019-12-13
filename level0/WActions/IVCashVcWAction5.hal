@@ -141,7 +141,7 @@ external updating procedure PinPadVoidIVCashDsm();
 external outer function Boolean ConfirmLastTouchlessPayment();
 external outer procedure ShowTouchlessCancelMessage();
 external outer function Boolean InitTouchlessPaymentReturn(Integer);
-
+external outer procedure ReprintLastASPAReceipt();
 //CUST-END
 
 enum begin
@@ -1236,10 +1236,13 @@ begin
     goto LIVCashDClassTouchScreenReprint;
   end;
   GetWindowRecord(wn,IVCashr);
-  if (IVCashr.OKFlag!=0) then begin
+//CUST-BEGIN// we want to reprint when it's already a new invoice on the screen
+  //if (IVCashr.OKFlag!=0) then begin
     GetPrevWindowRecord(wn,prevIVCashr);
-    IVCashPrintReceipt(wn,IVCashr,prevIVCashr,-1,false,false,0,WindowState(wn));
-  end;
+//    IVCashPrintReceipt(wn,IVCashr,prevIVCashr,-1,false,false,0,WindowState(wn));
+    ReprintLastASPAReceipt;
+//  end;
+//CUST-END
   OverrideLogout;
 LIVCashDClassTouchScreenReprint:;
   return;  
