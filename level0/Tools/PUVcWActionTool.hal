@@ -1060,6 +1060,7 @@ begin
 end;
 
 //CUST-BEGIN
+global
 function Boolean GetItemPUVATCode(record INVc INr,var string vatcode)
 begin
   Boolean res;

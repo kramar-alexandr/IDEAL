@@ -7383,7 +7383,7 @@ begin
       EditField(h2,v,55,"Fiskalinis Departamentas",Normal,FiscalDep,false,FiscalDepSClass);
     end;
     Tile(tilenr,100,false,tilenr,CredSalesAcc); tilenr = tilenr + 1;
-    StaticText(h=120,v=7,"Kredito faktðros",false);
+    //StaticText(h=120,v=7,"Kredito faktðros",false);//CUST >> Made the edit fields below not work for some reason??
     EditField(h,vm=(v+=20),55,"Pradìios data",Normal,CredSalesAcc,false,AccSClass);
   EditField(h,v+=vs,55,VATZoneNameLIT & "Pardavim÷ sˆsk.",Normal,CredEUSalesAcc,false,AccSClass);
   EditField(h,v+=vs,55,"Ne ES pard. sˆsk.",Normal,CredExpSalesAcc,false,AccSClass);

@@ -2,6 +2,7 @@ external inner procedure SetupColumWithKeypadWindow(var real,var real,var real,v
 external inner procedure POSKeyPad(LongInt,LongInt,LongInt,LongInt,LongInt,string,LongInt);
 external inner procedure SplitButton(LongInt,LongInt,LongInt,LongInt,LongInt,string,string,string,string,LongInt);
 external inner function string 255 F_Label(string);
+external inner function string 255 VATZoneEditFieldLabel_ENG(Integer);
 
 remote inner function UUID GetServerUUIDRemote();
 external inner function string 255 RemainingEinvoicesQuantity;
@@ -317,6 +318,426 @@ external inner function Boolean HasSLIntegratedWithNL();
 external inner function Boolean HasIntegratedNL();
 external inner function Boolean HasConsStockMoveInvoices();
 
+
+window INDClass:8
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  integer tilenr;
+  real h,h1,h2,h3,h4,h5,h6,v,vm,vs;
+  string 255 label;
+  record CYBlock CYb;
+  LongInt bm,lt,rt,tp;
+
+  BlockLoad(CYb);
+  WindowBegin("Item",INDClass,CGview,-);
+  SetWRect(20,80,830,400);
+  Sizeable(-1,-1,-1,0);
+  DynamicWindow;
+  UseView(INVc);
+  if (GuiType==kGuiAndroid) then begin
+    ToolBar;
+    PushButton(-110,5,-10,25,ToolImagePicker,"Image");
+    EndToolBar;
+  end;
+
+  if (HasJewelleryInterface) then begin
+    Tile(0,107,false,"",Code);
+  end else begin
+    Tile(0,87,false,"",Code);
+  end;
+  v = 6; vs = 20; h = 155; h1 = 300; h2 = 385; h3 = 395; h4 = 285; h5 = 433;
+  EditField(h,v, 150,"No.",Normal,Code,false,0);
+  EditField(h2,v,80,"Group",Normal,Group,false,ITSClass);
+  EditField(h,v+=vs,-40,"Description",Normal,Name,false,0);
+  if (HasJewelleryInterface) then begin
+    EditField(h,v+=vs,150,"Alternative Code",Normal,AlternativeCode,false,0);
+  end;
+  tilenr = 1;
+  TileButton(tilenr,"Pricing"); tilenr = tilenr + 1;
+  if (HasJewelleryInterface) then begin
+    TileButton(tilenr,"#Jewellery#"); tilenr = tilenr + 1;
+    TileButton(tilenr,"Watch"); tilenr = tilenr + 1;
+  end;
+  TileButton(tilenr,"#Stock#"); tilenr = tilenr + 1;
+  if (StandardHansa==false) then begin
+    TileButton(tilenr,"Warehouse"); tilenr = tilenr + 1;
+  end;
+  if (UserCanAction("ViewCostPrice",true)) then begin
+    TileButton(tilenr,"Costs"); tilenr = tilenr + 1;
+  end;
+  TileButton(tilenr,"Recipe"); tilenr = tilenr + 1;
+  TileButton(tilenr,"A/C"); tilenr = tilenr + 1;
+  if (GuiType==kGuiiPhone) then begin
+    TileButton(tilenr,"Image"); tilenr = tilenr + 1;
+  end;
+  TileButton(tilenr,"Varieties"); tilenr = tilenr + 1;
+  TileButton(tilenr,"Texts"); tilenr = tilenr + 1;
+  TileButton(tilenr,"Cost Model"); tilenr = tilenr + 1;
+  if (StandardHansa==false) then begin
+    TileButton(tilenr,"User Values"); tilenr = tilenr + 1;
+  end;
+  TileButton(tilenr,"Notes"); tilenr = tilenr + 1;
+  if (HasCharts) then begin
+    TileButton(tilenr,"BI"); tilenr = tilenr + 1;
+  end;
+  tilenr = 1;
+  CheckBox(h,v+=vs,0,"Closed",Terminated);
+  CheckBox(h2,v,0,"Not For Sales",NotForSales);
+  if (GuiType==kGuiiPhone) then begin
+    GetScreenSize(CurWindow,tp,lt,bm,rt);
+    Pict_Field(5,v+=20,rt-10,bm-10,"");
+  end;
+  Tile(tilenr,209,false,tilenr,Unittext); tilenr = tilenr + 1;
+  EditField(h,v=6 ,100,"Unit",Normal,Unittext,false,UnitSClass);
+  if (HasJewelleryInterface) and (UserCanAction("ViewCostPrice",true)) then begin
+    EditField(h,v+=vs,100,"Cost Price",Normal,InPrice,true,0);
+  end;
+  EditField(h,v+=vs,100,"Base Price",Normal,UPrice1,true,0);
+  EditField(h,v+=vs,100,"Base Price Change",ViewOnly,LastBasePriceChange,true,0);
+  EditField(h,v+=vs,100,"Price Factor",Normal,PriceFactor,true,0);
+  EditField(h,v+=vs,100,"Item Formula",Normal,CalcPrice,false,CPMSClass);
+  EditField(h,v+=vs,100,"Markup %",Normal,Markup,true,0);
+  EditField(h,v+=vs,100,"Bonus %",Normal,Bonus,true,0);
+  EditField(h,v+=vs,-240,"Tags/Objects",Normal,Objects,false,ObjSClass);
+  if (HasItemClassification) then begin
+    EditField(h,v+=vs,-240,"Classification",Normal,DispGroups,false,DISClass);
+  end;
+  if (StandardHansa==false) then begin
+    ButtonFrame(h1,v=24,120,4,"Item Type");
+  end else begin
+    ButtonFrame(h1,v=24,120,3,"Item Type");
+  end;
+  RadioButton(h1,v,kItemTypePlain,0,"Plain",ItemType);
+  RadioButton(h1,v+=16,kItemTypeStocked,0,"#Stocked# Item",ItemType);
+  RadioButton(h1,v+=16,kItemTypeStructured,0,"Structured Item",ItemType);
+  if (StandardHansa==false) then begin
+    RadioButton(h1,v+=16,kItemTypeService,0,"Service",ItemType);
+  end;
+  EndFrame;
+  
+  Pict_Field(-205,8,-35,178,"");
+  if (GuiType==kGuiCocoa) then begin
+    PushButton(-160,182,-80,202,ToolImagePicker,"Add picture");
+  end;
+  if (StandardHansa==false) then begin
+    CheckBox(h1,v+=32,0,"Treat Item as Material on Project",ItemMaterial);
+  end;
+  if (HasJewelleryInterface) then begin
+    Tile(tilenr,110,false,tilenr,Metal); tilenr = tilenr + 1;
+    EditField(h,v=6, 140,"Metal",Normal,Metal,false,0);
+    EditField(h,v+=vs, 140,"Weight",Normal,RowWeight,false,0);
+    EditField(h,v+=vs, 140,"Size",Normal,Size,false,0);
+    EditField(h,v+=vs, 140,"Length",Normal,Length,false,0);
+    EditField(h,v+=vs, 140,"Reference",Normal,Reference,false,0);
+    v = 6;
+    EditField(h5,v, 140,"Major Stone Detail",Normal,MajStoneDet,false,0);
+    EditField(h5,v+=vs, 140,"#Colour#",Normal,Colour,false,0);
+    EditField(h5,v+=vs, 140,"Clarity",Normal,Clarity,false,0);
+    EditField(h5,v+=vs, 140,"Certificate",Normal,Cert,false,0);
+    EditField(h5,v+=vs, 140,"Minor Stone Detail",Normal,MinStoneDet,false,0);
+    Tile(tilenr,90,false,tilenr,WatchBrand); tilenr = tilenr + 1;
+    EditField(h,v=6, 140,"Watch Brand",Normal,WatchBrand,false,0);
+    EditField(h,v+=vs, 140,"Style Name",Normal,StyleName,false,0);
+    EditField(h,v+=vs, 140,"Watch Metal",Normal,WatchMetal,false,0);
+    EditField(h,v+=vs, 140,"Movement",Normal,Movement,false,0);
+    v = 6;
+    EditField(h5,v, 140,"Bracelet/Strap",Normal,BrcStr,false,0);
+    EditField(h5,v+=vs, 140,"Gender",Normal,Gender,false,0);
+    EditField(h5,v+=vs, 140,"Other",Normal,Other,false,0);
+    EditField(h5,v+=vs, 140,"Other2",Normal,Other2,false,0);
+  end;
+  Tile(tilenr,170,false,tilenr,MinLevel);  tilenr = tilenr + 1; // Need to clean this Tile up!
+  v = 6;
+  vm = v;
+  ButtonFrame(h1,v+=24,143,3,"Serial Number Tracking");
+  RadioButton(h1,v,0,0,"None",SerNrf);
+  RadioButton(h1,v+=16,1,0,"Unit Number",SerNrf);
+  RadioButton(h1,v+=16,2,0,"Batch Number",SerNrf);
+  CheckBox(h1+200,v,0,"Do not Require Batch No. on POS Invoice",DonotRequireBatchNrOnIVCash);
+  EditField(h,v=6,100,"Minimum Level",Normal,MinLevel,true,0);
+  EditField(h,v+=vs,100,"Maximum Level",Normal,MaxLevel,true,0);
+  EditField(h,v+=vs  ,100,"Department",Normal,Department,false,DepSClass);
+  EditField(h,v+=vs  ,100,"Shelf Code",Normal,InvCode,false,0);
+  EditField(h,v+=vs,100,"Default Source",Normal,DefaultSource,false,SourceSClass);
+  EditField(h5,v ,50,"Environment Tax per #Kilo#",Normal,RepaPricePerWeight,true,0);
+  EditField(h6=650,v ,80,"Default Order Type",Normal,DefOrderType,false,SetSClass);
+  if (StandardHansa==false) then begin
+    EditField(h,v+=vs ,100,"Hazard Level",Normal,HazLevCode,false,HazLevSClass);
+    EditField(h5,v ,50,"Alcohol %",Normal,AlcPrc,true,0);
+    if (HasLocalization("PRT")) then begin
+      EditField(h6,v, 80,"Stock Item Type",Normal,StockItemType,false,SetSClass);
+    end;
+  end;
+  EditField(h,v+=vs ,100,"Unit 2",Normal,Unittext2,false,UnitSClass);
+  EditField(h5,v ,50,"Conversion 1",Normal,Conversion1,true,0);
+  EditField(h,v+=vs,100,"Unit Coefficient",Normal,UnitCoefficient,true,0);
+  EditField(h5,v ,50,"Conversion 2",Normal,Conversion2,true,0);
+  if (StandardHansa==true) then begin
+    EditField(h,v+=vs ,50,"Item Width",Normal,Width,true,0);
+    EditField(h4,v ,50,"Height",Normal,Height,true,0);
+    EditField(h5,v ,50,"Depth",Normal,Depth,true,0);
+    EditField(h,v+=vs ,50,"Item Volume",Normal,Volume,true,0);
+    EditField(h4,v ,50,"Tihedus",Normal,Density,true,0);
+    EditField(h5,v ,50,"Weight",Normal,Weight,true,0);
+  end;
+  if (StandardHansa==false) then begin
+    Tile(tilenr,170,false,tilenr,LocArea);  tilenr = tilenr + 1;
+    EditField(h,vm=(v=6) ,100,"Default Pallet Item",Normal,DefPalletItem,true,INSClass);
+    EditField(h5,v ,80,"Picking Area",Normal,PickArea,false,LocAreaSClass);
+    EditField(h,v+=vs ,100,"Default Location Area",Normal,LocArea,false,LocAreaSClass);
+    EditField(h5,v ,50,"Pallets In Picking Area",Normal,PalletsInPickArea,true,0);
+    EditField(h,v+=vs ,50,"Max. Qty on Pallet",Normal,QtyonPallet,true,0);
+    EditField(h4,v ,50,"Pallet Layers",Normal,PalletLayers,true,0);
+    EditField(h5,v ,50,"Qty per Layer",Normal,QtyonPalletLayer,true,0);
+    EditField(h,v+=vs ,50,"Full Pallet Width",Normal,PalletWidth,true,0);
+    EditField(h4,v ,50,"Height",Normal,PalletHeight,true,0);
+    EditField(h5,v ,50,"Depth",Normal,PalletDepth,true,0);
+    EditField(h,v+=vs ,50,"Default Position Width",Normal,DefPosWidth,true,0);
+    EditField(h4,v ,50,"Height",Normal,DefPosHeight,true,0);
+    EditField(h5,v ,50,"Depth",Normal,DefPosDepth,true,0);
+    EditField(h,v+=vs ,50,"Item Width",Normal,Width,true,0);
+    EditField(h4,v ,50,"Height",Normal,Height,true,0);
+    EditField(h5,v ,50,"Depth",Normal,Depth,true,0);
+    EditField(h,v+=vs ,50,"Item Volume",Normal,Volume,true,0);
+    EditField(h4,v ,50,"Density",Normal,Density,true,0);
+    EditField(h5,v ,50,"Net Weight",Normal,NetWeight,true,0);
+    EditField(h5,v+=vs ,50,"Weight",Normal,Weight,true,0);
+  end;
+  if (UserCanAction("ViewCostPrice",true)) then begin
+  Tile(tilenr,190,false,tilenr,InPrice);  tilenr = tilenr + 1;
+  EditField(h,vm=(v=6),100,"Cost Price",Normal,InPrice,true,0);
+  if (StandardHansa==false) then begin
+    EditField(h5,v,70,"Cost Price Change",ViewOnly,LastPriceChange,true,0);
+  end else begin
+    EditField(h3,v,70,"Cost Price Change",ViewOnly,LastPriceChange,true,0);
+  end;
+  if (StandardHansa==false) then begin
+    EditField(h,v+=vs ,100,"Cost Price in Base 2",Normal,InPriceB2,true,0);
+    ButtonFrame(h1,v+=24,200,4,"Upd. Cost Price at Goods Receipt");
+  end else begin
+    ButtonFrame(h1,v+=40,210,4,"Upd. Cost Price at Goods Receipt");
+  end;
+  RadioButton(h1,v,0,0,"No",UpdateCost);
+  RadioButton(h1,v+=16,1,0,"Last Purchase Cost (incl. extras)",UpdateCost);
+  RadioButton(h1,v+=16,2,0,"Weighted Average",UpdateCost);
+  RadioButton(h1,v+=16,3,0,"Last Purchase Cost (excl. extras)",UpdateCost);
+  ButtonFrame(h5=540,v=v-3*16,200,3,"Upd. Cost Price at #Stock# Revaluation");
+  RadioButton(h5,v,0,0,"No",SRUpdateCost);
+  RadioButton(h5,v+=16,1,0,"Last Revaluation Cost",SRUpdateCost);
+  RadioButton(h5,v+=16,2,0,"Weighted Average",SRUpdateCost);
+  if (StandardHansa==false) then begin
+    EditField(h,v=vm+2*vs,100,"Extra Cost",Normal,ExtraCost,true,0);
+  end else begin
+    EditField(h,v=vm+vs,100,"Extra Cost",Normal,ExtraCost,true,0);
+  end;
+  EditField(h,v+=vs ,100,"Weighted Average",Normal,WeighedAvPrice,true,0);
+  if (StandardHansa==false) then begin
+    EditField(h,v+=vs ,100,"Weighted Av., Base 2",Normal,WeighedAvPriceB2,true,0);
+  end;
+  EditField(h,v+=vs ,100,"Last Pur. Cost (incl. extras)",Normal,LastPurchPrice,true,0);
+  EditField(h,v+=vs ,100,"Last Pur. Price (excl. extras)",Normal,LastPurchPrice2,true,0);
+  EditField(h,v+=vs ,100,"Last Purchase Currency",Normal,LastPurchCurncyCode,false,CurncyCodeSClass);
+  EditField(h,v+=vs ,100,"Fixed Freight",Normal,FixedFreight,true,0);
+  CheckBox(h1,v,0,"Include Item Fixed Charge",InclItemFreight);
+  CheckBox(h5,v,0,"Has Excise",HasExcise);
+  end;
+  Tile(tilenr,170,false,tilenr,Recepy);  tilenr = tilenr + 1;
+  EditField(h,v=6 ,120,"Recipe",Normal,Recepy,false,RecSClass);
+  CheckBox(h1,v,0,"Paste Components during Entry",ExplodeRec); // "Show components on documents" is better English but VERY confusing
+  EditField(h,v+=vs ,120,"Invoice Recipe",Normal,InvRecepy,false,RecSClass);
+  EditField(h2,v,150,"Barcode",Normal,BarCode,false,0);
+  EditField(h,v+=vs ,120,"Contract Item",Normal,ContractItem,false,INSClass);
+  EditField(h2,v,150,"Commodity Code",Normal,EUCodex,false,CommoditySClass);
+  v = v + vs;
+  if (StandardHansa==false) then begin
+    EditField(h,v,120,"Rental Invoicing",Normal,RentalItem,false,INSClass);
+  end;
+  EditField(h2,v,150,"EKN Code",Normal,EKNCode,false,0); // i think it is same as Commodity Code
+  if (StandardHansa==false) then begin
+    EditField(h2,v+=vs,150,"Classification of Products and Services",Normal,CPSCode,false,0);
+  end;
+  if (HasLocalization("LVA")) then begin
+    EditField(h,v+=vs,55,"Fiscal Department",Normal,FiscalDep,false,0);
+  end;
+  EditField(h,v+=vs ,120,"Warranty Months",Normal,WarrantyLength,true,0);
+  EditField(h2,v,150,"#Colour#",Normal,colnr,false,SetSClass);
+  EditField(h,v+=vs,120,"Sort Code",Normal,SortCode,true,0);
+  EditField(h,v+=vs,-40,"Alternative Code",Normal,AlternativeCode,false,0);
+  EditField(h,v+=vs,-40,"Warning",Normal,WarnText1,false,0);
+  Tile(tilenr,170,false,tilenr,SalesAcc);  tilenr = tilenr + 1;
+  v = 6;
+  vm = v;
+  EditField(h,vm,55,"#Dom.# Sales A/C",Normal,SalesAcc,false,AccSClass);
+  EditField(h,v+=vs,55,VATZoneNameENG & "Sales A/C",Normal,EUSalesAcc,false,AccSClass);
+  EditField(h,v+=vs,55,"Export Sales A/C",Normal,ExpSalesAcc,false,AccSClass);
+  if (StandardHansa==false) then begin
+    EditField(h,v+=vs,55,"Serv. Invble Sales A/C",Normal,SVOInvbleSalesAcc,false,AccSClass);
+//     EditField(h,v+=vs,55,"Serv. Warranty Sales A/C",Normal,SVOWarrantySalesAcc,false,AccSClass);
+//     EditField(h,v+=vs,55,"Serv. Contract Sales A/C",Normal,SVOContractSalesAcc,false,AccSClass);
+//     EditField(h,v+=vs,55,"Serv. Goodwill Sales A/C",Normal,SVOGoodwillSalesAcc,false,AccSClass);
+  end;
+  EditField(h,v+=vs,55,"Components Usage",Normal,CompUsage,false,AccSClass);
+  EditField(h,v+=vs,55,"Proj. Materials Usage A/C",Normal,ProjMaterialsUsageAcc,false,AccSClass);
+
+  EditField(h2=360,v=vm,55,"#Dom.# Cost A/C",Normal,CostAcc,false,AccSClass);
+  EditField(h2,v+=vs,55,VATZoneNameENG & "Cost A/C",Normal,EUCostAcc,false,AccSClass);
+  EditField(h2,v+=vs,55,"Export Cost A/C",Normal,ExpCostAcc,false,AccSClass);
+  if (StandardHansa==false) then begin
+    EditField(h2,v+=vs,55,"Serv. Invble Cost A/C",Normal,SVOInvbleCostAcc,false,AccSClass);
+    EditField(h2,v+=vs,55,"Serv. Warranty Cost A/C",Normal,SVOWarrantyCostAcc,false,AccSClass);
+    EditField(h2,v+=vs,55,"Serv. Contract Cost A/C",Normal,SVOContractCostAcc,false,AccSClass);
+    EditField(h2,v+=vs,55,"Serv. Goodwill Cost A/C",Normal,SVOGoodwillCostAcc,false,AccSClass);
+    EditField(h2,v+=vs,55,"Hotel WIP A/C",Normal,HotelWIPAcc,false,AccSClass);
+  end;
+  EditField(h2=540,v=vm,45,"#Dom.# #VAT# Code",Normal,VATCode,false,VATCodeSClass);
+  EditField(h2,v+=vs,45,VATZoneEditFieldLabel_ENG(1) & "#VAT# Code",Normal,VATCodeEU,false,VATCodeSClass);
+  EditField(h2,v+=vs,45,"Export #VAT# Code",Normal,VATCodeExp,false,VATCodeSClass);
+  if (HasExtTax) then begin
+    CheckBox(h2,v+=20,0,"Calculate Perception Taxes",Perceptions);
+  end;
+  if (StandardHansa==false) then begin
+    if (HasWithholdingTax) then begin
+      CheckBox(h2,v+=16,0,"Calculate Withholding Taxes",Withholdings);
+    end;
+    if (CYb.UseTaxTemplatesforTaxCalc!=0) then begin
+      EditField(h2=670,v=vm,50,"#Dom.# Tax Temp.",Normal,TaxTemplateCode,false,TaxTemplateSClass);
+      EditField(h2,v+=vs,50,VATZoneEditFieldLabel_ENG(1) & "Tax Temp.",Normal,TaxTemplateCodeEU,false,TaxTemplateSClass);
+      EditField(h2,v+=vs,50,"Export Tax Temp.",Normal,TaxTemplateCodeExp,false,TaxTemplateSClass);
+    end;
+    v = vm; h2=700;
+    if (HasLocalization("GBR,LTU,POL,LVA")) then begin
+      EditField(h2,v,45,"Reverse #VAT# Code",Normal,RvrsVATCode,false,VATCodeSClass); v = v + vs;
+    end;
+//CUST-BEGIN
+    EditField(h2,v,45,"Goods receipt VAT",Normal,PUVATCode,false,VATCodeSClass); v = v + vs;
+//CUST-END
+    if (HasLocalization("SWE")) then begin
+      EditField(h2,v,45,"Chemical Tax Code",Normal,ChemicalTaxCode,false,ChemicalTaxCodeSClass); v = v + vs;
+    end;
+    if (HasLocalization("ITA")) then begin
+      EditField(h2,v=vm,55,"Fiscal Department",Normal,FiscalDep,false,0);
+    end;
+  end;
+  if (GuiType==kGuiiPhone or GuiType==kGuiAndroid) then begin
+    Tile(tilenr,70,false,tilenr,-);  tilenr = tilenr + 1;
+    AttachmentDisplay(10,10,200,200);
+//    PushButton(30,10,-80,40,ToolImagePicker,"Take picture");
+//    ControlLabel(0,0,0,0,"Take picture","SystemFont",17,kTextStyleBold,AdjCenter,patM4ReportsTextBlue);
+  end;
+  Tile(tilenr,70,false,tilenr,VARMask);  tilenr = tilenr + 1;
+  EditField(h,v=6,-40,"Variety Mask",Normal,VARMask,false,VARMasksSClass);
+  EditField(h,v+=vs,-40,"Report Order",Normal,VARRepOrder,false,VARMasksSClass);
+  EditField(h,v+=vs,-40,"Subsets",Normal,VARSubsets,false,VARSubsetsSClass);
+  Tile(tilenr,120,true,tilenr,Math);  tilenr = tilenr + 1;
+  v = 24;
+  MatrixBegin(4,v,-32,-40,-,99);
+  MatCol(1,24,"Language",0,LangCode,false,LangSClass);
+  MatCol(1,94,"Text",0,Text,false,0);
+  EndMatrix;
+  Tile(tilenr,220,false,tilenr,CostPerc);  tilenr = tilenr + 1;
+  ButtonFrame(h=100,vm=(v=20),230,6,"Primary Cost Model");
+  RadioButton(h,v,0,0,"Default",PrimaryCostModel);
+  RadioButton(h,v+=16,1,0,"Cost Price",PrimaryCostModel);
+  RadioButton(h,v+=16,2,0,"% _of Base Price",PrimaryCostModel);
+  EditField(h+150,v,55,"%",Normal,CostPerc,true,0);
+  RadioButton(h,v+=16,3,0,"Weighted Average",PrimaryCostModel);
+  RadioButton(h,v+=16,4,0,"Queued",PrimaryCostModel);
+  RadioButton(h,v+=16,kCostModelNoneItem,0,"None",PrimaryCostModel);
+  ButtonFrame(h,v+=40,230,3,"Queued Cost Model");
+  RadioButton(h,v,0,0,"Default",QueuedCostModel);
+  RadioButton(h,v+=16,1,0,"F_IFO Price",QueuedCostModel);
+  RadioButton(h,v+=16,2,0,"LIFO Price",QueuedCostModel);
+
+  ButtonFrame(h2=380,v=vm,200,3,"Cost Price for Serial Number");
+  RadioButton(h2,v,0,0,"Default",FIFOPerSerialNr);
+  RadioButton(h2,v+=16,1,0,"Cost Price not for Serial Number",FIFOPerSerialNr);
+  RadioButton(h2,v+=16,2,0,"Cost Price for Serial Number",FIFOPerSerialNr);
+  ButtonFrame(h2,v+=40,200,3,"Queued Cost Model per Location");
+  RadioButton(h2,v,0,0,"Default",FIFOPerLocation);
+  RadioButton(h2,v+=16,1,0,"Queued Cost not per Location",FIFOPerLocation);
+  RadioButton(h2,v+=16,2,0,"Queued Cost per Location",FIFOPerLocation);
+  ButtonFrame(h2,v+=40,200,3,"WA per Location");
+  RadioButton(h2,v,0,0,"Default",WAPerLocation);
+  RadioButton(h2,v+=16,1,0,"WA not per Location",WAPerLocation);
+  RadioButton(h2,v+=16,2,0,"WA per Location",WAPerLocation);
+/*5.3
+  ButtonFrame(h2,v+=40,200,3,"Cost Price per Location");
+  RadioButton(h2,v,0,0,"Default",CostPricePerLocation);
+  RadioButton(h2,v+=16,1,0,"Cost Price not per Location",CostPricePerLocation);
+  RadioButton(h2,v+=16,2,0,"Cost Price per Location",CostPricePerLocation);
+*/
+  if (StandardHansa==false) then begin
+    Tile(tilenr,240,false,tilenr,-); tilenr = tilenr + 1;
+    h = 180; v = 6;
+    label = UserDefined("INVc","UserStr1");
+    if (nonblank(label)) then begin
+      EditField(h,v=6 ,-40,label,Normal,UserStr1,false,0);
+    end;
+    label = UserDefined("INVc","UserStr2");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,-40,label,Normal,UserStr2,false,0);
+    end;
+    label = UserDefined("INVc","UserStr3");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,-40,label,Normal,UserStr3,false,0);
+    end;
+    label = UserDefined("INVc","UserStr4");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,-40,label,Normal,UserStr4,false,0);
+    end;
+    label = UserDefined("INVc","UserStr5");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,-40,label,Normal,UserStr5,false,0);
+    end;
+    label = UserDefined("INVc","UserVal1");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,50,label,Normal,UserVal1,true,0);
+    end;
+    label = UserDefined("INVc","UserVal2");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,50,label,Normal,UserVal2,true,0);
+    end;
+    label = UserDefined("INVc","UserVal3");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,50,label,Normal,UserVal3,true,0);
+    end;
+    label = UserDefined("INVc","UserDate1");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,80,label,Normal,UserDate1,true,PasteCurDate);
+    end;
+    label = UserDefined("INVc","UserDate2");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,80,label,Normal,UserDate2,true,PasteCurDate);
+    end;
+    label = UserDefined("INVc","UserDate3");
+    if (nonblank(label)) then begin
+      EditField(h,v+=vs,80,label,Normal,UserDate3,true,PasteCurDate);
+    end;
+  end;
+  Tile(tilenr,400,false,tilenr,Math2); tilenr = tilenr + 1;
+  StaticText(50,v=20,"Notes",true);
+  TextField(60,v-5,-20,370,Math2,0);
+  if (HasCharts) then begin
+    Tile(tilenr,430,false,tilenr,-); tilenr = tilenr + 1;
+    ChartArea(10,6,-10,390,"$INDCLass_BIChart");
+    ColourPushButton(17,400,300,420,"LaunchFlexBI","Try flex.bi for more detailed analytics",kButtonColourBabyBlue);
+  end;
+  if (UserCanReport("INInfoRn","",true)) then begin
+    SpecialMenu("Item Status Report",'I',0,"INStatusINDsm");
+  end;
+//  SpecMenuItem("Recalculate Price List",' ',2);
+  if (UserCanReport("INrsRn","INrsRClass",true)) then begin
+    SpecialMenu("Item History",'h',3,"INrsRn_INSm");//CMD H DOES HIDE HANSA
+  end;
+  SpecialMenu("Item Location Status",' ',4,"LocItemStatDsm");
+  if (HasJewelleryInterface) and (UserCanReport("INInfoRn","",true)) then begin
+    SpecialMenu("Item Status per Alternative Code",'S',5,"ItemStatusAltINDsm");
+  end;
+  SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);
+  SpecialMenu("Purchase Item",' ',1,"PIFromINDsm");
+  SpecialMenu("Recipe",' ',2,"RecFromINDsm");
+  EndWindow;
+end;
 
 window AddHeaderCommentNPTSSClass:1
   wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
@@ -1058,6 +1479,252 @@ begin
     RadioButton(h,v,0,0,"O_ff",WHMForkLiftSystem);
     RadioButton(h,v+=16,1,0,"On",WHMForkLiftSystem);
     RadioButton(h,v+=16,2,0,"On, Picking Mode Off",WHMForkLiftSystem);
+  end;
+  EndWindow;
+end;
+
+window ITDClass:2
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vm,vs,tilenr;
+  boolean taxtempf;
+  WindowBegin("Item Group",ITDClass,CGview,-);
+  if (IsEnterprise) then begin
+    SetWRect(64,80,680,470);
+  //  Sizeable(-1,-1,0,0);
+    UseView(ITVc);
+    Tile(0,90,false,"",Code);
+    v = 6; vs = 20; h = 120;
+    EditField(h=120,v, 70,"No.",St_i,Code,false,0);
+    EditField(h,v+=20 ,200,"Name",Normal,Comment,false,0);
+    EditField(h,v+=vs ,200,"Class. Types",Normal,ClassType,false,CTypeSClass);
+    tilenr = 1;
+    TileButton(tilenr,"A/C");  tilenr = tilenr + 1;
+    TileButton(tilenr,"Credit A/C");  tilenr = tilenr + 1;
+    if (StandardHansa==false) then begin
+      TileButton(tilenr,"Service A/C");  tilenr = tilenr + 1;
+    end;
+    TileButton(tilenr,"Cost Model");  tilenr = tilenr + 1;
+    TileButton(tilenr,"Freight");  tilenr = tilenr + 1;
+    if (HasLocalization("LVA")) then begin
+      TileButton(tilenr,"POS"); tilenr = tilenr + 1;
+    end;
+    TileButton(tilenr,"Texts");  tilenr = tilenr + 1;
+    if (HasCharts) then begin
+      TileButton(tilenr,"BI");  tilenr = tilenr + 1;
+    end;
+    tilenr = 1;
+    Tile(tilenr,260,false,tilenr,SalesAcc);  tilenr = tilenr + 1;
+    h2 = 530;
+    EditField(h=120,vm=(v=6),55,"#Dom.# Sales A/C",Normal,SalesAcc,false,AccSClass);
+    EditField(h,v+=vs,55,VATZoneNameENG & "Sales A/C",Normal,EUSalesAcc,false,AccSClass);
+    EditField(h,v+=vs,55,"Export Sales A/C",Normal,ExpSalesAcc,false,AccSClass);
+    EditField(h,v+=vs ,55,"#Dom.# Cost A/C",Normal,CostAcc,false,AccSClass);
+    EditField(h,v+=vs ,55,VATZoneNameENG & "Cost A/C",Normal,EUCostAcc,false,AccSClass);
+    EditField(h,v+=vs ,55,"Export Cost A/C",Normal,ExpCostAcc,false,AccSClass);
+    if (StandardHansa==false) then begin
+      EditField(h,v+=vs ,55,"WIP A/C",Normal,WIPAcc,false,AccSClass);
+    end;
+    EditField(h,v+=vs,55,"Components Usage",Normal,CompUsage,false,AccSClass);
+    if (StandardHansa==false) then begin
+      EditField(h,v+=vs,55,"Production Control",Normal,ProdControl,false,AccSClass);
+      EditField(h,v+=vs,55,"Prod. Work A/C",Normal,ProdWCostAcc,false,AccSClass);
+      EditField(h,v+=vs,55,"Hotel WIP A/C",Normal,HotelWIPAcc,false,AccSClass);
+    end;
+    EditField(h=350,v=vm,45,"#Dom.# #VAT# Code",Normal,VATCodeDom,false,VATCodeSClass);
+    EditField(h,v+=vs,45,VATZoneEditFieldLabel_ENG(1) & "#VAT# Code",Normal,VATCodeEU,false,VATCodeSClass);
+    EditField(h,v+=vs,45,"Export #VAT# Code",Normal,VATCodeExp,false,VATCodeSClass);
+    EditField(h,v+=vs ,55,"#Dom.# Purch. Accruals A/C",Normal,PurchAcc,false,AccSClass);
+    EditField(h,v+=vs ,55,VATZoneNameENG & "Purch. Accruals A/C",Normal,EUPurchAcc,false,AccSClass);
+    EditField(h,v+=vs ,55,"Import Purch. Accruals A/C",Normal,ExpPurchAcc,false,AccSClass);
+    EditField(h,v+=vs ,55,"#Stock# A/C",Normal,InvAcc,false,AccSClass);
+    if (StandardHansa==false) then begin
+      EditField(h,v+=vs ,55,"Purch. Price Variance A/C",Normal,PriceVarianceAcc,false,AccSClass);
+      EditField(h,v+=vs ,55,"Usage Variance A/C",Normal,UsageVarianceAcc,false,AccSClass);
+    end;
+    EditField(h,v+=vs ,55,"Discount A/C",Normal,DiscountAcc,false,AccSClass);
+    EditField(h,v+=vs,55,"Proj. Materials Usage A/C",Normal,ProjMaterialsUsageAcc,false,AccSClass);
+    if (HasObjects) then begin
+      EditField(h=120,v+=vs,405-120,"Tags/Objects",Normal,Objects,false,ObjSClass);
+    end;
+    if (HasTaxMatrix) then begin
+      EditField(h2=530,v=vm,70,"#Dom.# Tax Temp.",Normal,TaxTemplateCode,false,TaxTemplateSClass);
+      EditField(h2,v+=vs,70,VATZoneEditFieldLabel_ENG(1) & "Tax Temp.",Normal,TaxTemplateCodeEU,false,TaxTemplateSClass);
+      EditField(h2,v+=vs,70,"Export Tax Temp.",Normal,TaxTemplateCodeExp,false,TaxTemplateSClass);
+    end;
+    v = vm; h2=530;
+    if (HasTaxMatrix) then begin
+      EditField(h2,v,70,"#Dom.# Tax Temp.",Normal,TaxTemplateCode,false,TaxTemplateSClass); v = v + vs;
+      EditField(h2,v,70,VATZoneEditFieldLabel_ENG(1) & "Tax Temp.",Normal,TaxTemplateCodeEU,false,TaxTemplateSClass); v = v + vs;
+      EditField(h2,v,70,"Export Tax Temp.",Normal,TaxTemplateCodeExp,false,TaxTemplateSClass); v = v + vs;
+    end;
+    if (HasLocalization("ITA,LVA")) then begin
+      EditField(h2,v,55,"Fiscal Department",Normal,FiscalDep,false,FiscalDepSClass);
+    end;
+    Tile(tilenr,100,false,tilenr,CredSalesAcc); tilenr = tilenr + 1;
+    //StaticText(h=120,v=7,"#Credit Notes#",false);//CUST >> Made the edit fields below not work for some reason??
+    EditField(h,vm=(v+=20),55,"Sales A/C",Normal,CredSalesAcc,false,AccSClass);
+    EditField(h,v+=vs,55,VATZoneNameENG & "Sales A/C",Normal,CredEUSalesAcc,false,AccSClass);
+    EditField(h,v+=vs,55,"Export Sales A/C",Normal,CredExpSalesAcc,false,AccSClass);
+//CUST-BEGIN
+    EditField(h,v+=vs,45,"Goods receipt VAT",Normal,PUVATCode,false,VATCodeSClass); v = v + vs;
+//CUST-END
+    EditField(h=350,v=vm,45,"#Domestic# #VAT# Code",Normal,CredVATCodeDom,false,VATCodeSClass);
+    EditField(h,v+=vs,45,VATZoneEditFieldLabel_ENG(1) & "#VAT# Code",Normal,CredVATCodeEU,false,VATCodeSClass);
+    EditField(h,v+=vs,45,"Export #VAT# Code",Normal,CredVATCodeExp,false,VATCodeSClass);
+    if (HasLocalization("GBR,LTU,POL,LVA")) then begin
+      EditField(h,v+=vs,45,"Reverse #VAT# Code",Normal,RvrsVATCode,false,VATCodeSClass);
+    end;
+    if (StandardHansa==false) then begin
+      Tile(tilenr,100,false,tilenr,SVOInvbleSalesAcc); tilenr = tilenr + 1;
+      EditField(h=170,v=6,55,"Serv. Invoiceable Sales A/C",Normal,SVOInvbleSalesAcc,false,AccSClass);
+//       EditField(h,v+=vs,55,"Serv. Warranty Sales A/C",Normal,SVOWarrantySalesAcc,false,AccSClass); // Not being used in code atm
+//       EditField(h,v+=vs,55,"Serv. Contract Sales A/C",Normal,SVOContractSalesAcc,false,AccSClass); // Not being used in code atm
+//       EditField(h,v+=vs,55,"Serv. Goodwill Sales A/C",Normal,SVOGoodwillSalesAcc,false,AccSClass); // Not being used in code atm
+      EditField(h=400,v=6,55,"Serv. Invoiceable Cost A/C",Normal,SVOInvbleCostAcc,false,AccSClass);
+      EditField(h,v+=vs,55,"Serv. Warranty Cost A/C",Normal,SVOWarrantyCostAcc,false,AccSClass);
+      EditField(h,v+=vs,55,"Serv. Contract Cost A/C",Normal,SVOContractCostAcc,false,AccSClass);
+      EditField(h,v+=vs,55,"Serv. Goodwill Cost A/C",Normal,SVOGoodwillCostAcc,false,AccSClass);
+    end;
+    Tile(tilenr,250,false,tilenr,CostPerc); tilenr = tilenr + 1;
+    ButtonFrame(h=30,vm=(v=20),230,6,"Primary Cost Model");
+    RadioButton(h,v,0,0,"Default",PrimaryCostModel);
+    RadioButton(h,v+=16,1,0,"Cost Price",PrimaryCostModel);
+    RadioButton(h,v+=16,2,0,"% _of Base Price",PrimaryCostModel);
+    EditField(h+150,v,55,"%",Normal,CostPerc,true,0);
+    RadioButton(h,v+=16,3,0,"Weighted Average",PrimaryCostModel);
+    RadioButton(h,v+=16,4,0,"Queued",PrimaryCostModel);
+    RadioButton(h,v+=16,9,0,"None",PrimaryCostModel);
+    ButtonFrame(h,v+=40,230,3,"Queued Cost Model");
+    RadioButton(h,v,0,0,"Default",QueuedCostModel);
+    RadioButton(h,v+=16,1,0,"F_IFO Price",QueuedCostModel);
+    RadioButton(h,v+=16,2,0,"LIFO Price",QueuedCostModel);
+
+    ButtonFrame(h2=280,v=vm,200,3,"Cost Price for Serial Number");
+    RadioButton(h2,v,0,0,"Default",FIFOPerSerialNr);
+    RadioButton(h2,v+=16,1,0,"Cost Price not for Serial Number",FIFOPerSerialNr);
+    RadioButton(h2,v+=16,2,0,"Cost Price for Serial Number",FIFOPerSerialNr);
+    ButtonFrame(h2,v+=40,200,3,"Queued Cost Model per Location");
+    RadioButton(h2,v,0,0,"Default",FIFOPerLocation);
+    RadioButton(h2,v+=16,1,0,"Queued Cost not per Location",FIFOPerLocation);
+    RadioButton(h2,v+=16,2,0,"Queued Cost per Location",FIFOPerLocation);
+    ButtonFrame(h2,v+=40,200,3,"Weighted Average per Location");
+    RadioButton(h2,v,0,0,"Default",WAPerLocation);
+    RadioButton(h2,v+=16,1,0,"WA not per Location",WAPerLocation);
+    RadioButton(h2,v+=16,2,0,"WA per Location",WAPerLocation);
+  /*  5.3
+    ButtonFrame(h2,v+=40,200,3,"Cost Price per Location");
+    RadioButton(h2,v,0,0,"Default",CostPricePerLocation);
+    RadioButton(h2,v+=16,1,0,"Cost Price not per Location",CostPricePerLocation);
+    RadioButton(h2,v+=16,2,0,"Cost Price per Location",CostPricePerLocation);
+  */
+    Tile(tilenr,80,false,tilenr,EUCodex); tilenr = tilenr + 1;
+  //  CheckBox(h=90,v+=30,0,"Internal (Not Showing in WebShop)",Internal);
+    if (StandardHansa==false) then begin
+      CheckBox(h=90,vm=(v=16),0,"Do Not Print Freight Labels for this Group",ExclFrLabPr);
+      CheckBox(h,v+=16,0,"Include Item Fixed Charge",InclItemFreight);
+      EditField(h+195,v+2 ,55,"",Normal,FixedFreight,true,0);
+      EditField(h=140,v+=22,200,"Commodity/EAN",Normal,EUCodex,false,CommoditySClass);
+    end else begin
+      EditField(h=120,vm=(v=16),200,"Commodity/EAN",Normal,EUCodex,false,CommoditySClass);
+    end;
+    EditField(h=220,v+=vs,120,"Classification of Products and Services",Normal,CPSCode,false,0);
+    ButtonFrame(h=400,v=vm,80,3,"Type");
+    RadioButton(h,v,0,0,"Default",Type);
+    RadioButton(h,v+=16,1,0,"Transport",Type);
+    RadioButton(h,v+=16,2,0,"Packages",Type);
+    if (HasLocalization("LVA")) then begin
+      Tile(tilenr,120,true,tilenr,FiscalDep); tilenr = tilenr + 1;
+      EditField(h=120,v=20,55,"Fiscal Department",Normal,FiscalDep,false,FiscalDepSClass);
+    end;
+    Tile(tilenr,120,true,tilenr,Math); tilenr = tilenr + 1;
+    v = 24;
+    MatrixBegin(4,v,-32,-20,INTextRowType,99);
+    MatCol(1,24,"Language",0,LangCode,false,LangSClass);
+    MatCol(1,84,"Text",0,Text,false,0);
+    EndMatrix;
+    if (HasCharts) then begin
+      Tile(tilenr,400,false,tilenr,-);  tilenr = tilenr + 1;
+      ChartArea(10,6,-10,390,"$ITDCLass_BIChart");
+    end;
+  end else begin
+    SetWRect(64,80,470,230);
+    UseView(ITVc);
+    v = 6; vs = 20; h = 120; h2 = 300;
+    EditField(h,v,70,"Code",Normal,Code,false,0);
+    EditField(h,v+=vs,-20,"Name",Normal,Comment,false,0);
+    if (HasLocalization("LVA") and HasModPOS) then begin
+      EditField(h=120,v+=vs,55,"Fiscal Department",Normal,FiscalDep,false,FiscalDepSClass);
+    end;
+    if (HasVATZone) then begin
+      EditField(h,vm=(v+=vs),45,"#Domestic# #VAT# Code",Normal,VATCodeDom,false,VATCodeSClass);
+      EditField(h,v+=vs,45,VATZoneEditFieldLabel_ENG(1) & "#VAT# Code",Normal,VATCodeEU,false,VATCodeSClass);
+      EditField(h,v+=vs,45,"Export #VAT# Code",Normal,VATCodeExp,false,VATCodeSClass);
+      if (HasLocalization("GBR,LTU,POL,LVA")) then begin
+        EditField(h,v+=vs,45,"Reverse #VAT# Code",Normal,RvrsVATCode,false,VATCodeSClass);
+      end;
+    end else begin
+      if (HasTaxMatrix) then begin
+        EditField(h,v+=vs,55,"Tax Temp.",Normal,TaxTemplateCode,false,TaxTemplateSClass); taxtempf = true;
+      end else begin
+        EditField(h,v+=vs,45,"#VAT# Code",Normal,VATCodeDom,false,VATCodeSClass);
+      end;    
+    end;
+    if (HasModNL) then begin
+      if (HasVATZone) then begin
+        EditField(h2,v=vm,55,"#Domestic# Sales A/C",Normal,SalesAcc,false,AccSClass);
+        EditField(h2,v+=vs,55,VATZoneNameENG & "Sales A/C",Normal,EUSalesAcc,false,AccSClass);
+        EditField(h2,v+=vs,55,"Export Sales A/C",Normal,ExpSalesAcc,false,AccSClass);
+        if (HasModIN) then begin
+          EditField(h2,v+=vs,55,"#Stock# A/C",Normal,InvAcc,false,AccSClass);
+          EditField(h2,v+=vs ,55,"#Domestic# Purch. Accruals A/C",Normal,PurchAcc,false,AccSClass);
+          EditField(h2,v+=vs ,55,VATZoneNameENG & "Purch. Accruals A/C",Normal,EUPurchAcc,false,AccSClass);
+          EditField(h2,v+=vs ,55,"Import Purch. Accruals A/C",Normal,ExpPurchAcc,false,AccSClass);
+        end else begin
+//          EditField(h,v+=vs,55,"#Stock# A/C",Normal,InvAcc,false,AccSClass);
+        end;
+      end else begin
+        EditField(h,v+=vs,70,"Sales A/C",Normal,SalesAcc,false,AccSClass);
+        if (HasModIN) then begin
+          EditField(h,v+=vs,70,"#Stock# A/C",Normal,InvAcc,false,AccSClass);
+          EditField(h,v+=vs,70,"Purch. Accruals A/C",Normal,PurchAcc,false,AccSClass);
+        end;
+      end;
+      if (BuildProductCode=="StandardHealthcare") then begin
+        EditField(h,v+=vs ,55,"Cost A/C",Normal,CostAcc,false,AccSClass);
+      end;
+      if (BuildProductCode=="StandardRestaurant") then begin
+        EditField(h,v+=vs ,55,"Discount A/C",Normal,DiscountAcc,false,AccSClass);
+      end;
+      if (HasLocalization("PRT")) then begin
+        StaticText(h,v+=40,"#Credit Notes#",false);
+        EditField(h,v+=vs,55,"Sales A/C",Normal,CredSalesAcc,false,AccSClass);
+        EditField(h,v+=vs,45,"#VAT# Code",Normal,CredVATCodeDom,false,VATCodeSClass);
+      end;
+      if (HasLocalization("BRA,HRV") or HasTaxMatrix) then begin
+        if (HasVATZone) then begin
+          if (taxtempf==false) then begin 
+            EditField(h,v+=vs,55,"#Dom.# Tax Temp.",Normal,TaxTemplateCode,false,TaxTemplateSClass);          
+          end; 
+          EditField(h,v+=vs,55,VATZoneEditFieldLabel_ENG(1) & "Tax Temp.",Normal,TaxTemplateCodeEU,false,TaxTemplateSClass);
+          EditField(h,v+=vs,55,"Export Tax Temp.",Normal,TaxTemplateCodeExp,false,TaxTemplateSClass);
+        end else begin
+          if (taxtempf==false) then begin 
+            EditField(h,v+=vs,55,"Tax Temp.",Normal,TaxTemplateCode,false,TaxTemplateSClass);
+          end;
+        end;
+      end;
+    end;
+    if (HasLocalization("BRA,KEN,POL")) then begin
+      EditField(h+100,v+=vs,120,"Classification of Products and Services",Normal,CPSCode,false,0);
+    end;
+    if (HasLanguages) then begin
+      v = v+54;
+      MatrixBegin(4,v,-32,-20,-,99);
+      MatCol(1,24,"Language",0,LangCode,false,LangSClass);
+      MatCol(1,84,"Text",0,Text,false,0);
+      EndMatrix;
+    end;
   end;
   EndWindow;
 end;
