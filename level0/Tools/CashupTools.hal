@@ -60,13 +60,15 @@ global
 procedure AddCashupToArray(string vcname,string thecode,LongInt serno,Date dat,Time tim,Integer typ,var array string avcn,var array string acod,var array LongInt aser,var array Date adat,var array Time atim,var array Integer atyp,var Integer acnt)
 begin
   Integer i;
-
+//CUST-REMOVED
+/*
   for (i=0;i<acnt;i=i+1) begin
     if ((dat<adat[i]) or ((dat==adat[i]) and (tim<atim[i]))) then begin
       InsertAtPos(i,vcname,thecode,serno,dat,tim,typ,avcn,acod,aser,adat,atim,atyp,acnt);
       goto LAddCashupToArray;
     end;
   end;
+*/
   avcn[acnt] = vcname;
   acod[acnt] = thecode;
   aser[acnt] = serno;

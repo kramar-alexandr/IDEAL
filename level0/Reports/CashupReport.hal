@@ -758,7 +758,7 @@ begin
           accnr = PMrw.AccNr;
         end;
         if (GetAccName(accnr,tstr,60)==false) then begin end;
-        AddSMRow(SMr,SMr.TransDate,accnr,PMrw.Objects,"",tstr,Cashrw.Amount,true,!dbflag,smsum);
+        AddSMRow(SMr,SMr.TransDate,accnr,PMrw.Objects,"",tstr,Cashrw.Amount,false,!dbflag,smsum);//CUST true>>false
       end;
     end;
   end;
