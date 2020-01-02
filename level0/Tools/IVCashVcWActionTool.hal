@@ -2691,6 +2691,7 @@ begin
       MatRowGet(IVCashr,i,IVCashrw);
       if (nonblank(IVCashrw.ArtCode)) then begin
         IVCashrw.Quant = -IVCashrw.Quant;
+        iVCashrw.OrgIVNr = ivcashno;
         cnt = MatRowCnt(newIVCashr);
         MatRowPut(newIVCashr,cnt,IVCashrw);
         if (IVCashVc_PasteArtCode(newIVCashr,cnt,true,tstr,sernrf)) then begin
