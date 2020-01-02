@@ -5366,7 +5366,7 @@ begin
     SpecialMenu("Apple Warranty Status Check",'w',26,"WarrantyStatusIVDsm"); 
     //START-CUST   October 2, 2014 by PST
     //SpecialMenu("Sukurti grˆìinimˆ",'',27,"CreatePOSReturnIVDsm"); //off Edit ************************** BPI Ukraine - KramarAlexandr - 03, 06 03 2019 y. at 9:55:23 AM
-    SpecialMenu("Pin Pad VOID",'',27,"PinPadVoidIVDsm");
+    //SpecialMenu("Pin Pad VOID",'',27,"PinPadVoidIVDsm");
     //END-CUST October 2, 2014 by PST
 //     SpecialMenu("Delete Invoice (don't use)",' ',10,"iDeal_ForceDeleteIVDsm");//hal-146; edz REMOVED BECAUSE HAL-309
   end;

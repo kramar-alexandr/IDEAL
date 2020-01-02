@@ -6,6 +6,7 @@ external inner procedure IVSumup(var record IVVc,Boolean);
 external inner updating procedure IVFinishAndPrint();
 external procedure PrintTouchlessCardReceipt(string,Integer);
 external updating procedure MessageBoxMain(Longint);
+external inner updating function LongInt IVCheckIfSaveAllowed(var record IVVc,record IVVc,LongInt,LongInt);
 
 procedure GetTouchlessPaymentURL(record TouchlessPayBlock TPb,var string url,var Longint port)
 begin
@@ -198,6 +199,33 @@ begin
   TPb.LastTimeStamp = timestamp;
   BlockStore(TPb);
 
+  return;
+end;
+
+global
+updating function Boolean ValidInvoiceRecord(Integer wn)
+begin
+  Boolean res;
+  string 255 FileName;
+  Longint err;
+  record IVVc IVr,prevIVr;
+
+  res = true;
+
+  FileName = GetWindowFileName(wn);
+  switch (FileName) begin
+    case "IVVc":
+      GetWindowRecord(wn,IVr);
+      RecordCopy(prevIVr,IVr);
+      IVr.OKFlag = 1;
+      err = IVCheckIfSaveAllowed(IVr,prevIVr,WindowState(wn),3);
+      if (err!=0) then begin
+        MessageBox(RecordCheckLastErrorNo,"");
+        res = false;
+      end;
+  end;
+
+  ValidInvoiceRecord = res;
   return;
 end;
 

@@ -2004,6 +2004,12 @@ Trace("CredCardIVsmDo","");
           IVr.PayDeal = LMb.FiscalPrinterEJournalPath2;
         end;
         IVVc_PastePayDeal(IVr,"",LMb.DefReturnLocation);
+
+        IVr.InvDate = currentdate;
+        IVr.TransDate = currentdate;
+        if(IVr.PayDate<currentdate)then begin
+          IVr.PayDate = currentdate;
+        end;
         PutWindowRecord(wn,IVr);
         //IVr.OKFlag = 1;
         //SetRecordCheckVc("IVVc");

@@ -368,11 +368,56 @@ begin
   return;
 end;
 
+//CUST-BEGIN
+function Longint GetLastCashout(string machine,string drawer,Date dfr)
+begin
+  Longint res;
+  record CashVc Cashr;
+  Boolean foundf,testf;
+
+  Cashr.MachineName = machine;
+  Cashr.Drawer = drawer;
+  Cashr.TransDate = dfr;
+  foundf = true;
+  while (LoopKey("MachineName",Cashr,3,foundf)) begin
+    if (Cashr.MachineName!=machine) then begin
+      foundf = false;
+    end;
+    if (Cashr.Drawer!=drawer) then begin
+      foundf = false;
+    end;
+    if (Cashr.TransDate>dfr) then begin
+      foundf = false;
+    end;
+    testf = foundf;
+    if (Cashr.OKFlag==0) then begin
+      testf = false;
+    end;
+    if (testf) then begin
+      if (Cashr.Event==0) then begin
+        res = Cashr.SerNr;
+      end;
+    end;
+  end;
+
+  GetLastCashout = res;
+  return;
+end;
+//CUST-END
+
 global
 procedure FillUpAllCashEvents(Date dfr,Date dto,Time tfr,Time tto,string machine,string drawer,var array string avcn,var array string acod,var array LongInt aser,var array Date adat,var array Time atim,var array Integer atyp,var Integer acnt)
 begin
   record CashVc Cashr;
   Boolean foundf,testf;
+
+//CUST-BEGIN
+  Boolean firstinf;
+  Longint lastoutnr;
+
+  firstinf = true;
+  lastoutnr = GetLastCashout(machine,drawer,dfr);
+//CUST-END
 
   Cashr.MachineName = machine;
   Cashr.Drawer = drawer;
@@ -400,6 +445,19 @@ begin
     if (Cashr.OKFlag==0) then begin
       testf = false;
     end;
+//CUST-BEGIN
+    if (Cashr.Event==1) then begin
+      if (firstinf) then begin
+        testf = false;
+        firstinf = false;
+      end;
+    end;
+    if (Cashr.Event==0) then begin
+      if (Cashr.SerNr==lastoutnr) then begin
+        testf = false;
+      end;
+    end;
+//CUST-END
     if (testf) then begin
       AddCashupToArray("CashVc","",Cashr.SerNr,Cashr.TransDate,Cashr.TransTime,-1,avcn,acod,aser,adat,atim,atyp,acnt);
     end;
@@ -774,6 +832,34 @@ begin
 end;
 */
 
+//CUST-BEGIN
+global
+procedure AddPMPOSToSM_iDeal(Boolean dcf,string defcode,string thecode,string debugcomment,string objects,val sum,var record SMVc SMr)
+begin
+  row PMBlock PMrw;
+  string 200 locdefcode;
+  string 255 tstr;
+  val smsum;
+
+  if (sum!=0) then begin
+    if (nonblank(thecode)) then begin
+      locdefcode = thecode;
+    end else begin
+      locdefcode = defcode;
+    end;
+    if (GetPMRow(locdefcode,PMrw)==false) then begin 
+      locdefcode = defcode;
+      if (GetPMRow(locdefcode,PMrw)==false) then begin 
+      end;
+    end;
+    if (GetAccName(PMrw.AccNr,tstr,60)==false) then begin end;
+    tstr = debugcomment;
+    AddSMRow(SMr,SMr.TransDate,PMrw.AccNr,objects,"",tstr,sum,false,dcf,smsum);
+  end;
+  return;
+end;
+//CUST-END
+
 global
 procedure AddPMPOSToSM2(Boolean dcf,string defcode,string thecode,string debugcomment,string objects,val sum,var record SMVc SMr)
 begin
@@ -1126,9 +1212,9 @@ begin
               end;
         end;
         if (IVCashr.InclVAT>0) then begin
-          AddSMRow(gSMp,gSMp.TransDate,revacc,objstr,AddVATCodeToVATAccRows(vatcod),tstr,salessum-tvat,true,false,smsum);
+          AddSMRow(gSMp,gSMp.TransDate,revacc,objstr,AddVATCodeToVATAccRows(vatcod),tstr,salessum-tvat,false,false,smsum);//CUST true>>false > to have one line per invoice
         end else begin
-          AddSMRow(gSMp,gSMp.TransDate,revacc,objstr,AddVATCodeToVATAccRows(vatcod),tstr,salessum,true,false,smsum);
+          AddSMRow(gSMp,gSMp.TransDate,revacc,objstr,AddVATCodeToVATAccRows(vatcod),tstr,salessum,false,false,smsum);//CUST true>>false > to have one line per invoice
         end;
         switch (RoundRec.VATCalcWay) begin
           case 0:
@@ -1167,7 +1253,7 @@ LAddIVCashTransRowsNewRow:;
         if (tvat!=0) then begin
           if (GetAccName(VATCoderw.SalesVATAcc,tstr,60)==false) then begin 
           end;
-          AddSMRow(gSMp,gSMp.TransDate,VATCoderw.SalesVATAcc,objstr,AddVATCodeToVATAccRows(VATCoderw.VATCode),tstr,tvat,true,false,smsum);
+          AddSMRow(gSMp,gSMp.TransDate,VATCoderw.SalesVATAcc,objstr,AddVATCodeToVATAccRows(VATCoderw.VATCode),tstr,tvat,false,false,smsum);//CUST true>>false > to have one line per invoice
         end;       
       end;
     end;
@@ -1297,7 +1383,7 @@ begin
         ivtotsum = ivtotsum + IVCashrw.Sum;
       case kInvoiceRowTypeCashPayment:
         s = MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
-        AddPMPOSToSM(IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
+        AddPMPOSToSM_iDeal(true,IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);//CUST
 //CUST-BEGIN
         cashmode = IVCashrw.PayMode;
 LogText(0,"CASHUP DEBUG:: cash >> cashmode=" & cashmode);
@@ -1313,11 +1399,11 @@ LogText(0,"CASHUP DEBUG:: cash >> cashmode=" & cashmode);
 //CUST-END
       case kInvoiceRowTypeCreditCardPayment:
         s = MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
-        AddPMPOSToSM(IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
+        AddPMPOSToSM_iDeal(true,IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);//CUST
         if (blank(Accb.CashBackAcc)) then begin
           if (RetValueAddedf==false) then begin
             s = -MulRateToBase1(IVCashr.CurncyCode,IVCashr.RetValue,IVCashr.FrRate,IVCashr.ToRateB1,IVCashr.ToRateB2,IVCashr.BaseRate1,IVCashr.BaseRate2,DefaultCurRoundOff);
-            AddPMPOSToSM(IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
+            AddPMPOSToSM_iDeal(true,IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);//CUST
             RetValueAddedf = true;
           end;
         end;
@@ -1357,7 +1443,7 @@ LogText(0,"CASHUP DEBUG:: cash >> cashmode=" & cashmode);
         if (blank(Accb.CashBackAcc)) then begin
           if (RetValueAddedf==false) then begin
             s = -MulRateToBase1(IVCashr.CurncyCode,IVCashr.RetValue,IVCashr.FrRate,IVCashr.ToRateB1,IVCashr.ToRateB2,IVCashr.BaseRate1,IVCashr.BaseRate2,DefaultCurRoundOff);
-            AddPMPOSToSM(IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
+            AddPMPOSToSM_iDeal(true,IVCashrw.PayMode,IVCashrw.PayMode,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);//CUST
             RetValueAddedf = true;
           end;
         end;
@@ -1449,9 +1535,9 @@ LogText(0,"CASHUP DEBUG:: Adding row " & PMrw.AccNr);
   totvat = totvat + Round(ivvatsum,rndtotal);
 
   s = MulRateToBase1(IVCashr.CurncyCode,IVCashr.RecValue,IVCashr.FrRate,IVCashr.ToRateB1,IVCashr.ToRateB2,IVCashr.BaseRate1,IVCashr.BaseRate2,DefaultCurRoundOff);
-  AddPMPOSToSM(defmode,IVCashr.PayDeal,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
+  AddPMPOSToSM_iDeal(true,defmode,IVCashr.PayDeal,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);//CUST
   s = MulRateToBase1(IVCashr.CurncyCode,IVCashr.RecValue2,IVCashr.FrRate,IVCashr.ToRateB1,IVCashr.ToRateB2,IVCashr.BaseRate1,IVCashr.BaseRate2,DefaultCurRoundOff);
-  AddPMPOSToSM(defmode,IVCashr.PayDeal2,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);
+  AddPMPOSToSM_iDeal(true,defmode,IVCashr.PayDeal2,"IVCash " & IVCashr.SerNr & IVCashrw.Spec,IVCashr.Objects,s,SMr);//CUST
   return;
 end;
 
