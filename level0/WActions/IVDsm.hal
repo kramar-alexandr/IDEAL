@@ -1535,6 +1535,10 @@ begin
   CashPaymentIVActiveField(wn);  
   DeselectWindow(wn,false);
   GetWindowRecord(wn,IVr);
+  if (IVr.OKFlag==1) then begin
+    MessageBox(1000109,"");
+    goto LCashIVsm;
+  end;
   switch (WindowState(wn)) begin
     case 0: //Rs_normal
       GetWindowRecord(wn,prevIVr); //Rs_update

@@ -663,6 +663,7 @@ begin
     RecordField(NoZeroSum,M4Int,0,0);
     RecordField(PrintZReportatCashup,M4Int,0,0);
     RecordField(CashWithdrawalAcc,M4Code,10,AccVc);
+    RecordField(ForceVATCode,M4Code,10,0);
   EndBlock;
   
   RecordAddBegin(LocationVc,"LocationVc_Custom");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 19:33:13

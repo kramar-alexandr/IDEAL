@@ -1291,6 +1291,8 @@ begin
     end;
   end;
   EditField(h,v+=vs,120,"Buy Back Item",Normal,BuyBackItemCode,false,INSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - середа, 15 листопада 2017 р. о 21:57:28
+  EditField(h,v+=vs,70,"Force VAT code",Normal,ForceVATCode,false,VATCodeSClass);//CUST
+
   if (HasModIN) then begin
     if (IsEnterprise) then begin
       ButtonFrame(h-130,v+=3*vs+2*16,490,3,"POS");

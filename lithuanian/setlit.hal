@@ -118,6 +118,7 @@ begin
   SString(1000106,"There is not enough money in Cash Drawer");
   SString(1000107,"There is no last Transaction to return");
   SString(1000108,"There are Items with Reversed VAT. Payment must be made with Bank Transfer or change Payment Term.");
+  SString(1000109,"Remove OK Checkbox");
 
   
   StrSetBegin(3); /* Try to keep them in alphabetical order */
