@@ -4315,7 +4315,7 @@ begin
   DataListColumn(1,-150,-23,AdjRight,"ArtPrice","Kaina",M423Val);
   EndWindow;
 end;
-
+/*
 window CashierDefTClass:1
   wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
@@ -4447,7 +4447,7 @@ begin
   end;
   EndWindow;
 end;
-
+*/
 window LocationDClass:1
   wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
@@ -7549,5 +7549,23 @@ begin
       EndMatrix; 
   end;
 end;
+  EndWindow;
+end;
+
+window iDealCashierDefTClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vm,vm2,vs,chkbx;
+  
+  WindowBegin("iDeal - POS Nustatymai",iDealCashierDefTClass,CGSbl,-);
+  SetWRect(64,80,700,600);
+  SetBlid(iDealCashierDefBlock);
+  v = 6; vs = 20; h = 150; h2 = 290; vm=0;
+  EditField(h,v=6,120,"Buy Back Item",Normal,BuyBackItemCode,false,INSClass);// Edit ************************** BPI Ukraine - KramarAlexandr - w, 15 november 2017 y 21:57:28
+  EditField(h,v+=vs,70,"Force VAT code",Normal,ForceVATCode,false,VATCodeSClass);//CUST
+
+  CheckBox(h,v+=20,0,"OK Goods Receipts",AUTOOKPU);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:39:48 PM
+
+  CheckBox(h,v+=16,0,"Run Cash Up Maintenance when closing session",RunCashupMaintenance);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 15:25:12
   EndWindow;
 end;

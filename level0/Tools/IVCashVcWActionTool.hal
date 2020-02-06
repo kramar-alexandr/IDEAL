@@ -239,7 +239,7 @@ procedure UpdateIVCashVATCode(record IVCashVc IVCashr,var row IVCashVc IVCashrw)
 begin
   record AccBlock Accb;
   record INVc INr;
-  record CashierDefBlock CDb;
+  record iDealCashierDefBlock iCDb;
 
   if (ReadFirstItem(IVCashrw.ArtCode,INr,true,true)) then begin
     if (INr.VATCode==INr.RvrsVATCode and nonblank(INr.RvrsVATCode)) then begin
@@ -247,9 +247,9 @@ begin
       IVCashrw.VATCode = Accb.VATCodeDom;
     end;
   end;
-  BlockLoad(CDb);
-  if (nonblank(CDb.ForceVATCode)) then begin
-    IVCashrw.VATCode = CDb.ForceVATCode;
+  BlockLoad(iCDb);
+  if (nonblank(iCDb.ForceVATCode)) then begin
+    IVCashrw.VATCode = iCDb.ForceVATCode;
     IVCashrw.RvrsVATCode = "";
   end;
 

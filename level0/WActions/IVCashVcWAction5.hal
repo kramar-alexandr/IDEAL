@@ -5027,7 +5027,7 @@ begin
   record RcVc RepSpec;
   record IVCashVc IVCashr;
   Boolean testf;
-  record CashierDefBlock CDb;
+  record iDealCashierDefBlock iCDb;
   
   
   mwn = CurWindow;
@@ -5038,8 +5038,8 @@ begin
   if (IVCashr.OKFlag!=0) then begin testf = false; end;
   if (IVCashr.Invalid!=0) then begin testf = false; end;
   if (testf) then begin
-  	blockload(CDb);
-    RepSpec.f1 = CDb.BuyBackItemCode;
+  	blockload(iCDb);
+    RepSpec.f1 = iCDb.BuyBackItemCode;
     wn = OpenWindow("BuyBackItemNPTSSClass",0,mwn,"","",RepSpec);
     WindowFieldGoto(wn,RepSpec,-1,"f1",false);    
   end;

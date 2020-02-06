@@ -619,7 +619,7 @@ begin
   ArrayField(RMINumber,M4Str,25,0); 
   ArrayField(PriceExclVAT,M423Val,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 05 03 2018 y. 19:32:45
   EndRecordAdd;
-  
+  /*
   BlockBegin(CashierDefBlock,-,"CashierDefBlock3");
 		NewAutosyncBlock(kSyncDirectionToClient);
 		RecordField(DefCustCode,M4Code,20,CUVc);
@@ -665,7 +665,7 @@ begin
     RecordField(CashWithdrawalAcc,M4Code,10,AccVc);
     RecordField(ForceVATCode,M4Code,10,0);
   EndBlock;
-  
+  */
   RecordAddBegin(LocationVc,"LocationVc_Custom");// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 14 November 2017 19:33:13
   	RecordField(Warning,M4Str,255,0); 
   EndRecordAdd;
@@ -837,6 +837,14 @@ begin
     RecordAddBegin(ITVc,"iDealITVc");
     RecordField(PUVATCode,M4Code,10,VATCodeBlock);
     EndRecordAdd;
+
+    BlockBegin(iDealCashierDefBlock,-,"");
+		NewAutosyncBlock(kSyncDirectionToClient);
+		RecordField(RunCashupMaintenance,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 15:31:30
+  	RecordField(BuyBackItemCode,M4Code,50,0);// Edit ************************** BPI Ukraine - KramarAlexandr - середа, 15 листопада 2017 р. о 21:55:18
+  	RecordField(AUTOOKPU,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:38:12 PM
+    RecordField(ForceVATCode,M4Code,10,0);
+  EndBlock;  
 
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
   RecordField(Math,M4Matrix,0,0);

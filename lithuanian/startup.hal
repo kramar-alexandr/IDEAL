@@ -31,9 +31,8 @@ begin
   Setting("Rezervacijos - BROKAI",ResListBrokLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:34:09
   Setting("Rezervacijos - DEMO",ResListDemoLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:34:09
   Setting("Touchless Payments",TouchlessPaymentTClass,modPOS);
+  Setting("iDeal - POS Nustatymai",iDealCashierDefTClass,modPOS);
 
-
-  
   SetBegin(14444);
   SetText(0,"Prek˜s grup˜");
   SetText(1,"Prek˜");

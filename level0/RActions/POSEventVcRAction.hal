@@ -117,10 +117,10 @@ global
 updating function LongInt POSEventVcRecordSaveAfter(var record POSEventVc POSEr,record POSEventVc POSE2r,LongInt stat,LongInt long4)
 begin
   LongInt res;
-	record CashierDefBlock CDb;
+	record iDealCashierDefBlock iCDb;
 	
-	blockload(CDb);
-	if(CDb.RunCashupMaintenance>0)then begin
+	blockload(iCDb);
+	if(iCDb.RunCashupMaintenance>0)then begin
 		if(POSEr.Event==2)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 15:43:46
       iDealRunCashupMn(POSEr.Drawer,POSEr.MachineName);
 		end;
@@ -136,10 +136,10 @@ updating function LongInt POSEventVcRecordUpdateAfter(var record POSEventVc POSE
 begin
   LongInt res;
   record RcVc RepSpec;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 19:25:44
-  record CashierDefBlock CDb;
+  record iDealCashierDefBlock iCDb;
 	
-	blockload(CDb);
-  if(CDb.RunCashupMaintenance>0)then begin
+	blockload(iCDb);
+  if(iCDb.RunCashupMaintenance>0)then begin
 		if(POSEr.Event==2 and POSE2r.Event!=2)then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 November 2017 15:43:46
       iDealRunCashupMn(POSEr.Drawer,POSEr.MachineName);
 		end;

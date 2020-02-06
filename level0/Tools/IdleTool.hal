@@ -963,6 +963,7 @@ global
 updating procedure POSUpdateStockIdleTasks(string arg)
 begin
   record CashierDefBlock CDb;
+  record iDealCashierDefBlock iCDb;
   record RcVc RepSpec;
   Integer oldcomp;
   Date td;
@@ -979,6 +980,7 @@ begin
     end;
     if (testf) then begin
       BlockLoad(CDb);
+      BlockLoad(iCDb);
         
       if (CDb.UpdStockMaint!=0) then begin
         ReportDefaults(RepSpec,"POSUpdStockVClass");  
@@ -992,7 +994,7 @@ begin
         RepSpec.repname = "POSUpdStockMn";
         RepSpec.critname = "POSUpdStockVClass";
         RepSpec.flags[1] = CDb.POSOKSD;
-        RepSpec.flags[0] = CDb.AUTOOKPU;// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:41:21 PM
+        RepSpec.flags[0] = iCDb.AUTOOKPU;// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:41:21 PM
         RunMaintenance(RepSpec);
       end;
       td = CurrentDate;
