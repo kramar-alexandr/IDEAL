@@ -518,8 +518,11 @@ begin
         salesacc = PDr.pdSalesAcc;
       end;
     end;
-    vatcode = INr.VATCode;
+//CUST-BEGIN
+//    vatcode = INr.VATCode;
     switch (exportf) begin
+      case 0: vatcode = INr.VATCode;
+//CUST-END
       case 1: vatcode = INr.VATCodeEU;
       case 2: vatcode = INr.VATCodeExp;
       case 3: vatcode = INr.VATCodeEU;
@@ -545,8 +548,11 @@ begin
       ITr.Code = INr.Group;
       if (ReadFirstMain(ITr,1,true)) then begin
         if (blank(vatcode)) then begin
-          vatcode = ITr.VATCodeDom;
+//CUST-BEGIN
+//          vatcode = ITr.VATCodeDom;
           switch (exportf) begin
+            case 0: vatcode = ITr.VATCodeDom;
+//CUST-END
             case 1: vatcode = ITr.VATCodeEU;
             case 2: vatcode = ITr.VATCodeExp;
             case 3: vatcode = ITr.VATCodeEU;
