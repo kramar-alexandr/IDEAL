@@ -630,12 +630,13 @@ begin
   record LSerialPortDeviceVc LSPDr;
   record LocalMachineBlock LMb;
   record ItemExportBlock ItmExportBl;
+  val price;
 
   BlockLoad(ItmExportBl);
   //blockload(LMb);
   //blockload(LSPDr);
   
-  WebGetPostData(a);
+  WebGetRawPostData(a);
   inv = parseXmlArea(a);
   if (SetCompany(1,false)) then begin end;
   tstr = "";
@@ -724,13 +725,14 @@ begin
         end;
         if stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Price"),M423Val) > 0 then begin
           MatRowGet(IVr,k,IVrw);
-          IVrw.Price = stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Price"),M423val);
+          price = stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Price"),M423val);
+          IVrw.PriceExclVAT = price - FindVAT(IVrw.VATCode,price,IVr.InclVAT,IVr.NoTAXonVAT);
           // EVS: DESK-1585
           //IVrw.PriceExclVAT = IVrw.Price;
           if (nonblank(IVrw.RvrsVATCode)) then begin
-            IVrw.PriceExclVAT = IVrw.Price;
+            IVrw.Price = IVrw.PriceExclVAT;
           end else begin
-            IVrw.PriceExclVAT = IVrw.Price - FindVAT(IVrw.VATCode,IVrw.Price,IVr.InclVAT,IVr.NoTAXonVAT);
+            IVrw.Price = price;
           end;
           // :EVS
           MatRowPut(IVr,k,IVrw);
