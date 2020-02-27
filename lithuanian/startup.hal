@@ -160,6 +160,8 @@ begin
   SString(300000,"Kadangi dovan÷ kupono vert˜ didesn˜ nei perkam÷ preki÷, susidariusiam skirtumui padengti reikt÷ °traukti papildomˆ prek« (DKLIKUT - Dovan÷ kupono neiänaudota likutin˜ vert˜). Jos kaina turi bðti tokia, kiek trðksta iki dovan÷ kupono vert˜s.");
   SString(300001,"Operacija atäaukta");
 
+  SString(300010,"Preki÷ grˆìinimas");
+
   StrSetAdd(3);
   StrSetText(DisallowExceedingCreditLimit,"Disallow exceeding Credit Limit");
   EndStrSet;
