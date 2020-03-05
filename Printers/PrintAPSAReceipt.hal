@@ -29,6 +29,14 @@ enum begin
   kAPSACommandReprint = 18
 end;
 
+procedure LogASPAReceipt(string tstr)
+begin
+  
+  LogText(0,"ASPA DEBUG::: " & tstr);
+
+  return;
+end;
+
 global
 procedure MessageBoxMain(Longint num)
 begin
@@ -971,6 +979,7 @@ begin
     end;
   end;
 
+
   vatcode = GetVATCode(IVr.InclVAT,IVrw.VATCode,vatrates);
 
   itemline = spec & "\\t" & vatcode & ValToString(IVrw.Price,M4Val,"",".",0);
@@ -990,6 +999,7 @@ begin
   end;
 
   res = ExecAPSARequest(LSPDr,path,request,js,false,0);
+LogASPAReceipt("IVVc_PrintRecItem retf=" & retf & ":" & IVrw.Price & ":" & res & ":" & itemline);
 
   if (nonblank(IVrw.SerialNr)) then begin
     if (retf) then begin
@@ -1243,6 +1253,7 @@ begin
   Boolean retf;
   Boolean updatef;
 
+LogASPAReceipt("IVVc_PrintAPSAReceipt_1");
   noErr = 0;
   if (res==noErr) then begin
     res = LoadVATRates(LSPDr,vatrates);  
@@ -1251,51 +1262,63 @@ begin
     end;
 
     CheckIVVcReturn(IVr,retf,retcash,retcnt);
+LogASPAReceipt("IVVc_PrintAPSAReceipt_2 retf=" & retf & ":" & retcash & ":" & retcnt);
     if (retf) then begin
       res = CheckForBalance(LSPDr,retcash);
+LogASPAReceipt("IVVc_PrintAPSAReceipt_3 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;      
       res = IVVc_PrintItemRows(LSPDr,IVr,vatrates,retf,retcash,retcnt);
+LogASPAReceipt("IVVc_PrintAPSAReceipt_4 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
 
       res = GetReceiptNumber(LSPDr,receiptnr);
+LogASPAReceipt("IVVc_PrintAPSAReceipt_5 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
     end else begin
       res = BeginFiscalReceipt(LSPDr);
+LogASPAReceipt("IVVc_PrintAPSAReceipt_6 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
       res = GetReceiptNumber(LSPDr,receiptnr);
+LogASPAReceipt("IVVc_PrintAPSAReceipt_7 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
 
       res = IVVc_PrintItemRows(LSPDr,IVr,vatrates,retf,retcash,retcnt);
+LogASPAReceipt("IVVc_PrintAPSAReceipt_8 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
       res = IVVc_SendAPSAPayments(LSPDr,IVr);
+LogASPAReceipt("IVVc_PrintAPSAReceipt_9 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
       
       res = EndFiscalReceipt(LSPDr,IVr.SerNr);
+LogASPAReceipt("IVVc_PrintAPSAReceipt_10 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;
     end;
+LogASPAReceipt("IVVc_PrintAPSAReceipt_11");
     if (IVr.Prntdf!=0) then begin
+LogASPAReceipt("IVVc_PrintAPSAReceipt_12");
     	RecordCopy(oldIVr,IVr);        
   		IVr.InvComment = "CEKIS";    
       IVr.RefStr = receiptnr;
       IVr.Prntdf = 1;
       IVr.OKFlag = 1;
 	  	if (RecordUpdate(oldIVr,IVr,true)==0) then begin
+LogASPAReceipt("IVVc_PrintAPSAReceipt_13");
         if (IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0) then begin
           res = PrintRecReturnItem(LSPDr,IVr,vatrates);
         end;
@@ -1304,7 +1327,9 @@ begin
         updatef = true;
       end;
     end;    
+LogASPAReceipt("IVVc_PrintAPSAReceipt_14");
 LIVVc_PrintAPSAReceipt:;
+LogASPAReceipt("IVVc_PrintAPSAReceipt_15 updatef=" & updatef & ":" & res);
     if (updatef==false) then begin
       InitTouchlessPaymentReturn(CurWindow);
     end;

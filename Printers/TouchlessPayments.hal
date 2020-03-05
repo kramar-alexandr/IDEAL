@@ -5,7 +5,7 @@ external inner updating procedure IVCashDClassTouchScreenFinishButton();
 external inner procedure IVSumup(var record IVVc,Boolean);
 external inner updating procedure IVFinishAndPrint();
 external procedure PrintTouchlessCardReceipt(string,Integer);
-external updating procedure MessageBoxMain(Longint);
+external procedure MessageBoxMain(Longint);
 external inner updating function LongInt IVCheckIfSaveAllowed(var record IVVc,record IVVc,LongInt,LongInt);
 
 procedure GetTouchlessPaymentURL(record TouchlessPayBlock TPb,var string url,var Longint port)

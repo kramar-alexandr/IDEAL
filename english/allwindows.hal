@@ -35,7 +35,7 @@ external inner function Boolean AllowedInCountry(integer);
 external inner function Integer ResourceWindowResourceType();
 external inner function Boolean ResPlan_Rental();
 external inner function Boolean ResPlan_ProdOperations();
-remote inner function Boolean ReadPOSButtons(string,string,longint,var string,var string,var string,var record POSButtonsVc,var Integer);
+//remote inner function Boolean ReadPOSButtons(string,string,longint,var string,var string,var string,var record POSButtonsVc,var Integer);
 external inner function Boolean TouchScreenLook();
 external inner procedure ExtractObj(string,var Integer,var string);
 external inner function Boolean IsSessionOpen(string,string,Date,Time);
