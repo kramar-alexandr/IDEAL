@@ -844,6 +844,9 @@ begin
   	RecordField(BuyBackItemCode,M4Code,50,0);// Edit ************************** BPI Ukraine - KramarAlexandr - середа, 15 листопада 2017 р. о 21:55:18
   	RecordField(AUTOOKPU,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 10 06 2019 y. at 2:38:12 PM
     RecordField(ForceVATCode,M4Code,10,0);
+    RecordField(RemoveRvrsVATCode,M4Int,0,0);
+    RecordField(ReplaceVATCode,M4Code,10,0);
+    RecordField(WithVATCode,M4Code,10,0);
   EndBlock;  
 
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54

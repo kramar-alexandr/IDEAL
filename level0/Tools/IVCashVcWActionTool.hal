@@ -248,10 +248,19 @@ begin
     end;
   end;
   BlockLoad(iCDb);
+/*
   if (nonblank(iCDb.ForceVATCode)) then begin
     IVCashrw.VATCode = iCDb.ForceVATCode;
     IVCashrw.RvrsVATCode = "";
   end;
+*/
+  if (iCDb.RemoveRvrsVATCode==1) then begin
+    IVCashrw.RvrsVATCode = "";
+  end;
+  if (nonblank(iCDb.ReplaceVATCode) and (iCDb.ReplaceVATCode==IVCashrw.VATCode)) then begin
+    IVCashrw.VATCode = iCDb.WithVATCode;
+  end;
+  
 
   return;
 end;
