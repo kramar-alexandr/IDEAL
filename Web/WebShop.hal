@@ -76,6 +76,7 @@ begin
 	  RemoveCharacterFromString(tstr,INr.Name);
 	  WebOutStringFormatNL("<Descr>" & tstr & "</Descr>" );
 	  WebOutStringFormatNL("<Class>" & INr.DispGroups & "</Class>" ); //????
+	  WebOutStringFormatNL("<Group>" & INr.Group & "</Group>" );
 	  //RemoveCharacterFromString(tstr,INr.Group);
 	  //WebOutStringFormatNL("<Group>" & tstr & "</Group>" );
 	  RemoveCharacterFromString(tstr,INr.SameItem);

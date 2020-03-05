@@ -1214,7 +1214,7 @@ begin
       case kInvoiceRowTypeNormal:
 LkInvoiceRowTypeNormal2:;
         if (nonblank(IVrw.ArtCode)) then begin
-          if (IVrw.Quant<0) then begin
+          if (IVrw.Quant<0 or IVr.InvType==kInvoiceTypeCredit) then begin
             retf = true;
             retcnt = retcnt + 1;
           end;
