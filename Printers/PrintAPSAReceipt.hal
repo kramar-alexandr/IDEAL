@@ -1262,6 +1262,9 @@ LogASPAReceipt("IVVc_PrintAPSAReceipt_1");
     end;
 
     CheckIVVcReturn(IVr,retf,retcash,retcnt);
+    if (retf and retcash==0) then begin
+      goto LSkip;
+    end;
 LogASPAReceipt("IVVc_PrintAPSAReceipt_2 retf=" & retf & ":" & retcash & ":" & retcnt);
     if (retf) then begin
       res = CheckForBalance(LSPDr,retcash);
@@ -1309,6 +1312,7 @@ LogASPAReceipt("IVVc_PrintAPSAReceipt_10 res=" & res);
         goto LIVVc_PrintAPSAReceipt;
       end;
     end;
+LSkip:;
 LogASPAReceipt("IVVc_PrintAPSAReceipt_11");
     if (IVr.Prntdf!=0) then begin
 LogASPAReceipt("IVVc_PrintAPSAReceipt_12");
