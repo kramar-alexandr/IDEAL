@@ -1189,8 +1189,9 @@ begin
     if ReadFirstmain(INr,1,true) then begin end;
     IVrw.Spec = INr.Name;
     IVrw.Sum = sum;
+    IVrw.Price = sum;
     IVrw.Quant = 1;
-    IVVc_PrintRecItem(LSPDr,IVr,IVrw,true,vatrates,vChr,retf,retsum,recnt);
+    IVVc_PrintRecItem(LSPDr,IVr,IVrw,true,vatrates,vChr,true,sum,1);
 
     path = "/json/fp550/Cmdline";
     AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-sum) & """}",request);
