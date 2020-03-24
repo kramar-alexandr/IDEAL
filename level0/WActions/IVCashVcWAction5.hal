@@ -6,7 +6,7 @@ external procedure OpenSwishPayTouchScreenOClass(Integer,LongInt,val,val,val,str
 external function Boolean FindLocalSerialPortDevice(Integer,LongInt,string,var record LSerialPortDeviceVc);
 external function Boolean POSBalanceExistsAfterThis(Date,Time,string,string);
 external function Boolean RequireOpenSession(string);
-forward updating procedure IVCashDClassTouchScreenFinishButtonRun2(Boolean,Integer,Boolean);
+external updating procedure IVCashDClassTouchScreenFinishButtonRun2(Boolean,Integer,Boolean);
 external function Boolean IsSessionOpen(string,string,Date,Time);
 external procedure FisUSBRegisterClerkdll(string);
 external procedure FisUSBUnregisterClerkdll(string);
