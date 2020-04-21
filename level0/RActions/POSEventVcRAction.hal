@@ -113,6 +113,19 @@ begin
   return;
 end;
 
+//CUST-BEGIN
+global
+function Time GetServerTime_iDeal()
+begin
+  Time res;
+  
+  res = CurrentTime;
+
+  GetServerTime_iDeal = res;
+  return;
+end;
+//CUST-END
+
 global
 updating function LongInt POSEventVcRecordSaveAfter(var record POSEventVc POSEr,record POSEventVc POSE2r,LongInt stat,LongInt long4)
 begin

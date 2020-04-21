@@ -9,6 +9,7 @@ external procedure POSEventVc_PrintToFiscalPrinter(var record POSEventVc,Boolean
 external procedure POSAudit_WindowOpen(Integer);
 //CUST-BEGIN
 remote updating procedure iDealRunCashupMn(string,string);
+remote function Time GetServerTime_iDeal();
 //CUST-END
 
 global
@@ -88,7 +89,8 @@ begin
     POSEventr.TransDate = CurrentDate;//date and time must be from server which is assigned in RecordDefaults
   end;
   if (blanktime(POSEventr.TransTime)) then begin
-    POSEventr.TransTime = CurrentTime;
+    //POSEventr.TransTime = CurrentTime; //CUST
+    POSEventr.TransTime = GetServerTime_iDeal; //CUST
   end;
   locPOSEventr.Drawer = POSEventr.Drawer;
 //  if (ReadLastKey("Drawer",locPOSEventr,1,true)) then begin
