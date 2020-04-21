@@ -2713,6 +2713,7 @@ begin
         end;
       end;
     end;
+    IVCashSumup(newIVCashr,true);
   end;
   
   return;
