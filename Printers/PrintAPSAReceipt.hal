@@ -120,10 +120,15 @@ begin
           WriteAreaToFile(reply,"_aspa.error.reply." & tick & ".txt",0);
         end;
         if (stat=="NO") then begin
+          WriteAreaToFile(request,"_aspa.error.request." & tick & ".txt",0);
+          WriteAreaToFile(reply,"_aspa.error.reply." & tick & ".txt",0);
+          LogASPAReceipt("ExecAPSARequest ASPA web server failed to connect to printer");
           res = 12400;//no connection to printer
         end;
       end;
     end;
+  end else begin
+    LogASPAReceipt("ExecAPSARequest connection failed");
   end;
   tick = GetCurTick;
   SetGlobalBoolean("APSACommandInProgress",false);
