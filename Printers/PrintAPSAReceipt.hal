@@ -1523,28 +1523,29 @@ BEGIN
   rstr = "";
 L47:;
   if (pos>=len(ostr)) then begin goto L999; end;
-  c1 = Mid(ostr,pos,2); 
+//logtext(0,"ExtractObj2 :" & Mid(ostr,pos,1) & ":" & asc(Mid(ostr,pos,1)));
+//  c1 = Mid(ostr,pos,2); 
+  c1 = Mid(ostr,pos,1); 
   pos = pos + 1;
-  if ((c1=="\\n")) then begin
+  if (asc(c1)==10) then begin
     if (len(rstr)==0) then begin 
       goto L47; 
     end;
-    pos = pos + 1;
     goto L888;
   end;
   //if ((len(rstr)<20)) then begin 
-    rstr = rstr & left(c1,1);
+    rstr = rstr & c1;
   //end;
   goto L47;
 L888:;
   if (pos>len(ostr)) then begin goto L999; end;
-  c1 = Mid(ostr,pos,2);  
-  pos = pos + 1;
-  if ((c1=="\\n")) then begin 
-    pos = pos + 1;  
+//logtext(0,"ExtractObj2 2 :" & Mid(ostr,pos,1) & ":"  & asc(Mid(ostr,pos,1)));
+//  c1 = Mid(ostr,pos,2); 
+  c1 = Mid(ostr,pos,1); 
+  if (asc(c1)==10) then begin 
+    pos = pos + 1;
     goto L888; 
   end;
-  pos = pos - 1;
 L999:;
   RETURN;
 END;
