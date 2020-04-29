@@ -1212,7 +1212,40 @@ begin
 end;
 
 
-procedure CheckIVVcReturn(record IVVc IVr,var Boolean retf,var val retcash,var Integer retcnt)
+function Integer IVVc_PrintReturnReceipt(record LSerialPortDeviceVc LSPDr,record IVVc IVr,val retsum,string text,vector val vatrates)
+begin
+  record RetItmBlock RetItmb;
+  record INVc INr;
+  Boolean retf;
+  Integer recnt;
+  area request;
+  JSON js;
+  string 255 path;
+  row IVVc IVrw;
+  vector string 255 vChr;
+  Integer res,noErr;
+ 
+  LoadSpecialCharacters(vChr);
+
+  IVrw.Spec = text;
+  IVrw.Sum = retsum;
+  IVrw.Price = retsum;
+  IVrw.Quant = 1;
+  IVVc_PrintRecItem(LSPDr,IVr,IVrw,true,vatrates,vChr,true,retsum,1);
+
+  path = "/json/fp550/Cmdline";
+  AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-retsum) & """}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request,js,false,0);
+  if (res!=noErr) then begin
+    goto LPrintItemRows;
+  end;
+
+  IVVc_PrintReturnReceipt = res;
+  return;
+end;
+
+procedure CheckIVVcReturn(record IVVc IVr,var Boolean retf,var val retcash,var Integer retcnt,var string rettext)
 begin
   row IVVc IVrw;
   Integer i,rwcnt;
@@ -1233,17 +1266,23 @@ LkInvoiceRowTypeNormal2:;
           if (IVrw.Quant<0 or IVr.InvType==kInvoiceTypeCredit) then begin
             retf = true;
             retcnt = retcnt + 1;
+            rettext = IVrw.Spec;
           end;
         end;
       case kInvoiceRowTypeVoid:
         retf = true;
         retcnt = retcnt + 1;
+        rettext = IVrw.Spec;
       case kInvoiceRowTypeCashPayment:
         if (PayDealIsLease(IVrw.PayMode)==false) then begin//this should be false anyway
           retcash = retcash +  MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
         end;
     end;
-  end;   
+  end;  
+
+  if (retf and retcnt>1) then begin
+    rettext = USetStr(300010);
+  end; 
   return;
 end;
 
@@ -1253,7 +1292,7 @@ begin
   record IVVc oldIVr;
   Integer noErr,res;
   vector val vatrates;  
-  string 255 receiptnr;
+  string 255 receiptnr,rettext;
   val retcash;
   Integer retcnt;
   Boolean retf;
@@ -1267,7 +1306,7 @@ LogASPAReceipt("IVVc_PrintAPSAReceipt_1");
       goto LIVVc_PrintAPSAReceipt;
     end;
 
-    CheckIVVcReturn(IVr,retf,retcash,retcnt);
+    CheckIVVcReturn(IVr,retf,retcash,retcnt,rettext);
     if (retf and retcash==0) then begin
       goto LSkip;
     end;
@@ -1278,7 +1317,8 @@ LogASPAReceipt("IVVc_PrintAPSAReceipt_3 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
       end;      
-      res = IVVc_PrintItemRows(LSPDr,IVr,vatrates,retf,retcash,retcnt);
+      //res = IVVc_PrintItemRows(LSPDr,IVr,vatrates,retf,retcash,retcnt);
+      res = IVVc_PrintReturnReceipt(LSPDr,IVr,retcash,rettext,vatrates);
 LogASPAReceipt("IVVc_PrintAPSAReceipt_4 res=" & res);
       if (res!=noErr) then begin
         goto LIVVc_PrintAPSAReceipt;
