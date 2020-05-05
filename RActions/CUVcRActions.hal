@@ -3,7 +3,8 @@ global
 updating function LongInt CUVcRecordCheck(record CUVc CUr,record CUVc CU2r,LongInt stat,LongInt long4)
 begin
   LongInt res;
-  
+  record CUVc lCUr;
+  record AccBlock ARRec;
 
   res = inner.CUVcRecordCheck(CUr,CU2r,stat,long4);
 
@@ -17,7 +18,35 @@ begin
   if (CUr.NoRvrsVAT==1) then begin
     CUr.RvrsVAT = 0;
   end;
-  
+
+  if (res!=-1) then begin
+    if (nonblank(CUr.RegNr1)) then begin
+      lCUr.RegNr1 = CUr.RegNr1;
+      if (ReadFirstKey("RegNr1",lCUr,1,true)) then begin
+        if (lCUr.Code!=CUr.Code) then begin
+          BlockLoad(ARRec);
+          if (ARRec.NoWarnOnDupVATnoOnCU==0) then begin
+    //        MessageBox(1709,": " & lCUr.Code);
+          //RecordCheckError(1709,CUr.Code,-1,"RegNr1");
+            res = -1;
+          end;
+        end else begin
+          lCUr.RegNr1 = CUr.RegNr1;
+          if (ReadLastKey("RegNr1",lCUr,1,true)) then begin
+            if (lCUr.Code!=CUr.Code) then begin
+              BlockLoad(ARRec);
+              if (ARRec.NoWarnOnDupVATnoOnCU==0) then begin
+  //              MessageBox(1709,": " & lCUr.Code);
+  //            RecordCheckError(1709,CUr.Code,-1,"RegNr1");
+                res = -1;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+
   CUVcRecordCheck = res;
   return;
 end;
