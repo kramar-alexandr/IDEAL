@@ -7570,3 +7570,28 @@ begin
   CheckBox(h,v+=16,0,"Disallow reversed VAT on POS",RemoveRvrsVATCode);
   EndWindow;
 end;
+
+
+window GiftVoucherSalesTouchScreenDClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer,iPad")
+begin
+  real h,h2,v,vs;
+  real fieldh,fieldh2,keypadh,keypadh2,keypadv,fntsize;
+
+  WindowBegin("Parduoti dov. kuponˆ",GiftVoucherSalesTouchScreenDClass,CGother,RcType);
+//  Modality(kModalityGlobal);
+  UseView(RcVc);
+  SetWRect(80,200,600,510);
+  AutoSizeWindow(false);
+  SetupColumWithKeypadWindow(fieldh,fieldh2,keypadh,keypadh2,keypadv,vs,fntsize);
+
+
+  EditFieldTL(fieldh,v=6,100,"Dovan÷ kupono nr.",M4Str,Normal,100,f1,false,GCSClass);
+
+  v = keypadv;
+  POSKeyPad(v,keypadh,v + 250,keypadh2,2,"NPTSPaymentToolKeyPad",kKeyPadEnter);  
+  v = v + 255;
+  SplitButton(keypadh,v,keypadh2,v + vs,2,"CancelNPTSCashPaymentTClass","Atäaukti" & F_Label("F2"),"ProceedGiftVoucherSalesTouchScreenDClass","T«sti" & F_Label("F1"),20);  
+
+  EndWindow;
+end;
