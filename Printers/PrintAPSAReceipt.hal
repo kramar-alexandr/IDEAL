@@ -339,7 +339,7 @@ begin
   
   if (retf) then begin
     IVCashrw.Price = retcash;
-    if (IVCashrw.Quant>0) then begin
+    if (IVCashrw.Quant<0) then begin
       IVCashrw.Quant = -IVCashrw.Quant;//to make it positive
     end;
     if (retcnt>1) then begin
