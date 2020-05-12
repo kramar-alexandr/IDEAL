@@ -99,6 +99,7 @@ external function val FindVAT(string,val,Integer,Integer);// Edit **************
 external outer function Boolean InitTouchlessPayment(val,string,string,var string,Longint,string,Integer,string,string);
 remote procedure IVCashDClassTouchScreenCreditNoteRemote_iDeal(Longint,var record IVCashVc);
 external updating procedure IVCashDClassTouchScreenFinishButtonRun2(Boolean,Integer,Boolean);
+external outer function Boolean PayDealIsLease(string);
 //CUST-END
 
 global 
@@ -4935,8 +4936,10 @@ begin
               goto LProceedNPTSPaymentOneModeTClass;
 //CUST-BEGIN
             case 201:
-              InitTouchlessPayment(received,paymode,alabel[selpmrow],transactionid,IVCr.SerNr,crncy,wn,"","");
-              goto LProceedNPTSPaymentOneModeTClass;
+              if (PayDealIsLease(paymode)==false) then begin
+                InitTouchlessPayment(received,paymode,alabel[selpmrow],transactionid,IVCr.SerNr,crncy,wn,"","");
+                goto LProceedNPTSPaymentOneModeTClass;
+              end;
 //CUST-END
           end;
 

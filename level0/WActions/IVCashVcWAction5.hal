@@ -142,6 +142,7 @@ external outer function Boolean ConfirmLastTouchlessPayment();
 external outer procedure ShowTouchlessCancelMessage();
 external outer function Boolean InitTouchlessPaymentReturn(Integer);
 external outer procedure ReprintLastASPAReceipt();
+external outer function Boolean PayDealIsLease(string);
 //CUST-END
 
 enum begin
@@ -1928,10 +1929,14 @@ retval is calculted in sumup
             CredCardPOSPIVCashsmExecute(POSBrw.Code,POSBrw.Label);
 //CUST-BEGIN
           case 201:
-            if (InitTouchlessPayment(IVCashr.Sum4-IVCashr.TendValue,POSBrw.Code,POSBrw.Label,tstr,IVCashr.SerNr,IVCashr.CurncyCode,wn,"","")) then begin
-              //IVCashr.OKFlag = 0;
-              //PutWindowRecord(wn,IVCashr);
-              //qupdating.IVCashDClassTouchScreenFinishButtonRun2(true,-1,true);
+            if (PayDealIsLease(POSBrw.Code)==false) then begin
+              if (InitTouchlessPayment(IVCashr.Sum4-IVCashr.TendValue,POSBrw.Code,POSBrw.Label,tstr,IVCashr.SerNr,IVCashr.CurncyCode,wn,"","")) then begin
+                //IVCashr.OKFlag = 0;
+                //PutWindowRecord(wn,IVCashr);
+                //qupdating.IVCashDClassTouchScreenFinishButtonRun2(true,-1,true);
+              end;
+            end else begin
+              CredCardPOSPIVCashsm;
             end;
 //CUST-END
           otherwise

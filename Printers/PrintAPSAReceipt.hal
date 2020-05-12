@@ -379,6 +379,7 @@ begin
   return;
 end;
 
+global
 function Boolean PayDealIsLease(string pmcode)
 begin
   record RestPMBlock RPMb;
