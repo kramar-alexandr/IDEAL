@@ -5349,7 +5349,7 @@ begin
 		SpecialMenu("Perskai‹iuoti svor° ir tðr°",' ',10,"RecalcWeightIVDsm");
 		SpecialMenu("Atnaujinti valiutin° kainoraät°",' ',5,"UpdatePricesIVDsm");
 		SpecialMenu("Spausdinti kasos pajamas-iälaidas",' ',7,"PrintCashInOutIVDsm");
-		SpecialMenu("Spausdinti ° fiskalin° spausdintuvˆ",' ',19,"PrintToFiscPrntIVDsm");
+		//SpecialMenu("Spausdinti ° fiskalin° spausdintuvˆ",' ',19,"PrintToFiscPrntIVDsm");//CUST-REMOVED
 		SpecialMenu("Mok˜jimas kortele",' ',22,"CCPayIVDsm");
 		SpecialMenu("Keisti dalinius mok˜jimus",' ',24,"EditInstalmentIVDsm");
 		SpecialMenu("Persi÷sti el. faktðrˆ",' ',21,"ResendEIVDsm");
