@@ -699,7 +699,9 @@ begin
       IVr.ShipAddr3 = XmlGet(inv,"Invoice/ShipAddr3");
       IVr.DelAddr3 = XmlGet(inv,"Invoice/ShipAddr4");
       IVr.DelAddr4 = XmlGet(inv,"Invoice/ShipAddr5");
-      IVr.eMail = XmlGet(inv,"Invoice/Email");
+      if (nonblank(XmlGet(inv,"Invoice/Email"))) then begin
+        IVr.eMail = XmlGet(inv,"Invoice/Email");
+      end;
       IVr.SaleType = "WEBSHOP";
       IVr.DeliveryType = XmlGet(inv,"Invoice/DeliveryType");
       // EVS: DESK-1585
