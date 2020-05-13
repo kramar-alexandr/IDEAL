@@ -15,6 +15,15 @@ remote procedure idealwriteLines(var record INVc);
 external inner function val FindVAT(string,val,Integer,Integer);
 external inner function string 60 AddObjectToObjectList(string,string); //MDS HAL-393
 external procedure UpdateiDealRvrsVATCodes(var record IVVc);
+external inner function Boolean PasteCustInOrder(var record ORVc,string,string,var string,var string);
+external inner procedure ORVc_PasteOrdDate(var record ORVc);
+external inner procedure ORVc_PastePayDeal(var record ORVc);
+external inner function Boolean ORVc_PasteArtCode(var record ORVc,Integer,var string,var string,Boolean);
+external inner procedure ORVc_PasteQuant(var record ORVc,Integer,Boolean,var Boolean);
+external inner procedure ORVc_PastePrice(var record ORVc,Integer,var Boolean);
+external inner procedure UpdateiDealRvrsVATCodesOrder(var record ORVc,Integer,Boolean);
+external inner procedure ORDchsum(var record ORVc,Integer);
+
 
 procedure RemoveCharacterFromString(var string res,string tstr)
 BEGIN
@@ -690,6 +699,7 @@ begin
       IVr.ShipAddr3 = XmlGet(inv,"Invoice/ShipAddr3");
       IVr.DelAddr3 = XmlGet(inv,"Invoice/ShipAddr4");
       IVr.DelAddr4 = XmlGet(inv,"Invoice/ShipAddr5");
+      IVr.eMail = XmlGet(inv,"Invoice/Email");
       IVr.SaleType = "WEBSHOP";
       IVr.DeliveryType = XmlGet(inv,"Invoice/DeliveryType");
       // EVS: DESK-1585
@@ -785,6 +795,183 @@ begin
 return;
 end;
 
+global webpublic
+updating procedure WebNewOrder()
+begin
+  record CUVc CUr;
+  record ORVc ORr,OR2r;
+  record INVc INr;
+  record PDVc PDr;
+  record LocationVc Locr;
+  row ORVc ORrw;
+  integer i,k;
+  string 255 tstr,warning,errstr,prepstr,invdatewarn,transdatewarn,paydeal,inwarning;
+  boolean testf;
+  xml inv;
+  area a;
+  Integer err1,err2;
+  Integer sernrf;
+  Boolean serportf;
+  record LSerialPortDeviceVc LSPDr;
+  record LocalMachineBlock LMb;
+  record ItemExportBlock ItmExportBl;
+  val price;
+  Boolean chsum;
+
+  BlockLoad(ItmExportBl);
+  //blockload(LMb);
+  //blockload(LSPDr);
+  
+  WebGetRawPostData(a);
+  inv = parseXmlArea(a);
+  if (SetCompany(1,false)) then begin end;
+  tstr = "";
+  testf = true;
+  tstr = XmlGet(inv,"Invoice/SerNr");
+  if tstr != "" then begin
+    ORr.SerNr = XmlGet(inv,"Invoice/SerNr");
+    if ReadFirstMain(ORr,1,true) then begin
+      testf = false;
+      tstr = "Toks fakturos nr. jau yra sistemoje " & XmlGet(inv,"Invoice/SerNr");
+    end;
+    RecordNew(ORr);
+    ORr.SerNr = XmlGet(inv,"Invoice/SerNr");
+    CUr.Code = XmlGet(inv,"Invoice/CustCode");
+    if ReadFirstMain(CUr,1,true) then begin
+      ORr.CustCode = XmlGet(inv,"Invoice/CustCode");
+      if (PasteCustInOrder(ORr,ORr.CustCode,"",warning,errstr)) then begin
+      end;
+    end else begin
+      testf = false;
+      tstr = "Pirkejas nerastas " & XmlGet(inv,"Invoice/CustCode");
+    end;
+    if XmlGet(inv,"Invoice/Date") != "" then begin
+      ORr.OrdDate = XmlGet(inv,"Invoice/Date");
+      ORVc_PasteOrdDate(ORr);
+    end else begin
+      testf = false;
+      tstr = "Neteisinga fakturos data";
+    end;
+    paydeal = XmlGet(inv,"Invoice/PayDeal");
+    PDr.Code = paydeal;
+    if ReadFirstMain(PDr,1,true) then begin
+      ORr.PayDeal = paydeal;
+      ORVc_PastePayDeal(ORr);
+    end else begin
+      testf = false;
+      tstr = "Mokejimo salyga nerasta " & XmlGet(inv,"Invoice/PayDeal");
+    end;
+    Locr.Code = XmlGet(inv,"Invoice/Location");
+    if ReadFirstMain(Locr,1,true) then begin
+      ORr.Location = XmlGet(inv,"Invoice/Location");
+    end else begin
+      testf = false;
+      tstr = "Nerasta patalpa " & XmlGet(inv,"Invoice/Location");
+    end;
+    if testf == true then begin
+      k = 0;
+      ORr.ShipAddr1 = XmlGet(inv,"Invoice/ShipAddr1");
+      ORr.ShipAddr2 = XmlGet(inv,"Invoice/ShipAddr2");
+      ORr.ShipAddr3 = XmlGet(inv,"Invoice/ShipAddr3");
+      ORr.DelAddr3 = XmlGet(inv,"Invoice/ShipAddr4");
+      ORr.DelAddr4 = XmlGet(inv,"Invoice/ShipAddr5");
+    //  ORr.eMail = XmlGet(inv,"Invoice/Email");
+    //  IVr.SaleType = "WEBSHOP";
+    //  IVr.DeliveryType = XmlGet(inv,"Invoice/DeliveryType");
+      // EVS: DESK-1585
+      ORr.InclVAT = 2;
+    //  IVr.UpdStockFlag = 0;
+      // :EVS
+      ORr.Objects = AddObjectToObjectList(ORr.Objects,ItmExportBl.ItmObject);     //MDS HAL-393
+      if (nonblank(XmlGet(inv,"Invoice/Objects"))) then begin
+        ORr.Objects = XmlGet(inv,"Invoice/Objects");
+      end;
+
+      while (xmlNodeExists(inv, "Invoice/Items/Item[" & k & "]")) begin
+        ClearRow(ORr,ORrw,1);
+        INr.Code = XmlGet(inv,"Invoice/Items/Item[" & k & "]/Code");
+        if ReadFirstMain(INr,1,true) then begin
+          ORrw.ArtCode = INr.Code;
+          MatRowPut(ORr,k,ORrw);
+          if (ORVc_PasteArtCode(ORr,k,inwarning,warning,false)) then begin    
+            ORDchsum(ORr,k);
+          end;
+        end else begin
+          testf = false;
+          tstr = "Nerasta preke " & XmlGet(inv,"Invoice/Items/Item[" & k & "]/Code");
+        end;
+        
+        if stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Qty"),M4UVal) > 0 then begin
+          MatRowGet(ORr,k,ORrw);
+          ORrw.Quant = stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Qty"),M4Uval);
+          MatRowPut(ORr,k,ORrw);
+          ORVc_PasteQuant(ORr,k,false,chsum);
+        end else begin
+          testf = false;
+          tstr = "Prekes kiekis nulinis";
+        end;
+        if stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Price"),M423Val) > 0 then begin
+          MatRowGet(ORr,k,ORrw);
+          price = stringtoval(XmlGet(inv,"Invoice/Items/Item[" & k & "]/Price"),M423val);
+          ORrw.Price = price - FindVAT(ORrw.VATCode,price,ORr.InclVAT,ORr.NoTAXonVAT);
+          // EVS: DESK-1585
+          //IVrw.PriceExclVAT = IVrw.Price;
+/*
+          if (nonblank(ORrw.RvrsVATCode)) then begin
+            ORrw.Price = ORrw.PriceExclVAT;
+          end else begin
+            ORrw.Price = price;
+          end;
+*/
+          // :EVS
+          MatRowPut(ORr,k,ORrw);
+          ORVc_PastePrice(ORr,k,chsum);
+        end else begin
+          testf = false;
+          tstr = "Prekes kaina nuline";
+        end;
+
+        k = k + 1;
+      end;
+    end;
+    UpdateiDealRvrsVATCodesOrder(ORr,-1,false);
+    //IVSumup(IVr,true);
+    if testf == true then begin
+      if RecordInsert(ORr,true) == true then begin
+        WebSetContentType("text/xml");
+        WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+        WebOutStringFormatNL("<Result>");
+        WebOutStringFormatNL("<Status>" & "OK" & "</Status>");
+        WebOutStringFormatNL("<Comment>Faktura issaugota</Comment>");
+        WebOutStringFormatNL("</Result>");  
+      end else begin
+        WebSetContentType("text/xml");
+        WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+        WebOutStringFormatNL("<Result>");
+        WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+        WebOutStringFormatNL("<Comment>Fakturos issaugoti nepavyko</Comment>");
+        WebOutStringFormatNL("</Result>");
+      end;
+    end;
+    
+    if testf == false then begin
+      WebSetContentType("text/xml");
+      WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+      WebOutStringFormatNL("<Result>");
+      WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+      WebOutStringFormatNL("<Comment>" & "Order insert failed, " & tstr & "</Comment>");
+      WebOutStringFormatNL("</Result>");
+    end;
+  end else begin
+    WebSetContentType("text/xml");
+    WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+    WebOutStringFormatNL("<Result>");
+    WebOutStringFormatNL("<Status>" & "-1" & "</Status>");
+    WebOutStringFormatNL("<Comment>" & "Order insert failed, no SerNr" & "</Comment>");
+    WebOutStringFormatNL("</Result>");
+  end;
+return;
+end;
 
 global webpublic
 updating procedure WebItemReservation()
