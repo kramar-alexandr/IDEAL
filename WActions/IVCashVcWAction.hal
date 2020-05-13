@@ -1,0 +1,16 @@
+global
+function Boolean NPTSCashPaymentTClassOnOpenWindow(integer wn)
+begin
+  record RcVc RepSpec;
+  Boolean res;
+
+  GetWindowRecord(wn,RepSpec);
+  if (blank(GetWindowString(wn,"NPTSCashPaymentCashReceived0")) and RepSpec.vals1<0) then begin
+    PutWindowString(wn,"NPTSCashPaymentCashReceived0",ValToString(RepSpec.vals1,M4Val,ThousandSeparator,DecimalSeparator,0));
+  end;
+
+  res = inner.NPTSCashPaymentTClassOnOpenWindow(wn);
+
+  NPTSCashPaymentTClassOnOpenWindow = res;
+  return;
+end;
