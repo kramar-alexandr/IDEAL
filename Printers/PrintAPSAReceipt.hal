@@ -626,26 +626,30 @@ begin
         goto LkInvoiceRowTypeNormal2;
       case kInvoiceRowTypeNormal:
 LkInvoiceRowTypeNormal2:;
-        if (nonblank(IVCashrw.ArtCode)) then begin
-          res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates,vChr,retf,retcash,retcnt);
-          if (res!=noErr) then begin
-            goto LPrintItemRows;
-          end;
-        end else begin
-          if (retf) then begin
-            res = PrintCommentLine2(LSPDr,IVCashrw.Spec);
+        if (IVCashrw.Quant>0) then begin
+          if (nonblank(IVCashrw.ArtCode)) then begin
+            res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates,vChr,retf,retcash,retcnt);
+            if (res!=noErr) then begin
+              goto LPrintItemRows;
+            end;
           end else begin
-            res = PrintCommentLine(LSPDr,IVCashrw.Spec,vChr);            
-          end;
-          if (res!=noErr) then begin
-            goto LPrintItemRows;
+            if (retf) then begin
+              res = PrintCommentLine2(LSPDr,IVCashrw.Spec);
+            end else begin
+              res = PrintCommentLine(LSPDr,IVCashrw.Spec,vChr);            
+            end;
+            if (res!=noErr) then begin
+              goto LPrintItemRows;
+            end;
           end;
         end;
+/*
       case kInvoiceRowTypeVoid:
         res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,true,vatrates,vChr,retf,retcash,retcnt);
         if (res!=noErr) then begin
           goto LPrintItemRows;
         end;
+*/
     case kInvoiceRowTypeGiftVoucherSold:
       if (IVCashrw.GCNr>0) then begin
         IVCashrw.Spec = USetStr(24194) & " " & IVCashrw.GCNr;
@@ -665,15 +669,6 @@ LkInvoiceRowTypeNormal2:;
           goto LPrintItemRows;
         end;
       end;
-    end;
-  end;
-  if (retf) then begin
-    path = "/json/fp550/Cmdline";
-    AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-retcash) & """}",request);
-
-    res = ExecAPSARequest(LSPDr,path,request,js,false,0);
-    if (res!=noErr) then begin
-      goto LPrintItemRows;
     end;
   end;
 LPrintItemRows:;  
@@ -790,7 +785,7 @@ begin
   return;
 end;
 
-procedure CheckIVCashReturn(record IVCashVc IVCashr,var Boolean retf,var val retcash,var Integer retcnt)
+procedure CheckIVCashReturn(record IVCashVc IVCashr,var Boolean retf,var Boolean normalf,var val retcash,var Integer retcnt,var string rettext)
 begin
   row IVCashVc IVCashrw;
   Integer i,rwcnt;
@@ -807,17 +802,54 @@ LkInvoiceRowTypeNormal2:;
           if (IVCashrw.Quant<0) then begin
             retf = true;
             retcnt = retcnt + 1;
+          end else begin
+            normalf = true;
           end;
         end;
       case kInvoiceRowTypeVoid:
         retf = true;
         retcnt = retcnt + 1;
+      case kInvoiceRowTypeGiftVoucherSold:
+        normalf = true;
       case kInvoiceRowTypeCashPayment:
         if (PayDealIsLease(IVCashrw.PayMode)==false) then begin
           retcash = retcash +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         end;
     end;
   end;   
+  if (retf and retcnt>1) then begin
+    rettext = USetStr(300010);
+  end; 
+  return;
+end;
+
+function Integer IVCashVc_PrintReturnReceipt(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,val retsum,string text,vector val vatrates)
+begin
+  record RetItmBlock RetItmb;
+  record INVc INr;
+  Boolean retf;
+  Integer recnt;
+  area request;
+  JSON js;
+  string 255 path;
+  row IVCashVc IVCashrw;
+  vector string 255 vChr;
+  Integer res,noErr;
+ 
+  LoadSpecialCharacters(vChr);
+
+  IVCashrw.Spec = text;
+  IVCashrw.Sum = retsum;
+  IVCashrw.Price = retsum;
+  IVCashrw.Quant = 1;
+  IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,true,vatrates,vChr,true,retsum,1);
+
+  path = "/json/fp550/Cmdline";
+  AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-retsum) & """}",request);
+
+  res = ExecAPSARequest(LSPDr,path,request,js,false,0);
+
+  IVCashVc_PrintReturnReceipt = res;
   return;
 end;
 
@@ -829,10 +861,10 @@ begin
   record LocalMachineBlock LMb;
   record MachineCashVc MCr;
   vector val vatrates;
-  string 255 receiptnr;
+  string 255 receiptnr,rettext;
   val retcash;
   Integer retcnt;
-  Boolean retf;
+  Boolean retf,normalf;
   
   noErr = 0;
   //res = APSACheckStatus;
@@ -842,7 +874,7 @@ begin
 LogText(0,"IVCashVc_PrintAPSAReceipt err=LoadVATRates");
       goto LIVCashVc_PrintAPSAReceipt;
     end;
-    CheckIVCashReturn(IVCashr,retf,retcash,retcnt);
+    CheckIVCashReturn(IVCashr,retf,normalf,retcash,retcnt,rettext);
     if (retf) then begin
       res = CheckForBalance(LSPDr,retcash);
       if (res!=noErr) then begin
@@ -850,12 +882,13 @@ LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCashHasNegativeAmounts");
         goto LIVCashVc_PrintAPSAReceipt;
       end;      
       
-      res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates,retf,retcash,retcnt);
+      res = IVCashVc_PrintReturnReceipt(LSPDr,IVCashr,retcash,rettext,vatrates);
       if (res!=noErr) then begin
 LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCash_PrintItemRows1");
         goto LIVCashVc_PrintAPSAReceipt;
       end;
-    end else begin
+    end;
+    if (normalf) then begin
       res = BeginFiscalReceipt(LSPDr);
       if (res!=noErr) then begin
 LogText(0,"IVCashVc_PrintAPSAReceipt err=BeginFiscalReceipt");
@@ -909,10 +942,10 @@ begin
   record LocalMachineBlock LMb;
   record MachineCashVc MCr;
   vector val vatrates;
-  string 255 receiptnr;
+  string 255 receiptnr,rettext;
   val retcash;
   Integer retcnt;
-  Boolean retf;
+  Boolean retf,normalf;
   
   HALCallStack;
   noErr = 0;
@@ -938,7 +971,7 @@ begin
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
-      CheckIVCashReturn(IVCashr,retf,retcash,retcnt);
+      CheckIVCashReturn(IVCashr,retf,normalf,retcash,retcnt,rettext);
       res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates,retf,retcash,retcnt);
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
@@ -1238,9 +1271,6 @@ begin
   AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-retsum) & """}",request);
 
   res = ExecAPSARequest(LSPDr,path,request,js,false,0);
-  if (res!=noErr) then begin
-    goto LPrintItemRows;
-  end;
 
   IVVc_PrintReturnReceipt = res;
   return;
