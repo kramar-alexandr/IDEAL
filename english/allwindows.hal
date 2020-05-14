@@ -1744,6 +1744,8 @@ begin
 //  EditField(h,v+=vs,70,"Force VAT code",Normal,ForceVATCode,false,VATCodeSClass);//CUST
   EditField(h,v+=vs,70,"Replace VAT code",Normal,ReplaceVATCode,false,VATCodeSClass);//CUST
   EditField(h,v+=vs,70,"With",Normal,WithVATCode,false,VATCodeSClass);//CUST
+  EditField(h,v+=vs,70,"GV Diff. Item",Normal,GVDiffItem,false,INSClass);//CUST
+
   CheckBox(h,v+=20,0,"OK Goods Receipts",AUTOOKPU);
   CheckBox(h,v+=16,0,"Run Cash Up Maintenance when closing session",RunCashupMaintenance);
   CheckBox(h,v+=16,0,"Disallow reversed VAT on POS",RemoveRvrsVATCode);

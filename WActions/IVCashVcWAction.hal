@@ -1,3 +1,48 @@
+external inner function Boolean IVCashVc_PasteArtCode(var record IVCashVc,Integer,Boolean,var string,var Integer);
+external inner function Boolean IVCashDchrsum(record IVCashVc,Integer,Integer);
+external inner procedure IVCashDchsum(record IVCashVc,Integer);
+external inner procedure IVCashSumup(var record IVCashVc,Boolean);
+
+global
+function Boolean PasteGVDifferenceItem(var record IVCashVc IVCashr)
+begin
+  record iDealCashierDefBlock CDb;
+  row IVCashVc IVCashrw;
+  val diff;
+  string 255 inwarning;
+  Integer sernrf,rwcnt;
+  record GeneralOptionBlock GenOptRec;
+  Boolean res;
+
+  res = true;
+  diff = IVCashr.RetValue;
+  if (diff>0) then begin
+    BlockLoad(CDb);
+    if (nonblank(CDb.GVDiffItem)) then begin
+      rwcnt = MatRowCnt(IVCashr);
+      ClearRow(IVCashr,IVCashrw,kInvoiceRowTypeNormal);    
+      IVCashrw.ArtCode = CDb.GVDiffItem;
+      MatRowPut(IVCashr,rwcnt,IVCashrw);
+      if (IVCashVc_PasteArtCode(IVCashr,rwcnt,false,inwarning,sernrf)) then begin
+        MatRowGet(IVCashr,rwcnt,IVCashrw);
+        IVCashrw.Quant = 1.00;
+        IVCashrw.Price = diff;
+        MatRowPut(IVCashr,rwcnt,IVCashrw);
+        BlockLoad(GenOptRec);
+        if (IVCashDchrsum(IVCashr,rwcnt,GenOptRec.UseDiscount)) then begin
+          IVCashDchsum(IVCashr,rwcnt);
+          IVCashSumup(IVCashr,true);
+        end;
+      end;
+    end else begin
+      res = false;
+    end;
+  end;
+
+  PasteGVDifferenceItem = res;
+  return;
+end;
+
 global
 function Boolean NPTSCashPaymentTClassOnOpenWindow(integer wn)
 begin
