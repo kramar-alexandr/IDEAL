@@ -139,6 +139,7 @@ begin
   string 255 paymode;
   record DefCashBlock DCb;
   row PMBlock PMrw;
+  string 2 day,month;//CUST
 
   wn = CurWindow;
   mwn = MotherWindow(wn);
@@ -168,6 +169,25 @@ begin
         end;
       end;  
       paymode = GetWindowString(wn,"PayMode");
+//CUST-BEGIN
+      if getday(currentdate) < 10 then begin
+        day = "0" & getday(currentdate);
+      end else begin
+        day = getday(currentdate);
+      end;
+      if getmonth(currentdate) < 10 then begin
+        month = "0" & getmonth(currentdate);
+      end else begin
+        month = getmonth(currentdate);
+      end;
+
+      if GCr.DepositFlag == 0 then begin
+        GCr.BarCode = "1" & month & day & GCr.SerNr;
+      end else begin
+        GCr.BarCode = "2" & month & day & GCr.SerNr;
+      end;
+//CUST-END
+
       GCr.OKFlag = 1;
       PutWindowRecord(wn,GCr);
       if (WindowDoOK(wn,0)) then begin
