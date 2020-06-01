@@ -789,6 +789,7 @@ procedure CheckIVCashReturn(record IVCashVc IVCashr,var Boolean retf,var Boolean
 begin
   row IVCashVc IVCashrw;
   Integer i,rwcnt;
+  val retcash2;
   
   rwcnt = MatRowCnt(IVCashr);
   for (i=0;i<rwcnt;i=i+1) begin
@@ -802,6 +803,7 @@ LkInvoiceRowTypeNormal2:;
           if (IVCashrw.Quant<0) then begin
             retf = true;
             retcnt = retcnt + 1;
+            retcash2 = retcash2 + IVCashrw.Sum;
           end else begin
             normalf = true;
           end;
@@ -809,6 +811,7 @@ LkInvoiceRowTypeNormal2:;
       case kInvoiceRowTypeVoid:
         retf = true;
         retcnt = retcnt + 1;
+        retcash2 = retcash2 + IVCashrw.Sum;//iDeal doesn't do this usually
       case kInvoiceRowTypeGiftVoucherSold:
         normalf = true;
       case kInvoiceRowTypeCashPayment:
@@ -819,7 +822,15 @@ LkInvoiceRowTypeNormal2:;
   end;   
   if (retf and retcnt>1) then begin
     rettext = USetStr(300010);
-  end; 
+  end;
+  if (retf) then begin
+    if (retcash<0) then begin
+      retcash = -retcash;
+    end else begin
+      retcash = -retcash2;
+    end;
+  end;
+
   return;
 end;
 
@@ -875,6 +886,7 @@ LogText(0,"IVCashVc_PrintAPSAReceipt err=LoadVATRates");
       goto LIVCashVc_PrintAPSAReceipt;
     end;
     CheckIVCashReturn(IVCashr,retf,normalf,retcash,retcnt,rettext);
+LogASPAReceipt("IVCashVc_PrintAPSAReceipt retf=" & retf & ":" & retcash & ":" & retcnt & ":" & normalf);
     if (retf) then begin
       res = CheckForBalance(LSPDr,retcash);
       if (res!=noErr) then begin
