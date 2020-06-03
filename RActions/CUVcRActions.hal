@@ -31,8 +31,36 @@ begin
             res = -1;
           end;
         end else begin
+          ResetLoop(lCUr);
           lCUr.RegNr1 = CUr.RegNr1;
           if (ReadLastKey("RegNr1",lCUr,1,true)) then begin
+            if (lCUr.Code!=CUr.Code) then begin
+              BlockLoad(ARRec);
+              if (ARRec.NoWarnOnDupVATnoOnCU==0) then begin
+  //              MessageBox(1709,": " & lCUr.Code);
+  //            RecordCheckError(1709,CUr.Code,-1,"RegNr1");
+                res = -1;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+    if (nonblank(CUr.VATNr)) then begin
+      ResetLoop(lCUr);
+      lCUr.VATNr = CUr.VATNr;
+      if (ReadFirstKey("VATNr",lCUr,1,true)) then begin
+        if (lCUr.Code!=CUr.Code) then begin
+          BlockLoad(ARRec);
+          if (ARRec.NoWarnOnDupVATnoOnCU==0) then begin
+    //        MessageBox(1709,": " & lCUr.Code);
+          //RecordCheckError(1709,CUr.Code,-1,"RegNr1");
+            res = -1;
+          end;
+        end else begin
+          ResetLoop(lCUr);
+          lCUr.VATNr = CUr.VATNr;
+          if (ReadLastKey("VATNr",lCUr,1,true)) then begin
             if (lCUr.Code!=CUr.Code) then begin
               BlockLoad(ARRec);
               if (ARRec.NoWarnOnDupVATnoOnCU==0) then begin
