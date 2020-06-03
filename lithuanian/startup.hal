@@ -1,18 +1,18 @@
 event startup
 begin
-  SetLangMode(LangLithuanian, "LIT", 0);
+  SetLangMode(LangLithuanian, "LIT", 2);
   
   Register("Item links","Item links",INLinkVc,modWebShopNG);
   Setting("Item link types",INLinkTypeLClass,modWebShopNG);
   Setting("Item Color",ItemColorLClass,modWebShopNG);
-  Setting("Bendra prek˜",SameItemLClass,modSL);
+  Setting("Bendra prekÄ—",SameItemLClass,modSL);
   Export("Web Registers",WebRegOutEClass,WebRegOutEn,modWebShopNG);
   Setting("Web Export",ItemExportLClass,modSL);
 
-  Export("IDEAL - Iäraäom÷ PVM s/f registras FR0672",IDEALLitVATRegIVEClass,IDEALLitVATRegIVEn,modSL);
+  Export("IDEAL - IÅ¡raÅ¡omÅ³ PVM s/f registras FR0672",IDEALLitVATRegIVEClass,IDEALLitVATRegIVEn,modSL);
   Export("IDEAL - i.SAF",IDEALLitTaxXmlEClass,IDEALLitTaxXmlEn,modNL); 
   Report("IDEAL - i.SAF",IDEALLitiSAFRClass,IDEALLitiSAFRn,0,modNL); 
-  Report("IDEAL - Iäraäom÷ PVM s/f registras FR0672",IDEALSLVATLitRClass,IDEALSLVATLitRn,0,modSL);  
+  Report("IDEAL - IÅ¡raÅ¡omÅ³ PVM s/f registras FR0672",IDEALSLVATLitRClass,IDEALSLVATLitRn,0,modSL);  
   
   Import("IDEAL - SwedBank import Statement",SwedBankImportSTIClass,SwedBankImportSTIn,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 13:04:05
   Import("IDEAL - SEB Bank import Statement",SEBBankImportSTIClass,SEBBankImportSTIn,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Tuesday, 29 May 2018 13:04:05
@@ -24,8 +24,8 @@ begin
   Setting("iDeal - Paste Special",ItemPasteSpecTClass,modSY);
   Setting("iDeal - Reversed VAT Payment Modes",RvrsVATPDTClass,modSL);
 
-  Setting("Preki÷ eksportas ° web",ItemExportTClass,modSL);
-  Setting("Superkam÷ preki÷ parametras",RetItmTClass,modSL);
+  Setting("PrekiÅ³ eksportas Ä¯ web",ItemExportTClass,modSL);
+  Setting("SuperkamÅ³ prekiÅ³ parametras",RetItmTClass,modSL);
   Setting("Pin Pad Counter",PinPadCntLClass,modSL);
   Setting("Rezervacijos",ResListLClass,modSL);
   Setting("Rezervacijos - BROKAI",ResListBrokLClass,modSL);// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 11 April 2018 13:34:09
@@ -34,9 +34,9 @@ begin
   Setting("iDeal - POS Nustatymai",iDealCashierDefTClass,modPOS);
 
   SetBegin(14444);
-  SetText(0,"Prek˜s grup˜");
-  SetText(1,"Prek˜");
-  SetText(2,"Prek˜s klas˜");
+  SetText(0,"PrekÄ—s grupÄ—");
+  SetText(1,"PrekÄ—");
+  SetText(2,"PrekÄ—s klasÄ—");
   EndSet;
 
   SetBegin(14445);
@@ -157,13 +157,14 @@ begin
   StrSetText(POOVc,"Purchase orders");
   EndStrSet;*/
   
-  SString(300000,"Kadangi dovan÷ kupono vert˜ didesn˜ nei perkam÷ preki÷, susidariusiam skirtumui padengti reikt÷ °traukti papildomˆ prek« (DKLIKUT - Dovan÷ kupono neiänaudota likutin˜ vert˜). Jos kaina turi bðti tokia, kiek trðksta iki dovan÷ kupono vert˜s.");
-  SString(300001,"Operacija atäaukta");
+  SString(300000,"Kadangi dovanÅ³ kupono vertÄ— didesnÄ— nei perkamÅ³ prekiÅ³, susidariusiam skirtumui padengti reiktÅ³ Ä¯traukti papildomÄ… prekÄ™ (DKLIKUT - DovanÅ³ kupono neiÅ¡naudota likutinÄ— vertÄ—). Jos kaina turi bÅ«ti tokia, kiek trÅ«ksta iki dovanÅ³ kupono vertÄ—s.");
+  SString(300001,"Operacija atÅ¡aukta");
 
-  SString(300010,"Preki÷ grˆìinimas");
+  SString(300010,"PrekiÅ³ grÄ…Å¾inimas");
 
   StrSetAdd(3);
   StrSetText(DisallowExceedingCreditLimit,"Disallow exceeding Credit Limit");
+  StrSetText(StockMovFutureDate,"Neleisti perkÄ—limÅ³ ateities datomis");
   EndStrSet;
  
   return;

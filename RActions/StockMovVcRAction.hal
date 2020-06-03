@@ -24,6 +24,18 @@ BEGIN
 			end;
 		end;		
   end;
+	if (SMp.OKFlag == 1 and  (UserCanAction("StockMovFutureDate",false)))  then begin
+    if (SMp.SentTransDate>CurrentDate) then begin
+      res = -1;
+      RecordCheckError(1000111,"",-1,"SentTransDate");
+      goto LStockMovVcRecordCheck;
+    end;
+    if (SMp.TransDate>CurrentDate) then begin
+      res = -1;
+      RecordCheckError(1000111,"",-1,"TransDate");
+      goto LStockMovVcRecordCheck;
+    end;
+  end;
   
   res = inner.StockMovVcRecordCheck(SMp,SM2p,stat,check);
   //START-CUST PST 2016-May-18
