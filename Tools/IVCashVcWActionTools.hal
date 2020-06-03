@@ -1,0 +1,61 @@
+//<halrule>server-only</halrule>
+external inner function Boolean IVCashVc_PasteArtCode(var record IVCashVc,Integer,Boolean,var string,var Integer);
+external inner function Boolean IVCashDchrsum(record IVCashVc,Integer,Integer);
+external inner procedure IVCashDchsum(record IVCashVc,Integer);
+external inner procedure IVCashSumup(var record IVCashVc,Boolean);
+external inner function Integer CreateCreditNoteIV(record IVVc,Integer,var record IVVc,string,Boolean);
+external inner function Boolean IVCashVc_PasteCustCode(var record IVCashVc,string,string,string,var Integer,var string);
+
+global
+procedure SLCreditNPTSSClassRemote(string sernr,var record IVCashVc IVCashr)
+begin
+  string 255 warning,inwarning;
+  Integer err;
+  record IVVc IVr,IVCreditr;
+  row IVVc IVrw;
+  row IVCashVc IVCashrw;
+  Integer i,rwcnt,rw;
+  Integer sernrf;
+  Boolean ReturnModef;
+  record GeneralOptionBlock GenOptRec;
+  record LocalMachineBlock LMb;
+  Integer res;
+
+
+  IVr.SerNr = StringToLongint(sernr);
+  if (ReadFirstMain(IVr,1,true)) then begin
+    if ((IVr.OKFlag!=0) and (IVr.InvType!=kInvoiceTypeCredit and IVr.InvType!=kInvoiceTypeCreditSpecialSales)) then begin
+      BlockLoad(LMb);
+      res = CreateCreditNoteIV(IVr,kInvoiceTypeCredit,IVCreditr,LMb.DefReturnLocation,false);
+      if (res==0) then begin
+        BlockLoad(GenOptRec);
+        IVCashr.CustCode = IVCreditr.CustCode;
+        IVCashVc_PasteCustCode(IVCashr,"","","",err,warning);
+        IVCashr.OrgIVNrSL = IVr.SerNr;
+
+        rwcnt = MatRowCnt(IVCreditr);
+        for (i=0;i<rwcnt;i=i+1) begin
+          MatRowGet(IVCreditr,i,IVrw);
+          if (IVrw.stp==kInvoiceRowTypeNormal) then begin
+            ClearRow(IVCashr,IVCashrw,1);
+            IVCashrw.ArtCode = IVrw.ArtCode;
+            IVCashrw.SerialNr = IVrw.SerialNr;
+            MatRowPut(IVCashr,rw,IVCashrw);
+            IVCashVc_PasteArtCode(IVCashr,rw,ReturnModef,inwarning,sernrf);
+            MatRowGet(IVCashr,rw,IVCashrw);
+            IVCashrw.Quant = -IVrw.Quant;
+            IVCashrw.Price = IVrw.Price;
+            MatRowPut(IVCashr,rw,IVCashrw);
+            if (IVCashDchrsum(IVCashr,rw,GenOptRec.UseDiscount)) then begin
+              IVCashDchsum(IVCashr,rw);
+              IVCashSumup(IVCashr,true);
+            end;
+            rw = rw + 1;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  return;
+end;

@@ -799,6 +799,48 @@ LkInvoiceTypeCredit:;
       end;
     end;
   end;
+//CUST-BEGIN
+  begin
+    record IVCashVc IVCashr;
+    row IVCashVc IVCashrw;
+    Integer j;
+    val quant;
+    TrHs = true;
+    trwcnt = MatRowCnt(CreditIVr);
+    IVCashr.OrgIVNrSL = IVr.SerNr;
+    while (LoopKey("OrgIVNrSL",IVCashr,1,TrHs)) begin
+      if (IVCashr.OrgIVNrSL!=IVr.SerNr) then begin
+        TrHs = false;
+      end else begin
+        if (IVCashr.OKFlag==1) then begin
+          rwcnt = MatRowCnt(IVCashr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(IVCashr,i,IVCashrw);
+            if (IVCashrw.stp==kInvoiceRowTypeNormal) then begin
+              quant = -IVCashrw.Quant;
+              for (j=0;j<trwcnt and quant>0;j=j+1) begin
+                MatRowGet(CreditIVr,j,IVrw);
+                if (IVrw.ArtCode==IVCashrw.ArtCode) then begin
+                  IVrw.Quant = IVrw.Quant - quant;
+                  if (IVrw.Quant>0) then begin
+                    MatRowPut(CreditIVr,j,IVrw);
+                    quant = 0;
+                  end else begin
+                    quant = -IVrw.Quant;
+                    MatRowDelete(CreditIVr,j);
+                    j = j - 1;
+                  end;
+                end;
+              end;
+            end;
+          end;
+        end;
+      end;
+    end;
+
+
+  end;
+//CUST-END
   IVSumup(CreditIVr,true);
 LCreateCreditNoteIV:;  
   CreateCreditNoteIV = res;

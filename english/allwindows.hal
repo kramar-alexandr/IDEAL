@@ -1751,3 +1751,54 @@ begin
   CheckBox(h,v+=16,0,"Disallow reversed VAT on POS",RemoveRvrsVATCode);
   EndWindow;
 end;
+
+
+
+window SLCreditNPTSSClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real fldlen,h,h2,h3,h4,hm,l,v,v3,v4,v5,vm,vs,flv,hs,screenmid,fntsize;
+  LongInt bm,lt,rt,tp;
+
+  WindowBegin("Credit Invoice",SLCreditNPTSSClass,CGother,RcType);
+  UseView(RcVc);
+  Modality(kModalityGlobal);
+  if (GuiType==kGuiAndroid or GuiType==kGuiiPhone) then begin
+    FullScreenWindow;
+    SetWRect(tp,lt,bm,rt);
+
+    v = 6; vs = 45;
+    hm = 20; hs = 130; fldlen = -10;
+  end else begin
+    SetWRect(80,200,550,540);
+
+    v = 20; vs = 30;
+    hm = 20; hs = 160; fldlen = 80;
+  end;
+
+  vs = 20;
+  EditFieldTL(h=110,v=6,-20,"Invoice No.",M4Str,Normal,200,f1,false,0);
+
+  v3 = 33; vs = 37; h3 = 210; h4 = 400; hm = 280;
+
+  vm = -160; vs = 52; h2 = 55; v3 = 48; l = 57;
+
+  switch (GuiType) begin
+    case kGuiAndroid:
+      v = bm - 250 - 2 - vs - 3;
+      POSKeyPad(v,3,v + 250,rt - 3,2,"NPTSPaymentToolKeyPad",kKeyPadNone);
+      v = v + 250 + 2;
+    case kGuiiPhone:
+    otherwise
+      v = v + vs;
+      POSKeyPad(v,243,v + 250,443,2,"NPTSPaymentToolKeyPad",kKeyPadNone);
+      v = v + 250 + 2;
+  end;
+
+
+  v = -60;
+  ColourPushButton(-257,v,-257+2*h2,v+v3,"CancelAndOverrideLogout","Cancel<BR>F2",20);
+  ColourPushButton(-137,v,-137+2*h2,v+v3,"ProceedSLCreditNPTSSClass","Proceed<BR>F1",20);
+
+  EndWindow;
+end;

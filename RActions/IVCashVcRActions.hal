@@ -1,0 +1,111 @@
+//<halrule>server-only</halrule>
+external inner function Integer CreateCreditNoteIV(record IVVc,Integer,var record IVVc,string,Boolean);
+
+updating procedure TreatCreditedSLInvoice(record IVCashVc IVCashr)
+begin
+  record IVVc IVr;
+
+  if (IVCashr.OrgIVNrSL>0) then begin
+    IVr.SerNr = IVCashr.OrgIVNrSL;
+    if (ReadFirstMain(IVr,1,true)) then begin
+      CreateRecordLink(IVr,CurrentCompany,IVCashr,CurrentCompany);
+      CreateRecordLink(IVCashr,CurrentCompany,IVr,CurrentCompany);
+    end;
+  end;
+
+  return;
+end;
+
+function Boolean CheckSLCreditInvoice(record IVCashVc IVCashr,var Integer rw)
+begin
+  record IVVc IVr,IVCreditr;
+  row IVVc IVrw;
+  row IVCashVc IVCashrw;
+  Integer i,rwcnt;
+  vector val vart;
+  Integer fres;
+  Boolean res;
+
+  res = true;
+  if (IVCashr.OrgIVNrSL>0) then begin
+    IVr.SerNr = IVCashr.OrgIVNrSL;
+    if (ReadFirstMain(IVr,1,true)) then begin
+      if ((IVr.OKFlag!=0) and (IVr.InvType!=kInvoiceTypeCredit and IVr.InvType!=kInvoiceTypeCreditSpecialSales)) then begin
+        fres = CreateCreditNoteIV(IVr,kInvoiceTypeCredit,IVCreditr,"",false);
+        if (fres==0) then begin
+          rwcnt = MatRowCnt(IVCreditr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(IVCreditr,i,IVrw);
+            vart[IVrw.ArtCode] = vart[IVrw.ArtCode] + (IVrw.Quant);
+          end;
+          rwcnt = MatRowCnt(IVCashr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(IVCashr,i,IVCashrw);
+
+            if (vart[IVCashrw.ArtCode]<(-IVCashrw.Quant)) then begin
+              res = false;
+              rw = i;
+              goto LCheckSLCreditInvoice;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+LCheckSLCreditInvoice:;
+  CheckSLCreditInvoice = res;
+  return;
+end;
+
+global
+updating function LongInt IVCashVcRecordUpdateAfter(var record IVCashVc IVCashp,record IVCashVc IVCash2p,LongInt stat,LongInt long4)
+begin
+  LongInt res;
+
+  res = inner.IVCashVcRecordUpdateAfter(IVCashp,IVCash2p,stat,long4);
+
+  if (IVCashp.OKFlag==1 and IVCash2p.OKFlag!=1) then begin
+    TreatCreditedSLInvoice(IVCashp);
+  end;
+
+  IVCashVcRecordUpdateAfter = res;
+  return;
+end;
+
+global
+updating function LongInt IVCashVcRecordSaveAfter(var record IVCashVc IVCashp,record IVCashVc IVCash2p,LongInt stat,LongInt long4)
+begin
+  LongInt res;
+
+  res = inner.IVCashVcRecordSaveAfter(IVCashp,IVCash2p,stat,long4);
+  
+  if (IVCashp.OKFlag==1) then begin
+    TreatCreditedSLInvoice(IVCashp);
+  end;
+
+  IVCashVcRecordSaveAfter = res;
+  return;
+end;
+  
+
+global
+updating function LongInt IVCashVcRecordCheck(var record IVCashVc IVCashp,record IVCashVc IVCash2p,LongInt stat,LongInt long4)
+begin
+  LongInt res;
+  Integer rw;
+
+  res = 0;
+
+  if (CheckSLCreditInvoice(IVCashp,rw)==false) then begin
+    RecordCheckError(1000110,"",rw,"SerNr");
+    res = -1;
+    goto LIVCashVcRecordCheck;
+  end;
+
+  res = inner.IVCashVcRecordCheck(IVCashp,IVCash2p,stat,long4);
+
+LIVCashVcRecordCheck:;
+  IVCashVcRecordCheck = res;
+  return;
+end;

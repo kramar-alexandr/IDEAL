@@ -2,6 +2,9 @@ external inner function Boolean IVCashVc_PasteArtCode(var record IVCashVc,Intege
 external inner function Boolean IVCashDchrsum(record IVCashVc,Integer,Integer);
 external inner procedure IVCashDchsum(record IVCashVc,Integer);
 external inner procedure IVCashSumup(var record IVCashVc,Boolean);
+external inner procedure WindowFieldGotoForTouchScreen(Integer,Integer,string,Boolean);
+external inner procedure IVCashDClass_RefreshStringList(Integer,record IVCashVc);
+remote procedure SLCreditNPTSSClassRemote(string,var record IVCashVc);
 
 global
 function Boolean PasteGVDifferenceItem(var record IVCashVc IVCashr)
@@ -57,5 +60,83 @@ begin
   res = inner.NPTSCashPaymentTClassOnOpenWindow(wn);
 
   NPTSCashPaymentTClassOnOpenWindow = res;
+  return;
+end;
+
+global
+updating procedure IVCashDClassTouchScreenCreditSLInvoice()
+begin
+  Integer mwn,nwn,wn;
+  record RcVc RepSpec;
+  Boolean testf;
+  record IVCashVc IVCashr;
+  
+  mwn = CurWindow;
+  RecordClear(RepSpec);
+  GetWindowRecord(mwn,IVCashr);
+  testf = true;
+  if (IVCashr.OKFlag!=0) then begin testf = false; end;
+  if (IVCashr.Invalid!=0) then begin testf = false; end;
+  if (testf) then begin
+    wn = OpenWindow("SLCreditNPTSSClass",0,mwn,"","",RepSpec);
+    WindowFieldGoto(wn,RepSpec,-1,"f1",false);    
+  end;
+
+  return;
+end;  
+
+global 
+procedure ProceedSLCreditNPTSSClass()
+begin
+  Integer mwn,nwn,wn;
+  record RcVc RepSpec;
+  record IVCashVc IVCashr,prevIVCashr;
+
+  wn = CurWindow;
+  DeselectWindow(wn,true);
+  mwn = MotherWindow(wn);
+  if (mwn!=0) then begin
+    GetWindowRecord(wn,RepSpec);
+    if (blank(RepSpec.f1)) then begin
+      goto LProceedSLCreditNPTSSClass;
+    end;
+    switch (GetWindowFileName(mwn)) begin
+      case "IVCashVc":
+        DeselectWindow(mwn,false);
+        GetWindowRecord(mwn,IVCashr);
+        switch (WindowState(mwn)) begin
+          case Rs_update:
+            GetPrevWindowRecord(mwn,prevIVCashr);
+            if (prevIVCashr.OKFlag!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSLCreditNPTSSClass;
+            end;
+            if (prevIVCashr.Invalid!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSLCreditNPTSSClass;
+            end;
+          case Rs_normal:
+            GetWindowRecord(mwn,prevIVCashr);
+            if (prevIVCashr.OKFlag!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSLCreditNPTSSClass;
+            end;
+            if (IVCashr.Invalid!=0) then begin
+              CloseWindow(wn);
+              goto LProceedSLCreditNPTSSClass;
+            end;
+        end;
+        SLCreditNPTSSClassRemote(RepSpec.f1,IVCashr);
+        PutWindowRecord(mwn,IVCashr);
+        GetWindowRecord(mwn,IVCashr);
+        IVCashDClass_RefreshStringList(mwn,IVCashr);
+        WindowFieldGotoForTouchScreen(mwn,-1,"ivcashcommand",true);
+        CloseWindow(wn);
+        ReRunWindowDef(mwn);
+    end;
+  end;
+
+LProceedSLCreditNPTSSClass:;
+
   return;
 end;
