@@ -515,3 +515,24 @@ begin
   return;
 end;
 //:edz
+
+
+global
+function Boolean IVDClassActiveEditField(Integer wn,string fieldname,Integer fn,Integer wnst,Integer rownr,Integer changed)
+BEGIN
+  Boolean res;
+  record IVVc IVr;
+  Integer nwn;
+  
+  res = inner.IVDClassActiveEditField(wn,fieldname,fn,wnst,rownr,changed);
+  GetPrevWindowRecord(wn,IVr);
+  if (IVr.OKFlag!=0) then begin
+    switch (fieldname) begin
+      case "eMail": 
+        res = true;
+    end;
+  end;
+
+  IVDClassActiveEditField = res;
+  return;
+end;
