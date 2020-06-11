@@ -1937,7 +1937,7 @@ retval is calculted in sumup
                 //qupdating.IVCashDClassTouchScreenFinishButtonRun2(true,-1,true);
               end;
             end else begin
-              CredCardPOSPIVCashsm;
+              OpenCCPayTouchScreenDClass(wn,-1,IVCashr.SerNr,IVCashr.Sum4,IVCashr.RetValue,IVCashr.Sum4-IVCashr.TendValue,IVCashr.CurncyCode,POSBrw.Code,POSBrw.Label);
             end;
 //CUST-END
           otherwise
