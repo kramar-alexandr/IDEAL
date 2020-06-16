@@ -411,7 +411,7 @@ begin
 
   BlockLoad(TPb);
   if (blank(TPb.LastRrn)) then begin
-    MessageBox(1000107,"");
+    //MessageBox(1000107,"");
     goto LInitTouchlessPaymentReturn;
   end;
 
