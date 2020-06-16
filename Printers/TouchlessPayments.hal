@@ -390,7 +390,7 @@ Logtext(0,"ConfirmLastTouchlessPayment3 " & paymentstat);
   
   ConfirmLastTouchlessPayment = res;
   return;
-end;
+end; 
 
 global
 function Boolean InitTouchlessPaymentReturn(Integer wn)
