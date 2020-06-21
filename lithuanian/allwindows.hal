@@ -7634,7 +7634,7 @@ end;
 
 
 window SLCreditNPTSSClass:1
-  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
   real fldlen,h,h2,h3,h4,hm,l,v,v3,v4,v5,vm,vs,flv,hs,screenmid,fntsize;
   LongInt bm,lt,rt,tp;
