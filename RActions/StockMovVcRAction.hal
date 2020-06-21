@@ -24,7 +24,7 @@ BEGIN
 			end;
 		end;		
   end;
-	if (SMp.OKFlag == 1 and  (UserCanAction("StockMovFutureDate",false)))  then begin
+	if (UserCanAction("StockMovFutureDate",false))  then begin
     if (SMp.SentTransDate>CurrentDate) then begin
       res = -1;
       RecordCheckError(1000111,"",-1,"SentTransDate");
