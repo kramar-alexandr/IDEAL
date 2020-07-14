@@ -23,6 +23,7 @@ external inner procedure ORVc_PasteQuant(var record ORVc,Integer,Boolean,var Boo
 external inner procedure ORVc_PastePrice(var record ORVc,Integer,var Boolean);
 external inner procedure UpdateiDealRvrsVATCodesOrder(var record ORVc,Integer,Boolean);
 external inner procedure ORDchsum(var record ORVc,Integer);
+external inner updating function Integer CreateMailFromIVD(record IVVc,var record MailVc,var string,Boolean,string);
 
 
 procedure RemoveCharacterFromString(var string res,string tstr)
@@ -1049,4 +1050,20 @@ begin
 
   
 return;
+end;
+
+global webpublic
+updating procedure WebSendInvoiceEmail()
+begin
+  record IVVc IVr;
+  Integer err;
+  record MailVc Mailr;
+
+  if (SetCompany(1,false)) then begin end;
+  IVr.SerNr = StringToLongint(WebGetArg("sernr"));
+  if (ReadFirstMain(IVr,1,true)) then begin
+    err = CreateMailFromIVD(IVr,Mailr,tstr,false,"InvForm");
+  end;
+
+  return;
 end;
