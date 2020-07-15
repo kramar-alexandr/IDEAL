@@ -41,7 +41,7 @@ BEGIN
       case "<": new_char = "&lt;";
       case ">": new_char = "&gt;";
       case """": new_char = "&quot;";
-      case "”": new_char = "&#8221;";
+      case "ï¿½": new_char = "&#8221;";
       case "'": new_char = "&apos;";
       otherwise new_char = char;
     end;
@@ -1058,6 +1058,7 @@ begin
   record IVVc IVr;
   Integer err;
   record MailVc Mailr;
+  string 255 tstr;
 
   if (SetCompany(1,false)) then begin end;
   IVr.SerNr = StringToLongint(WebGetArg("sernr"));
