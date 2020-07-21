@@ -1064,6 +1064,8 @@ begin
   IVr.SerNr = StringToLongint(WebGetArg("sernr"));
   if (ReadFirstMain(IVr,1,true)) then begin
     err = CreateMailFromIVD(IVr,Mailr,tstr,false,"InvForm");
+  end else begin
+    logtext(0,"invoice not found in company " & CurrentCompany);
   end;
 
   return;
