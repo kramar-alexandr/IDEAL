@@ -481,7 +481,7 @@ begin
         IVCashSumup(IVCashr,true);
         if (HasLocalization("HRV")==false) then begin  //DoXMLExport_IVCashVc
           if (IVCashr.RetValue>=0) then begin
-            IVCashr.OKFlag = 1;            
+            //IVCashr.OKFlag = 1;//CUST-REMOVED            
           end;
         end;
         PutWindowRecord(mwn,IVCashr);
