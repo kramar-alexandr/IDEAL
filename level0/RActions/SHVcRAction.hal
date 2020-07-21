@@ -1766,9 +1766,10 @@ global
 updating function LongInt SHVcRecordRemove(var record SHVc SHr,record SHVc SH2r,LongInt stat,LongInt long4)
 begin
   LongInt res;
+  record SHVc SH3r;//CUST-ADDED
 
   if (SHr.OrderNr!=-1) then begin
-    if (UpdateOrderFromShip(SH2r,false,SHr,true,false)) then begin end;
+    if (UpdateOrderFromShip(SH3r,false,SHr,true,false)) then begin end;//CUST-CHANGED SH2r>>SH3r
   end;
   if (SHr.OKFlag==0) then begin
     SHUpdateInShipment(SHr,true,SH2r,false,true);
