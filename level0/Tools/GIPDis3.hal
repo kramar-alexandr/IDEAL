@@ -1804,7 +1804,7 @@ begin
   val s0,s1,s2,s3,s4,rvrsvat,TotGP,t,tax1reb;
   string 255 cashpaymode;
   record CUVc CUr;
-  
+/*  CUST-REMOVED
   CUr.Code = aORr.CustCode;
   ReadFirstMain(CUr,1,true);
   if (CUr.RvrsVAT==0 or CUr.CustType==1 or forcef) and (aORr.InclVAT==0) then begin
@@ -1877,7 +1877,7 @@ begin
       end;
     end;
   end;
-  
+  */
   return;
 end;
 
