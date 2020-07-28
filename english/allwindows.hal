@@ -1150,7 +1150,7 @@ begin
     CheckBox(h3+110,v,0,"Fiscal Invoice",FiscalFlag);
     EditField(h3,v+=vs,82,"Bagger",Normal,Bagger,false,BaggerSClass);
     CheckBox(h3+110,v,0,"Post Receipt #VAT#",IPBookVAT);
-    CheckBox(h3+110,v+vs,0,"Ar grˆìintas PVM",VATRetFlag);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 4:12:20 PM
+    CheckBox(h3+110,v+vs,0,"Ar grï¿½ï¿½intas PVM",VATRetFlag);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 4:12:20 PM
     if (HasLocalization("SWE")) then begin
       EditField(h2,v+=vs,82,"Clean Cash No.",ViewOnly,FiscalDeviceSeqNr,false,0);
     end;
@@ -1800,5 +1800,99 @@ begin
   ColourPushButton(-257,v,-257+2*h2,v+v3,"CancelAndOverrideLogout","Cancel<BR>F2",20);
   ColourPushButton(-137,v,-137+2*h2,v+v3,"ProceedSLCreditNPTSSClass","Proceed<BR>F1",20);
 
+  EndWindow;
+end;
+
+
+window CUNPTDSClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  integer i,rwcnt;
+  real h,h1,h2,h3,h4,h5,l,v,vs;
+  record NPTSNewCUFieldsBlock NPTSNCUFb;
+  row NPTSNewCUFieldsBlock NPTSNCUFbrw;
+  string 255 label;
+  
+  WindowBegin("Contact",CUNPTDSClass,CGview,-);
+  Modality(kModalityGlobal);
+  DynamicWindow;
+  SetWRect(20,80,680,441);
+  Sizeable(-1,-1,0,0);
+  UseView(CUVc);
+  v = 6; h = 130; l=223; vs = 20; h1=410; h2 = 340; h3 = 430; h4 = 580; h5 = 460;
+  ActiveFieldOnNew("Code"); //dont change, otherwise automatic address lookup helper window wont show automatically //wns
+  EditField(h,v ,   95,"No.",Normal,Code,false,TSerSClass);
+  EditField(h,v+=vs,h1-h+50,"Name",Normal,Name,false,0);
+
+/*
+  HalPushButton(h+120,v+=20,h+120+100,v+20,"UpdCustomerAddressCUDsm","Update Address");
+  v=v+10;
+  StaticText(h,v+13,"Invoice Address",false);
+  label = UserDefined("CUVc","InvAddr0");
+  EditField(h,v+=vs,-20,label,Normal,InvAddr0,false,0);
+  label = UserDefined("CUVc","InvAddr1");
+  EditField(h,v+=vs,-20,label,Normal,InvAddr1,false,0);
+  label = UserDefined("CUVc","InvAddr2");
+  EditField(h,v+=vs,-20,label,Normal,InvAddr2,false,0);
+  label = UserDefined("CUVc","InvAddr3");
+  EditField(h,v+=vs,-20,label,Normal,InvAddr3,false,0);
+  label = UserDefined("CUVc","InvAddr4");
+  EditField(h,v+=vs,-20,label,Normal,InvAddr4,false,0);
+  EditField(h,v+=vs,50,"Country",Normal,CountryCode,false,CountrySClass);//tsp-101118
+  EditField(h1,v,-20,"Department",Normal,Department,false,0);
+  EditField(h,v+=vs,150,"Telephone",Normal,Phone,false,0);
+  EditField(h1,v,-20,"Fax",Normal,Fax,false,0);
+  EditField(h,v+=vs,150,"Alt Phone",Normal,AltPhone,false,0);
+  EditField(h1,v,-20,"#Mobile#",Normal,Mobile,false,0);
+  EditField(h,v+=vs,150,"Skype Name",Normal,SkypeName,false,0);
+  EditField(h1,v,-20,"SIP",Normal,SIPCode,false,0);
+  EditField(h,v+=vs,150,"Email",Normal,eMail,false,0);
+  EditField(h1,v,-20,"Extension",Normal,Extension,false,0);
+
+  HalPushButton(h+120,v+=vs,h+120+100,v+20,"UpdDeliveryAddressCUDsm","Update Address");
+  v=v+12;
+  StaticText(h,v+13,"Delivery Address",false);
+  label = UserDefined("CUVc","DelAddr0");
+  EditField(h,v+=vs,-20,label,Normal,DelAddr0,false,0);
+  label = UserDefined("CUVc","DelAddr1");
+  EditField(h,v+=vs,-20,label,Normal,DelAddr1,false,0);
+  label = UserDefined("CUVc","DelAddr2");
+  EditField(h,v+=vs,-20,label,Normal,DelAddr2,false,0);
+  label = UserDefined("CUVc","DelAddr3");
+  EditField(h,v+=vs,-20,label,Normal,DelAddr3,false,0);
+  label = UserDefined("CUVc","DelAddr4");
+  EditField(h,v+=vs,-20,label,Normal,DelAddr4,false,0);
+  EditField(h,v+=vs,50,"Country",Normal,DelCountry,false,CountrySClass);
+*/
+
+  BlockLoad(NPTSNCUFb);
+  rwcnt = MatRowCnt(NPTSNCUFb);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(NPTSNCUFb,i,NPTSNCUFbrw);
+    label = "";
+    switch (NPTSNCUFbrw.FieldName) begin
+      case "InvAddr0": label = UserDefined("CUVc","InvAddr0");
+      case "InvAddr1": label = UserDefined("CUVc","InvAddr1");
+      case "InvAddr2": label = UserDefined("CUVc","InvAddr2");
+      case "InvAddr3": label = UserDefined("CUVc","InvAddr3");
+      case "InvAddr4": label = UserDefined("CUVc","InvAddr4");
+    end;
+    if (blank(label)) then begin
+      label = NPTSNCUFbrw.Label;
+    end;
+    if (blank(label)) then begin
+      label = NPTSNCUFbrw.FieldName;
+    end;
+//CUST-BEGIN
+    if (NPTSNCUFbrw.FieldName=="CustType") then begin
+      ButtonFrame(h,v+=40,143,2,label);
+      RadioButton(h,v,0,0,"Company",CustType);
+      RadioButton(h,v+=16,1,0,"Person",CustType);
+      v = v + vs;
+    end else begin
+//CUST-END
+    EditField2(h,v+=vs,h1-h+50,label,NPTSNCUFbrw.EditState,NPTSNCUFbrw.FieldName,false,0);
+    end;
+  end;
   EndWindow;
 end;
