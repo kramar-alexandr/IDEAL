@@ -1342,6 +1342,10 @@ LkInvoiceRowTypeNormal2:;
         if (PayDealIsLease(IVrw.PayMode)==false) then begin//this should be false anyway
           retcash = retcash +  MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
         end;
+      case kInvoiceRowTypeCreditCardPayment:
+        if (PayDealIsLease(IVrw.PayMode)) then begin
+          retcash = retcash +  MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
+        end;
     end;
   end;  
 
