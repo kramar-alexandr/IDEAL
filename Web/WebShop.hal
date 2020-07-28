@@ -1057,16 +1057,49 @@ updating procedure WebSendInvoiceEmail()
 begin
   record IVVc IVr;
   Integer err;
-  record MailVc Mailr;
+  record MailVc Mailr,oldMailr;
   string 255 tstr;
 
   if (SetCompany(1,false)) then begin end;
   IVr.SerNr = StringToLongint(WebGetArg("sernr"));
   if (ReadFirstMain(IVr,1,true)) then begin
     err = CreateMailFromIVD(IVr,Mailr,tstr,false,"InvForm");
+    RecordCopy(oldMailr,Mailr);
+    Mailr.SendFlag = 1;
+    RecordUpdate(oldMailr,Mailr,true);
   end else begin
     logtext(0,"invoice not found in company " & CurrentCompany);
   end;
 
+  return;
+end;
+
+
+global webpublic
+updating procedure WebGetInvoicePdf()
+begin
+  record IVVc IVr;
+  Integer err;
+  record MailVc Mailr;
+  string 255 tstr,fname,tmp;
+  area filearea;
+
+  if (SetCompany(1,false)) then begin end;
+  IVr.SerNr = StringToLongint(WebGetArg("sernr"));
+  if (ReadFirstMain(IVr,1,true)) then begin
+    
+    fname = "tmp/" & IVr.SerNr & ".pdf";
+    SetDocumentFilename(fname);
+    SetMedia(mtPdf);
+
+    PrintDocument(IVr,"InvForm",false);
+    AddFileToArea(fname,filearea,false);
+    
+    SetDocumentFilename("");
+    Delete_File(fname);
+
+    tmp = Base64Encode(GetStringFromArea(filearea,0,GetAreaLength(filearea)));
+    WebOutString("<data><invoice id='" & IVr.SerNr & "'>" & tmp & "</invoice></data>");
+  end;
   return;
 end;
