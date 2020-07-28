@@ -1658,7 +1658,9 @@ already painted
   tstr = tstr & custcode;
   StaticText(h,v,tstr,false); v = v + vs;
   StaticText(h2,v2,Left(custname,25),false); vj = v2; v2 = v2 + vs;
-
+//CUST-BEGIN
+  EditField(h2+150,v2-28,120,"El. paštas",Normal,eMail,false,0);
+//CUST-END
   if (showlc) and (nonblank(loyaltycardnr)) then begin
     tstr = "Lojalumo kort.: ";
     tstr = tstr & loyaltycardnr;

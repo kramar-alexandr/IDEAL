@@ -2184,7 +2184,12 @@ begin
   res = 0;
   if (ReadFirstMain(IVCashr,0,true)) then begin end;  
   TAB = chr(9);
-  FindUserMailboxName(CurrentUser,mailboxnr,tstr);
+//CUST-BEGIN
+  BlockLoad(IVMailr);
+  tstr = IVMailr.EmailSender;
+  if (blank(tstr)) then begin
+    FindUserMailboxName(CurrentUser,mailboxnr,tstr);
+  end;
   if (blank(tstr)) then begin
     BlockLoad(MSb);
     tstr = MSb.FromSystem;
@@ -2197,7 +2202,11 @@ begin
   MArw.RowTyp = 1;
   MArw.AddrCode = tstr;
   MatRowPut(Mailr,0,MArw);
-  BlockLoad(IVMailr);
+  if (nonblank(IVCashr.eMail)) then begin
+    custemail = IVCashr.eMail;
+  end;
+  if (blank(custemail)) then begin
+//CUST-END
   CUr.Code = IVCashr.CustCode;
   if (ReadFirstMain(CUr,1,true)) then begin end;
   custemail = CUr.eMail;
@@ -2209,6 +2218,9 @@ begin
       end;
     end;
   end;
+//CUST-BEGIN
+  end;
+//CUST-END
   if (AddEMailRecipients(Mailr,CUr.Code,custemail,kMailPOSInvoice)==false) then begin 
 //    res = 2289;
 //    warning = CUr.Code;
@@ -2219,19 +2231,35 @@ begin
   end;
 
   MailTextRow("IVCashVc","",IVCashr.LangCode,MTrw,IgnoreRecordDetails);
-  Mailr.Header = MTrw.Header;
-  if (blank(Mailr.Header)) then begin
-    Mailr.Header = Mailr.Header & USetStr(1803);
+//CUST-BEGIN
+  if (nonblank(MTrw.Header)) then begin  
+    Mailr.Header = MTrw.Header;
+  end else begin
+    if (nonblank(IVMailr.Header)) then begin
+      Mailr.Header = IVMailr.Header & " ";
+    end;
   end;
-  Mailr.Header = Mailr.Header & " ";
+//CUST-END
   Mailr.Header = Mailr.Header & IVCashr.SerNr;
 
-  LTxtr.Code = MTrw.FirstTxt;
+//CUST-BEGIN
+  if (nonblank(MTrw.FirstTxt)) then begin
+    LTxtr.Code = MTrw.FirstTxt;
+  end else begin
+    LTxtr.Code = IVMailr.FirstTxt;
+  end;
+//CUST-END
   if (ReadFirstMain(LTxtr,1,true)) then begin
     Mailr.HtmlFlag = LTxtr.HtmlFlag;
   end;
   if (Mailr.HtmlFlag==0) then begin
-    LTxtr.Code = MTrw.LastTxt;
+//CUST-BEGIN
+    if (nonblank(MTrw.LastTxt)) then begin
+      LTxtr.Code = MTrw.LastTxt;
+    end else begin
+      LTxtr.Code = IVMailr.LastTxt;
+    end;
+//CUST-END
     if (ReadFirstMain(LTxtr,1,true)) then begin
       Mailr.HtmlFlag = LTxtr.HtmlFlag;
     end;
@@ -2245,7 +2273,13 @@ begin
   end;
   RecordCopy(Mail2r,Mailr);
 
-  LTxtr.Code = MTrw.FirstTxt;
+//CUST-BEGIN
+  if (nonblank(MTrw.FirstTxt)) then begin
+    LTxtr.Code = MTrw.FirstTxt;
+  end else begin
+    LTxtr.Code = IVMailr.FirstTxt;
+  end;
+//CUST-END
   if (ReadFirstMain(LTxtr,1,true)) then begin
     if (Mailr.HtmlFlag==0) then begin
       rwcnt = LineTextCnt(LTxtr);
@@ -2324,7 +2358,13 @@ LIVHIDDENLine:;
       end;
     end;
   end;
-  LTxtr.Code = MTrw.LastTxt;
+//CUST-BEGIN
+  if (nonblank(MTrw.LastTxt)) then begin
+    LTxtr.Code = MTrw.LastTxt;
+  end else begin
+    LTxtr.Code = IVMailr.LastTxt;
+  end;
+//CUST-END
   if (ReadFirstMain(LTxtr,1,true)) then begin
     if (Mailr.HtmlFlag==0) then begin
       rwcnt = LineTextCnt(LTxtr);

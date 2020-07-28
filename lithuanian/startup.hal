@@ -33,6 +33,8 @@ begin
   Setting("Touchless Payments",TouchlessPaymentTClass,modPOS);
   Setting("iDeal - POS Nustatymai",iDealCashierDefTClass,modPOS);
 
+  Setting("Faktūros laiško nustatymai",IVMailTClass,modPOS);
+
   SetBegin(14444);
   SetText(0,"Prekės grupė");
   SetText(1,"Prekė");

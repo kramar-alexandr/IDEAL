@@ -617,6 +617,7 @@ begin
   RecordField(PrintOptions,M4Str,100,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Saturday, 24 November 2018 11:45:39
   RecordField(VATRetFlag,M4Int,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 28 06 2019 y. at 4:11:13 PM
   RecordField(OrgIVNrSL,M4Long,0,0);//200602 >> to store SL invoice number
+  RecordField(eMail,M4Str,255,0);//200728
   ArrayField(RMINumber,M4Str,25,0); 
   ArrayField(PriceExclVAT,M423Val,0,0);// Edit ************************** BPI Ukraine - KramarAlexandr - 01, 05 03 2018 y. 19:32:45
   KeyBegin2(OrgIVNrSL,8533);

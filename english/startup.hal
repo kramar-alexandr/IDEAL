@@ -4,6 +4,7 @@ begin
   SetLangMode(LangEnglish,"ENG",0);
   
   Setting("iDeal - POS Settings",iDealCashierDefTClass,modPOS);
+  Setting("Invoice Mail Settings",IVMailTClass,modPOS);
 
   SString(1000110,"Can't credit more than invoices");
   SString(1000111,"Future stock movements forbidden");
