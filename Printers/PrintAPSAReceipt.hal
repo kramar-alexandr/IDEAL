@@ -328,12 +328,13 @@ begin
 end;
 
 
-function Integer IVCash_PrintRecItem(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,row IVCashVc IVCashrw,Boolean voidf,vector val vatrates,vector string vChr,Boolean retf,val retcash,Integer retcnt)
+function Integer IVCash_PrintRecItem(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,row IVCashVc IVCashrw,Boolean voidf,vector val vatrates,vector string vChr,Boolean retf,var val retcash,Integer retcnt)
 begin
   Integer res;
   area request;
   string 255 path,itemline,spec,vatcode;
   JSON js;
+  val tmp;
 
   spec = IVCashrw.Spec;
   
@@ -344,6 +345,17 @@ begin
     end;
     if (retcnt>1) then begin
       spec = USetStr(300010);
+    end;
+  end else begin
+    if (retcash>0) then begin
+      tmp = (IVCashrw.Price * IVCashrw.Quant);
+      if (tmp<=retcash) then begin
+        retcash = retcash - tmp;
+        IVCashrw.Price = 0;
+      end else begin
+        retcash = 0;
+        IVCashrw.Price = (tmp - retcash)/IVCashrw.Quant;
+      end;
     end;
   end;
 
@@ -615,9 +627,10 @@ begin
   string 255 path;
   area request;
   JSON js;
+  val tretcash;
 
   LoadSpecialCharacters(vChr);
-
+  tretcash = retcash;
   rwcnt = MatRowCnt(IVCashr);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(IVCashr,i,IVCashrw);
@@ -628,7 +641,7 @@ begin
 LkInvoiceRowTypeNormal2:;
         if (IVCashrw.Quant>0) then begin
           if (nonblank(IVCashrw.ArtCode)) then begin
-            res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates,vChr,retf,retcash,retcnt);
+            res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates,vChr,false,tretcash,retcnt);
             if (res!=noErr) then begin
               goto LPrintItemRows;
             end;
@@ -655,7 +668,7 @@ LkInvoiceRowTypeNormal2:;
         IVCashrw.Spec = USetStr(24194) & " " & IVCashrw.GCNr;
         IVCashrw.Quant = 1;
         IVCashrw.Price = IVCashrw.Sum;
-        res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates,vChr,retf,retcash,retcnt);
+        res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates,vChr,false,tretcash,retcnt);
         if (res!=noErr) then begin
           goto LPrintItemRows;
         end;
