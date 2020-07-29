@@ -1103,3 +1103,67 @@ begin
   end;
   return;
 end;
+
+global webpublic
+updating procedure WebAddInvoiceEmail()
+begin
+  record IVVc IVr,oldIVr;
+  string 255 err,email;
+
+  if (SetCompany(1,false)) then begin end;
+  IVr.SerNr = StringToLongint(WebGetArg("sernr"));
+  email = UrlDecode(WebGetArg("email"));
+  if (blank(email)) then begin
+      err = "Blank email";
+  end else begin
+    if (ReadFirstMain(IVr,1,true)) then begin
+      RecordCopy(oldIVr,IVr);
+      IVr.eMail = email;
+      if (RecordUpdate(oldIVr,IVr,true)!=0) then begin
+        err = "Failed to update invoice";
+      end;
+    end else begin
+      err = "Invoice not found";
+    end;
+  end;
+
+  if (nonblank(err)) then begin
+    WebOutString("{\"success\":false,\"reason\":\"" & err & "\"}");
+  end else begin
+    WebOutString("{\"success\":true}");
+  end;
+
+  return;
+end;
+
+global webpublic
+updating procedure WebAddPOSInvoiceEmail()
+begin
+  record IVCashVc IVr,oldIVr;
+  string 255 err,email;
+
+  if (SetCompany(1,false)) then begin end;
+  IVr.SerNr = StringToLongint(WebGetArg("sernr"));
+  email = UrlDecode(WebGetArg("email"));
+  if (blank(email)) then begin
+      err = "Blank email";
+  end else begin
+    if (ReadFirstMain(IVr,1,true)) then begin
+      RecordCopy(oldIVr,IVr);
+      IVr.eMail = email;
+      if (RecordUpdate(oldIVr,IVr,true)!=0) then begin
+        err = "Failed to update invoice";
+      end;
+    end else begin
+      err = "Invoice not found";
+    end;
+  end;
+
+  if (nonblank(err)) then begin
+    WebOutString("{\"success\":false,\"reason\":\"" & err & "\"}");
+  end else begin
+    WebOutString("{\"success\":true}");
+  end;
+
+  return;
+end;
