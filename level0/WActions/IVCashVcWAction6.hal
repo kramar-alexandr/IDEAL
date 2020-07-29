@@ -544,7 +544,7 @@ begin
           GetWindowRecord(mwn,IVCashr);
           IVCashDClass_RefreshStringList(mwn,IVCashr);
           SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
-          OpenCashDrawer_IVCashVc(IVCashr);//CUST-MOVED DOWN
+//          OpenCashDrawer_IVCashVc(IVCashr);//CUST-MOVED DOWN
           if (IVCashr.OKFlag!=0) then begin
             OpenCashDrawer_IVCashVc(IVCashr);
             OpenNewIVCash(mwn);
