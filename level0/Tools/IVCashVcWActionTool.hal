@@ -2296,6 +2296,7 @@ begin
       end;
     end;
   end;
+/*//CUST-REMOVED
   if (additemstobodyf or IgnoreRecordDetails==0) then begin
     paytermf = true;
     rwcnt = MatRowCnt(IVCashr);
@@ -2358,6 +2359,9 @@ LIVHIDDENLine:;
       end;
     end;
   end;
+*/
+//CUST-REMOVED END
+
 //CUST-BEGIN
   if (nonblank(MTrw.LastTxt)) then begin
     LTxtr.Code = MTrw.LastTxt;
