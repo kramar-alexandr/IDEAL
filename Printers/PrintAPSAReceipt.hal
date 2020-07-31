@@ -843,6 +843,8 @@ LkInvoiceRowTypeNormal2:;
     end else begin
       retcash = -retcash2;
     end;
+  end else begin
+    retcash = 0;
   end;
 
   return;
