@@ -629,6 +629,7 @@ begin
   area request;
   JSON js;
   val tretcash;
+  record GCVc GCr;
 
   LoadSpecialCharacters(vChr);
   tretcash = retcash;
@@ -666,7 +667,9 @@ LkInvoiceRowTypeNormal2:;
 */
     case kInvoiceRowTypeGiftVoucherSold:
       if (IVCashrw.GCNr>0) then begin
-        IVCashrw.Spec = USetStr(24194) & " " & IVCashrw.GCNr;
+        GCr.SerNr = IVCashrw.GCNr;
+        ReadFirstMain(GCr,1,true);
+        IVCashrw.Spec = USetStr(24194) & " " & GCr.BarCode;
         IVCashrw.Quant = 1;
         IVCashrw.Price = IVCashrw.Sum;
         res = IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,false,vatrates,vChr,false,tretcash,retcnt);

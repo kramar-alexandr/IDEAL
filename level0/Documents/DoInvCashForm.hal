@@ -481,6 +481,9 @@ LkInvoiceRowTypeNormal:;
 					OUTFORMFIELD("F_GCExpiryDate",GCr.ExpiryDate);
 					PrintValueInclZero("F_ANTAL",1.00,M4UVal,LangNrr,SFb,false);
 					PrintValueInclZero("F_BELOPP",IVCashrw.Sum,M4Val,LangNrr,SFb,false);
+//CUST-BEGIN
+					OUTFORMFIELD("F_GCBARCODE",GCr.BarCode);
+//CUST-END
 					EndFormRow;
 					totsubtotwdisc = totsubtotwdisc + IVCashrw.Quant*IVCashrw.Price;
 					AddVATBase(VATr,IVCashrw.VATCode,IVCashrw.Sum,blankval,vatcnt,IVCashr.InclVAT,IVCashr.NoTAXonVAT);
