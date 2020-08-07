@@ -153,3 +153,21 @@ begin
   NPTSIVCashDClassActiveEditField = res;
   return;
 end;
+
+
+global
+function Boolean NPTSIVCashDClassOnOpenWindow(Integer wn)
+begin
+  Integer nwn,mwn; 
+  record IVCashVc IVCashr;
+  
+  DeselectWindow(wn,true);
+  GetWindowRecord(wn,IVCashr);
+  if (IVCashr.SerNr==-1) then begin
+    IVCashr.SerNr = NextSerNr("IVCashVc",IVCashr.TransDate,-1,false,IVCashr.LangCode);
+  end;
+  SelectWindow(wn);  
+
+  NPTSIVCashDClassOnOpenWindow = false;
+  return;
+end;
