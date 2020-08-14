@@ -256,3 +256,17 @@ begin
 return
 end;
 // :EVS
+
+global
+function LongInt INVcRecordDuplicate(var record INVc INr,record INVc IN2r,LongInt stat,LongInt long4)
+begin
+  LongInt res;
+
+  res = inner.INVcRecordDuplicate(INr,IN2r,stat,long4);
+
+  INr.SameItem = "";
+  INr.WebItem = 0;
+  
+  INVcRecordDuplicate = res; 
+  return;
+end;
