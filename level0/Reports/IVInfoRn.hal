@@ -938,9 +938,9 @@ LkInvoiceTypeCredit:;
     Boolean TrHs;
 
     TrHs = true;
-    IVCashr.OrgIVNrSL = IVr.SerNr;
+    IVCashr.OrgIVNrSL = theIVr.SerNr;
     while (LoopKey("OrgIVNrSL",IVCashr,1,TrHs)) begin
-      if (IVCashr.OrgIVNrSL!=IVr.SerNr) then begin
+      if (IVCashr.OrgIVNrSL!=theIVr.SerNr) then begin
         TrHs = false;
       end else begin
         if (IVCashr.OKFlag==1) then begin
