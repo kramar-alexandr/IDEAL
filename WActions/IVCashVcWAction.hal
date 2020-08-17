@@ -156,7 +156,7 @@ end;
 
 
 global
-function Boolean NPTSIVCashDClassOnOpenWindow(Integer wn)
+function Boolean NPTSIVCashDClassOnOKWindow(Integer wn)
 begin
   Integer nwn,mwn; 
   record IVCashVc IVCashr;
@@ -168,6 +168,6 @@ begin
   end;
   SelectWindow(wn);  
 
-  NPTSIVCashDClassOnOpenWindow = false;
+  NPTSIVCashDClassOnOKWindow = true;
   return;
 end;
