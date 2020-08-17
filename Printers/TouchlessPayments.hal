@@ -376,7 +376,7 @@ Logtext(0,"ConfirmLastTouchlessPayment1 " & TPb.LastRrn);
   if (nonblank(TPb.LastRrn)) then begin
     if (FindLocalSerialPortDevice(kSerialPortDeviceClassCreditCardTerminal,201,LMb.LocalMachineCode,LSPDr)) then begin  
 Logtext(0,"ConfirmLastTouchlessPayment2 ");
-      while (ConfirmTouchlessPayment(TPb,LSPDr,TPb.LastRrn,paymentstat)==false and tries<20) begin//20 seconds
+      while (ConfirmTouchlessPayment(TPb,LSPDr,TPb.LastRrn,paymentstat)==false and tries<5) begin//5 tries
         sleep(1);
         tries = tries + 1;
       end;

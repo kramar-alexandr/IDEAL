@@ -123,6 +123,7 @@ begin
   SString(1000109,"Remove OK Checkbox");
   SString(1000110,"Can't credit more than invoices");
   SString(1000111,"Ateities perkėlimai draudžiami");
+  SString(1000112,"Failed to confirm last CC payment. Please confirm it manually");
 
   
   StrSetBegin(3); /* Try to keep them in alphabetical order */
