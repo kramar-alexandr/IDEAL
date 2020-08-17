@@ -977,7 +977,9 @@ begin
         IVp.IPBookVAT = ARAccRec.IPBookVAT;
     end;
     //CUST-BEGIN
-    IVp.eMail = CUr.eMail;
+    if (CUr.CustType==0) then begin
+      IVp.eMail = CUr.eMail;
+    end;
     //CUST-END
     IVp.Objects = AddObjectToObjectList(IVp.Objects,CUr.Objects);
     oldSalesMan = IVp.SalesMan;
