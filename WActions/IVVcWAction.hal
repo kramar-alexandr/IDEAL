@@ -14,6 +14,7 @@ external inner procedure IVVc_PasteItem(record IVVc,Integer,Integer);
 //END-CUST November 18, 2014 by PST
 remote inner procedure IVVc_PastePayDeal(var record IVVc,string,string); //JP: HAL-194;
 remote procedure UpdateiDealRvrsVATCodes(var record IVVc);
+external inner procedure PasteFromSysList(Integer,Integer);
 
 
 
