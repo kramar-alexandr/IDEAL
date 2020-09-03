@@ -476,6 +476,8 @@ LkInvoiceRowTypeNormal:;
 					OUTFORMFIELD("F_ARTNR",IVCashrw.GCNr);
 //CUST-BEGIN
 					//OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
+					GCr.SerNr = IVCashrw.GCNr;
+					ReadFirstMain(GCr,1,true);
           tstr = IVCashrw.Spec;
           if (blank(tstr)) then begin
             tstr = USetStr(24194);
