@@ -820,7 +820,7 @@ LkInvoiceRowTypeNormal2:;
           if (IVCashrw.Quant<0) then begin
             retf = true;
             retcnt = retcnt + 1;
-            retcash2 = retcash2 + IVCashrw.Sum;
+            retcash2 = retcash2 + Round(IVCashrw.Sum,SetRoundModeD(2));
           end else begin
             normalf = true;
           end;
@@ -828,7 +828,7 @@ LkInvoiceRowTypeNormal2:;
       case kInvoiceRowTypeVoid:
         retf = true;
         retcnt = retcnt + 1;
-        retcash2 = retcash2 + IVCashrw.Sum;//iDeal doesn't do this usually
+        retcash2 = retcash2 + Round(IVCashrw.Sum,SetRoundModeD(2));//iDeal doesn't do this usually
       case kInvoiceRowTypeGiftVoucherSold:
         normalf = true;
       case kInvoiceRowTypeCashPayment:
@@ -1313,7 +1313,9 @@ begin
   val totsum,sum;
  
   LoadSpecialCharacters(vChr);
-  totsum = retcash;
+  //totsum = retcash;
+  totsum = 0;
+  stopalert(totsum);
   GetVectorTags(vRetSum,aRetSum);
   for (i=0;i<aRetSum.length and retcash>0;i=i+1) begin
     ClearRow(IVr,IVrw,1);
@@ -1327,6 +1329,7 @@ begin
     IVrw.Price = sum;
     IVrw.Quant = 1;
     IVrw.VATCode = aRetSum[i];
+    totsum = totsum + sum;
     IVVc_PrintRecItem(LSPDr,IVr,IVrw,true,vatrates,vChr,true,sum,1,sum);
   end;
 
@@ -1366,7 +1369,7 @@ LkInvoiceRowTypeNormal2:;
             if (IVrw.Quant<0) then begin
               tsum = -tsum;
             end;
-            vRetSum[IVrw.VATCode] = vRetSum[IVrw.VATCode] + tsum;
+            vRetSum[IVrw.VATCode] = vRetSum[IVrw.VATCode] + Round(tsum,SetRoundModeD(2));
           end;
         end;
       case kInvoiceRowTypeVoid:
