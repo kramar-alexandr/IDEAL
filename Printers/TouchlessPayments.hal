@@ -102,6 +102,9 @@ begin
   IVCashSumup(IVCashr,true);
   PutWindowRecord(mwn,IVCashr);
   IVCashDClass_RefreshStringList(mwn,IVCashr);
+  if (IVCashr.SerNr==-1) then begin
+    IVCashr.SerNr = NextSerNr("IVCashVc",IVCashr.TransDate,-1,false,IVCashr.LangCode);
+  end;
   if (WindowDoOK(mwn,0)) then begin
     IVCashDClassTouchScreenFinishButton;
   end;
