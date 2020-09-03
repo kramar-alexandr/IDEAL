@@ -1190,12 +1190,14 @@ begin
     CUr.Name = IVr.Addr0;
     found = ReadFirstKey("Name",CUr,1,true);    
     if (found) then begin
+//CUST-BEGIN
+      if (nonblank(IVr.CustCode)) then begin
+        found = false;
+      end;
+//CUST-END
       if (IVr.CustCode!=CUr.Code) then begin
         IVr.CustCode = CUr.Code;
       end;
-//CUST-BEGIN
-  found = false;
-//CUST-END
     end;
   end;
   if (found) then begin
