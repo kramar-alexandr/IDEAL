@@ -480,9 +480,8 @@ LkInvoiceRowTypeNormal:;
 					ReadFirstMain(GCr,1,true);
           tstr = IVCashrw.Spec;
           if (blank(tstr)) then begin
-            tstr = USetStr(24194);
+            tstr = USetStr(24194) & ":" & GCr.BarCode;
           end;
-          tstr = tstr & ":" & GCr.BarCode;
 					OUTFORMFIELD("F_SPECIFIKATION",tstr);
 //CUST-END
 					OUTFORMFIELD("F_GCNr",IVCashrw.GCNr);
