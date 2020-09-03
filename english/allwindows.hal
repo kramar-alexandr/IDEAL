@@ -1896,3 +1896,15 @@ begin
   end;
   EndWindow;
 end;
+
+window CUEmailSClass:2
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer") 
+begin
+  WindowBegin("",CUEmailSClass,CGother,HBlRecType);
+  SetWRect(240,80,650,298);
+//  StringList(9,9,236,209);
+  DataList(9,20,-22,-6,"EmailAddr"); 
+  DataListColumn(1,6,-10,AdjLeft,"Email","Email",M4Str); 
+  SearchField("Search");
+  EndWindow;
+end;

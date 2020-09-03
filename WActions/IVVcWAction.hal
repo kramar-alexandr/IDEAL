@@ -536,3 +536,42 @@ BEGIN
   IVDClassActiveEditField = res;
   return;
 end;
+
+
+
+global
+function Boolean CUEmailSClassOnOpenWindow(Integer wn)
+begin
+  Array string 255 astr,astr2;
+  Integer i,mwn;
+  record RcVc RepSpec;
+  record CUVc CUr;
+  record IVVc IVr;
+  record IVCashVc IVCashr;
+  
+  mwn = MotherWindow(wn);
+  switch (GetWindowClass(mwn)) begin
+    case "IVDClass":
+      GetWindowRecord(mwn,IVr);
+      CUr.Code = IVr.CustCode;
+    case "NPTSIVCashDClass": 
+      GetWindowRecord(mwn,IVCashr);
+      CUr.Code = IVCashr.CustCode;
+  end;
+  
+  if (ReadFirstMain(CUr,1,true)) then begin
+    AddListRow(wn,"EmailAddr",1,CUr.eMail,0);
+    AddListData(wn,"EmailAddr","Email",CUr.eMail);
+  end;
+
+  CUEmailSClassOnOpenWindow = false;
+  return;
+end;
+
+global
+function Boolean CUEmailSClassOnOKWindow(Integer wn)
+begin
+  PasteFromSysList(wn,-2);
+  CUEmailSClassOnOKWindow = false;
+  return;
+end;

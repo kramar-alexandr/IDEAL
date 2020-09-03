@@ -4790,7 +4790,7 @@ begin
   EditField(h1,v+=vs,82,"Čekio nr",Normal,RefStr,false,0);
   EditField(h1,v+20,82,"RMA nr.",Normal,OfficialSerNr,false,LegalInvNrSClass);
   EditField(h2,v+=20,135,"Objektas",Normal,Objects,false,0);// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 5 April 2018 14:25:48
-  EditField(h2,v+=20,135,"El. paštas",Normal,eMail,false,0);//CUST
+  EditField(h2,v+=20,135,"El. paštas",Normal,eMail,false,CUEmailSClass);//CUST
 
   //EditField(h1,v+=vs,82,"Pasl. prist. data",Normal,ServiceDelDate,false,PasteCurDate);
   ButtonFrame(h1,v+=16,60,2,"Bazinė kaina");
@@ -7773,5 +7773,17 @@ begin
     EditField2(h,v+=vs,h1-h+50,label,NPTSNCUFbrw.EditState,NPTSNCUFbrw.FieldName,false,0);
     end;
   end;
+  EndWindow;
+end;
+
+window CUEmailSClass:2
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer") 
+begin
+  WindowBegin("",CUEmailSClass,CGother,HBlRecType);
+  SetWRect(240,80,650,298);
+//  StringList(9,9,236,209);
+  DataList(9,20,-22,-6,"EmailAddr"); 
+  DataListColumn(1,6,-10,AdjLeft,"Email","Email",M4Str); 
+  SearchField("Ieškoti");
   EndWindow;
 end;
