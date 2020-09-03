@@ -474,7 +474,15 @@ LkInvoiceRowTypeNormal:;
 				case kInvoiceRowTypeGiftVoucherSold:
 					OUTFORMFIELD("F_ROWNAME",USetStr(8112));
 					OUTFORMFIELD("F_ARTNR",IVCashrw.GCNr);
-					OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
+//CUST-BEGIN
+					//OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
+          tstr = IVCashrw.Spec;
+          if (blank(tstr)) then begin
+            tstr = USetStr(24194);
+          end;
+          tstr = tstr & ":" & GCr.BarCode;
+					OUTFORMFIELD("F_SPECIFIKATION",tstr);
+//CUST-END
 					OUTFORMFIELD("F_GCNr",IVCashrw.GCNr);
 					GCr.SerNr = IVCashrw.GCNr;
 					ReadFirstMain(GCr,1,true);
