@@ -2296,7 +2296,7 @@ begin
       end;
     end;
   end;
-  if (additemstobodyf or IgnoreRecordDetails==0) then begin
+  if (additemstobodyf and IgnoreRecordDetails==0) then begin//CUST or >> and or makes it always print out rows... why??
     paytermf = true;
     rwcnt = MatRowCnt(IVCashr);
     for (i=0;i<rwcnt;i=i+1) begin
