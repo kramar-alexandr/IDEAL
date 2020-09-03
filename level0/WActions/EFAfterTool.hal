@@ -347,9 +347,6 @@ BEGIN
       IVCashp.Location = lmlocation;
     end;
     IVCashp.BankCode = CUr.AccOperator;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 14 March 2018 14:26:08
-  //CUST-BEGIN
-    IVCashp.eMail = CUr.eMail;
-  //CUST-END
     IVCashp.Addr0 = CUr.Name;
     IVCashp.Addr1 = CUr.InvAddr0;
     IVCashp.Addr2 = CUr.InvAddr1;
