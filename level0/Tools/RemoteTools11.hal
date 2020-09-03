@@ -1193,6 +1193,9 @@ begin
       if (IVr.CustCode!=CUr.Code) then begin
         IVr.CustCode = CUr.Code;
       end;
+//CUST-BEGIN
+  found = false;
+//CUST-END
     end;
   end;
   if (found) then begin
