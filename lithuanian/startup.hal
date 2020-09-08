@@ -8,6 +8,7 @@ begin
   Setting("Bendra prekė",SameItemLClass,modSL);
   Export("Web Registers",WebRegOutEClass,WebRegOutEn,modWebShopNG);
   Setting("Web Export",ItemExportLClass,modSL);
+  Setting("iDeal - Bendri nustatymai",iDealSetTClass,modSL);
 
   Export("IDEAL - Išrašomų PVM s/f registras FR0672",IDEALLitVATRegIVEClass,IDEALLitVATRegIVEn,modSL);
   Export("IDEAL - i.SAF",IDEALLitTaxXmlEClass,IDEALLitTaxXmlEn,modNL); 

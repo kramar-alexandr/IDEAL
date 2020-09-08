@@ -78,3 +78,20 @@ begin
   CUVcRecordCheck = res;
   return;
 end;
+
+global
+function LongInt CUVcRecordDefaultsClient(LongInt wn,var record CUVc CUr,record CUVc CU2r,LongInt stat,LongInt long4)
+begin
+  LongInt res;
+  record iDealSetBlock ISb;
+
+  res = inner.CUVcRecordDefaultsClient(wn,CUr,CU2r,stat,long4);
+  BlockLoad(ISb);
+  if (ISb.CuVeContactFlag==1) then begin
+    CUr.VEType = 1;
+    CUr.CUType = 1;
+  end;
+  
+  CUVcRecordDefaultsClient = res; 
+  return;
+end;

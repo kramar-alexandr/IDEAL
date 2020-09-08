@@ -1908,3 +1908,19 @@ begin
   SearchField("Search");
   EndWindow;
 end;
+
+window iDealSetTClass:1
+  wtag("language","ENG"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs;
+  
+  windowBegin("iDeal - General settings",iDealSetTClass,CGSbl,-);
+  SetBlid(iDealSetBlock);
+  SetWRect(20,80,450,300);
+  Sizeable(-1,-1,0,0);
+  h = 100;
+  CheckBox(h,v=10,0,"Mark Contact as a Customer and Supplier",CuVeContactFlag);
+  EndWindow;
+	
+	return;
+end;

@@ -5,6 +5,7 @@ begin
   
   Setting("iDeal - POS Settings",iDealCashierDefTClass,modPOS);
   Setting("Invoice Mail Settings",IVMailTClass,modPOS);
+  Setting("iDeal - General Settings",iDealSetTClass,modSL);
 
   SString(1000110,"Can't credit more than invoices");
   SString(1000111,"Future stock movements forbidden");

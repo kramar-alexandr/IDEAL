@@ -853,7 +853,12 @@ begin
     RecordField(ReplaceVATCode,M4Code,10,0);
     RecordField(WithVATCode,M4Code,10,0);
     RecordField(GVDiffItem,M4Code,20,INVc);
-  EndBlock;  
+  EndBlock;
+
+  BlockBegin(iDealSetBlock,-,"");
+  RecordField(CuVeContactFlag,M4Int,0,0);
+  EndBlock;
+
 
 	/*BlockBegin(PipelinOverviewBlock,-,"PipeOverBlock4");// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 5 November 2018 18:02:54
   RecordField(Math,M4Matrix,0,0);

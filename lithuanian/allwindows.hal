@@ -7787,3 +7787,19 @@ begin
   SearchField("Ieškoti");
   EndWindow;
 end;
+
+window iDealSetTClass:1
+  wtag("language","LIT"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,v,vs;
+  
+  windowBegin("iDeal - Bendri nustatymai",iDealSetTClass,CGSbl,-);
+  SetBlid(iDealSetBlock);
+  SetWRect(20,80,450,300);
+  Sizeable(-1,-1,0,0);
+  h = 100;
+  CheckBox(h,v=10,0,"Pažymėti kontaktą kaip pirkėją ir tiekėją",CuVeContactFlag);
+  EndWindow;
+	
+	return;
+end;
