@@ -28,7 +28,9 @@ begin
           if (ARRec.NoWarnOnDupVATnoOnCU==0) then begin
     //        MessageBox(1709,": " & lCUr.Code);
           //RecordCheckError(1709,CUr.Code,-1,"RegNr1");
-            res = -1;
+            if (UserCanAction("SaveDuplicateVATNr",false)==true) then begin
+              res = -1;
+            end;
           end;
         end else begin
           ResetLoop(lCUr);
@@ -39,7 +41,9 @@ begin
               if (ARRec.NoWarnOnDupVATnoOnCU==0) then begin
   //              MessageBox(1709,": " & lCUr.Code);
   //            RecordCheckError(1709,CUr.Code,-1,"RegNr1");
-                res = -1;
+                if (UserCanAction("SaveDuplicateVATNr",false)==true) then begin
+                  res = -1;                
+                end;
               end;
             end;
           end;
@@ -55,7 +59,9 @@ begin
           if (ARRec.NoWarnOnDupVATnoOnCU==0) then begin
     //        MessageBox(1709,": " & lCUr.Code);
           //RecordCheckError(1709,CUr.Code,-1,"RegNr1");
-            res = -1;
+            if (UserCanAction("SaveDuplicateVATNr",false)==true) then begin
+              res = -1;
+            end;
           end;
         end else begin
           ResetLoop(lCUr);
@@ -66,7 +72,9 @@ begin
               if (ARRec.NoWarnOnDupVATnoOnCU==0) then begin
   //              MessageBox(1709,": " & lCUr.Code);
   //            RecordCheckError(1709,CUr.Code,-1,"RegNr1");
-                res = -1;
+                if (UserCanAction("SaveDuplicateVATNr",false)==true) then begin
+                  res = -1;
+                end;
               end;
             end;
           end;

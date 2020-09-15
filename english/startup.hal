@@ -13,6 +13,7 @@ begin
   StrSetAdd(3);
   //CUST-BEGIN
   StrSetText(StockMovFutureDate,"Forbid to use future movement dates");
+  StrSetText(SaveDuplicateVATNr,"Forbid to save Contact with existing Reg. No.");
   //CUST-END
   EndStrSet;
 
