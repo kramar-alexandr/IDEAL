@@ -1,0 +1,22 @@
+//<halrule>server-only</halrule>
+external function Boolean iDealDisallowLocation(string);
+
+global
+updating function LongInt SHVcRecordCheck(record SHVc SHp,record SHVc SH2p,LongInt stat,LongInt long4)
+begin
+  LongInt res;
+
+  res = 0;
+
+  if (nonblank(SHp.Location) and iDealDisallowLocation(SHp.Location)) then begin
+    RecordCheckError(1000113,"",-1,"Location");      
+    res = -1; 
+    goto L99;
+  end;
+
+  res = inner.SHVcRecordCheck(SHp,SH2p,stat,long4);
+  
+  L99:;
+  SHVcRecordCheck = res;
+  return;
+end;

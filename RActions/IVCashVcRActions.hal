@@ -1,5 +1,6 @@
 //<halrule>server-only</halrule>
 external inner function Integer CreateCreditNoteIV(record IVVc,Integer,var record IVVc,string,Boolean);
+external function Boolean iDealDisallowLocation(string);
 
 updating procedure TreatCreditedSLInvoice(record IVCashVc IVCashr)
 begin
@@ -100,6 +101,12 @@ begin
   if (CheckSLCreditInvoice(IVCashp,rw)==false) then begin
     RecordCheckError(1000110,"",rw,"SerNr");
     res = -1;
+    goto LIVCashVcRecordCheck;
+  end;
+
+  if (nonblank(IVCashp.Location) and iDealDisallowLocation(IVCashp.Location)) then begin
+    RecordCheckError(1000113,"",-1,"Location");      
+    res = -1; 
     goto LIVCashVcRecordCheck;
   end;
 

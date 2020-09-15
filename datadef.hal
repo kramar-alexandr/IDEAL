@@ -857,6 +857,7 @@ begin
 
   BlockBegin(iDealSetBlock,-,"");
   RecordField(CuVeContactFlag,M4Int,0,0);
+  RecordField(DisallowLocClass,M4UStr,255,0);
   EndBlock;
 
 

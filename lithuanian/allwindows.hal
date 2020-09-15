@@ -7797,8 +7797,9 @@ begin
   SetBlid(iDealSetBlock);
   SetWRect(20,80,450,300);
   Sizeable(-1,-1,0,0);
-  h = 100;
+  h = 150; vs = 20;
   CheckBox(h,v=10,0,"Pažymėti kontaktą kaip pirkėją ir tiekėją",CuVeContactFlag);
+  EditField(h,v+=30,150,"Disallow Sales from",Normal,DisallowLocClass,false,LocClSClass);
   EndWindow;
 	
 	return;

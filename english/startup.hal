@@ -10,6 +10,8 @@ begin
   SString(1000110,"Can't credit more than invoices");
   SString(1000111,"Future stock movements forbidden");
 
+  SString(1000113,"Can't use this Location");
+
   StrSetAdd(3);
   //CUST-BEGIN
   StrSetText(StockMovFutureDate,"Forbid to use future movement dates");

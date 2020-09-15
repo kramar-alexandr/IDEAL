@@ -1,6 +1,7 @@
 remote inner function Boolean PasteCust2InInv(var record IVVc,record LocalMachineBlock,string,Boolean,var string,var string,var string,var string,var string);
 external inner procedure IVVc_PasteSalesMan(var record IVVc,string);
 external inner procedure GetFindCustBalance(string,LongInt,var val,var val,var val,var val,Integer,Integer,Integer,Integer,Integer,Integer,Boolean,var Boolean);
+forward function Boolean iDealDisallowLocation(string);
 
 global
 function LongInt IVVcRecordDefaultsClient(LongInt wn,var record IVVc IVr,record IVVc IV2r,LongInt long3,LongInt long4)
@@ -121,6 +122,13 @@ begin
     res = -1; 
     goto L99;
   end;//:MDS
+
+  if (nonblank(IVp.Location) and iDealDisallowLocation(IVp.Location)) then begin
+    RecordCheckError(1000113,"",-1,"Location");      
+    res = -1; 
+    goto L99;
+  end;
+
   res = inner.IVVcRecordCheck(IVp,IV2p,stat,long4);
   
   L99:;
@@ -143,5 +151,32 @@ begin
   // :EVS
   
   IVVcRecordDuplicate = res;
+  return;
+end;
+
+global
+function Boolean iDealDisallowLocation(string location)
+begin
+  Boolean res;
+  record LocationVc Locr;
+  record iDealSetBlock ISb;
+  Longint pos;
+  string 255 tstr;
+
+  BlockLoad(ISb);
+  Locr.Code = location;
+  if (ReadFirstMain(Locr,1,true)) then begin
+    if (nonblank(Locr.Classification)) then begin
+      while (GetNextSubstring(ISb.DisallowLocClass,pos,",",tstr)) begin
+        if (SetInSet(tstr,Locr.Classification)) then begin
+          res = true;
+          goto LiDealDisallowLocation;
+        end;
+      end;
+    end;
+  end;
+  
+LiDealDisallowLocation:;
+  iDealDisallowLocation = res;
   return;
 end;

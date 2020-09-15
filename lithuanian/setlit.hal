@@ -124,6 +124,7 @@ begin
   SString(1000110,"Can't credit more than invoices");
   SString(1000111,"Ateities perkėlimai draudžiami");
   SString(1000112,"Failed to confirm last CC payment. Please confirm it manually");
+  SString(1000113,"Prekė šiuo metu patalpoje iš kurios pardavimai negalimi - norėdami parduoti, pirma pasitvirtinkite perkėlimą į savo patalpą.");
 
   
   StrSetBegin(3); /* Try to keep them in alphabetical order */
