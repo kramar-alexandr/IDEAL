@@ -838,6 +838,11 @@ u might want to put loyalty card or bagger 1st
       end;
     end;    
     IVCashr.SerNr = NextSerNr("IVCashVc",IVCashr.TransDate,newnr,false,IVCashr.LangCode);
+    logtext(0,"assigning new sernr " & IVCashr.SerNr);
+  end;
+  logtext(0,"storing with sernr " & IVCashr.SerNr);
+  if (IVCashr.SerNr==-1) then begin
+    HALCallStack;
   end;
 //CUST-BEGIN
   if (gDoNotTestIfRecordExists==false) then begin
