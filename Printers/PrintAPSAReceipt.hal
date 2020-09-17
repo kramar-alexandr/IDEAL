@@ -802,7 +802,7 @@ begin
   return;
 end;
 
-procedure CheckIVCashReturn(record IVCashVc IVCashr,var Boolean retf,var Boolean normalf,var val retcash,var Integer retcnt,var string rettext)
+procedure CheckIVCashReturn(record IVCashVc IVCashr,var Boolean retf,var Boolean normalf,var val retcash,var Integer retcnt,var string rettext,var val retcc)
 begin
   row IVCashVc IVCashrw;
   Integer i,rwcnt;
@@ -834,7 +834,11 @@ LkInvoiceRowTypeNormal2:;
       case kInvoiceRowTypeCashPayment:
         if (PayDealIsLease(IVCashrw.PayMode)==false) then begin
           retcash = retcash +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
+        end else begin
+          retcc = retcc +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         end;
+      case kInvoiceRowTypeCashPayment:
+        retcc = retcc +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
     end;
   end;   
   if (retf and retcnt>1) then begin
@@ -853,7 +857,7 @@ LkInvoiceRowTypeNormal2:;
   return;
 end;
 
-function Integer IVCashVc_PrintReturnReceipt(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,val retsum,string text,vector val vatrates)
+function Integer IVCashVc_PrintReturnReceipt(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,val retsum,string text,vector val vatrates,val retcc)
 begin
   record RetItmBlock RetItmb;
   record INVc INr;
@@ -868,15 +872,27 @@ begin
  
   LoadSpecialCharacters(vChr);
 
-  IVCashrw.Spec = text;
-  IVCashrw.Sum = retsum;
-  IVCashrw.Price = retsum;
-  IVCashrw.Quant = 1;
-  IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,true,vatrates,vChr,true,retsum,1);
+  if (retsum>0) then begin
+    IVCashrw.Spec = text;
+    IVCashrw.Sum = retsum;
+    IVCashrw.Price = retsum;
+    IVCashrw.Quant = 1;
+    IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,true,vatrates,vChr,true,retsum,1);
 
-  path = "/json/fp550/Cmdline";
-  AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-retsum) & """}",request);
+    path = "/json/fp550/Cmdline";
+    AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-retsum) & """}",request);
+  end;
+  if (retcc>0) then begin
+    IVCashrw.Spec = text;
+    IVCashrw.Sum = retcc;
+    IVCashrw.Price = retcc;
+    IVCashrw.Quant = 1;
+    IVCash_PrintRecItem(LSPDr,IVCashr,IVCashrw,true,vatrates,vChr,true,retcc,1);
 
+    path = "/json/fp550/Cmdline";
+    AddTextToArea("{""cmd"":""1070"",""parameter"":""C" & (-retcc) & """}",request);
+  end;
+  
   res = ExecAPSARequest(LSPDr,path,request,js,false,0);
 
   IVCashVc_PrintReturnReceipt = res;
@@ -892,7 +908,7 @@ begin
   record MachineCashVc MCr;
   vector val vatrates;
   string 255 receiptnr,rettext;
-  val retcash;
+  val retcash,retcc;
   Integer retcnt;
   Boolean retf,normalf;
   
@@ -904,8 +920,8 @@ begin
 LogText(0,"IVCashVc_PrintAPSAReceipt err=LoadVATRates");
       goto LIVCashVc_PrintAPSAReceipt;
     end;
-    CheckIVCashReturn(IVCashr,retf,normalf,retcash,retcnt,rettext);
-LogASPAReceipt("IVCashVc_PrintAPSAReceipt retf=" & retf & ":" & retcash & ":" & retcnt & ":" & normalf);
+    CheckIVCashReturn(IVCashr,retf,normalf,retcash,retcnt,rettext,retcc);
+LogASPAReceipt("IVCashVc_PrintAPSAReceipt retf=" & retf & ":" & retcash & ":" & retcnt & ":" & normalf & ":" & retcc);
     if (retf) then begin
       res = CheckForBalance(LSPDr,retcash);
       if (res!=noErr) then begin
@@ -913,7 +929,7 @@ LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCashHasNegativeAmounts");
         goto LIVCashVc_PrintAPSAReceipt;
       end;      
       
-      res = IVCashVc_PrintReturnReceipt(LSPDr,IVCashr,retcash,rettext,vatrates);
+      res = IVCashVc_PrintReturnReceipt(LSPDr,IVCashr,retcash,rettext,vatrates,retcc);
       if (res!=noErr) then begin
 LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCash_PrintItemRows1");
         goto LIVCashVc_PrintAPSAReceipt;
@@ -974,7 +990,7 @@ begin
   record MachineCashVc MCr;
   vector val vatrates;
   string 255 receiptnr,rettext;
-  val retcash;
+  val retcash,retcc;
   Integer retcnt;
   Boolean retf,normalf;
   
@@ -1002,7 +1018,7 @@ begin
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
-      CheckIVCashReturn(IVCashr,retf,normalf,retcash,retcnt,rettext);
+      CheckIVCashReturn(IVCashr,retf,normalf,retcash,retcnt,rettext,retcc);
       res = IVCash_PrintItemRows(LSPDr,IVCashr,vatrates,retf,retcash,retcnt);
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
