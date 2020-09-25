@@ -549,6 +549,7 @@ begin
   record CUVc CUr;
   record IVVc IVr;
   record IVCashVc IVCashr;
+  record ORVc ORr;
   
   mwn = MotherWindow(wn);
   switch (GetWindowClass(mwn)) begin
@@ -558,6 +559,9 @@ begin
     case "NPTSIVCashDClass": 
       GetWindowRecord(mwn,IVCashr);
       CUr.Code = IVCashr.CustCode;
+    case "ORDClass": 
+      GetWindowRecord(mwn,ORr);
+      CUr.Code = ORr.CustCode;
   end;
   
   if (ReadFirstMain(CUr,1,true)) then begin

@@ -2202,6 +2202,9 @@ begin
   EditField(h=255,v=vm,-40,"Pavadinimas",Normal,Addr0,false,0);
   if (StandardHansa==false) then begin
   EditField(h,vm=(v+=20),135,"Oficialus Nr.",Normal,OfficialSerNr,false,LegalInvNrSClass);
+//CUST-BEGIN
+  EditField(h+210,v,135,"El. paštas",Normal,eMail,false,CUEmailSClass);
+//CUST-END
   CheckBox(h4=-100,v,0,"OK",OKFlag); //!!SAMETRANSLATION
   end else begin
     CheckBox(h4=-100,vm=(v+=20),0,"OK",OKFlag);  //!!SAMETRANSLATION

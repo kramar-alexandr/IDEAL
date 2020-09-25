@@ -1158,6 +1158,9 @@ BEGIN
     ORp.PayDeal = CUr.PayDeal;
     ORp.CurncyCode = CUr.CurncyCode;
     ORp.BankCode = CUr.AccOperator;
+//CUST-BEGIN
+    ORp.eMail = CUr.eMail;
+//CUST-END
     ORp.Objects = AddObjectToObjectList(ORp.Objects,CUr.Objects);
    // SetSalesMan(tstr,CUr.SalesMan); // cust removed
     tstr2 = ORp.Objects;
