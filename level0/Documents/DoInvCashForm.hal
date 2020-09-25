@@ -473,7 +473,7 @@ LkInvoiceRowTypeNormal:;
 					EndFormRow;
 				case kInvoiceRowTypeGiftVoucherSold:
 					OUTFORMFIELD("F_ROWNAME",USetStr(8112));
-					OUTFORMFIELD("F_ARTNR",IVCashrw.GCNr);
+					//OUTFORMFIELD("F_ARTNR",IVCashrw.GCNr);//CUST-REMOVED
 //CUST-BEGIN
 					//OUTFORMFIELD("F_SPECIFIKATION",IVCashrw.Spec);
 					GCr.SerNr = IVCashrw.GCNr;
