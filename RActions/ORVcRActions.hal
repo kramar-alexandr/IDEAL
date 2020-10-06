@@ -1,5 +1,6 @@
 //<halrule>server-only</halrule>
 external function Boolean iDealDisallowLocation(string);
+external inner function Boolean InterNetAddrTest(string);
 
 global
 updating function LongInt ORVcRecordCheck(record ORVc ORp,record ORVc OR2p,LongInt stat,LongInt long4)
@@ -13,7 +14,14 @@ begin
     res = -1; 
     goto L99;
   end;
-
+  if (nonblank(ORp.eMail)) then begin
+    if (InterNetAddrTest(ORp.eMail)==false) then begin
+      RecordCheckError(30229,"",-1,"eMail"); 
+      res = -1; 
+      goto L99;
+    end;
+  end;
+ 
   res = inner.ORVcRecordCheck(ORp,OR2p,stat,long4);
   
   L99:;
