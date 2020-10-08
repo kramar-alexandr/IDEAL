@@ -2482,6 +2482,28 @@ begin
 
   return;
 end;
+
+function Boolean GiftVoucherMissingItems(record IVVc IVr)
+begin
+  row IVVc IVrw;
+  Boolean res;
+  Integer i,rwcnt;
+
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    if (IVrw.stp==kInvoiceRowTypeGiftVoucherPayment) then begin
+      if (IVrw.Sum>IVr.Sum4) then begin
+        res = true;
+      end;
+      i = rwcnt;
+    end;
+  end;
+
+  GiftVoucherMissingItems = res;
+  return;
+end;
+
 //CUST-END
 
 //END-CUST PST 2015-September-29
@@ -2519,6 +2541,12 @@ begin
 			MessageBox(18023,"");
 			goto skipf;
 		end;
+//CUST-BEGIN
+    if (GiftVoucherMissingItems(IVr)) then begin
+      MessageBox(300000,"");
+			goto skipf;
+    end;
+//CUST-END
 		if (IVr.InclVAT!=2) then begin
 			MessageBox(18024,"");
 			goto skipf;
