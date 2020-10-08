@@ -416,6 +416,10 @@ BEGIN
   MArw.RowTyp = 1;
   MArw.AddrCode = tstr;
   MatRowPut(Mailr,0,MArw);
+//CUST-BEGIN
+  custemail = ORr.eMail;
+  if (blank(custemail)) then begin
+//CUST-END
   CUr.Code = ORr.CustCode;
   if (ReadFirstMain(CUr,1,true)) then begin end;
   custemail = CUr.eMail;
@@ -426,6 +430,7 @@ BEGIN
       end;
     end;
   end;
+  end;//CUST
   if (AddEMailRecipients(Mailr,CUr.Code,custemail,kMailSalesOrder)==false) then begin 
     res = 2289;
     warning = CUr.Code;
