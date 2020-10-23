@@ -1,0 +1,19 @@
+global
+updating function Boolean CUDClassVETypeButtonAction(Integer wn,Integer value)
+begin
+  Boolean res;
+  record CUVc CUr;
+
+  //update here?
+  GetWindowRecord(wn,CUr);
+
+  if (value==0) then begin
+    CUr.CUType = 1;
+  end;
+
+  PutWindowRecord(wn,CUr);
+
+  res = true;
+  CUDClassVETypeButtonAction = res;
+  return;
+end;

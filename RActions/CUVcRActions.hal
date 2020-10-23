@@ -96,8 +96,10 @@ begin
   res = inner.CUVcRecordDefaultsClient(wn,CUr,CU2r,stat,long4);
   BlockLoad(ISb);
   if (ISb.CuVeContactFlag==1) then begin
-    CUr.VEType = 1;
-    CUr.CUType = 1;
+    if (CUr.VEType==1) then begin
+//    CUr.VEType = 1;
+      CUr.CUType = 1;
+    end;
   end;
   
   CUVcRecordDefaultsClient = res; 
