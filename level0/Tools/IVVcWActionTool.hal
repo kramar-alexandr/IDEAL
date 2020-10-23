@@ -423,6 +423,9 @@ begin
   IVrw.Price = BlankVal;
   IVrw.vRebate = BlankVal;
   IVrw.Sum = BlankVal;
+//CUST-BEGIN
+  IVrw.Location = "";
+//CUST-END
   location = IVrw.Location;
   if (blank(location)) then begin
     location = IVr.Location;
