@@ -837,7 +837,7 @@ LkInvoiceRowTypeNormal2:;
         end else begin
           retcc = retcc +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
         end;
-      case kInvoiceRowTypeCashPayment:
+      case kInvoiceRowTypeCreditCardPayment:
         retcc = retcc +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
     end;
   end;   
@@ -848,7 +848,12 @@ LkInvoiceRowTypeNormal2:;
     if (retcash<0) then begin
       retcash = -retcash;
     end else begin
-      retcash = -retcash2;
+      if (retcc==0) then begin
+        retcash = -retcash2;
+      end;
+    end;
+    if (retcc<0) then begin
+      retcc = -retcc;
     end;
   end else begin
     retcash = 0;
