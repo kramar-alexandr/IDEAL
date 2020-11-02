@@ -1454,7 +1454,7 @@ LogASPAReceipt("IVVc_PrintAPSAReceipt_1");
     end;
 
     CheckIVVcReturn(IVr,retf,vRetSum,retcnt,rettext,retcash,retcc);
-    if (retf and retcash==0) then begin
+    if (retf and retcash==0 and retcc==0) then begin
       goto LSkip;
     end;
 LogASPAReceipt("IVVc_PrintAPSAReceipt_2 retf=" & retf & ":" & retcash & ":" & retcnt & ":" & retcc);

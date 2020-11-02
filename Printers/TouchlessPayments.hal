@@ -297,6 +297,8 @@ begin
 
   SetWebHeaders("X-EPSLT-ProjectId:" & TPb.ProjectID);
 
+logtext(0,"request " & GetStringFromArea(request,0,255));
+
   if (SendWebRequest(url,port,-1,true,"POST",path,GetAuthatizationHeader(TPb),"",false,request,reply,80)) then begin
     js = ParseJSONArea(reply);
     if (JSONGet(js,"result")=="Ok") then begin
@@ -327,7 +329,6 @@ begin
 
 logtext(0,"payment stat=" & paymentstat);
 logtext(0,"reply " & GetStringFromArea(reply,0,255));
-logtext(0,"request " & GetStringFromArea(request,0,255));
 
   FileName = GetWindowFileName(mwn);
   if (mwn>0) then begin
