@@ -1808,6 +1808,41 @@ begin
   return;
 end;
 
+//CUST-BEGIN
+function Boolean IVRowIsPayment(Integer stp)
+begin
+  Boolean res;
+
+  if (stp==kInvoiceRowTypeCashPayment or stp==kInvoiceRowTypeCreditCardPayment or stp==kInvoiceRowTypeGiftVoucherPayment) then begin
+    res = true;
+  end;
+  
+  IVRowIsPayment = res;
+  return;
+end;
+
+function Boolean LeaseMissingItems(record IVCashVc IVCashr,val received)
+begin
+  row IVCashVc IVCashrw;
+  Boolean res;
+  Integer i,rwcnt;
+
+  if (received>IVCashr.Sum4) then begin
+    res = true;
+    rwcnt = MatRowCnt(IVCashr);
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(IVCashr,i,IVCashrw);
+      if (IVRowIsPayment(IVCashrw.stp) and (IVCashrw.stp!=kInvoiceRowTypeCashPayment or PayDealIsLease(IVCashrw.PayMode)==false)) then begin
+        res = false;
+      end;
+    end;
+  end;
+
+  LeaseMissingItems = res;
+  return;
+end;
+//CUST-END
+
 global
 updating procedure ProceedNPTSCashPaymentTClass()
 begin
@@ -1875,7 +1910,7 @@ begin
             if (HasMultiCurrency) then begin
               crncy = GetWindowString(wn,"NPTSCashPaymentCurrency" & i);
             end;
-            IVCashrw.PayMode = LocalMachinePaymentMode(RepSpec.AccStr,kInvoiceRowTypeCashPayment,crncy,IVCashr.LocalMachineCode,IVCashr.DrawerCode);
+            //IVCashrw.PayMode = LocalMachinePaymentMode(RepSpec.AccStr,kInvoiceRowTypeCashPayment,crncy,IVCashr.LocalMachineCode,IVCashr.DrawerCode);
             if (blank(IVCashrw.PayMode)) then begin
               IVCashrw.PayMode = RepSpec.AccStr;
             end;
@@ -1885,6 +1920,15 @@ begin
                 GetFullCurncyRate(crncy,CurrentDate,fr,to1,to2,br1,br2);
               end;
             end;
+//CUST-BEGIN
+            if (PayDealIsLease(IVCashrw.PayMode)) then begin
+              if (LeaseMissingItems(IVCashr,IVCashrw.Sum)) then begin
+                MessageBox(300000,"");
+                CloseWindow(wn);
+                goto LProceedCashPayTouchScreenDClass;
+              end;
+            end;
+//CUST-END
             IVCashrw.CurncyCode = crncy;
             IVCashrw.FrRate = fr;
             IVCashrw.ToRateB1 = to1;
@@ -4946,9 +4990,8 @@ begin
               end;
 //CUST-END
           end;
-
-
         end;
+
         ClearRow(IVCr,IVCrw,stp);
         IVCrw.stp = stp;
         IVCrw.Spec = alabel[selpmrow];
