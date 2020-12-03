@@ -403,11 +403,21 @@ BEGIN
   Integer IgnoreRecordDetails;
   transaction Boolean gPDFEmailf;
   transaction string 255 gaPDFEmailFiles;
+//CUST-BEGIN
+  record IVMailBlock IVMailr;
+//CUST-END
   
   res = 0;
   if (ReadFirstMain(ORr,0,true)) then begin end;  
   TAB = chr(9);
-  FindUserMailboxName(CurrentUser,mailboxnr,tstr);
+//CUST-BEGIN
+  BlockLoad(IVMailr);
+  tstr = IVMailr.EmailSender;
+  if (blank(tstr)) then begin
+    FindUserMailboxName(CurrentUser,mailboxnr,tstr);
+  end;
+//  FindUserMailboxName(CurrentUser,mailboxnr,tstr);
+//CUST-END
   if (blank(tstr)) then begin
     res = 22010;
     warning = CurrentUser;
