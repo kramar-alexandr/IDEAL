@@ -94,6 +94,7 @@ external outer function Boolean InitTouchlessPayment(val,string,string,var strin
 external outer updating function Integer IVVc_PrintAPSAReceipt(var record IVVc,record LSerialPortDeviceVc);
 external outer procedure TouchlessVoidIVCashPayment(record IVCashVc,Integer);
 external outer procedure TouchlessVoidIVVcPayment(record IVVc,Integer);
+external outer function Boolean PayDealIsLease(string);
 
 //CUST-END
 
@@ -2504,6 +2505,44 @@ begin
   return;
 end;
 
+function Boolean IVRowIsPayment(Integer stp)
+begin
+  Boolean res;
+
+  if (stp==kInvoiceRowTypeCashPayment or stp==kInvoiceRowTypeCreditCardPayment or stp==kInvoiceRowTypeGiftVoucherPayment) then begin
+    res = true;
+  end;
+  
+  IVRowIsPayment = res;
+  return;
+end;
+
+
+function Boolean LeaseMissingItems(record IVVc IVr)
+begin
+  row IVVc IVrw;
+  Boolean res;
+  Integer i,rwcnt;
+
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    if (IVrw.stp==kInvoiceRowTypeCreditCardPayment and PayDealIsLease(IVrw.PayMode)) then begin
+      if (IVrw.Sum>IVr.Sum4) then begin
+        res = true;
+      end;
+    end else begin
+      if (IVRowIsPayment(IVrw.stp)) then begin
+        res = false;
+        i = rwcnt;
+      end;
+    end;
+  end;
+
+  LeaseMissingItems = res;
+  return;
+end;
+
 //CUST-END
 
 //END-CUST PST 2015-September-29
@@ -2543,6 +2582,10 @@ begin
 		end;
 //CUST-BEGIN
     if (GiftVoucherMissingItems(IVr)) then begin
+      MessageBox(300000,"");
+			goto skipf;
+    end;
+    if (LeaseMissingItems(IVr)) then begin
       MessageBox(300000,"");
 			goto skipf;
     end;
