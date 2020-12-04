@@ -127,6 +127,16 @@ begin
     RecordCheckError(1000113,"",-1,"Location");      
     res = -1; 
     goto L99;
+  end else begin
+    rwc = MatRowCnt(IVp);
+    for (i=0;i<rwc;i=i+1) begin
+      MatRowGet(IVp,i,IVrw);
+      if (nonblank(IVrw.Location) and iDealDisallowLocation(IVrw.Location)) then begin
+        RecordCheckError(1000113,"",i,"Location");      
+        res = -1; 
+        goto L99;
+      end;
+    end;
   end;
 
   res = inner.IVVcRecordCheck(IVp,IV2p,stat,long4);
