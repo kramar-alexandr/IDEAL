@@ -884,6 +884,7 @@ begin
   if (nonblank(IVMailr.Header)) then begin
     subject = IVMailr.Header & " ";
   end;
+  /*CUST REMOVED
   switch (IVr.InvType) begin
     case kInvoiceTypeCredit:
       subject = subject & USetStr(1805) & " ";
@@ -892,6 +893,7 @@ begin
     otherwise
       subject = subject & USetStr(1803) & " ";
   end;
+  */
   subject = subject & IVr.SerNr;
   LogText(0,"subject: " & subject);
 
@@ -1172,6 +1174,7 @@ begin
     end;
     Mailr.Header = Mailr.Header;
   end;
+  /*CUST REMOVED
   switch (IVr.InvType) begin
     case kInvoiceTypeCredit:
       Mailr.Header = Mailr.Header & USetStr(1805) & " ";
@@ -1180,6 +1183,7 @@ begin
     otherwise
       Mailr.Header = Mailr.Header & USetStr(1803) & " ";
   end;
+  */
   Mailr.Header = Mailr.Header & IVr.SerNr;
 
   if (nonblank(MTrw.FirstTxt)) then begin
