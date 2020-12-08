@@ -449,7 +449,9 @@ BEGIN
 
   MailTextRow("ORVc","",ORr.LangCode,MTrw,IgnoreRecordDetails);
   Mailr.Header = MTrw.Header;
+/* CUST-REMOVED
   Mailr.Header = Mailr.Header & USetStr(1816) & " ";
+*/
   Mailr.Header = Mailr.Header & ORr.SerNr;
   
   LTxtr.Code = MTrw.FirstTxt;
