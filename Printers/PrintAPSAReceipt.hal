@@ -134,10 +134,12 @@ begin
   tick = GetCurTick;
   SetGlobalBoolean("APSACommandInProgress",false);
 
-//WriteAreaToFile(request,"_aspa.request." & tick & ".txt",0);
-//WriteAreaToFile(reply,"_aspa.reply." & tick & ".txt",0);
-
+  
 LExecAPSARequest:;
+  if (res==12400) then begin
+    WriteAreaToFile(request,"_aspa.request." & tick & ".txt",0);
+    WriteAreaToFile(reply,"_aspa.reply." & tick & ".txt",0);
+  end;
 //res = 12400;//for debug process
   ExecAPSARequest = res;
   return;
