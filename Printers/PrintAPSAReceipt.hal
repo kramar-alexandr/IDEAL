@@ -1537,7 +1537,7 @@ begin
 
 LogASPAReceipt("IVVc_PrintAPSAReceipt_1");
   noErr = 0;
-  res = SendAmountToSEB(LSPDr,GetIVVcCCAmount(IVCashr));
+  res = SendAmountToSEB(LSPDr,GetIVVcCCAmount(IVr));
   if (res!=noErr) then begin
 LogText(0,"IVVc_PrintAPSAReceipt_1 err=SendAmountToSEB");
     goto LIVCashVc_PrintAPSAReceipt;
