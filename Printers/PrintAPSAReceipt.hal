@@ -27,7 +27,8 @@ enum begin
   kAPSACommandBeginReceiptCopy = 15,
   kAPSACommandEndReceiptCopy = 16,
   kAPSACommandOpenCashDrawer = 17,
-  kAPSACommandReprint = 18
+  kAPSACommandReprint = 18,
+  kAPSACommandSendSEBAmount = 19
 end;
 
 procedure LogASPAReceipt(string tstr)
@@ -65,6 +66,10 @@ begin
   Longint tick,pos;
   JSON js2;
   Integer timeout;
+
+//for debug
+//  res = 0;
+//  goto LExecAPSARequest;
 
   if (clearf) then begin
     path2 = "/json/fp550/Cmdline";
@@ -199,6 +204,38 @@ begin
   res = ExecAPSARequest(LSPDr,path,request,js,clearf,overridetimeout);
 
   SendAPSASimpleCommand = res;
+  return;
+end;
+
+procedure ClearReceiptSession(record LSerialPortDeviceVc LSPDr)
+begin
+  string 255 path2;
+  area request2;
+  Integer res;
+  JSON js2;
+ 
+  path2 = "/json/fp550/Cmdline";
+  AddTextToArea("{""cmd"":""57"",""parameter"":""""}",request2);    
+  res = ExecAPSARequest(LSPDr,path2,request2,js2,false,30);
+
+  return;
+end;
+
+function Integer SendAmountToSEB(record LSerialPortDeviceVc LSPDr,val amount)
+begin
+  Integer res;
+  string 255 path;
+  area request;
+  JSON js;
+  
+  if (amount>0) then begin
+    path = "/json/fp550/Cmdline";
+    AddTextToArea("{""amount"":""" & amount & """}",request);
+
+    res = ExecAPSARequest(LSPDr,path,request,js,false,0);
+  end;
+
+  SendAmountToSEB = res;
   return;
 end;
 
@@ -800,6 +837,7 @@ begin
     res = 1000106;
   end;
 
+res = 0;
   CheckForBalance = res;
   return;
 end;
@@ -902,7 +940,49 @@ begin
   
   res = ExecAPSARequest(LSPDr,path,request,js,false,0);
 
+  if (res!=0) then begin
+    ClearReceiptSession(LSPDr);
+  end;
+
   IVCashVc_PrintReturnReceipt = res;
+  return;
+end;
+
+function val GetIVCashCCAmount(record IVCashVc IVCashr)
+begin
+  row IVCashVc IVCashrw;
+  Integer i,rwcnt;
+  val res
+  
+  rwcnt = MatRowCnt(IVCashr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVCashr,i,IVCashrw);
+    switch (IVCashrw.stp) begin
+      case kInvoiceRowTypeCreditCardPayment:
+        res = res +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
+    end;
+  end;   
+
+  GetIVCashCCAmount = res;
+  return;
+end;
+
+function val GetIVVcCCAmount(record IVVc IVr)
+begin
+  row IVVc IVrw;
+  Integer i,rwcnt;
+  val res
+  
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    switch (IVrw.stp) begin
+      case kInvoiceRowTypeCreditCardPayment:
+        res = res +  MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
+    end;
+  end;   
+
+  GetIVVcCCAmount = res;
   return;
 end;
 
@@ -921,6 +1001,12 @@ begin
   
   noErr = 0;
   //res = APSACheckStatus;
+  res = SendAmountToSEB(LSPDr,GetIVCashCCAmount(IVCashr));
+  if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=SendAmountToSEB");
+    goto LIVCashVc_PrintAPSAReceipt;
+  end;
+
   if (res==noErr) then begin
     res = LoadVATRates(LSPDr,vatrates);  
     if (res!=noErr) then begin
@@ -982,6 +1068,8 @@ LIVCashVc_PrintAPSAReceipt:;
       queued.MessageBoxMain(res);
     end;
   end;
+
+  ClearReceiptSession(LSPDr);
 
   IVCashVc_PrintAPSAReceipt = res;
   return;
@@ -1309,8 +1397,8 @@ begin
     AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-sum) & """}",request);
 
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
-    if (res!=noErr) then begin
-      goto LPrintItemRows;
+    if (res!=0) then begin
+      ClearReceiptSession(LSPDr);
     end;
   end;
 
@@ -1449,6 +1537,11 @@ begin
 
 LogASPAReceipt("IVVc_PrintAPSAReceipt_1");
   noErr = 0;
+  res = SendAmountToSEB(LSPDr,GetIVVcCCAmount(IVCashr));
+  if (res!=noErr) then begin
+LogText(0,"IVVc_PrintAPSAReceipt_1 err=SendAmountToSEB");
+    goto LIVCashVc_PrintAPSAReceipt;
+  end;
   if (res==noErr) then begin
     res = LoadVATRates(LSPDr,vatrates);  
     if (res!=noErr) then begin
