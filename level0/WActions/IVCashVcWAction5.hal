@@ -2252,8 +2252,8 @@ begin
     if (err==0) then begin
       if (IVCashPrintReceipt(wn,IVCashr,prevIVCashr,-1,true,true,LMb.IncrementalReceiptPrinting,wnst)==false) then begin
 //      MessageBox(22165,"");
-        InitTouchlessPaymentReturn(wn);//CUST-ADDED
-        qupdating.ShowTouchlessCancelMessage;//CUST-ADDED
+ //       InitTouchlessPaymentReturn(wn);//CUST-ADDED
+ //       qupdating.ShowTouchlessCancelMessage;//CUST-ADDED
         err = 1;
         new_recordf = false;
       end;
@@ -2277,7 +2277,7 @@ begin
   if (new_recordf) then begin
 //    sleep(5);
 //CUST-BEGIN
-    new_recordf = qupdating.ConfirmLastTouchlessPayment;//shouldn't be on the main thread, but we need a way to get the transactionid from db
+//    new_recordf = qupdating.ConfirmLastTouchlessPayment;//shouldn't be on the main thread, but we need a way to get the transactionid from db
 //CUST-END
     WindowDoNew(wn,0);
     GetWindowRecord(wn,IVCashr);

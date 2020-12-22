@@ -2020,7 +2020,7 @@ Trace("CredCardIVsmDo","");
         //SetRecordCheckVc("IVVc");
         //err = IVVcRecordCheck(IVr,prevIVr,WindowState(wn),1);
         if (WindowDoOK(wn,0)) then begin
-          InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn,"","");
+          //InitTouchlessPayment(t,pmcode,pmcodelabel,tstr,IVr.SerNr,IVr.CurncyCode,wn,"","");
         end;
 //CUST-END
     end;
