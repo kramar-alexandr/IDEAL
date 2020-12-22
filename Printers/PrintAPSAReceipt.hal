@@ -345,7 +345,7 @@ begin
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""54"",""parameter"":""" & GetCleanName(comment) & """}",request);
 
-  res = ExecAPSARequest(LSPDr,path,request,js,false,0);
+  res = ExecAPSARequest(LSPDr,path,request,js,false,80);
 
   PrintCommentLine = res;
   return;
