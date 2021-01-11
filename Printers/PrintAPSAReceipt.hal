@@ -7,6 +7,7 @@ external inner updating procedure ClosePOSSessionsm();
 external function Boolean ConfirmLastTouchlessPayment();
 external function Boolean InitTouchlessPaymentReturn(Integer);
 external inner function roundmode SetRoundModeD(Integer);
+external inner function string 50 TimeToString(time,string,boolean);
 
 enum begin
   kAPSACommandOpen = 0,
@@ -28,7 +29,6 @@ enum begin
   kAPSACommandEndReceiptCopy = 16,
   kAPSACommandOpenCashDrawer = 17,
   kAPSACommandReprint = 18,
-  kAPSACommandSendSEBAmount = 19
 end;
 
 procedure LogASPAReceipt(string tstr)
@@ -60,7 +60,7 @@ end;
 
 function Integer ExecAPSARequest(record LSerialPortDeviceVc LSPDr,string path,area request,var JSON js,Boolean clearf,Integer overridetimeout)
 begin
-  string 255 url,stat,path2,origstat,tmp;
+  string 255 url,stat,path2,origstat,tmp,origstat2,stat2;
   area reply,request2;
   Integer res;
   Longint tick,pos;
@@ -92,7 +92,8 @@ begin
   if (overridetimeout>0) then begin
     timeout = overridetimeout;
   end;
-  if (SendWebRequest(url,8111,-1,false,"POST",path,"application/json","",false,request,reply,timeout)) then begin
+  logtext(0,"url " & url);
+  if (SendWebRequest(url,8111,8111,false,"POST",path,"application/json","",false,request,reply,timeout)) then begin
     js = ParseJSONArea(reply);
     if (right(path,4)=="open") then begin
       if (JSONGet(js,"OpenResult")=="000000" or len(JSONGet(js,"OpenResult"))!=6) then begin
@@ -109,8 +110,10 @@ begin
         end;
       end else begin
         origstat = JSONGet(js,"CmdlineResult");
+        origstat2 = JSONGet(js,"BankasSale0Result");
         stat = left(origstat,2);
-        if (stat=="OK") then begin
+        stat2 = left(origstat2,2);
+        if (stat=="OK" or stat2=="OK") then begin
           res = 0;
         end;
         if (stat=="ER") then begin
@@ -141,10 +144,10 @@ begin
 
   
 LExecAPSARequest:;
-  if (res==12400) then begin
-    WriteAreaToFile(request,"_aspa.request." & tick & ".txt",0);
-    WriteAreaToFile(reply,"_aspa.reply." & tick & ".txt",0);
-  end;
+//  if (res==12400) then begin
+    WriteAreaToFile(request,"_aspa.request." & tick & "_" & TimeToString(CurrentTime,"HHMMSS",false) & ".txt",0);
+    WriteAreaToFile(reply,"_aspa.reply." & tick & "_" & TimeToString(CurrentTime,"HHMMSS",false) & ".txt",0);
+//  end;
 //res = 12400;//for debug process
   ExecAPSARequest = res;
   return;
@@ -221,7 +224,7 @@ begin
   return;
 end;
 
-function Integer SendAmountToSEB(record LSerialPortDeviceVc LSPDr,val amount)
+function Integer SendAmountToSwed(record LSerialPortDeviceVc LSPDr,val amount)
 begin
   Integer res;
   string 255 path;
@@ -229,13 +232,13 @@ begin
   JSON js;
   
   if (amount>0) then begin
-    path = "/json/fp550/Cmdline";
-    AddTextToArea("{""amount"":""" & amount & """}",request);
+    path = "/json/fp550/BankasSale0";
+    AddTextToArea("{""amount"":""" & ValToString(amount,M4Val,"",".",0) & """}",request);
 
-    res = ExecAPSARequest(LSPDr,path,request,js,false,0);
+    res = ExecAPSARequest(LSPDr,path,request,js,false,80);
   end;
 
-  SendAmountToSEB = res;
+  SendAmountToSwed = res;
   return;
 end;
 
@@ -1001,9 +1004,9 @@ begin
   
   noErr = 0;
   //res = APSACheckStatus;
-  res = SendAmountToSEB(LSPDr,GetIVCashCCAmount(IVCashr));
+  res = SendAmountToSwed(LSPDr,GetIVCashCCAmount(IVCashr));
   if (res!=noErr) then begin
-LogText(0,"IVCashVc_PrintAPSAReceipt err=SendAmountToSEB");
+LogText(0,"IVCashVc_PrintAPSAReceipt err=SendAmountToSwed");
     goto LIVCashVc_PrintAPSAReceipt;
   end;
 
@@ -1537,9 +1540,9 @@ begin
 
 LogASPAReceipt("IVVc_PrintAPSAReceipt_1");
   noErr = 0;
-  res = SendAmountToSEB(LSPDr,GetIVVcCCAmount(IVr));
+  res = SendAmountToSwed(LSPDr,GetIVVcCCAmount(IVr));
   if (res!=noErr) then begin
-LogText(0,"IVVc_PrintAPSAReceipt_1 err=SendAmountToSEB");
+LogText(0,"IVVc_PrintAPSAReceipt_1 err=SendAmountToSwed");
     goto LIVCashVc_PrintAPSAReceipt;
   end;
   if (res==noErr) then begin
