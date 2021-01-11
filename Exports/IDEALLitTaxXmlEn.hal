@@ -657,13 +657,13 @@ begin
       ExportPlainXml("</isaf:SupplierInfo>",level);
       ExportTagXml("isaf:InvoiceDate",VIr.TransDate,level);
       if (VIr.InvType==kInvoiceTypeCredit) then begin
-        ExportTagXml("isaf:InvoiceType","DS",level);
+        ExportTagXml("isaf:InvoiceType","KS",level);
       end else begin
         if (VIr.Invalid!=0) then begin
           ExportTagXml("isaf:InvoiceType","AN",level);
         end else begin
           if (VIr.InvType==kInvoiceTypeDebit) then begin
-            ExportTagXml("isaf:InvoiceType","KS",level);
+            ExportTagXml("isaf:InvoiceType","DS",level);
           end else begin
             ExportTagXml("isaf:InvoiceType","SF",level);
           end;
