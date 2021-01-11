@@ -113,7 +113,7 @@ begin
   SString(1000100,"Įveskite kiekius visoms prekėms"); // EVS: HAL-233
   SString(1000101,"Netinkama data");//MDS HAL-295
   //SString(1000102,"NEKREDITUOKITE ŠIOS SĄSKAITOS!!!"); //IGE HAL-385
-  SString(1000102,"NEKREDITUOKITE ŠIOS SĄSKAITOS, ji su neatnaujintu sandėliu — kreiptis pagalbos į už kasą atsakingą asmenį"); // Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 11 January 2018 16:59:10
+  SString(1000102,"DĖMESIO - ši sąskaita yra su neatnaujintu sandėliu. Jeigu jai būtina atlikti grąžinimą, kreditinei sąskaitai taipogi nuimkite sandėlio varnelę. Po grąžinimo abidvi nusiųskite savo vadovui");
   SString(1000103,"Negali būti ta pati patalpa"); // Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 22 January 2018 10:11:18
   SString(1000104,"Įveskite tokią datą, kokia yra nurodyta gavimo sąskaitoje"); // Edit ************************** BPI Ukraine - KramarAlexandr - Friday, 8 June 2018 13:48:28
   SString(1000105,"Šioms prekėms buvo išrašytas PVM grąžinimo dokumentas. Dėl to likusi grąžintina suma turi būti jau be PVM: jai išrašyti KIO, bet sąskaitą kredituoti pilnai sumai. Daugiau info WIKI.");// Edit ************************** BPI Ukraine - KramarAlexandr - 05, 01 03 2019 y. at 3:22:40 PM
