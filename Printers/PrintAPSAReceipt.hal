@@ -92,7 +92,7 @@ begin
   if (overridetimeout>0) then begin
     timeout = overridetimeout;
   end;
-  logtext(0,"url " & url);
+  logtext(0,"url " & url & ":" & GetStringFromArea(request,0,255));
   if (SendWebRequest(url,8111,8111,false,"POST",path,"application/json","",false,request,reply,timeout)) then begin
     js = ParseJSONArea(reply);
     if (right(path,4)=="open") then begin
@@ -1072,7 +1072,7 @@ LIVCashVc_PrintAPSAReceipt:;
     end;
   end;
 
-  ClearReceiptSession(LSPDr);
+  //ClearReceiptSession(LSPDr); this is not needed here
 
   IVCashVc_PrintAPSAReceipt = res;
   return;
