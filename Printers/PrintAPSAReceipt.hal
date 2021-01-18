@@ -1007,7 +1007,7 @@ begin
   res = SendAmountToSwed(LSPDr,GetIVCashCCAmount(IVCashr));
   if (res!=noErr) then begin
 LogText(0,"IVCashVc_PrintAPSAReceipt err=SendAmountToSwed");
-    goto LIVCashVc_PrintAPSAReceipt;
+    goto LIVCashVc_PrintAPSAReceipt2;
   end;
 
   if (res==noErr) then begin
@@ -1071,6 +1071,7 @@ LIVCashVc_PrintAPSAReceipt:;
       queued.MessageBoxMain(res);
     end;
   end;
+LIVCashVc_PrintAPSAReceipt2:;
 
   //ClearReceiptSession(LSPDr); this is not needed here
 

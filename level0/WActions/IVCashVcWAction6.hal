@@ -549,6 +549,9 @@ begin
             OpenCashDrawer_IVCashVc(IVCashr);
             OpenNewIVCash(mwn);
           end;
+//CUST-BEGIN
+          IVCashDClassTouchScreenFinishButtonRun2(true,-1,true);
+//CUST-END
         case "RestAccVc":
           GetWindowRecord(mwn,RestAccr);
           RestAccDClass_RefreshStringList(mwn,RestAccr);
