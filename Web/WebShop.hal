@@ -1083,18 +1083,19 @@ begin
   record MailVc Mailr;
   string 255 tstr,fname,tmp;
   area filearea;
+  transaction Boolean gPrintFromWeb;
 
   if (SetCompany(1,false)) then begin end;
   IVr.SerNr = StringToLongint(WebGetArg("sernr"));
   if (ReadFirstMain(IVr,1,true)) then begin
-    
+    gPrintFromWeb = true;
     fname = "tmp/" & IVr.SerNr & ".pdf";
     SetDocumentFilename(fname);
     SetMedia(mtPdf);
 
     PrintDocument(IVr,"InvForm",false);
     AddFileToArea(fname,filearea,false);
-    
+    gPrintFromWeb = false;
     SetDocumentFilename("");
     Delete_File(fname);
 

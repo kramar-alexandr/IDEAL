@@ -949,6 +949,7 @@ BEGIN
   transaction Boolean gPDFEmailf;
   transaction string 255 gaPDFEmailFiles;
   record RcVc RepSpec2;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:12:36
+  transaction Boolean gPrintFromWeb;//CUST
 
   realIVr.SerNr = IVr.SerNr;
   if (ReadFirstMain(realIVr,1,true)) then begin end;//for some reason we change OKFlag status in ivdclassprint
@@ -1025,7 +1026,7 @@ LInvBREAK:;
   end;
 LDoInvForm:; 
 
-  If IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0 then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:12:52
+  If IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0 and gPrintFromWeb==false then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:12:52
     if (OpenForm("SUTARTIS")) then begin
       PrintInvoice(RepSpec2,IVr,"SUTARTIS","");
       CloseForm;
