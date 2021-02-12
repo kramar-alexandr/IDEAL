@@ -144,10 +144,10 @@ begin
 
   
 LExecAPSARequest:;
-//  if (res==12400) then begin
+  if (res==12400) then begin
     WriteAreaToFile(request,"_aspa.request." & tick & "_" & TimeToString(CurrentTime,"HHMMSS",false) & ".txt",0);
     WriteAreaToFile(reply,"_aspa.reply." & tick & "_" & TimeToString(CurrentTime,"HHMMSS",false) & ".txt",0);
-//  end;
+  end;
 //res = 12400;//for debug process
   ExecAPSARequest = res;
   return;
