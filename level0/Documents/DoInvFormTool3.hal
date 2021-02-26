@@ -271,6 +271,11 @@ BEGIN
         end else begin
           AddVATBase(VATSkipCalcr,IVrw.VATCode,IVrw.Sum,blankval,vatcnt,IVr.InclVAT,IVr.NoTAXonVAT);      
         end;
+//CUST-BEGIN
+      case kInvoiceRowTypeGiftVoucherSold:
+        AddVATBase(VATSkipCalcr,IVrw.VATCode,IVrw.Sum,blankval,vatcnt,IVr.InclVAT,IVr.NoTAXonVAT);      
+        AddVATBase(VATWDr,IVrw.RvrsVATCode,IVrw.Sum,blankval,vatcnt,IVr.InclVAT,IVr.NoTAXonVAT);
+//CUST-END
     end;
   end;
   AddVATBase(VATr,IVr.FrVATCode,IVr.FrPrice,blankval,vatcnt,IVr.InclVAT,IVr.NoTAXonVAT);
