@@ -1115,6 +1115,7 @@ begin
   transaction string 255 gaPDFEmailFiles;
   record RcVc RepSpec,RepSpec2;  //CUST
   area a;
+  transaction Boolean gPrintFromWeb;//CUST
 
   res = 0;
   if (ReadFirstMain(IVr,0,true)) then begin end;  
@@ -1309,6 +1310,7 @@ begin
   end;
   gPDFEmailf = true;
   SetMedia(mtPdf);
+  gPrintFromWeb = true;//CUST
   RepSpec2.MultiPageJob = 1;  //CUST
   PrintDocumentWithSpec(IVr,docname,false,RepSpec2);  //CUST
   if (FormLinkDocumentFilenames(Mailr,gaPDFEmailFiles)) then begin
@@ -1318,6 +1320,7 @@ begin
   end;
   SetDocumentFilename("");  
   gPDFEmailf = false;
+  gPrintFromWeb = false;//CUST
 
 LCreateMailFromIVD:;
   CreateMailFromIVD = res;
