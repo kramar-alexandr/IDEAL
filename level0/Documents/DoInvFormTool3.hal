@@ -1057,6 +1057,7 @@ BEGIN
   transaction Boolean gPDFEmailf;
   transaction string 255 gaPDFEmailFiles;
   record RcVc RepSpec2;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:12:58
+  transaction Boolean gPrintFromWeb;//CUST
     
   realIVr.SerNr = IVr.SerNr;
   if (ReadFirstMain(realIVr,1,true)) then begin end;//for some reason we change OKFlag status in ivdclassprint
@@ -1126,7 +1127,7 @@ LInv1BREAK:;
     intdocnr = intdocnr + 1;
   end;
 LDoInv1Form:;  
-  If IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0 then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:13:12
+  If IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0 and gPrintFromWeb==false then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:13:12
     if (OpenForm("SUTARTIS")) then begin
       PrintInvoice(RepSpec2,IVr,"SUTARTIS","");
       CloseForm;
@@ -1244,6 +1245,7 @@ BEGIN
   transaction Boolean gPDFEmailf;
   transaction string 255 gaPDFEmailFiles;
   record RcVc RepSpec2;// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:13:28
+  transaction Boolean gPrintFromWeb;//CUST
     
   realIVr.SerNr = IVr.SerNr;
   if (ReadFirstMain(realIVr,1,true)) then begin end;//for some reason we change OKFlag status in ivdclassprint    
@@ -1324,7 +1326,7 @@ LCashInvBREAK:;
     intdocnr = intdocnr + 1;
   end;
 LDoCashInvForm:;  
-  If IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0 then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:13:39
+  If IVr.RetItmSerNo1 != "" and IVr.RetItmPrice1 > 0 and gPrintFromWeb==false then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Wednesday, 15 August 2018 14:13:39
     if (OpenForm("SUTARTIS")) then begin
       PrintInvoice(RepSpec2,IVr,"SUTARTIS","");
       CloseForm;
