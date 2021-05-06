@@ -117,8 +117,13 @@ begin
           res = 0;
         end;
         if (stat=="ER") then begin
-          //GetNextSubString(origstat,pos,",",tmp);
-          //GetNextSubString(origstat,pos,",",tmp);
+          GetNextSubString(origstat,pos,",",tmp);
+          GetNextSubString(origstat,pos,",",tmp);
+          if (tmp=="-1") then begin
+            res = 0;//cancelling receipt
+          end else begin
+            res = 19381;//;//problem with reply. possibly get more info and return to user
+          end;
           //if (tmp=="NO PAPER") then begin
           //  res = 18156;
           //end else begin
