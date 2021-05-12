@@ -5812,6 +5812,7 @@ begin
   EditField(h,v+=vs, -20,"Komentaras",Normal,Comment,false,0);
   EditField(h,v+=vs, 100,"Barkodas",Normal,BarCode,false,0);
   EditField(h2,v, 70,"Likutis",ViewOnly,Balance,true,0);
+  EditField(h,v+=vs, 100,"Sold on Invoice",Normal,InvSerNr,false,0);
   //SpecialMenu("Grąžinti rankpinigius/ dovanų kuponą",'r',2,"ReturnGVDsm"); 
   EndWindow;
 	
