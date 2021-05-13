@@ -116,11 +116,15 @@ begin
         if (stat=="OK" or stat2=="OK") then begin
           res = 0;
         end;
-        if (stat=="ER") then begin
-          GetNextSubString(origstat,pos,",",tmp);
-          GetNextSubString(origstat,pos,",",tmp);
-          if (tmp=="-1") then begin
-            res = 0;//cancelling receipt
+        if (stat=="ER" or stat2=="ER") then begin
+          if (nonblank(origstat2)) then begin
+            GetNextSubString(origstat2,pos,",",tmp);
+            GetNextSubString(origstat2,pos,",",tmp);
+            if (tmp=="-1") then begin
+              res = 18156;//cancelling receipt
+            end else begin
+              res = 19381;//;//problem with reply. possibly get more info and return to user
+            end;
           end else begin
             res = 19381;//;//problem with reply. possibly get more info and return to user
           end;
@@ -130,12 +134,8 @@ begin
             //res = 19381;//;//problem with reply. possibly get more info and return to user
           //end;
           tick = GetCurTick;
-          WriteAreaToFile(request,"_aspa.error.request." & tick & ".txt",0);
-          WriteAreaToFile(reply,"_aspa.error.reply." & tick & ".txt",0);
         end;
         if (stat=="NO") then begin
-          WriteAreaToFile(request,"_aspa.error.request." & tick & ".txt",0);
-          WriteAreaToFile(reply,"_aspa.error.reply." & tick & ".txt",0);
           LogASPAReceipt("ExecAPSARequest ASPA web server failed to connect to printer");
           res = 12400;//no connection to printer
         end;
