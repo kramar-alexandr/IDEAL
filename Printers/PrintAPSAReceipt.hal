@@ -498,7 +498,7 @@ begin
   return;
 end;
 
-function Integer IVCash_SendAPSAPayments(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr)
+function Integer IVCash_SendAPSAPayments(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,val retcash,val retcc)
 begin
   Integer res;
   area request;
@@ -511,8 +511,8 @@ begin
   IVCash_CalculatePaymentModeSums(IVCashr,vpaymodesums);
 
   path = "/json/fp550/Cmdline";
-  if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tC" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
+  if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]-retcc!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tC" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment]-retcc,M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
@@ -529,8 +529,8 @@ begin
   end;
 
   SetAreaZeroSize(request);
-  if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
+  if (vpaymodesums[kInvoiceRowTypeCashPayment]-retcash!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment]-retcash,M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
@@ -1052,7 +1052,7 @@ LogText(0,"IVCashVc_PrintAPSAReceipt err=GetReceiptNumber");
 LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCash_PrintItemRows2");
         goto LIVCashVc_PrintAPSAReceipt;
       end;
-      res = IVCash_SendAPSAPayments(LSPDr,IVCashr);
+      res = IVCash_SendAPSAPayments(LSPDr,IVCashr,retcash,retcc);
       if (res!=noErr) then begin
 LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCash_SendAPSAPayments");
         goto LIVCashVc_PrintAPSAReceipt;
@@ -1127,7 +1127,7 @@ begin
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
-      res = IVCash_SendAPSAPayments(LSPDr,IVCashr);
+      res = IVCash_SendAPSAPayments(LSPDr,IVCashr,retcash,retcc);
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
