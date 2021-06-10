@@ -1759,7 +1759,7 @@ LkInvoiceTypeCredit:;
     transf = false;
     check = false;
   end;
-  if (transf) then begin
+  if (transf and nonblank(currentuser)) then begin// Edit ************************** BPI Ukraine - KramarAlexandr - 04, 10 06 2021 y. at 10:16:45 PM
     cashinv = UserCanAction("CashInvOK",true);  
     norminv = UserCanAction("InvOK",true);
     credinv = UserCanAction("CredInvOK",true);

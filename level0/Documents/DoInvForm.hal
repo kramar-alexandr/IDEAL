@@ -790,10 +790,34 @@ BEGIN
   record UserVc Userr;
   //START-CUST PST 2015-September-29
   array string 255 fields;
+  row VATCodeBlock VATCbrw;
+  record VATCodeBlock VATCb;
+  integer maxvatrate,j;
+  string 50 maxvatpercent;
   
   SetLangMode(LangLithuanian,"LIT",0);
   //END-CUST PST 2015-September-29
 
+
+  rwcnt = matrowcnt(IVr);//CUST START
+  blockload(VATCb);
+  rwcnt2 = matrowcnt(VATCb);
+  for(i=0;i<rwcnt;i=i+1)begin
+    matrowget(IVr,i,IVrw);
+    if(nonblank(IVrw.VATCode))then begin
+      for(j=0;j<rwcnt2;j=j+1)begin
+        matrowget(VATCb,j,VATCbrw);
+        if(IVrw.VATCode==VATCbrw.VATCode)then begin
+          if(maxvatrate<VATCbrw.ExVatpr)then begin
+            maxvatrate = VATCbrw.ExVatpr;
+          end;
+        end;
+      end;
+    end;
+  end;
+  maxvatpercent = maxvatrate & "%";
+  OUTFORMFIELD("FCUST_MAXVATPERC",maxvatpercent); //CUST END
+  
   BlockLoad(CYb);
   if (IVr.InvType==kInvoiceTypeCredit or IVr.InvType==kInvoiceTypeCreditSpecialSales or IVr.InvType==kInvoiceTypeDebit or IVr.InvType==kInvoiceTypeInterest) then begin
     if (IVr.CredInv>0) then begin

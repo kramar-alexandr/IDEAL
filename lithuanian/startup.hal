@@ -2,6 +2,7 @@ event startup
 begin
   SetLangMode(LangLithuanian, "LIT", 2);
   
+  Maintenance("Empty Mailbox",MailboxCleanVClass,MailboxCleanMn,modTC);
   Register("Item links","Item links",INLinkVc,modWebShopNG);
   Setting("Item link types",INLinkTypeLClass,modWebShopNG);
   Setting("Item Color",ItemColorLClass,modWebShopNG);

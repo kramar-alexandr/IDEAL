@@ -200,7 +200,7 @@ BEGIN
   rwcnt = MatRowCnt(IVr);
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(IVr,i,IVrw);
-    if (IVrw.ovst==0) and ((IVrw.stp==kInvoiceRowTypeNormal) or (IVrw.stp==kInvoiceRowTypeStructuredItemComponent) or (IVrw.stp==kInvoiceRowTypeInterest)) then begin      
+    if (IVrw.ovst==0) and ((IVrw.stp==kInvoiceRowTypeNormal) or (IVrw.stp==kInvoiceRowTypeStructuredItemComponent) or (IVrw.stp==kInvoiceRowTypeInterest) or (IVrw.stp==kInvoiceRowTypeGiftVoucherSold)) then begin      
 /*    
     if ((IVrw.stp==kInvoiceRowTypeNormal) or (IVrw.stp==kInvoiceRowTypeInterest) or (IVrw.stp==kInvoiceRowTypeVoid)) then begin      
       if (IVrw.stp==kInvoiceRowTypeVoid) then begin

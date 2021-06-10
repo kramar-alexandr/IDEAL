@@ -24,6 +24,7 @@ external inner procedure ORVc_PastePrice(var record ORVc,Integer,var Boolean);
 external inner procedure UpdateiDealRvrsVATCodesOrder(var record ORVc,Integer,Boolean);
 external inner procedure ORDchsum(var record ORVc,Integer);
 external inner updating function Integer CreateMailFromIVD(record IVVc,var record MailVc,var string,Boolean,string);
+external inner function Integer IVVc_PasteGiftCertificate(var record IVVc,Integer,Integer);
 
 
 procedure RemoveCharacterFromString(var string res,string tstr)
@@ -486,8 +487,8 @@ global webpublic
 updating procedure WebNewCustomer()
 begin
   record CUVc CUr,oldCUr;
-  string 255 tstr,custcode;
-  boolean testf;
+  string 255 tstr,custcode,custtype;
+  boolean testf,TrHs;
   xml cust;
   area a;
   
@@ -501,20 +502,55 @@ lTryWithCode:;// Edit ************************** BPI Ukraine - KramarAlexandr - 
   tstr = XmlGet(cust,"Customer/Name");
   if(nonblank(tstr))then begin
 		if (blank(custcode)) then begin
-		
-			if(nonblank(XmlGet(cust,"Customer/CompanyCode")))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 14:45:49
-				CUr.RegNr1 = XmlGet(cust,"Customer/CompanyCode");
-				if(readfirstkey("RegNr1",CUr,1,true))then begin
-					custcode = CUr.Code;
-					goto lTryWithCode;
-				end;
-			end;
-			if(nonblank(XmlGet(cust,"Customer/Email")))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 14:45:50
-				CUr.eMail = XmlGet(cust,"Customer/Email");
-				if(readfirstkey("eMail",CUr,1,true))then begin
-					custcode = CUr.Code;
-					goto lTryWithCode;
-				end;
+		  
+		  custtype = XmlGet(cust,"Customer/CustType");
+		  if(custtype!="1")then begin
+        if(nonblank(XmlGet(cust,"Customer/CompanyCode")))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 14:45:49
+          resetloop(CUr);
+          CUr.RegNr1 = XmlGet(cust,"Customer/CompanyCode");
+          TrHs = true;
+          while(loopkey("RegNr1",CUr,1,TrHs))begin
+            testf = true;
+            if(CUr.RegNr1!=XmlGet(cust,"Customer/CompanyCode"))then begin TrHs = false; testf = false; end;
+            if(CUr.CustType==1)then begin testf = false; end;
+            
+            if(testf)then begin
+              custcode = CUr.Code;
+              goto lTryWithCode;
+            end;
+          end;
+        end;
+			end else begin
+			  if(nonblank(XmlGet(cust,"Customer/CompanyCode")))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 14:45:49
+          CUr.RegNr1 = XmlGet(cust,"Customer/CompanyCode");
+          resetloop(CUr);
+          TrHs = true;
+          while(loopkey("RegNr1",CUr,1,TrHs))begin
+            testf = true;
+            if(CUr.RegNr1!=XmlGet(cust,"Customer/CompanyCode"))then begin TrHs = false; testf = false; end;
+            if(CUr.CustType==0)then begin testf = false; end;
+            
+            if(testf)then begin
+              custcode = CUr.Code;
+              goto lTryWithCode;
+            end;
+          end;
+        end;
+        if(nonblank(XmlGet(cust,"Customer/Email")))then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Thursday, 10 May 2018 14:45:50
+          CUr.eMail = XmlGet(cust,"Customer/Email");
+          resetloop(CUr);
+          TrHs = true;
+          while(loopkey("eMail",CUr,1,TrHs))begin
+            testf = true;
+            if(CUr.eMail!=XmlGet(cust,"Customer/Email"))then begin TrHs = false; testf = false; end;
+            if(CUr.CustType==0)then begin testf = false; end;
+            
+            if(testf)then begin
+              custcode = CUr.Code;
+              goto lTryWithCode;
+            end;
+          end;
+        end;
 			end;
 			
 		
@@ -541,7 +577,9 @@ lTryWithCode:;// Edit ************************** BPI Ukraine - KramarAlexandr - 
 			CUr.WebShopImport = stringtoint(XmlGet(cust,"Customer/WebShopImport"));
 			CUr.AdvancedPrice = stringtoint(XmlGet(cust,"Customer/AdvancedPricelist"));
 			CUr.RvrsVAT = StringToInt(XmlGet(cust,"Customer/RvrsVAT"));
-		
+		  if(XmlGet(cust,"Customer/CustType")=="1")then begin
+		    CUr.CustType = 1;
+		  end;
 	
 			if recordstore(CUr,false) then begin 
 				WebSetContentType("text/xml");
@@ -625,7 +663,7 @@ global webpublic
 updating procedure WebNewInvoice()
 begin
   record CUVc CUr;
-  record IVVc IVr,IV2r;
+  record IVVc IVr,IV2r,oldIVr;
   record INVc INr;
   record PDVc PDr;
   record LocationVc Locr;
@@ -641,7 +679,12 @@ begin
   record LSerialPortDeviceVc LSPDr;
   record LocalMachineBlock LMb;
   record ItemExportBlock ItmExportBl;
-  val price;
+  val price,GCSum;
+  record GCVc GCr;
+  record GCSVc GCSr;
+  record GCRVc GCRr;
+  string 100 GCBarCode;
+  
 
   BlockLoad(ItmExportBl);
   //blockload(LMb);
@@ -693,6 +736,46 @@ begin
       testf = false;
       tstr = "Nerasta patalpa " & XmlGet(inv,"Invoice/Location");
     end;
+    
+    if(testf)then begin
+      k=0;
+      while (xmlNodeExists(inv,"Invoice/VouchersSold/Voucher[" & k & "]")) begin
+        GCBarCode = XmlGet(inv,"Invoice/VouchersSold/Voucher[" & k & "]/BarCode");
+        GCr.BarCode = GCBarCode;
+        if(readfirstkey("BarCode",GCr,1,true))then begin
+          testf = false;
+          tstr = "Gift Voucher with this Bar-Code already registered " & XmlGet(inv,"Invoice/VouchersSold/Voucher[" & k & "]/BarCode");
+        end;
+        GCSum = stringtoval(XmlGet(inv,"Invoice/VouchersSold/Voucher[" & k & "]/Sum"),m45val);
+        if(GCSum<=0)then begin
+          testf = false;
+          tstr = "Gift Voucher balance have to > 0 " & XmlGet(inv,"Invoice/VouchersSold/Voucher[" & k & "]/BarCode");
+        end;
+        k = k + 1;
+      end;
+      k=0;
+      while (xmlNodeExists(inv,"Invoice/VouchersRecieved/Voucher[" & k & "]")) begin
+        GCBarCode = XmlGet(inv,"Invoice/VouchersRecieved/Voucher[" & k & "]/BarCode");
+        GCr.BarCode = GCBarCode;
+        if(readfirstkey("BarCode",GCr,1,true)==false)then begin
+          testf = false;
+          tstr = "Gift Voucher with this Bar-Code not exists " & XmlGet(inv,"Invoice/VouchersRecieved/Voucher[" & k & "]/BarCode");
+        end else begin
+          GCSr.SerNr = GCr.SerNr;
+          if(ReadFIrstMain(GCSr,1,true)==false)then begin
+            testf = false;
+            tstr = "Gift Voucher with this Bar-Code not sold " & XmlGet(inv,"Invoice/VouchersRecieved/Voucher[" & k & "]/BarCode");
+          end else begin
+            if(GCSr.Balance<stringtoval(XmlGet(inv,"Invoice/VouchersRecieved/Voucher[" & k & "]/Sum"),m45val))then begin
+              testf = false;
+              tstr = "Gift Voucher balance less than recieved " & XmlGet(inv,"Invoice/VouchersRecieved/Voucher[" & k & "]/BarCode");
+            end;
+          end;
+        end;
+        k = k + 1;
+      end;
+    end;
+    k=0;
     if testf == true then begin
       k = 0;
       IVr.ShipAddr1 = XmlGet(inv,"Invoice/ShipAddr1");
@@ -758,17 +841,70 @@ begin
 
         k = k + 1;
       end;
+      
+      if(testf)then begin
+        k=0;
+        while (xmlNodeExists(inv,"Invoice/VouchersSold/Voucher[" & k & "]")) begin
+          ClearRow(IVr,IVrw,kInvoiceRowTypeGiftVoucherSold);
+          recordnew(GCr);
+          GCr.SerNr = NextSerNr("GCVc",GCr.TransDate,-1,true,"");          
+          GCr.Comment = XmlGet(inv,"Invoice/VouchersSold/Voucher[" & k & "]/Comment");
+          GCr.Amount = stringtoval(XmlGet(inv,"Invoice/VouchersSold/Voucher[" & k & "]/Sum"),m45val);
+          GCr.OKFlag = 1;
+          GCr.BarCode = XmlGet(inv,"Invoice/VouchersSold/Voucher[" & k & "]/BarCode");
+          recordinsert(GCr,true);
+          IVrw.GCNr = GCr.SerNr;
+          matrowput(IVr,matrowcnt(IVr),IVrw);
+          IVVc_PasteGiftCertificate(IVr,matrowcnt(IVr)-1,IVrw.stp);
+          k = k + 1;
+        end;
+        
+        k=0;
+        while (xmlNodeExists(inv,"Invoice/VouchersRecieved/Voucher[" & k & "]")) begin
+          ClearRow(IVr,IVrw,kInvoiceRowTypeGiftVoucherPayment);
+          GCBarCode = XmlGet(inv,"Invoice/VouchersRecieved/Voucher[" & k & "]/BarCode");
+          GCSr.BarCode = GCBarCode;
+          if(readfirstkey("BarCode",GCSr,1,true))then begin
+            IVrw.GCNr = GCSr.SerNr;
+            IVrw.Sum = stringtoval(XmlGet(inv,"Invoice/VouchersRecieved/Voucher[" & k & "]/Sum"),m45val);
+            matrowput(IVr,matrowcnt(IVr),IVrw);
+            IVVc_PasteGiftCertificate(IVr,matrowcnt(IVr)-1,IVrw.stp);
+          end;
+          k = k + 1;
+        end;
+      
+      end;
     end;
     UpdateiDealRvrsVATCodes(IVr);
     //IVSumup(IVr,true);
     if testf == true then begin
       if RecordInsert(IVr,true) == true then begin
-        WebSetContentType("text/xml");
-        WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
-        WebOutStringFormatNL("<Result>");
-        WebOutStringFormatNL("<Status>" & "OK" & "</Status>");
-        WebOutStringFormatNL("<Comment>Faktura issaugota</Comment>");
-        WebOutStringFormatNL("</Result>");  
+        if(XmlGet(inv,"Invoice/ShouldBeOk")=="1")then begin
+          recordcopy(oldIVr,IVr);
+          IVr.OKFlag = 1;
+          if(recordupdate(oldIVr,IVr,true)==0)then begin
+            WebSetContentType("text/xml");
+            WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+            WebOutStringFormatNL("<Result>");
+            WebOutStringFormatNL("<Status>" & "OK" & "</Status>");
+            WebOutStringFormatNL("<Comment>Faktura issaugota</Comment>");
+            WebOutStringFormatNL("</Result>"); 
+          end else begin
+            WebSetContentType("text/xml");
+            WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+            WebOutStringFormatNL("<Result>");
+            WebOutStringFormatNL("<Status>" & "OK" & "</Status>");
+            WebOutStringFormatNL("<Comment>Invoice saved but not OKed</Comment>");
+            WebOutStringFormatNL("</Result>");
+          end;
+        end else begin
+          WebSetContentType("text/xml");
+          WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");
+          WebOutStringFormatNL("<Result>");
+          WebOutStringFormatNL("<Status>" & "OK" & "</Status>");
+          WebOutStringFormatNL("<Comment>Faktura issaugota</Comment>");
+          WebOutStringFormatNL("</Result>"); 
+        end; 
       end else begin
         WebSetContentType("text/xml");
         WebOutStringFormatNL("<?xml version=""1.0"" encoding=""UTF-8""?>");

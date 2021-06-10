@@ -3,6 +3,8 @@ begin
 
   SetLangMode(LangEnglish,"ENG",0);
   
+  Maintenance("Empty Mailbox",MailboxCleanVClass,MailboxCleanMn,modTC);
+  
   Setting("iDeal - POS Settings",iDealCashierDefTClass,modPOS);
   Setting("Invoice Mail Settings",IVMailTClass,modPOS);
   Setting("iDeal - General Settings",iDealSetTClass,modSL);
