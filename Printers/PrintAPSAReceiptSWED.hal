@@ -8,6 +8,7 @@ external inner updating procedure ClosePOSSessionsm();
 external function Boolean ConfirmLastTouchlessPayment();
 external function Boolean InitTouchlessPaymentReturn(Integer);
 external inner function roundmode SetRoundModeD(Integer);
+external inner function string 50 TimeToString(time,string,boolean);
 
 enum begin
   kAPSACommandOpen = 0,
@@ -28,7 +29,7 @@ enum begin
   kAPSACommandBeginReceiptCopy = 15,
   kAPSACommandEndReceiptCopy = 16,
   kAPSACommandOpenCashDrawer = 17,
-  kAPSACommandReprint = 18
+  kAPSACommandReprint = 18,
 end;
 
 procedure LogASPAReceipt(string tstr)
@@ -60,12 +61,16 @@ end;
 
 function Integer ExecAPSARequest(record LSerialPortDeviceVc LSPDr,string path,area request,var JSON js,Boolean clearf,Integer overridetimeout)
 begin
-  string 255 url,stat,path2,origstat,tmp;
+  string 255 url,stat,path2,origstat,tmp,origstat2,stat2;
   area reply,request2;
   Integer res;
   Longint tick,pos;
   JSON js2;
   Integer timeout;
+
+//for debug
+//  res = 0;
+//  goto LExecAPSARequest;
 
   if (clearf) then begin
     path2 = "/json/fp550/Cmdline";
@@ -84,11 +89,12 @@ begin
 
   url = GetAPSAUrl(LSPDr);
   res = 12400;//problem with connection
-  timeout = 40;
+  timeout = 120;
   if (overridetimeout>0) then begin
     timeout = overridetimeout;
   end;
-  if (SendWebRequest(url,8111,-1,false,"POST",path,"application/json","",false,request,reply,timeout)) then begin
+  logtext(0,"url " & url & ":" & GetStringFromArea(request,0,255));
+  if (SendWebRequest(url,8111,8111,false,"POST",path,"application/json","",false,request,reply,timeout)) then begin
     js = ParseJSONArea(reply);
     if (right(path,4)=="open") then begin
       if (JSONGet(js,"OpenResult")=="000000" or len(JSONGet(js,"OpenResult"))!=6) then begin
@@ -105,25 +111,32 @@ begin
         end;
       end else begin
         origstat = JSONGet(js,"CmdlineResult");
+        origstat2 = JSONGet(js,"BankasSale0Result");
         stat = left(origstat,2);
-        if (stat=="OK") then begin
+        stat2 = left(origstat2,2);
+        if (stat=="OK" or stat2=="OK") then begin
           res = 0;
         end;
-        if (stat=="ER") then begin
-          //GetNextSubString(origstat,pos,",",tmp);
-          //GetNextSubString(origstat,pos,",",tmp);
+        if (stat=="ER" or stat2=="ER") then begin
+          if (nonblank(origstat2)) then begin
+            GetNextSubString(origstat2,pos,",",tmp);
+            GetNextSubString(origstat2,pos,",",tmp);
+            if (tmp=="-1") then begin
+              res = 18156;//cancelling receipt
+            end else begin
+              res = 19381;//;//problem with reply. possibly get more info and return to user
+            end;
+          end else begin
+            res = 19381;//;//problem with reply. possibly get more info and return to user
+          end;
           //if (tmp=="NO PAPER") then begin
           //  res = 18156;
           //end else begin
-            res = 19381;//;//problem with reply. possibly get more info and return to user
+            //res = 19381;//;//problem with reply. possibly get more info and return to user
           //end;
           tick = GetCurTick;
-          WriteAreaToFile(request,"_aspa.error.request." & tick & ".txt",0);
-          WriteAreaToFile(reply,"_aspa.error.reply." & tick & ".txt",0);
         end;
         if (stat=="NO") then begin
-          WriteAreaToFile(request,"_aspa.error.request." & tick & ".txt",0);
-          WriteAreaToFile(reply,"_aspa.error.reply." & tick & ".txt",0);
           LogASPAReceipt("ExecAPSARequest ASPA web server failed to connect to printer");
           res = 12400;//no connection to printer
         end;
@@ -138,8 +151,8 @@ begin
   
 LExecAPSARequest:;
   if (res==12400) then begin
-    WriteAreaToFile(request,"_aspa.request." & tick & ".txt",0);
-    WriteAreaToFile(reply,"_aspa.reply." & tick & ".txt",0);
+    WriteAreaToFile(request,"_aspa.request." & tick & "_" & TimeToString(CurrentTime,"HHMMSS",false) & ".txt",0);
+    WriteAreaToFile(reply,"_aspa.reply." & tick & "_" & TimeToString(CurrentTime,"HHMMSS",false) & ".txt",0);
   end;
 //res = 12400;//for debug process
   ExecAPSARequest = res;
@@ -200,6 +213,38 @@ begin
   res = ExecAPSARequest(LSPDr,path,request,js,clearf,overridetimeout);
 
   SendAPSASimpleCommand = res;
+  return;
+end;
+
+procedure ClearReceiptSession(record LSerialPortDeviceVc LSPDr)
+begin
+  string 255 path2;
+  area request2;
+  Integer res;
+  JSON js2;
+ 
+  path2 = "/json/fp550/Cmdline";
+  AddTextToArea("{""cmd"":""57"",""parameter"":""""}",request2);    
+  res = ExecAPSARequest(LSPDr,path2,request2,js2,false,30);
+
+  return;
+end;
+
+function Integer SendAmountToSwed(record LSerialPortDeviceVc LSPDr,val amount)
+begin
+  Integer res;
+  string 255 path;
+  area request;
+  JSON js;
+  
+  if (amount>0) then begin
+    path = "/json/fp550/BankasSale0";
+    AddTextToArea("{""amount"":""" & ValToString(amount,M4Val,"",".",0) & """}",request);
+
+    res = ExecAPSARequest(LSPDr,path,request,js,false,80);
+  end;
+
+  SendAmountToSwed = res;
   return;
 end;
 
@@ -309,7 +354,7 @@ begin
   path = "/json/fp550/Cmdline";
   AddTextToArea("{""cmd"":""54"",""parameter"":""" & GetCleanName(comment) & """}",request);
 
-  res = ExecAPSARequest(LSPDr,path,request,js,false,0);
+  res = ExecAPSARequest(LSPDr,path,request,js,false,80);
 
   PrintCommentLine = res;
   return;
@@ -454,7 +499,7 @@ begin
   return;
 end;
 
-function Integer IVCash_SendAPSAPayments(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr)
+function Integer IVCash_SendAPSAPayments(record LSerialPortDeviceVc LSPDr,record IVCashVc IVCashr,val retcash,val retcc)
 begin
   Integer res;
   area request;
@@ -467,8 +512,8 @@ begin
   IVCash_CalculatePaymentModeSums(IVCashr,vpaymodesums);
 
   path = "/json/fp550/Cmdline";
-  if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tC" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment],M4Val,"",".",0) & """}",request);
+  if (vpaymodesums[kInvoiceRowTypeCreditCardPayment]-retcc!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tC" & ValToString(vpaymodesums[kInvoiceRowTypeCreditCardPayment]-retcc,M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
@@ -485,8 +530,8 @@ begin
   end;
 
   SetAreaZeroSize(request);
-  if (vpaymodesums[kInvoiceRowTypeCashPayment]!=0) then begin
-    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment],M4Val,"",".",0) & """}",request);
+  if (vpaymodesums[kInvoiceRowTypeCashPayment]-retcash!=0) then begin
+    AddTextToArea("{""cmd"":""53"",""parameter"":""\\tP" & ValToString(vpaymodesums[kInvoiceRowTypeCashPayment]-retcash,M4Val,"",".",0) & """}",request);
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
   end;
 
@@ -801,6 +846,7 @@ begin
     res = 1000106;
   end;
 
+res = 0;
   CheckForBalance = res;
   return;
 end;
@@ -903,7 +949,49 @@ begin
   
   res = ExecAPSARequest(LSPDr,path,request,js,false,0);
 
+  if (res!=0) then begin
+    ClearReceiptSession(LSPDr);
+  end;
+
   IVCashVc_PrintReturnReceipt = res;
+  return;
+end;
+
+function val GetIVCashCCAmount(record IVCashVc IVCashr)
+begin
+  row IVCashVc IVCashrw;
+  Integer i,rwcnt;
+  val res
+  
+  rwcnt = MatRowCnt(IVCashr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVCashr,i,IVCashrw);
+    switch (IVCashrw.stp) begin
+      case kInvoiceRowTypeCreditCardPayment:
+        res = res +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
+    end;
+  end;   
+
+  GetIVCashCCAmount = res;
+  return;
+end;
+
+function val GetIVVcCCAmount(record IVVc IVr)
+begin
+  row IVVc IVrw;
+  Integer i,rwcnt;
+  val res
+  
+  rwcnt = MatRowCnt(IVr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(IVr,i,IVrw);
+    switch (IVrw.stp) begin
+      case kInvoiceRowTypeCreditCardPayment:
+        res = res +  MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
+    end;
+  end;   
+
+  GetIVVcCCAmount = res;
   return;
 end;
 
@@ -922,6 +1010,12 @@ begin
   
   noErr = 0;
   //res = APSACheckStatus;
+  res = SendAmountToSwed(LSPDr,GetIVCashCCAmount(IVCashr));
+  if (res!=noErr) then begin
+LogText(0,"IVCashVc_PrintAPSAReceipt err=SendAmountToSwed");
+    goto LIVCashVc_PrintAPSAReceipt2;
+  end;
+
   if (res==noErr) then begin
     res = LoadVATRates(LSPDr,vatrates);  
     if (res!=noErr) then begin
@@ -959,7 +1053,7 @@ LogText(0,"IVCashVc_PrintAPSAReceipt err=GetReceiptNumber");
 LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCash_PrintItemRows2");
         goto LIVCashVc_PrintAPSAReceipt;
       end;
-      res = IVCash_SendAPSAPayments(LSPDr,IVCashr);
+      res = IVCash_SendAPSAPayments(LSPDr,IVCashr,retcash,retcc);
       if (res!=noErr) then begin
 LogText(0,"IVCashVc_PrintAPSAReceipt err=IVCash_SendAPSAPayments");
         goto LIVCashVc_PrintAPSAReceipt;
@@ -983,6 +1077,9 @@ LIVCashVc_PrintAPSAReceipt:;
       queued.MessageBoxMain(res);
     end;
   end;
+LIVCashVc_PrintAPSAReceipt2:;
+
+  //ClearReceiptSession(LSPDr); this is not needed here
 
   IVCashVc_PrintAPSAReceipt = res;
   return;
@@ -1031,7 +1128,7 @@ begin
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
-      res = IVCash_SendAPSAPayments(LSPDr,IVCashr);
+      res = IVCash_SendAPSAPayments(LSPDr,IVCashr,retcash,retcc);
       if (res!=noErr) then begin
         goto LIVCashVc_PrintAPSAReceipt;
       end;
@@ -1310,8 +1407,8 @@ begin
     AddTextToArea("{""cmd"":""1070"",""parameter"":""G" & (-sum) & """}",request);
 
     res = ExecAPSARequest(LSPDr,path,request,js,false,0);
-    if (res!=noErr) then begin
-      goto LPrintItemRows;
+    if (res!=0) then begin
+      ClearReceiptSession(LSPDr);
     end;
   end;
 
@@ -1450,6 +1547,11 @@ begin
 
 LogASPAReceipt("IVVc_PrintAPSAReceipt_1");
   noErr = 0;
+  res = SendAmountToSwed(LSPDr,GetIVVcCCAmount(IVr));
+  if (res!=noErr) then begin
+LogText(0,"IVVc_PrintAPSAReceipt_1 err=SendAmountToSwed");
+    goto LIVCashVc_PrintAPSAReceipt;
+  end;
   if (res==noErr) then begin
     res = LoadVATRates(LSPDr,vatrates);  
     if (res!=noErr) then begin
@@ -1523,7 +1625,7 @@ LogASPAReceipt("IVVc_PrintAPSAReceipt_13");
           res = PrintRecReturnItem(LSPDr,IVr,vatrates);
         end;
         //Send Confirmation ToTouchlesspayments
-        ConfirmLastTouchlessPayment;
+        //ConfirmLastTouchlessPayment;
         updatef = true;
       end;
     end;    
@@ -1531,7 +1633,7 @@ LogASPAReceipt("IVVc_PrintAPSAReceipt_14");
 LIVVc_PrintAPSAReceipt:;
 LogASPAReceipt("IVVc_PrintAPSAReceipt_15 updatef=" & updatef & ":" & res);
     if (updatef==false) then begin
-      InitTouchlessPaymentReturn(CurWindow);
+      //InitTouchlessPaymentReturn(CurWindow);
     end;
     SetPOSWindowDisplay_SendToSerialPortDevices("       iDeal       ","");
     if (res!=0) then begin
