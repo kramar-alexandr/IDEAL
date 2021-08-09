@@ -968,7 +968,9 @@ begin
     MatRowGet(IVCashr,i,IVCashrw);
     switch (IVCashrw.stp) begin
       case kInvoiceRowTypeCreditCardPayment:
-        res = res +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
+        if (PayDealIsLease(IVCashrw.PayMode)==false) then begin
+          res = res +  MulRateToBase1(IVCashrw.CurncyCode,IVCashrw.Sum,IVCashrw.FrRate,IVCashrw.ToRateB1,IVCashrw.ToRateB2,IVCashrw.BaseRate1,IVCashrw.BaseRate2,DefaultCurRoundOff);
+        end;
     end;
   end;   
 
@@ -987,7 +989,9 @@ begin
     MatRowGet(IVr,i,IVrw);
     switch (IVrw.stp) begin
       case kInvoiceRowTypeCreditCardPayment:
-        res = res +  MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
+        if (PayDealIsLease(IVrw.PayMode)==false) then begin
+          res = res +  MulRateToBase1(IVrw.CurncyCode,IVrw.Sum,IVrw.FrRate,IVrw.ToRateB1,IVrw.ToRateB2,IVrw.BaseRate1,IVrw.BaseRate2,DefaultCurRoundOff);
+        end;
     end;
   end;   
 
