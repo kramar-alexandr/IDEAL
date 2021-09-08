@@ -2565,6 +2565,7 @@ begin
   DeselectWindow(wn,false);
   GetWindowRecord(wn,IVr);
   if windowstate(wn) == 0 then begin
+    readfirstmain(IVr,1,true);//try to fix // Edit ************************** BPI Ukraine - KramarAlexandr - 03, 08 09 2021 y. at 11:30:58 AM
 		PDr.Code = IVr.PayDeal;
 		if ReadFirstMain(PDr,1,true) then begin
 			if (PDr.PDType!=2 and IVr.InvType!=kInvoiceTypeCredit) then begin
