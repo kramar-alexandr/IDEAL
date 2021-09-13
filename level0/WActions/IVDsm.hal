@@ -2550,8 +2550,9 @@ end;
 global
 updating procedure IVFinishAndPrint()
 begin
-  Integer wn,wnst,nwn;
+  Integer wn,wnst,nwn,i;
   record IVVc IVr,prevIVr,oldIVr;
+  row IVvc IVrw;
   //START-CUST   October 1, 2014 by PST
   record PDVc PDr;
   record LSerialPortDeviceVc LSPDr;
@@ -2618,6 +2619,10 @@ begin
 			  if ReadFirstMain(PinPadCntr,1,true) then begin end;
 			  if PinPadVoid2(PinPadCntr.ToBeVoided) then begin
 				  if CheckPinPad(IVr) == true then begin
+				    for(i=0;i<matrowcnt(IVr);i=i+1)begin
+				      matrowget(IVr,i,IVrw);
+				      logtext(0,"POS 1 debuglog stp:" & IVrw.stp & ":Pricex10:" & IVrw.Price*10 & ":SUMx10:" & IVrw.Sum);
+				    end;
 					  if PinPad(IVr,response) == true then begin
 					  	PinPadCntr.LocalMachine = LMb.LocalMachineCode;
 					  	ResetLoop(PinPadCntr);
@@ -2626,6 +2631,10 @@ begin
 						  IVr.InvComment = "CEKIS";
 						  IVr.BankCode = PinPadCntr.Counter;
 						  recordupdate(oldIVr,IVr,false);
+						  for(i=0;i<matrowcnt(IVr);i=i+1)begin
+                matrowget(IVr,i,IVrw);
+                logtext(0,"POS 2 debuglog stp:" & IVrw.stp & ":Pricex10:" & IVrw.Price*10 & ":SUMx10:" & IVrw.Sum);
+              end;
               CheckAndPrintReceiptDo(IVr,LMb);
 							CloseWindow(wn);
 							nwn = OpenWindow("IVDClass",1,0,"","",IVr);	 
@@ -2639,6 +2648,10 @@ begin
 						recordcopy(oldIVr,IVr);
 						IVr.InvComment = "CEKIS";
 						recordupdate(oldIVr,IVr,false);
+						for(i=0;i<matrowcnt(IVr);i=i+1)begin
+				      matrowget(IVr,i,IVrw);
+				      logtext(0,"POS 3 debuglog stp:" & IVrw.stp & ":Pricex10:" & IVrw.Price*10 & ":SUMx10:" & IVrw.Sum);
+				    end;
             CheckAndPrintReceiptDo(IVr,LMb);
 						CloseWindow(wn);
 						nwn = OpenWindow("IVDClass",1,0,"","",IVr);	  
@@ -2650,6 +2663,10 @@ begin
 			  recordcopy(oldIVr,IVr);
 			  IVr.InvComment = "CEKIS";
 			  recordupdate(oldIVr,IVr,false);
+			  for(i=0;i<matrowcnt(IVr);i=i+1)begin
+          matrowget(IVr,i,IVrw);
+          logtext(0,"POS 4 debuglog stp:" & IVrw.stp & ":Pricex10:" & IVrw.Price*10 & ":SUMx10:" & IVrw.Sum);
+        end;
         CheckAndPrintReceiptDo(IVr,LMb);
 			  CloseWindow(wn);
 			  nwn = OpenWindow("IVDClass",1,0,"","",IVr);

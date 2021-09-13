@@ -774,6 +774,7 @@ begin
 			if IVrw.Spec == "LIZINGAS" then begin
 			end else begin
 				sum = sum + IVrw.Sum;
+				logtext(0,"PinPadSum 1 sum:" & sum*10 & ":IVrw.Sumx10:" & IVrw.Sum*10 & ":stp:" & IVrw.stp & ":i:" & i);
 			end;
 		end;
 	end;

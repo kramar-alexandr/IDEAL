@@ -1312,6 +1312,7 @@ begin
       case kInvoiceRowTypeNormal:
         //if (IVCashrw.Quant>0) then begin
           totsum = totsum + IVrw.Sum;
+          logtext(0,"debug 2 totsumx10:" & totsum*10 & ":IVrw.Sumx10:" & IVrw.Sum*10 & ":stp:" & IVrw.stp & ":i:" & i);
         //end;
     end;
   end;
