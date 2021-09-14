@@ -1311,9 +1311,21 @@ begin
     switch (IVrw.stp) begin
       case kInvoiceRowTypeNormal:
         //if (IVCashrw.Quant>0) then begin
+        if (nonblank(IVrw.ArtCode)) then begin
           totsum = totsum + IVrw.Sum;
-          logtext(0,"debug 2 totsumx10:" & totsum*10 & ":IVrw.Sumx10:" & IVrw.Sum*10 & ":stp:" & IVrw.stp & ":i:" & i);
+          logtext(0,"debug 1 totsumx10:" & totsum*10 & ":IVrw.Sumx10:" & IVrw.Sum*10 & ":stp:" & IVrw.stp & ":i:" & i);
+        end;
         //end;
+      case kInvoiceRowTypeStructuredItemComponent:
+        if (nonblank(IVrw.ArtCode)) then begin
+          totsum = totsum + IVrw.Sum;
+          logtext(0,"debug 1 totsumx10:" & totsum*10 & ":IVrw.Sumx10:" & IVrw.Sum*10 & ":stp:" & IVrw.stp & ":i:" & i);
+        end;
+      case kInvoiceRowTypeGiftVoucherSold:
+        if (IVrw.GCNr>0) then begin
+          totsum = totsum + IVrw.Sum;
+          logtext(0,"debug 1 totsumx10:" & totsum*10 & ":IVrw.Sumx10:" & IVrw.Sum*10 & ":stp:" & IVrw.stp & ":i:" & i);
+        end;
     end;
   end;
 
